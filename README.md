@@ -5,8 +5,8 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Papers-273-blue?style=flat-square" alt="Papers">
-  <img src="https://img.shields.io/badge/Read-71-green?style=flat-square" alt="Read">
+  <img src="https://img.shields.io/badge/Papers-274-blue?style=flat-square" alt="Papers">
+  <img src="https://img.shields.io/badge/Read-72-green?style=flat-square" alt="Read">
   <img src="https://img.shields.io/badge/To_Read-202-orange?style=flat-square" alt="To Read">
 </p>
 
@@ -92,6 +92,7 @@
 | ✅ | **Quest: Query-Aware Sparsity for Efficient Long-Context LLM Inference** | ICML'24 | [Paper](https://arxiv.org/pdf/2406.10774) |
 | ✅ | **DuoAttention: Efficient Long-Context LLM Inference with Retrieval and Streaming Heads** | ICLR'25 | [Paper](https://arxiv.org/pdf/2410.10819v1) |
 | ✅ | **MiniMax Sparse Attention** | arXiv'26 | [Paper](https://arxiv.org/abs/2606.13392) / [Note](notes/llm/minimax-msa/msa.md) |
+| ✅ 📝 | **HiSparse: Scaling Sparse-Attention Decoding with Hierarchical KV Cache Management** | arXiv'26 | [Paper](https://arxiv.org/abs/2608.07009v1) / [Note](notes/llm/hisparse/hisparse.md) |
 | ⬜ | **Unifying Sparse Attention with Hierarchical Memory for Scalable Long-Context LLM Serving (SPIN)** | arXiv'26 | [Paper](https://arxiv.org/abs/2604.26837) |
 
 ### LLM Serving
