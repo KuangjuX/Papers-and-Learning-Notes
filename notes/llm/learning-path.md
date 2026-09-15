@@ -211,7 +211,7 @@
 | 优化与训练配方 | [Adafactor](https://proceedings.mlr.press/v80/shazeer18a.html)、[μP](https://arxiv.org/abs/2203.03466)、[Sophia](https://arxiv.org/abs/2305.14342) | 需要研究 optimizer memory、超参迁移或收敛速度时 |
 | 数据工程 | [DoReMi](https://arxiv.org/abs/2305.10429)、[RefinedWeb](https://arxiv.org/abs/2306.01116)、[Dolma](https://arxiv.org/abs/2402.00159)、[DataComp-LM](https://arxiv.org/abs/2406.11794)、[FineWeb](https://arxiv.org/abs/2406.17557) | 需要构建或比较预训练数据 pipeline 时 |
 | 分布式训练 | [ZeRO-Offload](https://www.usenix.org/conference/atc21/presentation/ren-jie)、[ZeRO-Infinity](https://arxiv.org/abs/2104.07857)、[Oobleck](https://arxiv.org/abs/2309.08125)、[Ulysses](https://arxiv.org/abs/2309.14509) | 研究 offload、容错或长序列训练时 |
-| MoE 系统 | [GLaM](https://arxiv.org/abs/2112.06905)、[DeepSpeed-MoE](https://arxiv.org/abs/2201.05596)、[FasterMoE](https://arxiv.org/abs/2202.11436)、[Tutel](https://arxiv.org/abs/2206.03382) | 开始优化 expert parallel 和 all-to-all 时 |
+| MoE 系统 | [GLaM](https://arxiv.org/abs/2112.06905)、[DeepSpeed-MoE](https://arxiv.org/abs/2201.05596)、[FasterMoE](https://doi.org/10.1145/3503221.3508418)、[Tutel](https://arxiv.org/abs/2206.03382) | 开始优化 expert parallel 和 all-to-all 时 |
 | 后训练 | [Constitutional AI](https://arxiv.org/abs/2212.08073)、[LIMA](https://arxiv.org/abs/2305.11206)、[IPO](https://arxiv.org/abs/2310.12036)、[KTO](https://arxiv.org/abs/2402.01306)、[SimPO](https://arxiv.org/abs/2405.14734) | 比较数据质量、RLAIF 与 reference-free preference loss 时 |
 | 解码 | [SpecInfer](https://arxiv.org/abs/2305.09781)、[Medusa](https://arxiv.org/abs/2401.10774)、[EAGLE](https://arxiv.org/abs/2401.15077)、[Lookahead Decoding](https://arxiv.org/abs/2402.02057) | 优化低 batch latency 或 speculative tree verification 时 |
 | 量化 | [LLM.int8()](https://arxiv.org/abs/2208.07339)、[GPTQ](https://arxiv.org/abs/2210.17323)、[SpQR](https://arxiv.org/abs/2306.03078)、[QuaRot](https://arxiv.org/abs/2404.00456) | 需要比较 outlier、校准和 kernel 可实现性时 |
@@ -222,6 +222,7 @@
 
 - **非 Transformer 架构**：[Hyena](https://arxiv.org/abs/2302.10866) → [RWKV](https://arxiv.org/abs/2305.13048) → [RetNet](https://arxiv.org/abs/2307.08621) → [Mamba](https://arxiv.org/abs/2312.00752) → [Mamba-2](https://arxiv.org/abs/2405.21060)。
 - **长上下文训练与推理**：[Ring Attention](https://arxiv.org/abs/2310.01889)、README 中的 MQA/GQA/MLA、LoongTrain、LoongServe、Quest、NSA、MSA 与 DSA。
+- **已读延伸：跨层索引复用**：[IndexCache / IndexShare](indexcache/indexcache.md)（✅，2026-09-15）：在 DSA 基础上理解多层 KL 蒸馏、Top-k 的梯度边界，以及 indexer 计算和 K cache 的节省；再与 [HiSparse](hisparse/hisparse.md) 的主 KV 分层驻留对照。
 - **极低比特与新数值格式**：[AQLM](https://arxiv.org/abs/2401.06118)、[BitNet b1.58](https://arxiv.org/abs/2402.17764)、[QuaRot](https://arxiv.org/abs/2404.00456)。
 - **推理集群与 KV 基础设施**：README 中的 Mooncake、NanoFlow、FlashInfer、SGLang、Preble 与 megakernel 系列。
 - **安全攻防**：[GCG](https://arxiv.org/abs/2307.15043)、[Sleeper Agents](https://arxiv.org/abs/2401.05566)、[StrongREJECT](https://arxiv.org/abs/2402.10260)、[WMDP](https://arxiv.org/abs/2403.03218)。

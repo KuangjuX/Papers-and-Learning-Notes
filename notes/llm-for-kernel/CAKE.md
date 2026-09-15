@@ -7,7 +7,7 @@ aliases:
   - "CAKE"
   - "Compiler-Agent Co-Design"
 date: 2026-08-12
-arxiv: 2608.16292
+arxiv: 2608.12629
 ---
 
 # CAKE: Compiler-Agent Co-Design for Frontier Kernel Evolution
@@ -19,7 +19,7 @@ arxiv: 2608.16292
 - **机构**：NVIDIA、Carnegie Mellon University
 - **发表时间**：2026-08-12
 - **类型**：arXiv preprint
-- **论文链接**：https://arxiv.org/abs/2608.16292
+- **论文链接**：[arXiv:2608.12629](https://arxiv.org/abs/2608.12629)
 - **领域**：GPU Kernel Optimization / Compiler / Coding Agent
 
 ## 一句话总结
@@ -276,4 +276,3 @@ CAKE 最重要的贡献不是某一个 kernel 的 1.2× 或 2× 加速，而是�
 ## 相关笔记
 
 - [[notes/llm-for-kernel/avo|AVO: Agentic Variation Operators for Autonomous Evolutionary Search]]
-

@@ -36,7 +36,7 @@ features:
     title: 虚拟化与安全
     details: 讨论用户态虚拟化、Unikernel 克隆与 GPU 程序静态验证。
     link: /notes/hypervisor/duvisor/duvisor
-  - icon: 260
+  - icon: 275
     title: 论文全景索引
     details: 按主题维护已读与待读论文、会议、原文链接及对应笔记入口。
     link: /README
