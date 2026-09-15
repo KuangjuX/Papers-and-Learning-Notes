@@ -4,6 +4,7 @@ papers/*
 tmp/*
 *.json
 !package.json
+!notes/llm/indexcache/images/sources.json
 
 # VitePress build output and cache
 .vitepress/cache/

@@ -1,0 +1,118 @@
+{
+  "source": "https://arxiv.org/pdf/2603.12201v1",
+  "source_sha256": "fc2112da624ec7852e20fc83df36cafe1f32e58b5aa9c44b840f0bf157c9beb2",
+  "dpi": 300,
+  "coordinate_system": "PDF points, origin top-left",
+  "crops": [
+    {
+      "file": "fig01-glm5-benchmarks.png",
+      "page": 1,
+      "crop_box_points": [
+        104,
+        520,
+        508,
+        699
+      ],
+      "label": "Figure 1: GLM-5 benchmark overview"
+    },
+    {
+      "file": "profile-indexer-time.png",
+      "page": 2,
+      "crop_box_points": [
+        348,
+        179,
+        508,
+        298
+      ],
+      "label": "Unnumbered figure: indexer latency share"
+    },
+    {
+      "file": "fig02-inference-reuse.png",
+      "page": 3,
+      "crop_box_points": [
+        104,
+        90,
+        510,
+        320
+      ],
+      "label": "Figure 2: standard DSA and IndexCache inference"
+    },
+    {
+      "file": "algorithm01-greedy-search.png",
+      "page": 5,
+      "crop_box_points": [
+        104,
+        79,
+        508,
+        210
+      ],
+      "label": "Algorithm 1: greedy layer selection"
+    },
+    {
+      "file": "search-loss-curve.png",
+      "page": 5,
+      "crop_box_points": [
+        365,
+        547,
+        508,
+        693
+      ],
+      "label": "Unnumbered figure: calibration loss during greedy removal"
+    },
+    {
+      "file": "table01-inference-performance.png",
+      "page": 7,
+      "crop_box_points": [
+        104,
+        79,
+        508,
+        290
+      ],
+      "label": "Table 1: end-to-end inference performance"
+    },
+    {
+      "file": "fig03-inference-speedup.png",
+      "page": 8,
+      "crop_box_points": [
+        104,
+        78,
+        508,
+        233
+      ],
+      "label": "Figure 3: inference speedup across context lengths"
+    },
+    {
+      "file": "table02-training-free.png",
+      "page": 8,
+      "crop_box_points": [
+        104,
+        239,
+        508,
+        376
+      ],
+      "label": "Table 2: training-free quality"
+    },
+    {
+      "file": "table03-training-aware.png",
+      "page": 9,
+      "crop_box_points": [
+        104,
+        79,
+        508,
+        210
+      ],
+      "label": "Table 3: training-aware quality and ablations"
+    },
+    {
+      "file": "fig04-layer-overlap.png",
+      "page": 16,
+      "crop_box_points": [
+        104,
+        190,
+        508,
+        461
+      ],
+      "label": "Figure 4: cross-layer Top-k overlap"
+    }
+  ]
+}

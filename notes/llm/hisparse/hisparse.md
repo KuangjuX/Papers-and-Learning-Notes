@@ -16,7 +16,7 @@ date: 2026-09-14
 >
 > 本笔记依据论文与阅读讨论整理。MSA 适配部分属于机制推论，不能视为 HiSparse 已验证的实现。
 >
-> 关联笔记：[DSA](../deepseek-dsa/deepseek-sparse-attention-dsa.md) · [MiniMax MSA](../minimax-msa/msa.md) · [MSA 与 DSA Indexer 对比](../minimax-msa/msa-vs-dsa-indexer.md)
+> 关联笔记：[DSA](../deepseek-dsa/deepseek-sparse-attention-dsa.md) · [MiniMax MSA](../minimax-msa/msa.md) · [MSA 与 DSA Indexer 对比](../minimax-msa/msa-vs-dsa-indexer.md) · [IndexCache / IndexShare：跨层复用位置及 indexer K cache](../indexcache/indexcache.md)
 
 ## 1. 核心结论：少读 KV，不等于可以少存历史 KV
 

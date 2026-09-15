@@ -19,6 +19,7 @@ const directoryLabels: Record<string, string> = {
   'event-tensor': 'Event Tensor',
   hida: 'HIDA',
   honeycomb: 'Honeycomb',
+  indexcache: 'IndexCache / IndexShare',
   'knowledge-distillation': '知识蒸馏',
   megamoe: 'MegaMoE',
   'minimax-msa': 'MiniMax Sparse Attention',
