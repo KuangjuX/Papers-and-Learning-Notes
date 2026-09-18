@@ -35,5 +35,5 @@
 
 ## 源码与推理实践
 
-- [SGLang WeLM DSA：Indexer、Selection 与 FA3](../../projects/sglang/welm-dsa-forward.md)
-- [WeLM DSA：Q heads、共享 Selection 与主 Attention 的计算形状](../../projects/sglang/welm-dsa-small-heads.md)
+- [DSA 前向路径：Indexer、块选择与分页 Attention](../../projects/sglang/dsa-gqa-forward.md)
+- [GQA 稀疏 Attention：共享 Selection 与计算形状](../../projects/sglang/dsa-gqa-head-shapes.md)
