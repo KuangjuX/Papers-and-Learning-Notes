@@ -1,4 +1,4 @@
-name: Deploy Paper Notes to GitHub Pages
+name: Deploy Technical Notes to GitHub Pages
 
 on:
   push:
@@ -7,6 +7,11 @@ on:
       - ".github/workflows/deploy-pages.yml"
       - ".vitepress/**"
       - "notes/**"
+      - "courses/**"
+      - "projects/**"
+      - "reading/**"
+      - "migration/**"
+      - "licenses/**"
       - "index.md"
       - "README.md"
       - "package.json"
@@ -47,8 +52,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Verify local links
+        run: pnpm docs:check-links
+
       - name: Build site
         run: pnpm docs:build
+
+      - name: Verify page anchors
+        run: pnpm docs:check-anchors
 
       - name: Verify math rendering
         run: pnpm docs:check-math

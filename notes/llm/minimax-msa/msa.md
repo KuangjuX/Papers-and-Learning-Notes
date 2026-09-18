@@ -1060,7 +1060,7 @@ Scheduler 还会预先给每个 `(query, chunk)` 分配 $O_{buf}$ slot，使 K1 
 
 这个分析针对论文第 4.2 节的 **sparse prefill（query length 与 KV length 相等）**，不能直接假设 decoding 阶段采用完全相同的调度方式。
 
-更详细的论文—实现对应见：[Equations (13)–(16)：Q-outer 与 KV-outer](MiniMax%20Sparse%20Attention：论文算法与代码实现精确对应.md#411-equations-13-16q-outer-与-kv-outer)。
+更详细的论文—实现对应见：[Equations (13)–(16)：Q-outer 与 KV-outer](MiniMax%20Sparse%20Attention%EF%BC%9A%E8%AE%BA%E6%96%87%E7%AE%97%E6%B3%95%E4%B8%8E%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%E7%B2%BE%E7%A1%AE%E5%AF%B9%E5%BA%94.md#411-equations-13-16q-outer-与-kv-outer)。
 
 ---
 

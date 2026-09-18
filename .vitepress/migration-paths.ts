@@ -1,0 +1,28 @@
+// Existing published paths retained for incoming links. See migration/path-map.csv.
+export default {
+  "notes/llm/learning-path.md": "reading/learning-paths/llm.md",
+  "notes/llm-for-kernel/avo.md": "notes/gpu/llm-for-kernel/avo.md",
+  "notes/llm-for-kernel/CAKE.md": "notes/gpu/llm-for-kernel/CAKE.md",
+  "notes/hypervisor/nephele/nephele.md": "notes/systems/virtualization/nephele/nephele.md",
+  "notes/hypervisor/nephele/figure1.png": "notes/systems/virtualization/nephele/figure1.png",
+  "notes/hypervisor/honeycomb/honeycomb.md": "notes/systems/virtualization/honeycomb/honeycomb.md",
+  "notes/hypervisor/honeycomb/figure3.png": "notes/systems/virtualization/honeycomb/figure3.png",
+  "notes/hypervisor/honeycomb/figure1.png": "notes/systems/virtualization/honeycomb/figure1.png",
+  "notes/hypervisor/duvisor/table7.png": "notes/systems/virtualization/duvisor/table7.png",
+  "notes/hypervisor/duvisor/table6.png": "notes/systems/virtualization/duvisor/table6.png",
+  "notes/hypervisor/duvisor/table4.png": "notes/systems/virtualization/duvisor/table4.png",
+  "notes/hypervisor/duvisor/table2.png": "notes/systems/virtualization/duvisor/table2.png",
+  "notes/hypervisor/duvisor/table3.png": "notes/systems/virtualization/duvisor/table3.png",
+  "notes/hypervisor/duvisor/figure3.png": "notes/systems/virtualization/duvisor/figure3.png",
+  "notes/hypervisor/duvisor/figure2.png": "notes/systems/virtualization/duvisor/figure2.png",
+  "notes/hypervisor/duvisor/figure1.png": "notes/systems/virtualization/duvisor/figure1.png",
+  "notes/hypervisor/duvisor/figure5.png": "notes/systems/virtualization/duvisor/figure5.png",
+  "notes/hypervisor/duvisor/figure4.png": "notes/systems/virtualization/duvisor/figure4.png",
+  "notes/hypervisor/duvisor/figure6.png": "notes/systems/virtualization/duvisor/figure6.png",
+  "notes/hypervisor/duvisor/duvisor.md": "notes/systems/virtualization/duvisor/duvisor.md",
+  "notes/agent/skvm/skvm.md": "notes/agents/skvm/skvm.md",
+  "notes/agent/skvm/images/fig05_skvm_architecture.png": "notes/agents/skvm/images/fig05_skvm_architecture.png",
+  "notes/agent/skvm/images/fig10_task_score_comparison.png": "notes/agents/skvm/images/fig10_task_score_comparison.png",
+  "notes/agent/skvm/images/fig08_code_solidification.png": "notes/agents/skvm/images/fig08_code_solidification.png",
+  "notes/agent/skvm/images/fig07_concurrency_extraction.png": "notes/agents/skvm/images/fig07_concurrency_extraction.png"
+} as Record<string, string>

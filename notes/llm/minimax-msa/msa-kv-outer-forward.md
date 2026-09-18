@@ -15,7 +15,7 @@ date: 2026
 >
 > 主笔记：[MiniMax Sparse Attention (MSA)](msa.md)
 >
-> 论文—代码映射：[MiniMax Sparse Attention：论文算法与代码实现精确对应](MiniMax%20Sparse%20Attention：论文算法与代码实现精确对应.md)
+> 论文—代码映射：[MiniMax Sparse Attention：论文算法与代码实现精确对应](MiniMax%20Sparse%20Attention%EF%BC%9A%E8%AE%BA%E6%96%87%E7%AE%97%E6%B3%95%E4%B8%8E%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%E7%B2%BE%E7%A1%AE%E5%AF%B9%E5%BA%94.md)
 
 ## 核心结论
 

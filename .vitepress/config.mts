@@ -1,16 +1,23 @@
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
-import { basename, join, relative, resolve } from 'node:path'
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig, type DefaultTheme } from 'vitepress'
+import migrationPaths from './migration-paths'
 
 const repositoryRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
 
 const sectionLabels: Record<string, string> = {
-  agent: 'Agent 系统',
-  compiler: '编译器',
-  hypervisor: '虚拟化与系统安全',
-  llm: '大语言模型',
-  'llm-for-kernel': 'LLM × GPU Kernel',
+  "notes/llm": "大模型与深度学习",
+  "notes/gpu": "GPU 与高性能计算",
+  "notes/compiler": "编译器",
+  "notes/systems": "系统",
+  "notes/architecture": "计算机体系结构",
+  "notes/programming": "编程语言",
+  "notes/math": "数学基础",
+  "notes/agents": "Agent 系统",
+  "notes/tools": "工具与环境",
+  "courses": "课程笔记",
+  "projects": "项目实践"
 }
 
 const directoryLabels: Record<string, string> = {
@@ -101,42 +108,46 @@ function directoryItems(
 }
 
 function buildSidebar(): DefaultTheme.SidebarItem[] {
-  const sectionOrder = ['llm', 'llm-for-kernel', 'agent', 'compiler', 'hypervisor']
-
-  const sections = sectionOrder.map((section) => {
-    const directory = join(repositoryRoot, 'notes', section)
-    return {
-      text: sectionLabels[section],
-      collapsed: section !== 'llm',
-      items: existsSync(directory) ? directoryItems(directory) : [],
-    } satisfies DefaultTheme.SidebarItem
-  })
-
   return [
     {
       text: '开始阅读',
       items: [
         { text: '知识地图', link: '/' },
-        { text: '完整论文索引', link: '/README' },
-        {
-          text: 'LLM 推荐阅读路径',
-          link: '/notes/llm/learning-path',
-        },
+        { text: '论文索引', link: '/reading/' },
+        { text: 'LLM 学习路线', link: '/reading/learning-paths/llm' },
       ],
     },
-    ...sections,
+    ...Object.entries(sectionLabels).map(([directory, text]) => ({
+      text,
+      collapsed: true,
+      link: `/${directory}/`,
+      items: directoryItems(join(repositoryRoot, directory)),
+    })),
   ]
 }
 
 export default defineConfig({
   lang: 'zh-CN',
-  title: 'Paper Reading',
-  titleTemplate: ':title · Paper Reading',
-  description: 'AI 系统、编译器、GPU Kernel 与虚拟化论文的结构化阅读笔记',
+  title: 'KuangjuX’s Notes',
+  titleTemplate: ':title · KuangjuX’s Notes',
+  description: '原理、论文、源码、课程与实验的技术笔记库',
   base: '/Paper-reading/',
   lastUpdated: true,
   srcExclude: ['skills/**', 'tmp/**', 'node_modules/**'],
-  ignoreDeadLinks: true,
+  ignoreDeadLinks: false,
+
+  buildEnd(site) {
+    for (const [oldPath, newPath] of Object.entries(migrationPaths)) {
+      const output = join(site.outDir, oldPath.replace(/\.md$/, '.html'))
+      mkdirSync(dirname(output), { recursive: true })
+      if (!oldPath.endsWith('.md')) {
+        copyFileSync(join(repositoryRoot, newPath), output)
+        continue
+      }
+      const destination = site.site.base + newPath.replace(/\.md$/, '.html')
+      writeFileSync(output, `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>笔记已迁移</title><link rel="canonical" href="${destination}"><meta http-equiv="refresh" content="0;url=${destination}"><script>location.replace(${JSON.stringify(destination)} + location.search + location.hash)</script><a href="${destination}">阅读迁移后的笔记</a></html>`)
+    }
+  },
 
   head: [
     ['meta', { name: 'theme-color', content: '#0f766e' }],
@@ -169,30 +180,16 @@ export default defineConfig({
   },
 
   themeConfig: {
-    siteTitle: 'Paper Reading',
+    siteTitle: 'KuangjuX’s Notes',
     nav: [
       { text: '首页', link: '/' },
-      { text: '论文索引', link: '/README' },
-      { text: '学习路径', link: '/notes/llm/learning-path' },
-      {
-        text: '主题',
-        items: [
-          {
-            text: 'LLM 系统',
-            link: '/notes/llm/minimax-msa/msa',
-          },
-          {
-            text: 'LLM × GPU Kernel',
-            link: '/notes/llm-for-kernel/avo',
-          },
-          { text: 'Agent 系统', link: '/notes/agent/skvm/skvm' },
-          { text: '编译器', link: '/notes/compiler/hida/hida' },
-          {
-            text: '虚拟化与安全',
-            link: '/notes/hypervisor/duvisor/duvisor',
-          },
-        ],
-      },
+      { text: '主题', items: Object.entries(sectionLabels)
+          .filter(([path]) => path.startsWith('notes/'))
+          .map(([path, text]) => ({ text, link: `/${path}/` })) },
+      { text: '课程', link: '/courses/' },
+      { text: '项目', link: '/projects/' },
+      { text: '论文索引', link: '/reading/' },
+      { text: '学习路线', link: '/reading/learning-paths/llm' },
     ],
 
     sidebar: buildSidebar(),
@@ -253,7 +250,7 @@ export default defineConfig({
     langMenuLabel: '语言',
 
     footer: {
-      message: '从论文出发，追到算法、系统与实现细节。',
+      message: '记录原理、连接知识、积累实践。',
       copyright: 'Copyright © KuangjuX',
     },
   },

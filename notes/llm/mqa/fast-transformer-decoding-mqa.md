@@ -15,7 +15,7 @@ doi: 10.48550/arXiv.1911.02150
 # Fast Transformer Decoding: One Write-Head is All You Need
 
 > Noam Shazeer，arXiv:1911.02150v1，2019。
-> 原文：[arXiv](https://arxiv.org/abs/1911.02150) / [PDF](https://arxiv.org/pdf/1911.02150)；Roadmap：[Architecture and Modern Sparse Attention](../../../README.md#architecture-and-modern-sparse-attention)。
+> 原文：[arXiv](https://arxiv.org/abs/1911.02150) / [PDF](https://arxiv.org/pdf/1911.02150)；Roadmap：[Architecture and Modern Sparse Attention](../../../reading/index.md#architecture-and-modern-sparse-attention)。
 
 ## 一句话结论
 

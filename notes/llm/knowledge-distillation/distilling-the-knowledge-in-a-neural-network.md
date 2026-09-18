@@ -13,7 +13,7 @@ doi: 10.48550/arXiv.1503.02531
 # Distilling the Knowledge in a Neural Network
 
 > Geoffrey Hinton, Oriol Vinyals, Jeff Dean，arXiv v1，2015-03-09。
-> 原文：[arXiv](https://arxiv.org/abs/1503.02531) / [PDF](https://arxiv.org/pdf/1503.02531)；Roadmap：[Distillation and Router Training](../../../README.md#distillation-and-router-training)。
+> 原文：[arXiv](https://arxiv.org/abs/1503.02531) / [PDF](https://arxiv.org/pdf/1503.02531)；Roadmap：[Distillation and Router Training](../../../reading/index.md#distillation-and-router-training)。
 
 ## 一句话结论
 

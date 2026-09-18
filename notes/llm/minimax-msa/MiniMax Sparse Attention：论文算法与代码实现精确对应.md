@@ -151,7 +151,7 @@ index/proxy QK score
 
   
 
-公开 sparse forward 的输入输出约束见 [`cute/interface.py`](../python/fmha_sm100/cute/interface.py#L600-L704)，partial buffer 的实际分配见 [`cute/interface.py`](../python/fmha_sm100/cute/interface.py#L1470-L1484)。
+公开 sparse forward 的输入输出约束见 [`cute/interface.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/interface.py#L600-L704)，partial buffer 的实际分配见 [`cute/interface.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/interface.py#L1470-L1484)。
 
   
 
@@ -189,7 +189,7 @@ index/proxy QK score
 
   
 
-实际 sparse Main Branch 入口为 [`sparse_atten_func`](../python/fmha_sm100/cute/interface.py#L600-L625)，高层 API adapter 为 [`sparse_fmha`](../python/fmha_sm100/sparse_fmha_adapter.py#L271-L406)。
+实际 sparse Main Branch 入口为 [`sparse_atten_func`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/interface.py#L600-L625)，高层 API adapter 为 [`sparse_fmha`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/sparse_fmha_adapter.py#L271-L406)。
 
   
 
@@ -241,15 +241,15 @@ $$
 
   
 
-- 默认 softmax scale 是 `1 / sqrt(head_dim_qk)`：[`api.py`](../python/fmha_sm100/api.py#L841-L850)；
+- 默认 softmax scale 是 `1 / sqrt(head_dim_qk)`：[`api.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/api.py#L841-L850)；
 
-- sparse forward 默认同样使用 `q.shape[-1] ** -0.5`：[`cute/interface.py`](../python/fmha_sm100/cute/interface.py#L706-L717)；
+- sparse forward 默认同样使用 `q.shape[-1] ** -0.5`：[`cute/interface.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/interface.py#L706-L717)；
 
-- `G = Hq/Hkv` 必须属于 `{1,2,4,8,16}`：[`cute/interface.py`](../python/fmha_sm100/cute/interface.py#L701-L704)；
+- `G = Hq/Hkv` 必须属于 `{1,2,4,8,16}`：[`cute/interface.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/interface.py#L701-L704)；
 
-- 当前 SM100 sparse main kernel 只支持 `D=128`：[`fwd/atten_fwd.py`](../python/fmha_sm100/cute/src/sm100/fwd/atten_fwd.py#L56-L86)；
+- 当前 SM100 sparse main kernel 只支持 `D=128`：[`fwd/atten_fwd.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/fwd/atten_fwd.py#L56-L86)；
 
-- causal mask 使用实际 query 位置和 KV 有效长度，不会因为选中了一个 block 就允许访问未来 token：[`common/mask.py`](../python/fmha_sm100/cute/src/common/mask.py#L93-L120)。
+- causal mask 使用实际 query 位置和 KV 有效长度，不会因为选中了一个 block 就允许访问未来 token：[`common/mask.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/common/mask.py#L93-L120)。
 
   
 
@@ -377,7 +377,7 @@ adapter 接受两种输入：
 
   
 
-实现见 [`_convert_kv_block_indexes_to_q2k`](../python/fmha_sm100/sparse_fmha_adapter.py#L205-L222)。
+实现见 [`_convert_kv_block_indexes_to_q2k`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/sparse_fmha_adapter.py#L205-L222)。
 
   
 
@@ -423,7 +423,7 @@ topK ∈ {4,8,16,32}
 
   
 
-见 [`prepare_k2q_csr.py`](../python/fmha_sm100/cute/src/sm100/prepare_k2q_csr.py#L4-L22) 和输入校验 [`prepare_k2q_csr.py`](../python/fmha_sm100/cute/src/sm100/prepare_k2q_csr.py#L68-L94)。
+见 [`prepare_k2q_csr.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/prepare_k2q_csr.py#L4-L22) 和输入校验 [`prepare_k2q_csr.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/prepare_k2q_csr.py#L68-L94)。
 
   
 
@@ -547,11 +547,11 @@ $$
 
   
 
-- Python 输出张量分配为 `[Hidx,max_k_tiles,Tq]`，无效位置初始化为 `-inf`：[`api.py`](../python/fmha_sm100/api.py#L852-L862)；
+- Python 输出张量分配为 `[Hidx,max_k_tiles,Tq]`，无效位置初始化为 `-inf`：[`api.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/api.py#L852-L862)；
 
-- `output_maxscore` 会选择 max-score kernel variant：[`api.py`](../python/fmha_sm100/api.py#L874-L893)；
+- `output_maxscore` 会选择 max-score kernel variant：[`api.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/api.py#L874-L893)；
 
-- CUDA mainloop 对 tile score 做归约并可只输出 score：[`sm100_fmha_fwd_mainloop_tma_warpspecialized.hpp`](../python/fmha_sm100/csrc/include/sm100_fmha_fwd_mainloop_tma_warpspecialized.hpp#L912-L957)。
+- CUDA mainloop 对 tile score 做归约并可只输出 score：[`sm100_fmha_fwd_mainloop_tma_warpspecialized.hpp`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/csrc/include/sm100_fmha_fwd_mainloop_tma_warpspecialized.hpp#L912-L957)。
 
   
 
@@ -563,7 +563,7 @@ $$
 
   
 
-`fp4_indexer_block_scores` 使用 block-scaled FP4 MMA，直接得到每个 128-token page 的 FP32 max score。入口在 [`fp4_indexer_interface.py`](../python/fmha_sm100/cute/fp4_indexer_interface.py#L745-L810)。
+`fp4_indexer_block_scores` 使用 block-scaled FP4 MMA，直接得到每个 128-token page 的 FP32 max score。入口在 [`fp4_indexer_interface.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/fp4_indexer_interface.py#L745-L810)。
 
   
 
@@ -599,7 +599,7 @@ $$
 
   
 
-公开实现为 [`sparse_topk_select`](../python/fmha_sm100/api.py#L1179-L1290)：
+公开实现为 [`sparse_topk_select`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/api.py#L1179-L1290)：
 
   
 
@@ -677,7 +677,7 @@ num_valid_pages=num_pages,
 
   
 
-设计说明见 [`sparse_topk_select.cuh`](../python/fmha_sm100/csrc/include/sparse_topk_select.cuh#L58-L89)，histogram threshold 见 [`sparse_topk_select.cuh`](../python/fmha_sm100/csrc/include/sparse_topk_select.cuh#L187-L295)，最终排序见 [`sparse_topk_select.cuh`](../python/fmha_sm100/csrc/include/sparse_topk_select.cuh#L711-L768)。
+设计说明见 [`sparse_topk_select.cuh`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/csrc/include/sparse_topk_select.cuh#L58-L89)，histogram threshold 见 [`sparse_topk_select.cuh`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/csrc/include/sparse_topk_select.cuh#L187-L295)，最终排序见 [`sparse_topk_select.cuh`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/csrc/include/sparse_topk_select.cuh#L711-L768)。
 
   
 
@@ -769,7 +769,7 @@ $$
 
   
 
-- K1 kernel 定义：[`fwd/atten_fwd.py`](../python/fmha_sm100/cute/src/sm100/fwd/atten_fwd.py#L56-L113)；
+- K1 kernel 定义：[`fwd/atten_fwd.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/fwd/atten_fwd.py#L56-L113)；
 
 - K1 使用 k2q CSR/worklist 读取某个 KV block 对应的 queries；
 
@@ -779,7 +779,7 @@ $$
 
 - K2 使用 LSE identity 恢复全部 selected blocks 上的精确 softmax；
 
-- K2 调用：[`cute/interface.py`](../python/fmha_sm100/cute/interface.py#L1530-L1549)。
+- K2 调用：[`cute/interface.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/interface.py#L1530-L1549)。
 
   
 
@@ -929,7 +929,7 @@ $$
 
   
 
-仓库能够返回普通 LSE 或 temperature LSE：[`cute/interface.py`](../python/fmha_sm100/cute/interface.py#L614-L676)。这些是实现 KL 可能需要的中间量，但仅有 LSE 不能视为已经实现论文的 KL 训练。
+仓库能够返回普通 LSE 或 temperature LSE：[`cute/interface.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/interface.py#L614-L676)。这些是实现 KL 可能需要的中间量，但仅有 LSE 不能视为已经实现论文的 KL 训练。
 
   
 
@@ -982,6 +982,8 @@ dense/lightweight index score
 但仓库本身没有 `didx` projection 或完整模型，无法单独复现论文的 end-to-end FLOPs 数值。
 
   
+
+<a id="411-equations-13-16q-outer-与-kv-outer"></a>
 
 ### 4.11 Equations (13)-(16)：Q-outer 与 KV-outer
 
@@ -1067,11 +1069,11 @@ kv_block_num > 0
 
   
 
-会进入 CuTe sparse prefill adapter：[`api.py`](../python/fmha_sm100/api.py#L510-L542)。
+会进入 CuTe sparse prefill adapter：[`api.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/api.py#L510-L542)。
 
   
 
-否则继续使用 csrc JIT 路径。短 Q sparse 会在 csrc planner 内展开成 per-token segments：[`api.py`](../python/fmha_sm100/api.py#L562-L568)。
+否则继续使用 csrc JIT 路径。短 Q sparse 会在 csrc planner 内展开成 per-token segments：[`api.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/api.py#L562-L568)。
 
   
 
@@ -1125,7 +1127,7 @@ num_valid_pages=num_pages,
 
   
 
-`num_valid_pages` 应显式传入，否则 padding tiles 可能产生不安全的 page index。wrapper 文档也将它标为 strongly recommended：[`api.py`](../python/fmha_sm100/api.py#L1195-L1209)。
+`num_valid_pages` 应显式传入，否则 padding tiles 可能产生不安全的 page index。wrapper 文档也将它标为 strongly recommended：[`api.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/api.py#L1195-L1209)。
 
   
 
@@ -1157,7 +1159,7 @@ q2k [Hkv,Tq,topK]
 
   
 
-见 [`sparse_fmha_adapter.py`](../python/fmha_sm100/sparse_fmha_adapter.py#L205-L222)。
+见 [`sparse_fmha_adapter.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/sparse_fmha_adapter.py#L205-L222)。
 
   
 
@@ -1165,7 +1167,7 @@ q2k [Hkv,Tq,topK]
 
   
 
-公共格式定义：[`sparse_index_utils.py`](../python/fmha_sm100/cute/sparse_index_utils.py#L4-L25)。
+公共格式定义：[`sparse_index_utils.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/sparse_index_utils.py#L4-L25)。
 
   
 
@@ -1183,7 +1185,7 @@ k2q_q_indices [Hkv,Tq*topK]
 
   
 
-生产 builder 的入口与校验见 [`build_k2q_csr`](../python/fmha_sm100/cute/sparse_index_utils.py#L331-L411)。
+生产 builder 的入口与校验见 [`build_k2q_csr`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/sparse_index_utils.py#L331-L411)。
 
   
 
@@ -1207,7 +1209,7 @@ build_row_map
 
   
 
-见 [`prepare_k2q_csr.py`](../python/fmha_sm100/cute/src/sm100/prepare_k2q_csr.py#L29-L37)。
+见 [`prepare_k2q_csr.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/prepare_k2q_csr.py#L29-L37)。
 
   
 
@@ -1547,7 +1549,7 @@ Top-k 给出的 query→block 邻接表
 
   
 
-相关实现位于 [`prepare_scheduler.py`](../python/fmha_sm100/cute/src/sm100/prepare_scheduler.py)。当 `return_schedule=True` 时，CSR builder 可以融合生成 `scheduler_metadata`、`qsplit_indices` 和 `split_counts`：[`prepare_k2q_csr.py`](../python/fmha_sm100/cute/src/sm100/prepare_k2q_csr.py#L139-L179)。
+相关实现位于 [`prepare_scheduler.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/prepare_scheduler.py)。当 `return_schedule=True` 时，CSR builder 可以融合生成 `scheduler_metadata`、`qsplit_indices` 和 `split_counts`：[`prepare_k2q_csr.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/prepare_k2q_csr.py#L139-L179)。
 
   
 
@@ -1593,7 +1595,7 @@ K1 的一个 CTA 固定处理：
 
   
 
-K1 主类：[`fwd/atten_fwd.py`](../python/fmha_sm100/cute/src/sm100/fwd/atten_fwd.py#L56-L113)。
+K1 主类：[`fwd/atten_fwd.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/fwd/atten_fwd.py#L56-L113)。
 
   
 
@@ -1671,11 +1673,11 @@ $$
 
   
 
-- stable LSE reduction：[`fwd/combine.py`](../python/fmha_sm100/cute/src/sm100/fwd/combine.py#L767-L820)；
+- stable LSE reduction：[`fwd/combine.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/fwd/combine.py#L767-L820)；
 
-- weighted partial O accumulation：[`fwd/combine.py`](../python/fmha_sm100/cute/src/sm100/fwd/combine.py#L903-L948)；
+- weighted partial O accumulation：[`fwd/combine.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/fwd/combine.py#L903-L948)；
 
-- Python 调用：[`cute/interface.py`](../python/fmha_sm100/cute/interface.py#L1532-L1542)。
+- Python 调用：[`cute/interface.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/interface.py#L1532-L1542)。
 
   
 
@@ -1799,7 +1801,7 @@ q2k
 
   
 
-variant 分派依据 `kv_block_indexes/max_score/out` 是否存在：[`api.py`](../python/fmha_sm100/api.py#L874-L893)。
+variant 分派依据 `kv_block_indexes/max_score/out` 是否存在：[`api.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/api.py#L874-L893)。
 
   
 
@@ -1989,25 +1991,25 @@ CuTe sparse forward 支持 BF16、FP8 E4M3，以及部分 BF16 Q + FP8 K/V stagi
 
   
 
-1. [`README.md`](../README.md)：两套执行栈和公开 API；
+1. [`README.md`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/README.md)：两套执行栈和公开 API；
 
-2. [`api.py`](../python/fmha_sm100/api.py)：plan、run、max-score、Top-k 和分派；
+2. [`api.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/api.py)：plan、run、max-score、Top-k 和分派；
 
-3. [`sparse_fmha_adapter.py`](../python/fmha_sm100/sparse_fmha_adapter.py)：dense API 到 sparse backend 的桥接；
+3. [`sparse_fmha_adapter.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/sparse_fmha_adapter.py)：dense API 到 sparse backend 的桥接；
 
-4. [`sparse_index_utils.py`](../python/fmha_sm100/cute/sparse_index_utils.py)：q2k/k2q CSR 格式；
+4. [`sparse_index_utils.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/sparse_index_utils.py)：q2k/k2q CSR 格式；
 
-5. [`prepare_k2q_csr.py`](../python/fmha_sm100/cute/src/sm100/prepare_k2q_csr.py)：production CSR builder；
+5. [`prepare_k2q_csr.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/prepare_k2q_csr.py)：production CSR builder；
 
-6. [`prepare_scheduler.py`](../python/fmha_sm100/cute/src/sm100/prepare_scheduler.py)：hot-row chunking 和 split slot；
+6. [`prepare_scheduler.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/prepare_scheduler.py)：hot-row chunking 和 split slot；
 
-7. [`fwd/atten_fwd.py`](../python/fmha_sm100/cute/src/sm100/fwd/atten_fwd.py)：K1 KV-outer sparse attention；
+7. [`fwd/atten_fwd.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/fwd/atten_fwd.py)：K1 KV-outer sparse attention；
 
-8. [`fwd/combine.py`](../python/fmha_sm100/cute/src/sm100/fwd/combine.py)：K2 LSE/O combine；
+8. [`fwd/combine.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/fwd/combine.py)：K2 LSE/O combine；
 
-9. [`sparse_topk_select.cuh`](../python/fmha_sm100/csrc/include/sparse_topk_select.cuh)：当前 Top-k 微算法；
+9. [`sparse_topk_select.cuh`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/csrc/include/sparse_topk_select.cuh)：当前 Top-k 微算法；
 
-10. [`fp4_indexer_interface.py`](../python/fmha_sm100/cute/fp4_indexer_interface.py)：FP4 block score 扩展。
+10. [`fp4_indexer_interface.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/fp4_indexer_interface.py)：FP4 block score 扩展。
 
   
 

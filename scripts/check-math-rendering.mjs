@@ -3,7 +3,7 @@ import { join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const repositoryRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
-const notesRoot = join(repositoryRoot, 'notes')
+const contentRoots = ['notes', 'courses', 'projects', 'reading'].map((directory) => join(repositoryRoot, directory))
 const outputRoot = join(repositoryRoot, '.vitepress', 'dist')
 
 function markdownFiles(directory) {
@@ -111,7 +111,7 @@ let totalInlineMath = 0
 const siteMarkdownFiles = [
   join(repositoryRoot, 'README.md'),
   join(repositoryRoot, 'index.md'),
-  ...markdownFiles(notesRoot),
+  ...contentRoots.flatMap(markdownFiles),
 ]
 
 for (const markdownFile of siteMarkdownFiles) {

@@ -1,5 +1,5 @@
 {
-  "name": "paper-reading-notes",
+  "name": "kuangjux-notes",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.19.0",
@@ -8,7 +8,9 @@
     "docs:build": "vitepress build .",
     "docs:check-diagrams": "node scripts/check-mermaid-rendering.mjs",
     "docs:check-math": "node scripts/check-math-rendering.mjs",
-    "docs:preview": "vitepress preview . --host 0.0.0.0"
+    "docs:preview": "vitepress preview . --host 0.0.0.0",
+    "docs:check-links": "node scripts/check-links.mjs",
+    "docs:check-anchors": "python3 scripts/check-anchors.py"
   },
   "devDependencies": {
     "dompurify": "^3.4.14",
