@@ -1,0 +1,19 @@
+# Visual Studio Code
+
+## Rust
+
+### 配置 `formant`
+
+settings.json:
+
+```json
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "rust-analyzer.rustfmt.enableRangeFormatting": true,
+    "[rust]": {
+        "editor.defaultFormatter": "rust-lang.rust-analyzer", 
+        "editor.formatOnSave": true 
+    },
+```
+
+
