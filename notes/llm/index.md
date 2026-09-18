@@ -32,3 +32,8 @@
 - [PithTrain: A Compact and Agent-Native MoE Training System](pithtrain/pithtrain.md)
 - [A Survey of Efficient Attention Methods: Hardware-efficient,  Sparse, Compact, and Linear Attention](surveys/Attention/efficient_attention_survey.md)
 - [A Survey of LLM Inference Systems](surveys/Inference/llm_inference_survey.md)
+
+## 源码与推理实践
+
+- [SGLang WeLM DSA：Indexer、Selection 与 FA3](../../projects/sglang/welm-dsa-forward.md)
+- [WeLM DSA：Q heads、共享 Selection 与主 Attention 的计算形状](../../projects/sglang/welm-dsa-small-heads.md)
