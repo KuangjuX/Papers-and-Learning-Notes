@@ -3,8 +3,8 @@
 #
 # Prerequisites:
 #   Create a GitHub Personal Access Token (classic) with `repo` scope,
-#   then add it as a secret named HOMEPAGE_DISPATCH_TOKEN in the Paper-reading repo:
-#     Paper-reading repo → Settings → Secrets → Actions → New repository secret
+#   then add it as a secret named HOMEPAGE_DISPATCH_TOKEN in the Papers-and-Learning-Notes repo:
+#     Papers-and-Learning-Notes repo → Settings → Secrets → Actions → New repository secret
 
 name: Notify Homepage
 
@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Trigger homepage sync
         run: |
-          curl -X POST \
+          curl --fail-with-body --retry 3 -X POST \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.HOMEPAGE_DISPATCH_TOKEN }}" \
             https://api.github.com/repos/KuangjuX/KuangjuX.github.io/dispatches \

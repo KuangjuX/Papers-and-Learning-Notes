@@ -10,7 +10,6 @@ on:
       - "courses/**"
       - "projects/**"
       - "reading/**"
-      - "migration/**"
       - "licenses/**"
       - "index.md"
       - "README.md"

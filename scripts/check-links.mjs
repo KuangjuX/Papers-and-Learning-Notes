@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { createMarkdownRenderer } from 'vitepress'
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)))
-const roots = ['notes', 'courses', 'projects', 'reading', 'migration']
+const roots = ['notes', 'courses', 'projects', 'reading']
 function markdownFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name)

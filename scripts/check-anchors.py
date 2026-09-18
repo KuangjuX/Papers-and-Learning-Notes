@@ -38,8 +38,8 @@ for source, page in pages.items():
             continue
         if not url.path:
             target = source
-        elif url.path.startswith("/Paper-reading/"):
-            target = unquote(url.path[len("/Paper-reading/"):])
+        elif url.path.startswith("/Papers-and-Learning-Notes/"):
+            target = unquote(url.path[len("/Papers-and-Learning-Notes/"):])
         elif url.path.startswith("/"):
             continue
         else:

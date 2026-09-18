@@ -1,4 +1,4 @@
-// Existing published paths retained for incoming links. See migration/path-map.csv.
+// Preserve incoming links to previously published notes and images.
 export default {
   "notes/llm/learning-path.md": "reading/learning-paths/llm.md",
   "notes/llm-for-kernel/avo.md": "notes/gpu/llm-for-kernel/avo.md",

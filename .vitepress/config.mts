@@ -2,7 +2,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFi
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig, type DefaultTheme } from 'vitepress'
-import migrationPaths from './migration-paths'
+import redirects from './redirects'
 
 const repositoryRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
 
@@ -131,13 +131,13 @@ export default defineConfig({
   title: 'KuangjuX’s Notes',
   titleTemplate: ':title · KuangjuX’s Notes',
   description: '原理、论文、源码、课程与实验的技术笔记库',
-  base: '/Paper-reading/',
+  base: '/Papers-and-Learning-Notes/',
   lastUpdated: true,
   srcExclude: ['skills/**', 'tmp/**', 'node_modules/**'],
   ignoreDeadLinks: false,
 
   buildEnd(site) {
-    for (const [oldPath, newPath] of Object.entries(migrationPaths)) {
+    for (const [oldPath, newPath] of Object.entries(redirects)) {
       const output = join(site.outDir, oldPath.replace(/\.md$/, '.html'))
       mkdirSync(dirname(output), { recursive: true })
       if (!oldPath.endsWith('.md')) {
@@ -145,7 +145,7 @@ export default defineConfig({
         continue
       }
       const destination = site.site.base + newPath.replace(/\.md$/, '.html')
-      writeFileSync(output, `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>笔记已迁移</title><link rel="canonical" href="${destination}"><meta http-equiv="refresh" content="0;url=${destination}"><script>location.replace(${JSON.stringify(destination)} + location.search + location.hash)</script><a href="${destination}">阅读迁移后的笔记</a></html>`)
+      writeFileSync(output, `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>笔记新地址</title><link rel="canonical" href="${destination}"><meta http-equiv="refresh" content="0;url=${destination}"><script>location.replace(${JSON.stringify(destination)} + location.search + location.hash)</script><a href="${destination}">阅读笔记</a></html>`)
     }
   },
 
@@ -221,12 +221,12 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/KuangjuX/Paper-reading' },
+      { icon: 'github', link: 'https://github.com/KuangjuX/Papers-and-Learning-Notes' },
     ],
 
     editLink: {
       pattern:
-        'https://github.com/KuangjuX/Paper-reading/edit/main/:path',
+        'https://github.com/KuangjuX/Papers-and-Learning-Notes/edit/main/:path',
       text: '在 GitHub 上编辑此页',
     },
 

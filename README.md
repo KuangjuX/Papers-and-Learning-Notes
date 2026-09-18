@@ -2,7 +2,7 @@
 
 技术学习与实践的长期笔记库：记录原理、论文、源码、课程和实验，让相关知识在同一个主题下逐步积累。
 
-[在线阅读](https://kuangjux.github.io/Paper-reading/) · [论文索引](reading/index.md) · [LLM 学习路线](reading/learning-paths/llm.md)
+[在线阅读](https://kuangjux.github.io/Papers-and-Learning-Notes/) · [论文索引](reading/index.md) · [LLM 学习路线](reading/learning-paths/llm.md)
 
 ## 按主题阅读
 
@@ -37,4 +37,4 @@ pnpm docs:dev
 
 发布前运行 `pnpm docs:build`、`pnpm docs:check-links`、`pnpm docs:check-anchors`、`pnpm docs:check-math` 和 `pnpm docs:check-diagrams`。
 
-仓库由 Paper-reading 与 Notes 合并而来，保留两边的 Git 历史。详见[迁移记录](migration/index.md)与[文件路径对照](migration/path-map.csv)。导入内容的原许可证保存在 [Notes-LICENSE](licenses/Notes-LICENSE.txt)。
+原 Notes 内容的许可证见 [Notes-LICENSE](licenses/Notes-LICENSE.txt)。
