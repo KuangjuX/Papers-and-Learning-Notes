@@ -2,7 +2,7 @@
 
 技术学习与实践的长期笔记库：记录原理、论文、源码、课程和实验，让相关知识在同一个主题下逐步积累。
 
-[在线阅读](https://kuangjux.github.io/Papers-and-Learning-Notes/) · [论文索引](reading/index.md) · [LLM 学习路线](reading/learning-paths/llm.md)
+[在线阅读](https://notes.kuangjux.top/) · [论文索引](reading/index.md) · [LLM 学习路线](reading/learning-paths/llm.md)
 
 ## 按主题阅读
 

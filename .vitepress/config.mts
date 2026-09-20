@@ -131,7 +131,7 @@ export default defineConfig({
   title: 'KuangjuX’s Notes',
   titleTemplate: ':title · KuangjuX’s Notes',
   description: '原理、论文、源码、课程与实验的技术笔记库',
-  base: '/Papers-and-Learning-Notes/',
+  base: '/',
   lastUpdated: true,
   srcExclude: ['skills/**', 'tmp/**', 'node_modules/**'],
   ignoreDeadLinks: false,

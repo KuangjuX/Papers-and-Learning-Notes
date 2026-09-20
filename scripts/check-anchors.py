@@ -41,7 +41,7 @@ for source, page in pages.items():
         elif url.path.startswith("/Papers-and-Learning-Notes/"):
             target = unquote(url.path[len("/Papers-and-Learning-Notes/"):])
         elif url.path.startswith("/"):
-            continue
+            target = unquote(url.path.lstrip("/"))
         else:
             target = posixpath.normpath(
                 posixpath.join(posixpath.dirname(source), unquote(url.path))
