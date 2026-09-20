@@ -7,6 +7,7 @@
 原始附件：[LLM Inference Survey 笔记 PDF](surveys/Inference/llm_inference_survey.pdf)。
 
 - [Adam 论文前置学习路线](adam-prerequisites.md)
+- [Attention Sink、Learnable Sink 与 dsink](attention-sinks/attention-sink-and-dsink.md)
 - [DeepSeek Sparse Attention (DSA) 算法流程](deepseek-dsa/deepseek-sparse-attention-dsa.md)
 - [DeepSeek-V4: 迈向高效百万级上下文智能](deepseek-v4/deepseek-v4.md)
 - [Event Tensor：用“事件张量”编译动态 Megakernel](event-tensor/event-tensor.md)
