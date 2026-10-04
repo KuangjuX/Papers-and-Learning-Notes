@@ -9,6 +9,7 @@
 - [并行编程](cmu-15-418/parallel_prog.md)
 - [并发控制](cmu-15-445/Concurrency-Control.md)
 - [Deep Learning System -- Introduction](dl-system/00-interduction.md)
+- [神经网络反向传播：理论与数学推导](dl-system/01-neural-network-backward.md)
 - [Lab-2A Leader Election](mit-6-824/6-824-Lab2A.md)
 - [Lab-1 MapReduce](mit-6-824/6-824-MapReduce.md)
 - [Copy on Write Fork](mit-6-s081/cow.md)
