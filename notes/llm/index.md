@@ -38,3 +38,7 @@
 
 - [DSA 前向路径：Indexer、块选择与分页 Attention](../../projects/sglang/dsa-gqa-forward.md)
 - [GQA 稀疏 Attention：共享 Selection 与计算形状](../../projects/sglang/dsa-gqa-head-shapes.md)
+
+## Zotero 阅读材料
+
+- [FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling（阅读中）](flashattention-4/zotero-reading.md)

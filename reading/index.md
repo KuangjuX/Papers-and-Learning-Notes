@@ -538,3 +538,7 @@
 <p align="center">
   <em>If you find this list helpful, feel free to ⭐ star this repo!</em>
 </p>
+
+## Zotero 阅读进度
+
+- [FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling（阅读中）](../notes/llm/flashattention-4/zotero-reading.md)
