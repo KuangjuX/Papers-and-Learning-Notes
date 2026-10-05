@@ -13,3 +13,6 @@ tmp/*
 node_modules/
 
 .workbuddy-ai/
+
+# Private Zotero sync baselines and merge drafts
+.local/

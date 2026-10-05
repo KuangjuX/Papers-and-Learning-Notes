@@ -37,4 +37,6 @@ pnpm docs:dev
 
 发布前运行 `pnpm docs:build`、`pnpm docs:check-links`、`pnpm docs:check-anchors`、`pnpm docs:check-math` 和 `pnpm docs:check-diagrams`。
 
+Zotero 与 Codex 的侧栏阅读、标注导入及增量笔记工作流见 [Zotero 阅读配置](scripts/ZOTERO.md)。
+
 原 Notes 内容的许可证见 [Notes-LICENSE](licenses/Notes-LICENSE.txt)。
