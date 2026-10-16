@@ -3,8 +3,9 @@ import { join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const repositoryRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
-const contentRoots = ['notes', 'courses', 'projects', 'reading'].map((directory) => join(repositoryRoot, directory))
+const contentRoots = ['Papers', 'Projects', 'Foundations'].map((directory) => join(repositoryRoot, directory))
 const outputRoot = join(repositoryRoot, '.vitepress', 'dist')
+const importedTranslations = JSON.parse(readFileSync(join(repositoryRoot, 'scripts/imported-translations.json'), 'utf8'))
 
 function markdownFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -17,6 +18,8 @@ function markdownFiles(directory) {
 }
 
 function inspectSource(source) {
+  source = source.replace(/<!-- imported-translation:start -->[\s\S]*?<!-- imported-translation:end -->/g,
+    (html) => html.replace(/[^\n]/g, ' '))
   const unsupported = []
   const unpaired = []
   let displayMathOpen = null
@@ -124,8 +127,10 @@ for (const markdownFile of siteMarkdownFiles) {
     expectedDisplayMath,
     expectedInlineMath,
   } = inspectSource(source)
-  totalDisplayMath += expectedDisplayMath
-  totalInlineMath += expectedInlineMath
+  const importedMath = importedTranslations.find((item) => `${item.path}/index.md` === sourcePath)?.rendered_math ?? { inline: 0, display: 0 }
+  const expectedDisplay = expectedDisplayMath + importedMath.display
+  totalDisplayMath += expectedDisplay
+  totalInlineMath += expectedInlineMath + importedMath.inline
 
   for (const issue of unsupported) {
     failures.push(
@@ -152,7 +157,7 @@ for (const markdownFile of siteMarkdownFiles) {
   const output = readFileSync(outputFile, 'utf8')
   const renderedDisplayMath = output.match(/display="true"/g)?.length ?? 0
   const renderedMath = output.match(/<mjx-container\b/g)?.length ?? 0
-  const expectedMath = expectedDisplayMath + expectedInlineMath
+  const expectedMath = expectedDisplay + expectedInlineMath + importedMath.inline
   const visibleText = output
     .replace(
       /<(pre|code|script|style)\b[^>]*>[\s\S]*?<\/\1>/gi,
@@ -163,9 +168,9 @@ for (const markdownFile of siteMarkdownFiles) {
     ...visibleText.matchAll(/\\(?:[A-Za-z]+|\[|\]|\(|\))/g),
   ].map((match) => match[0])
 
-  if (renderedDisplayMath !== expectedDisplayMath) {
+  if (renderedDisplayMath !== expectedDisplay) {
     failures.push(
-      `${sourcePath} expected ${expectedDisplayMath} display formulas, rendered ${renderedDisplayMath}`,
+      `${sourcePath} expected ${expectedDisplay} display formulas, rendered ${renderedDisplayMath}`,
     )
   }
 

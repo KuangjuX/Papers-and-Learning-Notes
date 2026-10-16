@@ -3,6 +3,7 @@ import DefaultTheme from 'vitepress/theme'
 import { onMounted } from 'vue'
 import MermaidDiagram from './MermaidDiagram.vue'
 import './custom.css'
+import './imported-translations.css'
 
 export default {
   extends: DefaultTheme,

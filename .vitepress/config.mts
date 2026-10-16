@@ -1,40 +1,69 @@
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig, type DefaultTheme } from 'vitepress'
 import redirects from './redirects'
+import { installImportedTranslations } from './imported-translations.mjs'
 
 const repositoryRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
 
+const archiveLayout = JSON.parse(readFileSync(join(repositoryRoot, 'scripts/archive-layout.json'), 'utf8')) as {
+  sections: Array<{ directory: string; title: string; description: string }>
+}
 const sectionLabels: Record<string, string> = {
-  "notes/llm": "大模型与深度学习",
-  "notes/gpu": "GPU 与高性能计算",
-  "notes/compiler": "编译器",
-  "notes/systems": "系统",
-  "notes/architecture": "计算机体系结构",
-  "notes/programming": "编程语言",
-  "notes/math": "数学基础",
-  "notes/agents": "Agent 系统",
-  "notes/tools": "工具与环境",
-  "courses": "课程笔记",
-  "projects": "项目实践"
+  Papers: '论文',
+  Projects: '项目',
+  Foundations: '基础',
 }
 
 const directoryLabels: Record<string, string> = {
-  'deepseek-dsa': 'DeepSeek Sparse Attention',
-  'deepseek-v4': 'DeepSeek V4',
-  'event-tensor': 'Event Tensor',
-  hida: 'HIDA',
-  honeycomb: 'Honeycomb',
-  indexcache: 'IndexCache / IndexShare',
-  'knowledge-distillation': '知识蒸馏',
-  megamoe: 'MegaMoE',
-  'minimax-msa': 'MiniMax Sparse Attention',
-  nephele: 'Nephele',
-  pithtrain: 'PithTrain',
-  skvm: 'SkVM',
-  'tiramisu-cgo': 'TIRAMISU',
-  duvisor: 'DuVisor',
+  ...Object.fromEntries(archiveLayout.sections.map((section) => [section.directory, section.title])),
+  'Kernel-Generation': 'Kernel 自动生成',
+  'CuTe-Layouts': 'CuTe Layouts',
+  'Operating-Systems': '操作系统论文',
+  'Dual-Chunk-Attention': 'Dual Chunk Attention',
+  'Architecture': '体系结构',
+  'Compiler': '编译器',
+  'Systems': '系统',
+  'Programming': '编程语言',
+  'Virtualization': '虚拟化',
+  'Surveys': '综述',
+  'Foundations': '基础',
+  'Optimization': '优化方法',
+  'Agents': 'Agent 系统',
+  'Tools': '工具与环境',
+  'Math': '数学基础',
+  'Books': '教材阅读',
+  'Courses': '课程',
+  'Projects': '项目',
+  'Learning-Paths': '学习路线',
+  'FractalTensor': 'FractalTensor',
+  'InfiniTensor': 'InfiniTensor',
+  'ThunderKittens': 'ThunderKittens',
+  'NNFusion': 'NNFusion',
+  'sglang': 'SGLang',
+  'SGLang': 'SGLang',
+  'Xv6-Rust': 'Xv6-Rust',
+  'Xv6-RISC-V': 'Xv6-RISC-V',
+  'QEMU': 'QEMU',
+  'ArceOS': 'ArceOS',
+  'B200-Attention': 'B200 Attention',
+  'B200-GEMM': 'B200 GEMM',
+  'Matrix-Calculus': '矩阵微积分',
+  'DeepSeek-DSA': 'DeepSeek Sparse Attention',
+  'DeepSeek-V4': 'DeepSeek V4',
+  'Event-Tensor': 'Event Tensor',
+  'HIDA': 'HIDA',
+  'Honeycomb': 'Honeycomb',
+  'IndexCache': 'IndexCache / IndexShare',
+  'Knowledge-Distillation': '知识蒸馏',
+  'MegaMoE': 'MegaMoE',
+  'MiniMax-MSA': 'MiniMax Sparse Attention',
+  'Nephele': 'Nephele',
+  'PithTrain': 'PithTrain',
+  'SkVM': 'SkVM',
+  'TIRAMISU-CGO': 'TIRAMISU',
+  'DuVisor': 'DuVisor',
 }
 
 function cleanTitle(value: string) {
@@ -95,6 +124,11 @@ function directoryItems(
       const items = directoryItems(directory)
 
       if (!items.length) return undefined
+      const indexFile = join(directory, 'index.md')
+      if (/^0[1-7]_/.test(entry.name) && existsSync(indexFile)) {
+        const source = readFileSync(indexFile, 'utf8')
+        if (source.includes('本分类暂无归档内容。') || source.includes('共 0 个清单条目')) return undefined
+      }
 
       return {
         text: directoryLabels[entry.name] ?? entry.name.replaceAll('-', ' '),
@@ -113,8 +147,8 @@ function buildSidebar(): DefaultTheme.SidebarItem[] {
       text: '开始阅读',
       items: [
         { text: '知识地图', link: '/' },
-        { text: '论文索引', link: '/reading/' },
-        { text: 'LLM 学习路线', link: '/reading/learning-paths/llm' },
+        { text: '全部笔记目录', link: '/CATALOG' },
+        { text: 'LLM 学习路线', link: '/Foundations/05_Model_Architecture_and_Reasoning/Learning-Paths/llm' },
       ],
     },
     ...Object.entries(sectionLabels).map(([directory, text]) => ({
@@ -139,6 +173,14 @@ export default defineConfig({
   buildEnd(site) {
     for (const [oldPath, newPath] of Object.entries(redirects)) {
       const output = join(site.outDir, oldPath.replace(/\.md$/, '.html'))
+      // Case-only aliases already resolve on a case-insensitive filesystem.
+      // Do not overwrite the canonical page with a redirect to itself.
+      const canonicalOutput = join(site.outDir, newPath.replace(/\.md$/, '.html'))
+      if (existsSync(output) && existsSync(canonicalOutput)) {
+        const outputFile = statSync(output)
+        const canonicalFile = statSync(canonicalOutput)
+        if (outputFile.dev === canonicalFile.dev && outputFile.ino === canonicalFile.ino) continue
+      }
       mkdirSync(dirname(output), { recursive: true })
       if (!oldPath.endsWith('.md')) {
         copyFileSync(join(repositoryRoot, newPath), output)
@@ -146,6 +188,25 @@ export default defineConfig({
       }
       const destination = site.site.base + newPath.replace(/\.md$/, '.html')
       writeFileSync(output, `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>笔记新地址</title><link rel="canonical" href="${destination}"><meta http-equiv="refresh" content="0;url=${destination}"><script>location.replace(${JSON.stringify(destination)} + location.search + location.hash)</script><a href="${destination}">阅读笔记</a></html>`)
+    }
+
+    // Static imported HTML keeps its original relative image and media URLs.
+    const imports = JSON.parse(readFileSync(join(repositoryRoot, 'scripts/imported-translations.json'), 'utf8')) as Array<{ path: string }>
+    for (const article of imports) {
+      const directory = join(repositoryRoot, article.path)
+      const pdfOutput = join(site.outDir, article.path, 'article.pdf')
+      mkdirSync(dirname(pdfOutput), { recursive: true })
+      copyFileSync(join(directory, 'article.pdf'), pdfOutput)
+      const source = readFileSync(join(directory, 'index.md'), 'utf8')
+      for (const match of source.matchAll(/<(?:a|img|source|video)\b[^>]*?\b(?:href|src)="([^"]+)"/g)) {
+        const url = match[1]
+        if (/^(?:[a-z][\w+.-]*:|\/\/|#|\/)/i.test(url)) continue
+        const input = resolve(directory, decodeURIComponent(url.split(/[?#]/)[0]))
+        if (!existsSync(input) || !statSync(input).isFile()) continue
+        const output = join(site.outDir, relative(repositoryRoot, input))
+        mkdirSync(dirname(output), { recursive: true })
+        copyFileSync(input, output)
+      }
     }
   },
 
@@ -161,6 +222,10 @@ export default defineConfig({
       lazyLoading: true,
     },
     config(markdown) {
+      const imports = JSON.parse(readFileSync(join(repositoryRoot, 'scripts/imported-translations.json'), 'utf8'))
+      const formulas = Object.assign({}, ...imports.map((article: { formulas?: Record<string, string> }) => article.formulas ?? {}))
+      installImportedTranslations(markdown, formulas)
+
       const defaultFence = markdown.renderer.rules.fence
 
       if (!defaultFence) return
@@ -183,13 +248,9 @@ export default defineConfig({
     siteTitle: 'KuangjuX’s Notes',
     nav: [
       { text: '首页', link: '/' },
-      { text: '主题', items: Object.entries(sectionLabels)
-          .filter(([path]) => path.startsWith('notes/'))
-          .map(([path, text]) => ({ text, link: `/${path}/` })) },
-      { text: '课程', link: '/courses/' },
-      { text: '项目', link: '/projects/' },
-      { text: '论文索引', link: '/reading/' },
-      { text: '学习路线', link: '/reading/learning-paths/llm' },
+      ...Object.entries(sectionLabels).map(([directory, text]) => ({ text, link: `/${directory}/` })),
+      { text: '全部目录', link: '/CATALOG' },
+      { text: '学习路线', link: '/Foundations/05_Model_Architecture_and_Reasoning/Learning-Paths/llm' },
     ],
 
     sidebar: buildSidebar(),

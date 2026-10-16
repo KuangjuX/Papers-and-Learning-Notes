@@ -1,0 +1,84 @@
+# 推理与 KV Cache · 论文
+
+[论文总览](../index.md) · [基础笔记](../../Foundations/02_Inference_and_KV_Cache/index.md)
+
+推理服务、缓存管理、投机解码、量化与 SGLang 源码实践。
+
+共 46 个清单条目；已读 6，待读 40。保留原有跨分类重复条目与阅读状态。
+
+## 本地笔记
+
+- [Dual Chunk Attention](Dual-Chunk-Attention/DCA.md)
+- [HiSparse：稀疏注意力的分层 KV Cache 管理](HiSparse/hisparse.md)
+- [A Survey of LLM Inference Systems](Surveys/llm_inference_survey.md)
+
+## LLM Inference / Decoding Algorithms
+
+| Status | Paper | Venue | Why It Matters | Links |
+|:------:|-------|-------|----------------|-------|
+| ⬜ | **The Curious Case of Neural Text Degeneration** | [ICLR'20](https://pubs.cs.uct.ac.za/1407/1/the_curious_case_of_neural_text_degeneration.pdf) | 系统比较 greedy、beam、top-k 与 nucleus sampling，理解生成质量、随机性和退化 | [Paper](https://arxiv.org/abs/1904.09751) |
+| ⬜ | **Fast Inference from Transformers via Speculative Decoding** | [ICML'23](https://proceedings.mlr.press/v202/leviathan23a.html) | draft–verify 与拒绝采样；在保持目标分布不变的前提下并行生成多个 token | [Paper](https://proceedings.mlr.press/v202/leviathan23a.html) |
+| ⬜ | **Accelerating Large Language Model Decoding with Speculative Sampling** | [arXiv'23](https://arxiv.org/abs/2302.01318) | speculative sampling 的独立推导与工程验证，适合和上一论文对照阅读 | [Paper](https://arxiv.org/abs/2302.01318) |
+| ⬜ | **SpecInfer: Accelerating Large Language Model Serving with Tree-based Speculative Inference and Verification** | [ASPLOS'24](https://hsword.github.io/publications/) | 用候选树提高并行验证宽度，连接解码算法与 serving batch | [Paper](https://arxiv.org/abs/2305.09781) |
+| ⬜ | **Medusa: Simple LLM Inference Acceleration Framework with Multiple Decoding Heads** | [ICML'24](https://proceedings.mlr.press/v235/cai24b.html) | 不依赖独立 draft model 的多头预测与 tree attention | [Paper](https://arxiv.org/abs/2401.10774) |
+| ⬜ | **Break the Sequential Dependency of LLM Inference Using Lookahead Decoding** | [ICML'24](https://icml.cc/virtual/2024/poster/33512) | 从 Jacobi iteration 理解无额外模型的并行候选生成 | [Paper](https://arxiv.org/abs/2402.02057) |
+| ⬜ | **EAGLE: Speculative Sampling Requires Rethinking Feature Uncertainty** | [ICML'24](https://proceedings.mlr.press/v235/li24bt.html) | 在 feature space 自回归预测，理解高接受率 drafter 的训练方法 | [Paper](https://arxiv.org/abs/2401.15077) |
+| ⬜ | **Better & Faster Large Language Models via Multi-token Prediction** | [ICML'24](https://proceedings.mlr.press/v235/gloeckle24a.html) | 训练时预测多个未来 token，将训练目标与推理解码并行性连接起来 | [Paper](https://arxiv.org/abs/2404.19737) |
+
+## LLM Inference / General
+
+| Status | Paper | Venue | Why It Matters | Links |
+|:------:|-------|-------|----------------|-------|
+| ✅ | **A Survey of LLM Inference Systems** | [arXiv'25](https://arxiv.org/abs/2506.21901) | 贯通 kernel、批处理、调度与 KV 管理，理解单副本、分离式和分布式推理系统的设计取舍 | [Paper](https://arxiv.org/pdf/2506.21901) / [Note](Surveys/llm_inference_survey.pdf) |
+| ⬜ | **WaferLLM: Large Language Model Inference at Wafer Scale** | [OSDI'25](https://www.usenix.org/system/files/osdi25-he.pdf) | 研究晶圆级互连和存储条件下的 LLM 映射，理解不同硬件形态如何改变推理并行策略 | [Paper](https://www.usenix.org/system/files/osdi25-he.pdf) |
+
+## LLM Inference / Long Context Inference
+
+| Status | Paper | Venue | Why It Matters | Links |
+|:------:|-------|-------|----------------|-------|
+| ✅ | **Training-Free Long-Context Scaling of Large Language Models** | [ICML'24](https://arxiv.org/pdf/2402.17463) | 用 Dual Chunk Attention 调整位置关系，无继续训练地扩展模型可处理的上下文长度 | [Paper](https://arxiv.org/pdf/2402.17463) / [Note](Dual-Chunk-Attention/DCA.md) |
+| ✅ | **Efficient Streaming Language Models with Attention Sinks** | [ICLR'24](https://arxiv.org/pdf/2309.17453) | 保留 attention sink 与滑动窗口，实现有界 KV 缓存的流式生成并明确历史信息保留边界 | [Paper](https://arxiv.org/pdf/2309.17453) / [讨论笔记](../../Foundations/01_Attention/Attention-Sinks/attention-sink-and-dsink.md) |
+| ✅ 📝 | **HiSparse: Scaling Sparse-Attention Decoding with Hierarchical KV Cache Management** | [arXiv'26](https://arxiv.org/abs/2608.07009v1) | 将完整 KV 放在主存、热点放在有界 GPU 缓存，并用跨层预取隐藏稀疏解码缺页开销 | [Paper](https://arxiv.org/abs/2608.07009v1) / [Note](HiSparse/hisparse.md) |
+| ⬜ | **Unifying Sparse Attention with Hierarchical Memory for Scalable Long-Context LLM Serving (SPIN)** | [arXiv'26](https://arxiv.org/abs/2604.26837) | 统一不同稀疏粒度与分层 KV 存储，通过局部性感知缓存和元数据设计降低 GPU–CPU 传输开销 | [Paper](https://arxiv.org/abs/2604.26837) |
+
+## LLM Inference / LLM Serving
+
+| Status | Paper | Venue | Why It Matters | Links |
+|:------:|-------|-------|----------------|-------|
+| ⬜ | **Orca: A Distributed Serving System for Transformer-Based Generative Models** | [OSDI'22](https://www.usenix.org/conference/osdi22/presentation/yu) | 提出迭代级调度和选择性批处理，使不同长度请求能动态进入和离开生成批次 | [Paper](https://www.usenix.org/conference/osdi22/presentation/yu) |
+| ⬜ | **Efficient Memory Management for Large Language Model Serving with PagedAttention** | [SOSP'23](https://arxiv.org/abs/2309.06180) | 用分页 KV 管理消除大块连续分配需求，并支持缓存共享，奠定高吞吐 LLM serving 基础 | [Paper](https://arxiv.org/abs/2309.06180) |
+| ⬜ | **FlexGen: High-Throughput Generative Inference of Large Language Models with a Single GPU** | [ICML'23](https://proceedings.mlr.press/v202/sheng23a.html) | 联合规划 GPU、CPU 和磁盘上的权重与 KV 放置，以卸载和大批处理换取单 GPU 高吞吐 | [Paper](https://proceedings.mlr.press/v202/sheng23a.html) |
+| ⬜ | **AlpaServe: Statistical Multiplexing with Model Parallelism for Deep Learning Serving** | [OSDI'23](https://www.usenix.org/conference/osdi23/presentation/li-zhouhan) | 利用模型并行实现统计复用，理解多个模型共用集群时的资源配置和尾延迟取舍 | [Paper](https://www.usenix.org/conference/osdi23/presentation/li-zhouhan) |
+| ⬜ | **FastServe: Fast Distributed Inference Serving for Large Language Models** | [arXiv'23](https://arxiv.org/abs/2305.05920) | 以 token 级抢占和多级反馈队列缓解队首阻塞，并配合 KV 卸载改善请求完成延迟 | [Paper](https://arxiv.org/abs/2305.05920) |
+| ⬜ | **InferCept: Efficient Intercept Support for Augmented Large Language Model Inference** | [ICML'24](https://proceedings.mlr.press/v235/abhyankar24a.html) | 为调用外部工具时暂停的生成管理 KV 保留、卸载与重算，减少恢复推理的资源浪费 | [Paper](https://proceedings.mlr.press/v235/abhyankar24a.html) |
+| ⬜ | **Punica: Multi-Tenant LoRA Serving** | [MLSys'24](https://arxiv.org/abs/2310.18547) | 用专门的批量 LoRA kernel 共同服务不同适配器，提高多租户微调模型的 GPU 利用率 | [Paper](https://arxiv.org/abs/2310.18547) |
+| ⬜ | **S-LoRA: Serving Thousands of Concurrent LoRA Adapters** | [MLSys'24](https://arxiv.org/abs/2311.03285) | 统一管理适配器权重与 KV 的分页内存，并批量执行异构 LoRA 请求以扩大并发规模 | [Paper](https://arxiv.org/abs/2311.03285) |
+| ⬜ | **Splitwise: Efficient Generative LLM Inference Using Phase Splitting** | [ISCA'24](https://arxiv.org/abs/2311.18677) | 将 prefill 与 decode 放到独立资源池，匹配两阶段不同的算力、带宽和功耗需求 | [Paper](https://arxiv.org/abs/2311.18677) |
+| ⬜ | **Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve** | [OSDI'24](https://arxiv.org/abs/2403.02310) | 用 chunked prefill 和混合批处理控制解码停顿，改善吞吐与逐 token 延迟的取舍 | [Paper](https://arxiv.org/abs/2403.02310) |
+| ⬜ | **Llumnix: Dynamic Scheduling for Large Language Model Serving** | [OSDI'24](https://arxiv.org/abs/2406.03243) | 通过运行时请求迁移协调多实例负载，在动态请求与资源变化下控制延迟 | [Paper](https://arxiv.org/abs/2406.03243) |
+| ⬜ | **Preble: Efficient Distributed Prompt Scheduling for LLM Serving** | [ICLR'25](https://proceedings.iclr.cc/paper_files/paper/2025/hash/5bc342f48de8264779952fac378f96dc-Abstract-Conference.html) | 联合优化跨 GPU 前缀 KV 复用与负载均衡，避免局部缓存命中率牺牲整体服务延迟 | [Paper](https://arxiv.org/abs/2407.00023) |
+| ✅ | **SGLang: Efficient Execution of Structured Language Model Programs** | [NeurIPS'24](https://proceedings.neurips.cc/paper_files/paper/2024/hash/724be4472168f31ba1c9ac630f15dec8-Abstract-Conference.html) | 以结构化程序前端、RadixAttention 前缀复用和约束解码优化多调用 LLM 应用 | [Paper](https://proceedings.neurips.cc/paper_files/paper/2024/hash/724be4472168f31ba1c9ac630f15dec8-Abstract-Conference.html) |
+| ✅ | **FlashInfer: Efficient and Customizable Attention Engine for LLM Inference Serving** | [MLSys'25](https://proceedings.mlsys.org/paper_files/paper/2025/hash/dbf02b21d77409a2db30e56866a8ab3a-Abstract-Conference.html) | 统一 KV 格式、可定制 attention kernel 与动态负载调度，连接算子优化和实际 serving | [Paper](https://proceedings.mlsys.org/paper_files/paper/2025/hash/dbf02b21d77409a2db30e56866a8ab3a-Abstract-Conference.html) |
+| ⬜ | **DistServe: Disaggregating Prefill and Decoding for Goodput-optimized Large Language Model Serving** | [OSDI'24](https://www.usenix.org/system/files/osdi24-zhong-yinmin.pdf) | 按 TTFT 与 TPOT 目标独立配置 prefill、decode 资源，优化满足服务目标的有效吞吐 | [Paper](https://www.usenix.org/system/files/osdi24-zhong-yinmin.pdf) |
+| ⬜ | **LoongServe: Efficiently Serving Long-Context Large Language Models with Elastic Sequence Parallelism** | [SOSP'24](https://dl.acm.org/doi/pdf/10.1145/3694715.3695948) | 用弹性序列并行动态调整长请求占用的 GPU，协调长上下文 prefill 与 decode | [Paper](https://dl.acm.org/doi/pdf/10.1145/3694715.3695948) |
+| ⬜ | **Mooncake: Trading More Storage for Less Computation — A KVCache-centric Architecture for Serving LLM Chatbot** | [FAST'25](https://www.usenix.org/system/files/fast25-qin.pdf) | 围绕分离式 KV 缓存池组织推理，利用更多存储和跨请求复用减少重复 prefill | [Paper](https://www.usenix.org/system/files/fast25-qin.pdf) |
+| ⬜ | **NanoFlow: Towards Optimal Large Language Model Serving Throughput** | [OSDI'25](https://www.usenix.org/system/files/osdi25-zhu-kan.pdf) | 用 nano-batch 流水线重叠计算、访存和通信，突破逐算子执行对服务吞吐的限制 | [Paper](https://www.usenix.org/system/files/osdi25-zhu-kan.pdf) |
+| ⬜ | **From Tokens to Layers: Redefining Stall-Free Scheduling for MoE Serving with Layered Prefill** | [MLSys'26](https://proceedings.mlsys.org/paper_files/paper/2026/hash/c0f460c6d63599ea870ba9db63dc96a9-Abstract-Conference.html) | 沿层组而非 token 切分 prefill，减少 MoE 专家权重重复加载，同时保持解码连续性 | [Paper](https://proceedings.mlsys.org/paper_files/paper/2026/hash/c0f460c6d63599ea870ba9db63dc96a9-Abstract-Conference.html) |
+| ⬜ | **CRAFT: Fine-Grained Cost-Aware Expert Replication for Efficient Mixture-of-Experts Serving** | [MLSys'26](https://proceedings.mlsys.org/paper_files/paper/2026/hash/3a7f9e485845dac27423375c934cb4db-Abstract-Conference.html) | 按层估计专家复制收益，在显存预算内平衡路由负载，避免过度复制挤占 KV 空间 | [Paper](https://proceedings.mlsys.org/paper_files/paper/2026/hash/3a7f9e485845dac27423375c934cb4db-Abstract-Conference.html) |
+| ⬜ | **Strata: Hierarchical Context Caching for Long Context Language Model Serving** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/xie-zhiqiang) | 结合大块 KV I/O 与缓存感知调度，缓解 GPU、主存和 SSD 分层上下文缓存的加载停顿 | [Paper](https://www.usenix.org/conference/osdi26/presentation/xie-zhiqiang) |
+| ⬜ | **No Buffer, No Bottleneck: Efficient Zero-Copy KV Cache Offloading for Long-Context LLMs (DirectKV)** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/luo) | 在 NVLink-C2C 平台让 GPU 直接访问主存 KV，消除 staging buffer 与额外拷贝 | [Paper](https://www.usenix.org/conference/osdi26/presentation/luo) |
+
+## LLM Inference / Quantization & Compression
+
+| Status | Paper | Venue | Why It Matters | Links |
+|:------:|-------|-------|----------------|-------|
+| ⬜ | **LLM.int8(): 8-bit Matrix Multiplication for Transformers at Scale** | [NeurIPS'22](https://proceedings.neurips.cc/paper_files/paper/2022/file/c3ba4962c05c49636d4c6206a97e9c8a-Paper-Conference.pdf) | 混合精度分解 activation outlier，是理解 LLM INT8 的起点 | [Paper](https://arxiv.org/abs/2208.07339) |
+| ⬜ | **GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers** | [ICLR'23](https://www.research-collection.ethz.ch/items/00736213-37b2-4e99-b015-141349b71413) | 基于近似二阶信息的 one-shot weight-only PTQ | [Paper](https://arxiv.org/abs/2210.17323) |
+| ⬜ | **SmoothQuant: Accurate and Efficient Post-Training Quantization for Large Language Models** | [ICML'23](https://proceedings.mlr.press/v202/xiao23c.html) | 用等价缩放把 activation 量化难度迁移到 weight，形成 W8A8 路线 | [Paper](https://arxiv.org/abs/2211.10438) |
+| ⬜ | **AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration** | [MLSys'24](https://proceedings.mlsys.org/paper_files/paper/2024/hash/42a452cbafa9dd64e9ba4aa95cc1ef21-Abstract-Conference.html) | 用 activation 识别显著通道并保护关键权重，形成主流 W4A16 路线 | [Paper](https://arxiv.org/abs/2306.00978) |
+| ⬜ | **SpQR: A Sparse-Quantized Representation for Near-Lossless LLM Weight Compression** | [ICLR'24](https://proceedings.iclr.cc/paper_files/paper/2024/hash/1787533e171dcc8549cc2eb5a4840eec-Abstract-Conference.html) | 将少量 outlier 与低比特权重分离，理解稀疏异常值处理 | [Paper](https://arxiv.org/abs/2306.03078) |
+| ⬜ | **OmniQuant: Omnidirectionally Calibrated Quantization for Large Language Models** | [ICLR'24](https://proceedings.iclr.cc/paper_files/paper/2024/hash/c6483c8a68083af3383f91ee0dc6db95-Abstract-Conference.html) | 通过可学习的 clipping 与等价变换改善低比特 PTQ | [Paper](https://arxiv.org/abs/2308.13137) |
+| ⬜ | **AQLM: Extreme Compression of Large Language Models via Additive Quantization** | [ICML'24](https://proceedings.mlr.press/v235/egiazarian24a.html) | additive codebook 与极低 bit/weight，连接压缩算法和解码 kernel | [Paper](https://arxiv.org/abs/2401.06118) |
+| ⬜ | **KIVI: A Tuning-Free Asymmetric 2bit Quantization for KV Cache** | [ICML'24](https://github.com/jy-yuan/KIVI) | 区分 K/V 的通道与 token 统计特性，理解 KV cache 低比特化 | [Paper](https://arxiv.org/abs/2402.02750) |
+| ⬜ | **QuaRot: Outlier-Free 4-Bit Inference in Rotated LLMs** | [NeurIPS'24](https://proceedings.neurips.cc/paper_files/paper/2024/hash/b5b939436789f76f08b9d0da5e81af7c-Abstract-Conference.html) | 用 Hadamard rotation 消除 outlier，适合从算法追到融合 kernel | [Paper](https://arxiv.org/abs/2404.00456) |
+| ⬜ | **The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits** | [arXiv'24](https://arxiv.org/abs/2402.17764) | BitNet b1.58 与三值权重，理解量化感知训练的架构路线 | [Paper](https://arxiv.org/abs/2402.17764) |

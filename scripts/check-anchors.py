@@ -29,6 +29,16 @@ pages = {
     path.relative_to(root).as_posix(): Page(path.read_text())
     for path in root.rglob("*.html")
 }
+# Redirect aliases must never replace a canonical page on case-insensitive disks.
+repository = root.parents[1]
+sources = [repository / "index.md"]
+for directory in ["Papers", "Projects", "Foundations"]:
+    sources.extend((repository / directory).rglob("*.md"))
+for source in sources:
+    output = source.relative_to(repository).with_suffix(".html").as_posix()
+    if output not in pages or "app" not in pages[output].ids:
+        raise SystemExit(f"Canonical page is missing or was replaced by a redirect: {output}")
+
 errors = set()
 checked = 0
 for source, page in pages.items():

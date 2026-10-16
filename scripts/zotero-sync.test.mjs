@@ -16,10 +16,10 @@ const fixture = () => ({ schemaVersion: 1,
 });
 function repo() {
   const root = mkdtempSync(join(tmpdir(), 'zotero-sync-test-'));
-  mkdirSync(join(root, 'notes/llm'), { recursive: true });
-  mkdirSync(join(root, 'reading'));
-  writeFileSync(join(root, 'notes/llm/index.md'), '# LLM\n');
-  writeFileSync(join(root, 'reading/index.md'), '# Reading\n');
+  mkdirSync(join(root, 'Papers/01_Attention'), { recursive: true });
+  mkdirSync(join(root, 'Papers'), { recursive: true });
+  writeFileSync(join(root, 'Papers/01_Attention/index.md'), '# LLM\n');
+  writeFileSync(join(root, 'Papers/index.md'), '# Reading\n');
   return root;
 }
 
@@ -32,8 +32,9 @@ test('round trip preserves long annotations and verified Zotero coordinates', ()
 
 test('incremental update preserves user text, adds annotation and updates unchanged blocks', () => {
   const root = repo(), data = fixture();
-  const options = { root, topic: 'llm', slug: 'test-paper' };
+  const options = { root, topic: '01_Attention', slug: 'test-paper' };
   const first = syncDossier(data, options);
+  assert.equal(first.file, 'Papers/01_Attention/Test-Paper/zotero-reading.md');
   const file = join(root, first.file);
   writeFileSync(file, readFileSync(file, 'utf8').replace('在此记录个人理解', '手写的重要理解\n\n在此记录个人理解'));
   data.attachments[0].annotations[0].comment = '新解释';
@@ -46,11 +47,11 @@ test('incremental update preserves user text, adds annotation and updates unchan
   const again = syncDossier(data, options);
   assert.equal(readFileSync(file, 'utf8'), updated);
   assert.deepEqual(again.conflicts, []);
-  assert.equal(readFileSync(join(root, 'reading/index.md'), 'utf8').match(/Test Paper/g).length, 1);
+  assert.equal(readFileSync(join(root, 'Papers/index.md'), 'utf8').match(/Test Paper/g).length, 1);
 });
 
 test('manual edits inside managed blocks survive source changes and produce private conflict draft', () => {
-  const root = repo(), data = fixture(), options = { root, topic: 'llm', slug: 'test-paper' };
+  const root = repo(), data = fixture(), options = { root, topic: '01_Attention', slug: 'test-paper' };
   const first = syncDossier(data, options), file = join(root, first.file);
   writeFileSync(file, readFileSync(file, 'utf8').replace('解释', '我的手写分析'));
   data.attachments[0].annotations[0].comment = '上游修改';
@@ -63,7 +64,7 @@ test('manual edits inside managed blocks survive source changes and produce priv
 test('deleted blocks are not resurrected; deleted source annotations are reported, preserved', () => {
   const first = mergeBlocks('', { a: 'source' });
   assert.deepEqual(mergeBlocks('', { a: 'source' }, first.baseline).conflicts.map(c => c.id), ['a']);
-  const root = repo(), data = fixture(), options = { root, topic: 'llm', slug: 'test-paper' };
+  const root = repo(), data = fixture(), options = { root, topic: '01_Attention', slug: 'test-paper' };
   const result = syncDossier(data, options);
   data.attachments[0].annotations = [];
   assert.deepEqual(syncDossier(data, options).removed, ['annotation-ANNOT123']);
@@ -72,13 +73,13 @@ test('deleted blocks are not resurrected; deleted source annotations are reporte
 
 test('dry run and path validation do not write outside the intended topic', () => {
   const root = repo();
-  syncDossier(fixture(), { root, topic: 'llm', slug: 'test-paper', dryRun: true });
-  assert.equal(existsSync(join(root, 'notes/llm/test-paper')), false);
+  syncDossier(fixture(), { root, topic: '01_Attention', slug: 'test-paper', dryRun: true });
+  assert.equal(existsSync(join(root, 'Papers/01_Attention/Test-Paper')), false);
   assert.throws(() => syncDossier(fixture(), { root, topic: '../outside', slug: 'x' }));
-  assert.throws(() => syncDossier(fixture(), { root, topic: 'llm', slug: '../outside' }));
+  assert.throws(() => syncDossier(fixture(), { root, topic: '01_Attention', slug: '../outside' }));
   const outside = mkdtempSync(join(tmpdir(), 'zotero-outside-'));
-  symlinkSync(outside, join(root, 'notes/llm/escape'));
-  assert.throws(() => syncDossier(fixture(), { root, topic: 'llm', slug: 'escape' }), /Symlink/);
+  symlinkSync(outside, join(root, 'Papers/01_Attention/Escape'));
+  assert.throws(() => syncDossier(fixture(), { root, topic: '01_Attention', slug: 'escape' }), /Symlink/);
 });
 
 test('raw annotations cannot inject HTML, Vue expressions or managed-block markers', () => {
@@ -145,4 +146,34 @@ test('export rehydrates detached upstream annotation snapshots without losing ge
   assert.equal(exported.text, 'A'.repeat(900));
   assert.equal(exported.comment, '解释');
   assert.equal(exported.position.pageIndex, 3);
+});
+
+
+test('archive migration preserves private baselines, manual text and legacy import commands', () => {
+  const root = repo(), data = fixture();
+  const first = syncDossier(data, { root, topic: '01_Attention', slug: 'flashattention-4' });
+  const file = join(root, first.file);
+  writeFileSync(file, readFileSync(file, 'utf8').replace('在此记录个人理解', '归档前的个人笔记\n\n在此记录个人理解'));
+  const stateFile = join(root, '.local/zotero-sync/PAPER123.json');
+  const state = JSON.parse(readFileSync(stateFile, 'utf8'));
+  state.file = 'notes/llm/flashattention-4/zotero-reading.md';
+  writeFileSync(stateFile, JSON.stringify(state));
+  data.attachments[0].annotations[0].comment = '归档后的新增解读';
+  const options = { root, topic: 'llm', slug: 'flashattention-4' };
+  const before = readFileSync(stateFile, 'utf8');
+  assert.equal(syncDossier(data, { ...options, dryRun: true }).file, first.file);
+  assert.equal(readFileSync(stateFile, 'utf8'), before);
+  const result = syncDossier(data, options);
+  assert.deepEqual(result.conflicts, []);
+  assert.equal(result.file, first.file);
+  assert.ok(readFileSync(file, 'utf8').includes('归档前的个人笔记'));
+  assert.ok(readFileSync(file, 'utf8').includes('归档后的新增解读'));
+  assert.equal(JSON.parse(readFileSync(stateFile, 'utf8')).file, first.file);
+  const lowercaseState = JSON.parse(readFileSync(stateFile, 'utf8'));
+  lowercaseState.file = 'papers/01_Attention/flashattention-4/zotero-reading.md';
+  writeFileSync(stateFile, JSON.stringify(lowercaseState));
+  assert.equal(syncDossier(data, { root, topic: '01_Attention', slug: 'flashattention-4' }).file, first.file);
+  assert.equal(JSON.parse(readFileSync(stateFile, 'utf8')).file, first.file);
+  assert.equal(existsSync(join(root, 'notes')), false);
+  assert.throws(() => syncDossier(data, { root, topic: 'llm', slug: 'unmapped-paper' }), /numbered topic/);
 });

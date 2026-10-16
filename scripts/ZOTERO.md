@@ -46,14 +46,14 @@ Zotero 内置的侧栏运行时仍使用上游自己的工具集与权限设置�
 
 ```sh
 node scripts/zotero-sync.mjs --search 'FlashAttention-4'
-node scripts/zotero-sync.mjs --item <搜索结果中的父条目ID> --topic llm --slug flashattention-4 --dry-run
-node scripts/zotero-sync.mjs --item <搜索结果中的父条目ID> --topic llm --slug flashattention-4
+node scripts/zotero-sync.mjs --item <搜索结果中的父条目ID> --topic 01_Attention --slug flashattention-4 --dry-run
+node scripts/zotero-sync.mjs --item <搜索结果中的父条目ID> --topic 01_Attention --slug flashattention-4
 ```
 
 也可通过 `--input <导出的JSON文件>` 离线导入。输入格式为 `zotero_reading_export` 的结果，
 包含 `schemaVersion: 1`、`paper`、`attachments[].annotations` 和 `notes`。
 
-正文保存到 `notes/<topic>/<slug>/zotero-reading.md`，主题和阅读索引追加入口。
+正文保存到 `Papers/<topic>/<slug>/zotero-reading.md`，主题和阅读索引追加入口。
 每条标注保留原文、评论、附件 key、标注 key、页码和 `zotero://open-pdf/` 链接。
 输入目前支持个人文库；群组文库需要正确的 group ID，不会用本机 library ID 猜测链接。
 区域/图片标注保留位置和评论，原图仍从 Zotero 查看；本脚本不生成或导出截图。
@@ -74,7 +74,7 @@ node scripts/zotero-sync.mjs --item <搜索结果中的父条目ID> --topic llm 
 完整批注回读、Markdown 导入和索引更新均通过。示例使用文库中现有的
 FlashAttention-4（父条目 ID 34，PDF ID 33），只新增了一条明确标为 AI 联调示例的首页译注，
 没有修改原有论文内容。导入结果见
-[FlashAttention-4 阅读材料](../notes/llm/flashattention-4/zotero-reading.md)。
+[FlashAttention-4 阅读材料](../Papers/01_Attention/FlashAttention-4/zotero-reading.md)。
 示例不是全文笔记，也没有将论文标记为已读。
 
 真实批注回读发现上游只读接口会将 `getAnnotations()` 返回值脱离 Zotero 对象，
@@ -97,3 +97,5 @@ npm run docs:check-diagrams
 
 原始标注评论可能混有 AI 解读与个人观点；生成正式笔记时必须核对来源。
 导出的 Markdown 可能进入公开网站，请只导入希望保存在该仓库的阅读材料。
+
+目录归档后，已有的 `--topic llm --slug flashattention-4` 命令仍能定位新地址；私有同步基线中的旧路径会在下一次成功同步时更新。原始标注与基线哈希保留，不会重新判定已读。新论文请使用 `Papers/` 下的编号主题名。

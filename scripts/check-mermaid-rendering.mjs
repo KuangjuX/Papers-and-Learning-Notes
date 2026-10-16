@@ -12,7 +12,7 @@ DOMPurify.sanitize = (value) => value
 const { default: mermaid } = await import('mermaid')
 
 const repositoryRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
-const contentRoots = ['notes', 'courses', 'projects', 'reading'].map((directory) => join(repositoryRoot, directory))
+const contentRoots = ['Papers', 'Projects', 'Foundations'].map((directory) => join(repositoryRoot, directory))
 const outputRoot = join(repositoryRoot, '.vitepress', 'dist')
 
 function markdownFiles(directory) {

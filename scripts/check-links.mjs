@@ -4,18 +4,30 @@ import { fileURLToPath } from 'node:url'
 import { createMarkdownRenderer } from 'vitepress'
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)))
-const roots = ['notes', 'courses', 'projects', 'reading']
+const roots = ['Papers', 'Projects', 'Foundations']
 function markdownFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name)
     return entry.isDirectory() ? markdownFiles(path) : path.endsWith('.md') ? [path] : []
   })
 }
-const files = ['README.md', 'index.md'].map((path) => join(root, path))
+const files = ['README.md', 'index.md', 'CATALOG.md'].map((path) => join(root, path))
   .concat(roots.flatMap((path) => markdownFiles(join(root, path))))
 const markdown = await createMarkdownRenderer(root)
 const failures = []
+const directoryEntries = new Map()
 let checked = 0
+function hasExactCase(path) {
+  let directory = root
+  for (const part of relative(root, path).split('/')) {
+    if (!directoryEntries.has(directory)) {
+      directoryEntries.set(directory, new Set(readdirSync(directory).map((name) => name.normalize('NFC'))))
+    }
+    if (!directoryEntries.get(directory).has(part.normalize('NFC'))) return false
+    directory = join(directory, part)
+  }
+  return true
+}
 function check(url, source) {
   if (!url || /^(?:[a-z][\w+.-]*:|\/\/|#)/i.test(url)) return
   const path = decodeURIComponent(url.split(/[?#]/)[0])
@@ -24,8 +36,11 @@ function check(url, source) {
   if (!extname(target)) candidates.push(`${target}.md`, join(target, 'index.md'))
   if (target.endsWith('.html')) candidates.push(target.slice(0, -5) + '.md')
   checked++
-  if (!candidates.some((candidate) => existsSync(candidate) && statSync(candidate).isFile())) {
+  const file = candidates.find((candidate) => existsSync(candidate) && statSync(candidate).isFile())
+  if (!file) {
     failures.push(`${relative(root, source)}: ${url}`)
+  } else if (!hasExactCase(file)) {
+    failures.push(`${relative(root, source)}: incorrect path case: ${url}`)
   }
 }
 function inspect(tokens, source) {

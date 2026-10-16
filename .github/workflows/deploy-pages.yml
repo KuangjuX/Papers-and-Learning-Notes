@@ -6,10 +6,10 @@ on:
     paths:
       - ".github/workflows/deploy-pages.yml"
       - ".vitepress/**"
-      - "notes/**"
-      - "courses/**"
-      - "projects/**"
-      - "reading/**"
+      - "Papers/**"
+      - "Projects/**"
+      - "Foundations/**"
+      - "CATALOG.md"
       - "licenses/**"
       - "index.md"
       - "README.md"
@@ -54,11 +54,17 @@ jobs:
       - name: Verify local links
         run: pnpm docs:check-links
 
+      - name: Verify translation code and math rendering
+        run: pnpm docs:check-translation-rendering
+
       - name: Build site
         run: pnpm docs:build
 
       - name: Verify page anchors
         run: pnpm docs:check-anchors
+
+      - name: Verify complete imported translations
+        run: pnpm docs:check-translations
 
       - name: Verify math rendering
         run: pnpm docs:check-math

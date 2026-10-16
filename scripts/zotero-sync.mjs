@@ -6,6 +6,16 @@ import { parseArgs } from 'node:util';
 import { callTool } from './zotero-mcp.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
+const archiveLayout = JSON.parse(readFileSync(new URL('./archive-layout.json', import.meta.url), 'utf8'));
+const archiveMoves = Object.entries(archiveLayout.moves).sort((a, b) => b[0].length - a[0].length);
+const paperTopics = new Set(archiveLayout.sections.map(section => section.directory));
+function archiveDirectoryName(slug) {
+  return archiveLayout.directoryNames[slug] ?? slug.split('-').map(part => part[0].toUpperCase() + part.slice(1)).join('-');
+}
+function archivePath(path) {
+  const move = archiveMoves.find(([old]) => path === old || path.startsWith(old + '/'));
+  return move ? move[1] + path.slice(move[0].length) : path;
+}
 const hash = text => createHash('sha256').update(text).digest('hex');
 const escape = text => String(text ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;')
   .replaceAll('>', '&gt;').replaceAll('{', '&#123;').replaceAll('}', '&#125;')
@@ -96,16 +106,24 @@ export function renderDossier(data) {
 }
 
 export function syncDossier(data, { root = ROOT, topic, slug, dryRun = false } = {}) {
-  if (!/^[a-z][a-z0-9-]*$/.test(topic || '') || !/^[a-z0-9][a-z0-9-]*$/.test(slug || '')) {
-    throw new Error('Provide --topic and --slug using lowercase letters, digits and hyphens');
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(topic || '') || !/^[a-zA-Z0-9][a-zA-Z0-9-]*$/.test(slug || '')) {
+    throw new Error('Provide a topic directory name and a slug using letters, digits and hyphens');
   }
-  const topicIndex = within(root, resolve(root, 'notes', topic, 'index.md'));
-  if (!existsSync(topicIndex)) throw new Error('Choose an existing topic in notes/');
+  // Existing commands and private baselines may still refer to the old location.
+  const requested = paperTopics.has(topic)
+    ? `Papers/${topic}/${archiveDirectoryName(slug)}/zotero-reading.md`
+    : archivePath(`notes/${topic}/${slug}/zotero-reading.md`);
+  const canonicalTopic = requested.split('/')[1];
+  if (!requested.startsWith('Papers/') || !paperTopics.has(canonicalTopic)) {
+    throw new Error('Choose an existing numbered topic in Papers/');
+  }
+  const topicIndex = within(root, resolve(root, 'Papers', canonicalTopic, 'index.md'));
+  if (!existsSync(topicIndex)) throw new Error('Choose an existing numbered topic in Papers/');
   const desired = renderDossier(data);
-  const file = within(root, resolve(root, 'notes', topic, slug, 'zotero-reading.md'));
+  const file = within(root, resolve(root, requested));
   const stateFile = within(root, resolve(root, '.local/zotero-sync', data.paper.key + '.json'));
   const state = existsSync(stateFile) ? JSON.parse(readFileSync(stateFile, 'utf8')) : { baseline: {} };
-  if (state.file && state.file !== relative(root, file)) throw new Error('This paper was synced elsewhere; reuse its original topic/slug');
+  if (state.file && archivePath(state.file) !== relative(root, file)) throw new Error('This paper was synced elsewhere; reuse its original topic/slug');
   const existing = existsSync(file) ? readFileSync(file, 'utf8') : '';
   if (existing && !state.file) throw new Error('Existing note has no sync history; choose another slug');
   const initial = `# ${escape(data.paper.title)}：阅读材料\n\n## 我的理解\n\n在此记录个人理解、待验证问题和补充推导。此区域由你维护。\n`;
@@ -124,7 +142,7 @@ export function syncDossier(data, { root = ROOT, topic, slug, dryRun = false } =
   if (merged.conflicts.length) save(conflictFile, '# 待合并的 Zotero 更新\n\n' + merged.conflicts.map(c => c.incoming).join('\n\n') + '\n');
   save(stateFile, JSON.stringify({ file: relative(root, file), baseline: merged.baseline }, null, 2) + '\n');
   const title = escape(data.paper.title) + '（阅读中）';
-  for (const [index, label] of [[topicIndex, 'Zotero 阅读材料'], [resolve(root, 'reading/index.md'), 'Zotero 阅读进度']]) {
+  for (const [index, label] of [[topicIndex, 'Zotero 阅读材料'], [resolve(root, 'Papers/index.md'), 'Zotero 阅读进度']]) {
     within(root, index);
     const content = readFileSync(index, 'utf8');
     const target = linkPath(relative(dirname(index), file));

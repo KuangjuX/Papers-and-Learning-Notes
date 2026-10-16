@@ -1,0 +1,62 @@
+.translated-article {
+  --vp-code-font-size: 15px;
+  color: var(--vp-c-text-1);
+  line-height: 1.85;
+  overflow-wrap: break-word;
+}
+
+.translated-article pre,
+.translated-article pre code {
+  font-family: var(--vp-font-family-mono);
+  font-size: 15px;
+  line-height: 1.65;
+  white-space: pre;
+  overflow-wrap: normal;
+  word-break: normal;
+  tab-size: 4;
+}
+
+.translated-article :not(pre) > code { font-size: 0.95em; }
+.translated-article figure { margin: 24px 0; }
+.translated-article img,
+.translated-article video { max-width: 100%; }
+.translated-article .post-toc-action,
+.translated-article .post-toc-toggle,
+.translated-article .video-still { display: none; }
+.translated-article .translation-note {
+  padding: 16px 20px;
+  margin: 20px 0;
+  border-left: 3px solid var(--vp-c-brand-1);
+  background: var(--vp-c-brand-soft);
+  font-size: 14px;
+}
+.translated-article .eqn,
+.translated-article .eqnvec { font-family: "Cambria Math", "Times New Roman", serif; font-style: italic; }
+.translated-article .eqnvec { font-weight: 700; }
+.translated-article .translation-math { overflow-wrap: normal; }
+.translated-article .translation-math--display {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin: 1.1em 0;
+  padding: 0.25em 0;
+  font-size: 1.05em;
+}
+.translated-article .translation-math mjx-container { color: inherit; }
+.translated-article .translation-math--display mjx-container[display="true"] { margin: 0.5em 0; }
+.translated-article .translation-math svg { max-width: none; }
+.translated-article .translation-math-figure {
+  display: block;
+  overflow-x: auto;
+  margin: 1em 0;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+}
+.translated-article .translation-math-figure img { max-width: none; }
+.translated-article table { font-size: 15px; }
+.translated-article td .translation-math--display { font-size: 1em; }
+.translated-article img.blkeqn { display: block; margin: 1em auto; background: white; }
+.translated-article .footnotes,
+.translated-article figcaption { font-size: 14px; color: var(--vp-c-text-2); }
