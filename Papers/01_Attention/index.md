@@ -9,6 +9,7 @@
 ## 本地笔记
 
 - [DeepSeek Sparse Attention (DSA) 算法流程](DeepSeek-DSA/deepseek-sparse-attention-dsa.md)
+- [DoSA：用安全上界减少 Indexer 的完整打分](DoSA/dosa.md)
 - [FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling：阅读材料](FlashAttention-4/zotero-reading.md)
 - [IndexCache：跨层复用稀疏索引，以及它为什么能被训练](IndexCache/indexcache.md)
 - [MiniMax Sparse Attention：论文算法与代码实现精确对应](MiniMax-MSA/MiniMax%20Sparse%20Attention%EF%BC%9A%E8%AE%BA%E6%96%87%E7%AE%97%E6%B3%95%E4%B8%8E%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%E7%B2%BE%E7%A1%AE%E5%AF%B9%E5%BA%94.md)

@@ -24,6 +24,7 @@ Venue 与来源链接、阅读价值说明沿用原记录；原清单的元数�
 ## Zotero 阅读进度
 
 - [FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling（阅读中）](01_Attention/FlashAttention-4/zotero-reading.md)
+- [DoSA: Dots Sparse Attention（阅读中）](01_Attention/DoSA/zotero-reading.md) · [学习笔记：安全上界与完整筛选流程](01_Attention/DoSA/dosa.md)
 
 ## 旧分类入口
 
