@@ -1,6 +1,6 @@
 # 论文归档
 
-共 **341 个分类条目**：已读 74，待读 267。数量包含原有跨分类重复收录。
+共 **341 个分类条目**：已读 75，待读 266。数量包含原有跨分类重复收录。
 
 按研究主题保存论文阅读笔记、原始标注和论文清单；源码实践见[项目归档](../Projects/index.md)，原理和课程见[基础归档](../Foundations/index.md)。
 
@@ -9,7 +9,7 @@
 | 主题 | 条目 | 已读 | 待读 |
 | --- | ---: | ---: | ---: |
 | [待分类](00_Inbox/index.md) | 0 | 0 | 0 |
-| [Attention](01_Attention/index.md) | 42 | 13 | 29 |
+| [Attention](01_Attention/index.md) | 42 | 14 | 28 |
 | [推理与 KV Cache](02_Inference_and_KV_Cache/index.md) | 56 | 6 | 50 |
 | [分布式训练与 MoE](03_Distributed_Training_and_MoE/index.md) | 53 | 8 | 45 |
 | [GPU 编译与性能](04_GPU_Compiler_and_Performance/index.md) | 64 | 29 | 35 |
@@ -27,6 +27,7 @@ Venue 与来源链接、阅读价值说明沿用原记录；原清单的元数�
 
 ## Zotero 阅读进度
 
+- [PageWeaver（已读）：在线 regroup、Union8 kernel 与评测](01_Attention/PageWeaver/pageweaver.md) · [原始批注](01_Attention/PageWeaver/zotero-reading.md)
 - [FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling（阅读中）](01_Attention/FlashAttention-4/zotero-reading.md)
 - [DoSA: Dots Sparse Attention（阅读中）](01_Attention/DoSA/zotero-reading.md) · [学习笔记：安全上界与完整筛选流程](01_Attention/DoSA/dosa.md)
 

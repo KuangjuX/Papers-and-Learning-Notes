@@ -18,6 +18,10 @@ function markdownFiles(directory) {
 }
 
 function inspectSource(source) {
+  // HTML preformatted blocks, like fenced code below, contain literal source.
+  // Keep line offsets while excluding their notation from formula checks.
+  source = source.replace(/<pre\b[^>]*>[\s\S]*?<\/pre>/gi,
+    (html) => html.replace(/[^\n]/g, ' '))
   source = source.replace(/<!-- imported-translation:start -->[\s\S]*?<!-- imported-translation:end -->/g,
     (html) => html.replace(/[^\n]/g, ' '))
   const unsupported = []

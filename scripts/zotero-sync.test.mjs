@@ -91,6 +91,17 @@ test('raw annotations cannot inject HTML, Vue expressions or managed-block marke
   assert.ok(!rendered.includes('<!-- zotero:a:end -->'));
 });
 
+test('annotation comments preserve literal notation and lines without HTML or marker injection', () => {
+  const data = fixture();
+  data.attachments[0].annotations[0].comment = 'IDs[0:4] S_j\\U\n{{ expr }} <script>bad</script>\n<!-- zotero:a:end -->';
+  const rendered = renderDossier(data)['annotation-ANNOT123'];
+  assert.ok(rendered.includes('<pre v-pre'));
+  assert.ok(rendered.includes('IDs[0:4] S_j\\U\n{{ expr }}'));
+  assert.ok(rendered.includes('&lt;script&gt;bad&lt;/script&gt;'));
+  assert.ok(!rendered.includes('<script>'));
+  assert.ok(!rendered.includes('<!-- zotero:a:end -->'));
+});
+
 test('proxy filters broad tools and offers a fixed read-only export', async () => {
   const response = await proxyRequest({ jsonrpc: '2.0', id: 1, method: 'tools/list' }, async () => ({
     jsonrpc: '2.0', id: 1, result: { tools: ['library_read', 'run_command', 'file_io', 'library_delete', 'zotero_script'].map(name => ({ name })) },

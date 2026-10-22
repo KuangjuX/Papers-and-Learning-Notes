@@ -4,12 +4,13 @@
 
 注意力机制、稀疏 Attention、高效内核、线性 Attention 与记忆。
 
-共 42 个清单条目；已读 13，待读 29。保留原有跨分类重复条目与阅读状态。
+共 42 个清单条目；已读 14，待读 28。保留原有跨分类重复条目与阅读状态。
 
 - [已下载 PDF 与标签目录](../downloaded-papers.md#topic-01)
 
 ## 本地笔记
 
+- [PageWeaver：在线 Query 分组与共享 KV 的稀疏 Attention](PageWeaver/pageweaver.md)
 - [DeepSeek Sparse Attention (DSA) 算法流程](DeepSeek-DSA/deepseek-sparse-attention-dsa.md)
 - [DoSA：用安全上界减少 Indexer 的完整打分](DoSA/dosa.md)
 - [FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling：阅读材料](FlashAttention-4/zotero-reading.md)
@@ -92,7 +93,7 @@
 | ⬜ 📝 | <a id="pdf-l447a648"></a>**DoSA: Dots Sparse Attention** | arXiv · 2026 | 阅读中；标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2610.13990) / [PDF](zotero://open-pdf/library/items/Y75KTIVE) / [Zotero](zotero://select/library/items/L447A648) / [Note](DoSA/dosa.md) / [Annotations](DoSA/zotero-reading.md) / [归档标签](../downloaded-papers.md#pdf-l447a648) |
 | ⬜ | <a id="pdf-ny88ejjb"></a>**Efficient Context Scaling with LongCat ZigZag Attention** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2512.23966) / [PDF](zotero://open-pdf/library/items/2VJX3AWK) / [Zotero](zotero://select/library/items/NY88EJJB) / [归档标签](../downloaded-papers.md#pdf-ny88ejjb) |
 | ⬜ | <a id="pdf-yugv34kq"></a>**FSA: An Alternative Efficient Implementation of Native Sparse Attention Kernel** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2508.18224) / [PDF](zotero://open-pdf/library/items/ZUQSHLJQ) / [Zotero](zotero://select/library/items/YUGV34KQ) / [归档标签](../downloaded-papers.md#pdf-yugv34kq) |
-| ⬜ | <a id="pdf-ehqb8nyq"></a>**PageWeaver: KV-Guided Query Unions for Sparse Attention** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2610.11201) / [PDF](zotero://open-pdf/library/items/SBISCM3P) / [Zotero](zotero://select/library/items/EHQB8NYQ) / [归档标签](../downloaded-papers.md#pdf-ehqb8nyq) |
+| ✅ 📝 | <a id="pdf-ehqb8nyq"></a>**PageWeaver: KV-Guided Query Unions for Sparse Attention** | arXiv · 2026 | 根据 KV page 重叠在线重组 Query，以双 CTA Union8 共享搬运，并计入分组开销 | [Paper](http://arxiv.org/abs/2610.11201) / [PDF](zotero://open-pdf/library/items/SBISCM3P) / [Zotero](zotero://select/library/items/EHQB8NYQ) / [Note](PageWeaver/pageweaver.md) / [Annotations](PageWeaver/zotero-reading.md) / [归档标签](../downloaded-papers.md#pdf-ehqb8nyq) |
 
 ### Attention / 线性 Attention 与记忆
 
@@ -114,3 +115,7 @@
 | ⬜ | <a id="pdf-mnpehw5y"></a>**FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision** | arXiv · 2024 | 标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2407.08608) / [PDF](zotero://open-pdf/library/items/HTMXSCYS) / [Zotero](zotero://select/library/items/MNPEHW5Y) / [归档标签](../downloaded-papers.md#pdf-mnpehw5y) |
 | ⬜ | <a id="pdf-tghhgfqg"></a>**FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling** | arXiv · 2026 | 阅读中；标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2603.05451) / [PDF](zotero://open-pdf/library/items/M8IKPE3M) / [Zotero](zotero://select/library/items/TGHHGFQG) / [Annotations](FlashAttention-4/zotero-reading.md) / [归档标签](../downloaded-papers.md#pdf-tghhgfqg) |
 | ⬜ | <a id="pdf-5k4mwtrc"></a>**FlashDecoding++: Faster Large Language Model Inference on GPUs** | arXiv · 2024 | 标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2311.01282) / [PDF](zotero://open-pdf/library/items/8QQKNGYR) / [Zotero](zotero://select/library/items/5K4MWTRC) / [归档标签](../downloaded-papers.md#pdf-5k4mwtrc) |
+
+## Zotero 阅读材料
+
+- [PageWeaver：原始批注](PageWeaver/zotero-reading.md)

@@ -20,6 +20,11 @@ const hash = text => createHash('sha256').update(text).digest('hex');
 const escape = text => String(text ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;')
   .replaceAll('>', '&gt;').replaceAll('{', '&#123;').replaceAll('}', '&#125;')
   .replace(/([\\`*_[\]])/g, '\\$1');
+// Comments are verbatim source material, not authored Markdown or TeX.
+// Preserve line breaks and notation without interpreting formulas or Vue syntax.
+const literalComment = text => '<pre v-pre style="white-space: pre-wrap; overflow-wrap: anywhere;">\n'
+  + String(text).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+  + '\n</pre>';
 const linkPath = path => path.split('/').map(encodeURIComponent).join('/');
 
 function within(root, path) {
@@ -93,7 +98,7 @@ export function renderDossier(data) {
         `[回到原文](${url}) · PDF \`${attachment.key}\` · ${escape(annotation.type)}`,
         '', '**原文**', '', annotation.text ? escape(annotation.text).split('\n').map(l => `> ${l}`).join('\n') : '（区域或图片标注，无文本）',
         '', '**Zotero 评论（含个人批注或 AI 解读；来源由评论本身标明）**', '',
-        annotation.comment ? escape(annotation.comment) : '（无评论）',
+        annotation.comment ? literalComment(annotation.comment) : '（无评论）',
       ].join('\n');
     }
   }
