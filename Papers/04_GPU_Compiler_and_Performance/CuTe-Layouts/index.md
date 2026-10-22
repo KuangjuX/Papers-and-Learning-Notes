@@ -1,5 +1,7 @@
 # CuTe Layouts
 
+<!-- sidebar:start -->
+
 ## 阅读入口
 
 - [Categorical Foundations for CuTe Layouts：中文全文译文与原图](Layout.md)
@@ -7,20 +9,66 @@
 - [2025 年 9 月版原论文 PDF](source.pdf)
 - [Zotero 条目](zotero://select/library/items/Q3PT5C24) · [PDF 阅读](zotero://open-pdf/library/items/LUQPWFX6)
 
-## 全文目录
+## 原论文章节目录
 
 - [扉页、摘要与目录](Translation-00-Front-Matter.md)
-- [第 1 章：引言](Translation-01-Introduction.md)
-- [第 2.1 节：平坦布局的基本定义与运算](Translation-02-Flat-Layouts.md)
-- [第 2.1 节：合并、紧致性、补布局与可处理性](Translation-03-Flat-Layout-Algebra.md)
-- [第 2.2 节：嵌套元组](Translation-04-Nested-Tuples.md)
-- [第 2.3 节：布局](Translation-05-Layouts.md)
-- [第 3.1 节：Tuple 范畴、编码与具象化](Translation-06-Tuple.md)
-- [第 3.1 节：元组态射上的运算](Translation-07-Tuple-Operations.md)
-- [第 3.2 节：Nest 范畴与细化](Translation-08-Nest.md)
-- [第 3.2 节：嵌套元组态射上的运算](Translation-09-Nest-Operations.md)
-- [第 4 章：计算](Translation-10-Computations.md)
-- [附录 A：范畴入门与参考文献](Translation-11-Appendix.md)
+- [第 1 章：引言](Translation-01-Introduction.md#paper-section-1)
+  - [1.1 主要结果概述](Translation-01-Introduction.md#paper-section-1-1)
+  - [1.2 文章结构](Translation-01-Introduction.md#paper-section-1-2)
+  - [1.3 实现](Translation-01-Introduction.md#paper-section-1-3)
+  - [1.4 记号](Translation-01-Introduction.md#paper-section-1-4)
+- [第 2 章：布局及其代数](Translation-02-Flat-Layouts.md#paper-section-2)
+  - [2.1 平坦布局](Translation-02-Flat-Layouts.md#paper-section-2-1)
+    - [2.1.1 元组](Translation-02-Flat-Layouts.md#paper-section-2-1-1)
+    - [2.1.2 基本定义](Translation-02-Flat-Layouts.md#paper-section-2-1-2)
+    - [2.1.3 基本运算](Translation-02-Flat-Layouts.md#paper-section-2-1-3)
+    - [2.1.4 平坦合并](Translation-03-Flat-Layout-Algebra.md#paper-section-2-1-4)
+    - [2.1.5 紧致平坦布局](Translation-03-Flat-Layout-Algebra.md#paper-section-2-1-5)
+    - [2.1.6 补布局](Translation-03-Flat-Layout-Algebra.md#paper-section-2-1-6)
+    - [2.1.7 进一步的运算](Translation-03-Flat-Layout-Algebra.md#paper-section-2-1-7)
+    - [2.1.8 可处理平坦布局](Translation-03-Flat-Layout-Algebra.md#paper-section-2-1-8)
+  - [2.2 嵌套元组](Translation-04-Nested-Tuples.md#paper-section-2-2)
+    - [2.2.1 轮廓](Translation-04-Nested-Tuples.md#paper-section-2-2-1)
+    - [2.2.2 基本定义](Translation-04-Nested-Tuples.md#paper-section-2-2-2)
+    - [2.2.3 代入](Translation-04-Nested-Tuples.md#paper-section-2-2-3)
+    - [2.2.4 细化](Translation-04-Nested-Tuples.md#paper-section-2-2-4)
+  - [2.3 布局](Translation-05-Layouts.md#paper-section-2-3)
+    - [2.3.1 基本定义](Translation-05-Layouts.md#paper-section-2-3-1)
+    - [2.3.2 基本运算](Translation-05-Layouts.md#paper-section-2-3-2)
+    - [2.3.3 合并](Translation-05-Layouts.md#paper-section-2-3-3)
+    - [2.3.4 相对合并](Translation-05-Layouts.md#paper-section-2-3-4)
+    - [2.3.5 紧致布局](Translation-05-Layouts.md#paper-section-2-3-5)
+    - [2.3.6 补布局](Translation-05-Layouts.md#paper-section-2-3-6)
+    - [2.3.7 复合](Translation-05-Layouts.md#paper-section-2-3-7)
+    - [2.3.8 逻辑除法](Translation-05-Layouts.md#paper-section-2-3-8)
+    - [2.3.9 逻辑乘积](Translation-05-Layouts.md#paper-section-2-3-9)
+    - [2.3.10 可处理布局](Translation-05-Layouts.md#paper-section-2-3-10)
+- [第 3 章：布局的范畴](Translation-06-Tuple.md#paper-section-3)
+  - [3.1 Tuple 范畴](Translation-06-Tuple.md#paper-section-3-1)
+    - [3.1.1 基本定义](Translation-06-Tuple.md#paper-section-3-1-1)
+    - [3.1.2 从元组态射到平坦布局](Translation-06-Tuple.md#paper-section-3-1-2)
+    - [3.1.3 例子](Translation-06-Tuple.md#paper-section-3-1-3)
+    - [3.1.4 元组态射的具象化](Translation-06-Tuple.md#paper-section-3-1-4)
+    - [3.1.5 元组态射上的运算](Translation-07-Tuple-Operations.md#paper-section-3-1-5)
+  - [3.2 Nest 范畴](Translation-08-Nest.md#paper-section-3-2)
+    - [3.2.1 基本定义](Translation-08-Nest.md#paper-section-3-2-1)
+    - [3.2.2 从嵌套元组态射到布局](Translation-08-Nest.md#paper-section-3-2-2)
+    - [3.2.3 例子](Translation-08-Nest.md#paper-section-3-2-3)
+    - [3.2.4 嵌套元组态射的具象化](Translation-08-Nest.md#paper-section-3-2-4)
+    - [3.2.5 细化](Translation-08-Nest.md#paper-section-3-2-5)
+    - [3.2.6 嵌套元组态射上的运算](Translation-09-Nest-Operations.md#paper-section-3-2-6)
+- [第 4 章：计算](Translation-10-Computations.md#paper-section-4)
+  - [4.1 复合](Translation-10-Computations.md#paper-section-4-1)
+    - [4.1.1 共同细化](Translation-10-Computations.md#paper-section-4-1-1)
+    - [4.1.2 从共同细化到可复合态射](Translation-10-Computations.md#paper-section-4-1-2)
+    - [4.1.3 复合算法](Translation-10-Computations.md#paper-section-4-1-3)
+    - [4.1.4 例子](Translation-10-Computations.md#paper-section-4-1-4)
+- [附录 A：范畴入门](Translation-11-Appendix.md#paper-section-A)
+  - [A.1 什么是范畴？](Translation-11-Appendix.md#paper-section-A-1)
+  - [A.2 什么是函子？](Translation-11-Appendix.md#paper-section-A-2)
+- [参考文献](Translation-11-Appendix.md#paper-references)
+
+<!-- sidebar:end -->
 
 译文按 12 个部分覆盖全部 163 个 PDF 页面，正文与原页逐页对应。翻译方式与术语约定见[译文说明](Layout.md#译文说明)。已完成全文逐句校对；阅读状态仍为待读。
 

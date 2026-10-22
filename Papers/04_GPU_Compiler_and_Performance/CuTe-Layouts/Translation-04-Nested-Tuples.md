@@ -5,9 +5,13 @@
 ## PDF 第 59 页 · 原书第 57 页
 <a id="pdf-page-59"></a>
 
+<a id="paper-section-2-2"></a>
+
 ### 2.2 嵌套元组
 
 在本节中，我们将介绍嵌套元组，它们是定义完全通用布局所需的元组的概括。
+
+<a id="paper-section-2-2-1"></a>
 
 ### 2.2.1 轮廓
 
@@ -208,6 +212,8 @@ is ordinary concatenation.</pre>
 ![原文公式、图示或代码（PDF 第 61 页）](./assets/p061-visual-003.png)
 
 由 Q 代入给出。也可以在这个非对称运算子上构造余自由对称运算子；这相当于在各个 n 元运算集合上赋予平凡的对称群作用。
+
+<a id="paper-section-2-2-2"></a>
 
 ### 2.2.2 基本定义
 
@@ -464,6 +470,8 @@ Finally, we introduce the notion of congruence of nested tuples, which indicates
 
 <img src="./assets/p064-b009-m01.png" alt="原文数学符号" style="display:inline-block;height:1.286em;width:8.426em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> <img src="./assets/p064-b009-m02.png" alt="原文数学符号" style="display:inline-block;height:1.286em;width:9.700em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 不同形
 
+<a id="paper-section-2-2-3"></a>
+
 ### 2.2.3 代入
 
 回想一下，如果 <img src="./assets/p064-b011-m01.png" alt="原文数学符号" style="display:inline-block;height:1.136em;width:0.968em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 是长度为 <img src="./assets/p064-b011-m02.png" alt="原文数学符号" style="display:inline-block;height:1.136em;width:0.629em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 的轮廓，并且 <img src="./assets/p064-b011-m03.png" alt="原文数学符号" style="display:inline-block;height:1.221em;width:4.490em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 是轮廓，那么我们定义了一个轮廓
@@ -568,6 +576,8 @@ Example 2.2.3.4. If X = (12) and Q = ∗, then</pre>
 是运算子 Profile 上的一个代数，其结构映射由 Q 代入给出：
 
 ![原文公式、图示或代码（PDF 第 65 页）](./assets/p065-visual-005.png)
+
+<a id="paper-section-2-2-4"></a>
 
 ### 2.2.4 细化
 

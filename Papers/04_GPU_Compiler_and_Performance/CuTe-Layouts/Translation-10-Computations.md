@@ -5,11 +5,15 @@
 ## PDF 第 148 页 · 原书第 146 页
 <a id="pdf-page-148"></a>
 
+<a id="paper-section-4"></a>
+
 ### 第 4 章
 
 ### 计算
 
 范畴 Tuple 和 Nest 为可处理布局的计算提供了一个强大的框架。然而，在实践中，我们经常会遇到这样的可处理布局 A 和 B：它们在 cute 中可以复合，但其标准表示在 Tuple 和 Nest 中都不可复合。本章将详细说明，尽管如此，仍然可以借助共同细化的概念，使用范畴 Tuple 和 Nest 来计算可处理布局的复合、逻辑除法和逻辑乘积。我们在第 4.1.1 节介绍这一概念，在算法 4.1.1 中给出计算共同细化的算法，并详细分析许多具体例子。
+
+<a id="paper-section-4-1"></a>
 
 ### 4.1 复合
 
@@ -85,6 +89,8 @@ This is a device which converts f and g into composable morphisms f ′ and g′
 2. 使用共同细化将 <img src="./assets/p149-b011-m02.png" alt="原文数学符号" style="display:inline-block;height:1.136em;width:0.668em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 和 <img src="./assets/p149-b011-m03.png" alt="原文数学符号" style="display:inline-block;height:1.136em;width:0.655em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 转换为可复合态射 <img src="./assets/p149-b011-m04.png" alt="原文数学符号" style="display:inline-block;height:1.273em;width:1.004em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 和 <img src="./assets/p149-b011-m05.png" alt="原文数学符号" style="display:inline-block;height:1.273em;width:1.247em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" />
 
 我们将用以下两节来解释这些步骤。
+
+<a id="paper-section-4-1-1"></a>
 
 ### 4.1.1 共同细化
 
@@ -382,6 +388,8 @@ Algorithm 4.1.1: Mutual refinement algorithm
 ## PDF 第 153 页 · 原书第 151 页
 <a id="pdf-page-153"></a>
 
+<a id="paper-section-4-1-2"></a>
+
 ### 4.1.2 从共同细化到可复合态射
 
 回顾一下：为计算以下布局的复合 $B\circ A$，
@@ -474,6 +482,8 @@ More generally, we make the replacement</pre>
 ![原文公式、图示或代码（PDF 第 154 页）](./assets/p154-visual-006.png)
 
 是可复合的嵌套元组态射。
+
+<a id="paper-section-4-1-3"></a>
 
 ### 4.1.3 复合算法
 
@@ -571,6 +581,8 @@ Algorithm 4.1.2: Tractable layout Composition Algorithm
 ![原文公式、图示或代码（PDF 第 155 页）](./assets/p155-visual-013.png)
 
 通过构造，<img src="./assets/p155-b025-m02.png" alt="原文数学符号" style="display:inline-block;height:1.220em;width:1.544em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 的形状 <img src="./assets/p155-b025-m01.png" alt="原文数学符号" style="display:inline-block;height:1.273em;width:1.078em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 细化了 <img src="./assets/p155-b025-m04.png" alt="原文数学符号" style="display:inline-block;height:1.155em;width:1.210em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 的形状 <img src="./assets/p155-b025-m03.png" alt="原文数学符号" style="display:inline-block;height:1.136em;width:0.791em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" />，因此我们得出结论 <img src="./assets/p155-b025-m05.png" alt="原文数学符号" style="display:inline-block;height:1.136em;width:0.892em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 是 <img src="./assets/p155-b025-m06.png" alt="原文数学符号" style="display:inline-block;height:1.136em;width:0.927em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 和 <img src="./assets/p155-b025-m07.png" alt="原文数学符号" style="display:inline-block;height:1.155em;width:1.263em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 的弱复合
+
+<a id="paper-section-4-1-4"></a>
 
 ### 4.1.4 例子
 

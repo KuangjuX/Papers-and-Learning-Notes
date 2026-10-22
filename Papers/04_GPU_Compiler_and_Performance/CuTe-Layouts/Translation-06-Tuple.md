@@ -5,11 +5,15 @@
 ## PDF 第 88 页 · 原书第 86 页
 <a id="pdf-page-88"></a>
 
+<a id="paper-section-3"></a>
+
 ### 第 3 章
 
 ### 布局范畴
 
 在彻底探索了布局的代数之后，我们现在将注意力转向这项工作的数学核心：将布局具象化为适当定义的范畴中的态射。在此过程中，我们开发了布局图的图形演算，可以提供更直接的布局操作计算。
+
+<a id="paper-section-3-1"></a>
 
 ### 3.1 Tuple 范畴
 
@@ -28,6 +32,8 @@
 我们建立“元组态射代数”，其中包含排序（第 3.1.5.3 节）、合并（第 3.1.5.4 节）、补态射（第 3.1.5.6 节）、拼接（第 3.1.5.5 节）、平坦除法（第 3.1.5.7 节）和平坦乘积（第 3.1.5.8 节）等运算，它们与
 
 平坦布局上的相应运算兼容。
+
+<a id="paper-section-3-1-1"></a>
 
 ### 3.1.1 基本定义
 
@@ -346,6 +352,8 @@ such that the diagram</pre>
 满足
 
 ![原文公式、图示或代码（PDF 第 92 页）](./assets/p092-visual-003.png)
+
+<a id="paper-section-3-1-2"></a>
 
 ### 3.1.2 从元组态射到平坦布局
 
@@ -1073,6 +1081,8 @@ Proof. We want to show that the constructions f 7→Lf and L 7→fL are inverses
 ## PDF 第 100 页 · 原书第 98 页
 <a id="pdf-page-100"></a>
 
+<a id="paper-section-3-1-3"></a>
+
 ### 3.1.3 例子
 
 在本节中，我们将介绍一些重要的元组态射族，并描述它们所产生的平坦布局。
@@ -1366,6 +1376,8 @@ where</pre>
 例 3.1.3.10，我们可以观察到，存在一个位于 <img src="./assets/p104-b010-m03.png" alt="原文数学符号" style="display:inline-block;height:1.155em;width:0.810em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 之上的元组态射 <img src="./assets/p104-b010-m02.png" alt="原文数学符号" style="display:inline-block;height:1.301em;width:12.795em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" />，并且 <img src="./assets/p104-b010-m04.png" alt="原文数学符号" style="display:inline-block;height:1.264em;width:1.769em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 是 <img src="./assets/p104-b010-m05.png" alt="原文数学符号" style="display:inline-block;height:1.136em;width:0.668em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 沿 <img src="./assets/p104-b010-m06.png" alt="原文数学符号" style="display:inline-block;height:1.155em;width:0.800em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 的拉回：
 
 ![原文公式、图示或代码（PDF 第 104 页）](./assets/p104-visual-003.png)
+
+<a id="paper-section-3-1-4"></a>
 
 ### 3.1.4 元组态射的具象化
 

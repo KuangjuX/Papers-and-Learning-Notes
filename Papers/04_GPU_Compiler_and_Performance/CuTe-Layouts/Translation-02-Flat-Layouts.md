@@ -5,6 +5,8 @@
 ## PDF 第 19 页 · 原书第 17 页
 <a id="pdf-page-19"></a>
 
+<a id="paper-section-2"></a>
+
 ### 第 2 章
 
 ### 布局及其代数
@@ -13,9 +15,13 @@
 
 嵌套元组所需的背景知识，以便在第 2.3 节讨论完全一般的布局。
 
+<a id="paper-section-2-1"></a>
+
 ### 2.1 平坦布局
 
 本节研究平坦布局。这是一类重要的布局，其中形状和步长均为元组，而不是更一般的嵌套元组。为使讨论严格化，我们先约定与元组有关的记号。
+
+<a id="paper-section-2-1-1"></a>
 
 ### 2.1.1 元组
 
@@ -129,6 +135,8 @@ for the concatenation of X and Y .</pre>
 示例 2.1.1.11. 如果 <img src="./assets/p020-b022-m02.png" alt="原文数学符号" style="display:inline-block;height:1.155em;width:4.668em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 那么
 
 ![原文公式、图示或代码（PDF 第 20 页）](./assets/p020-visual-012.png)
+
+<a id="paper-section-2-1-2"></a>
 
 ### 2.1.2 基本定义
 
@@ -801,6 +809,8 @@ i whenever si &gt; 1, then φL = φL′, and ΦL = ΦL′. In particular, we are
 
 ## PDF 第 28 页 · 原书第 26 页
 <a id="pdf-page-28"></a>
+
+<a id="paper-section-2-1-3"></a>
 
 ### 2.1.3 基本运算
 

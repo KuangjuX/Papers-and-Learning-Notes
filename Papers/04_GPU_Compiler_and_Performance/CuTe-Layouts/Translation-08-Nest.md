@@ -5,9 +5,13 @@
 ## PDF 第 125 页 · 原书第 123 页
 <a id="pdf-page-125"></a>
 
+<a id="paper-section-3-2"></a>
+
 ### 3.2 Nest 范畴
 
 上一节介绍了 Tuple 范畴，其态射编码可处理平坦布局。本节介绍 Nest 范畴，其态射编码具有任意嵌套结构的可处理布局。
+
+<a id="paper-section-3-2-1"></a>
 
 ### 3.2.1 基本定义
 
@@ -123,6 +127,8 @@ We may view this as a categorification of the pullback square 2.2.2.4.</pre>
 备注 3.2.1.8. 人们可能希望考虑某种范畴 `C`，其态射编码可处理
 
 布局，但与 Tuple 不等价。作者考虑过几个这样的例子，留待未来研究。
+
+<a id="paper-section-3-2-2"></a>
 
 ### 3.2.2 从嵌套元组态射到布局
 
@@ -409,6 +415,8 @@ Just as in the flat case, we need to exclude non-degenerate nested tuple morphis
 
 我们推断 <img src="./assets/p129-b028-m01.png" alt="原文数学符号" style="display:inline-block;height:1.239em;width:3.464em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" />
 
+<a id="paper-section-3-2-3"></a>
+
 ### 3.2.3 例子
 
 在本节中，我们列出了一些重要的嵌套元组态射家族。
@@ -587,6 +595,8 @@ is the inclusion of the ith entry of S.</pre>
 
 ![原文公式、图示或代码（PDF 第 131 页）](./assets/p131-visual-006.png)
 
+<a id="paper-section-3-2-4"></a>
+
 ### 3.2.4 嵌套元组态射的具象化
 
 在平坦情形中，我们构造了具象化函子
@@ -657,6 +667,8 @@ Proof. This follows immediately from 3.1.4.5, since</pre>
 
 ## PDF 第 132 页 · 原书第 130 页
 <a id="pdf-page-132"></a>
+
+<a id="paper-section-3-2-5"></a>
 
 ### 3.2.5 细化
 

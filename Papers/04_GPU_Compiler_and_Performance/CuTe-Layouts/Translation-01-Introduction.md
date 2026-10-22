@@ -5,6 +5,8 @@
 ## PDF 第 5 页 · 原书第 3 页
 <a id="pdf-page-5"></a>
 
+<a id="paper-section-1"></a>
+
 ### 第 1 章
 
 ### 引言
@@ -165,6 +167,8 @@ In addition to logical division, other fundamental layout operations include log
 <a id="pdf-page-8"></a>
 
 性能的代码。然而，这些运算的定义和构造相当微妙。例如，只有当布局 <img src="./assets/p008-b000-m02.png" alt="原文数学符号" style="display:inline-block;height:1.136em;width:0.927em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 和 <img src="./assets/p008-b000-m03.png" alt="原文数学符号" style="display:inline-block;height:1.136em;width:0.936em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 满足某些整除性约束时，它们的复合 <img src="./assets/p008-b000-m01.png" alt="原文数学符号" style="display:inline-block;height:1.149em;width:2.709em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 才有良好定义；CUTLASS 会在内部检查这些约束。具体而言，两个布局什么时候可以复合，以及应当如何解释其复合，并不总是一目了然。
+
+<a id="paper-section-1-1"></a>
 
 ### 1.1 主要结果概述
 
@@ -349,6 +353,8 @@ Theorem D. (see 3.2.6.20) If f : S →T is an injective Nest-morphism and N = si
 
 我们通过许多例子说明这一算法。
 
+<a id="paper-section-1-2"></a>
+
 ### 1.2 文章结构
 
 本文的组织如下。
@@ -426,6 +432,8 @@ In Chapter 4, we provide an algorithm for computing the composite of tractable l
 
 ## PDF 第 12 页 · 原书第 10 页
 <a id="pdf-page-12"></a>
+
+<a id="paper-section-1-3"></a>
 
 ### 1.3 实现
 
@@ -844,6 +852,8 @@ returns</pre>
 
 ## PDF 第 18 页 · 原书第 16 页
 <a id="pdf-page-18"></a>
+
+<a id="paper-section-1-4"></a>
 
 ### 1.4 记号
 

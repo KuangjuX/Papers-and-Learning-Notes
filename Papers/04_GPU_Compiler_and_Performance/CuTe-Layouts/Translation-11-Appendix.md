@@ -5,6 +5,8 @@
 ## PDF 第 159 页 · 原书第 157 页
 <a id="pdf-page-159"></a>
 
+<a id="paper-section-A"></a>
+
 ### 附录 A
 
 ### 范畴入门
@@ -16,6 +18,8 @@
 2. 什么是函子？
 
 能够有把握地回答这些问题，并且心中有具体例子的读者，就能够理解本文最重要的概念和构造。对于希望学习自然变换、伴随以及（余）极限等更高级范畴论概念的读者，我们推荐参考文献 [1]。
+
+<a id="paper-section-A-1"></a>
 
 ### A.1 什么是范畴？
 
@@ -298,6 +302,8 @@ is a bijection, with inverse f −1 : Z →Z given by</pre>
 
 这是因为，如果 a 整除 b，且 b 整除 a，那么 a = b。
 
+<a id="paper-section-A-2"></a>
+
 ### A.2 什么是函子？
 
 接下来，我们转向第二个问题。
@@ -388,6 +394,8 @@ Let’s verify that F is a functor.
 
 ## PDF 第 163 页 · 原书第 161 页
 <a id="pdf-page-163"></a>
+
+<a id="paper-references"></a>
 
 ### 参考文献
 

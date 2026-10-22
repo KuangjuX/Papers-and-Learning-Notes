@@ -66,7 +66,7 @@ function escapeText(value) {
   return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
 }
 
-export function buildSidebar(repositoryRoot) {
+export function buildSidebar(repositoryRoot, paperSidebars = {}) {
   const archiveLayout = JSON.parse(readFileSync(join(repositoryRoot, 'scripts/archive-layout.json'), 'utf8'))
   const labels = { ...directoryLabels, ...Object.fromEntries(archiveLayout.sections.map((s) => [s.directory, s.title])) }
   // Index navigation has its own parser: creating VitePress's singleton here
@@ -76,6 +76,39 @@ export function buildSidebar(repositoryRoot) {
     .replace(/(^|\/)index\.md$/, '$1').replace(/\.md$/, '')
   const titleFor = (file) => escapeText(cleanTitle(readFileSync(file, 'utf8').match(/^#\s+(.+)$/m)?.[1] ?? basename(file, '.md').replaceAll('-', ' ')))
   const inside = (file, directory) => file === directory || file.startsWith(directory + sep)
+
+  function structuredIndexItems(file) {
+    if (!existsSync(file)) return undefined
+    const source = readFileSync(file, 'utf8').match(/<!-- sidebar:start -->([\s\S]*?)<!-- sidebar:end -->/)
+    if (!source) return undefined
+    const items = []
+    const lists = []
+    for (const token of markdown.parse(source[1], {})) {
+      if (token.type === 'bullet_list_open') {
+        if (!lists.length) lists.push(items)
+        else {
+          const parent = lists.at(-1).at(-1)
+          if (!parent) throw new Error(`Nested sidebar list has no parent: ${file}`)
+          parent.items = []
+          parent.collapsed = true
+          lists.push(parent.items)
+        }
+      } else if (token.type === 'bullet_list_close') lists.pop()
+      else if (lists.length && token.type === 'inline' && token.children?.[0]?.type === 'link_open') {
+        const children = token.children
+        const href = children[0].attrGet('href')
+        if (!href || /^(?:[a-z][\w+.-]*:|\/\/|#)/i.test(href)) continue
+        const [path, hash] = href.split('#')
+        if (!path.endsWith('.md')) continue
+        const target = resolve(dirname(file), decodeURIComponent(path))
+        if (!inside(target, dirname(file)) || !existsSync(target)) throw new Error(`Invalid structured sidebar link: ${href} in ${file}`)
+        const end = children.findIndex((child) => child.type === 'link_close')
+        const text = children.slice(1, end).map((child) => child.content).join('')
+        lists.at(-1).push({ text: escapeText(cleanTitle(text)), link: linkFor(target) + (hash ? '#' + hash : '') })
+      }
+    }
+    return items
+  }
 
   function indexLinks(file) {
     if (!existsSync(file)) return []
@@ -107,6 +140,23 @@ export function buildSidebar(repositoryRoot) {
     const visited = new Set([...ancestors, directory])
     const index = join(directory, 'index.md')
     const hasIndex = existsSync(index)
+    // A paper can opt into its original chapter hierarchy instead of exposing
+    // the physical Markdown chunks. Its index remains the navigation source.
+    const structuredItems = structuredIndexItems(index)
+    if (structuredItems) paperSidebars[linkFor(index)] = [
+      {
+        text: labels[basename(directory)] ?? titleFor(index),
+        link: linkFor(index),
+        items: structuredItems,
+      },
+      {
+        text: '笔记库',
+        items: [
+          { text: '返回所属主题', link: linkFor(join(dirname(directory), 'index.md')) },
+          { text: '全部笔记目录', link: '/CATALOG' },
+        ],
+      },
+    ]
     const candidates = new Map()
     const entries = readdirSync(directory, { withFileTypes: true })
       .filter((entry) => !entry.name.startsWith('.'))
@@ -137,7 +187,7 @@ export function buildSidebar(repositoryRoot) {
       if (!item) continue
       // A link to a directory's index names that group, while a link to a
       // deeper article only orders the group and never renames its parent.
-      if (item.link === linkFor(target)) item = { ...item, text }
+      if (item.link === linkFor(target)) item = { ...item, text, link: item.link + hash }
       included.add(key)
       items.push(item)
     }
@@ -171,4 +221,12 @@ export function buildSidebar(repositoryRoot) {
       text,
     })),
   ]
+}
+
+export function buildSidebars(repositoryRoot) {
+  const paperSidebars = {}
+  const globalSidebar = buildSidebar(repositoryRoot, paperSidebars)
+  // Scoped paper navigation keeps the original hierarchy within VitePress's
+  // depth limit, including when the paper is reached from a cross-topic index.
+  return { '/': globalSidebar, ...paperSidebars }
 }

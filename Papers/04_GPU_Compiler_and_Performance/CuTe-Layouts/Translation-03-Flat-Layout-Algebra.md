@@ -35,6 +35,8 @@
 
 这里使用了命题 2.1.3.40 给出的拼接布局函数的表达式。
 
+<a id="paper-section-2-1-4"></a>
+
 ### 2.1.4 平坦合并
 
 我们已经看到，平坦布局 L 的布局函数 $\Phi_L$ 是一个重要不变量。许多情况下，我们只关心布局函数 $\Phi_L$，因此可以使用任何具有相同布局函数的布局。平坦合并运算
@@ -498,6 +500,8 @@ and since coal♭(A) is coalesced, we have di+1̸ = sidi. We deduce that Φcoal�
 
 ![原文公式、图示或代码（PDF 第 42 页）](./assets/p042-visual-005.png)
 
+<a id="paper-section-2-1-5"></a>
+
 ### 2.1.5 紧致平坦布局
 
 在处理布局补之前，我们必须定义一个重要的布局系列，称为紧致平坦布局。这些是平坦布局，其布局函数是双射的。就描述布局的标准网格图而言，如果每个整数 <img src="./assets/p042-b009-m02.png" alt="原文数学符号" style="display:inline-block;height:1.155em;width:6.624em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 恰好出现一次，则平坦布局 <img src="./assets/p042-b009-m01.png" alt="原文数学符号" style="display:inline-block;height:1.136em;width:0.858em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 是紧致的。例如，布局
@@ -790,6 +794,8 @@ sort(squeeze(L)) is compact. ⇔ squeeze(L) is compact.
 
 ## PDF 第 45 页 · 原书第 43 页
 <a id="pdf-page-45"></a>
+
+<a id="paper-section-2-1-6"></a>
 
 ### 2.1.6 补布局
 
@@ -1695,6 +1701,8 @@ where, by Proposition 2.1.3.40, the composite of the top row is the layout funct
 ## PDF 第 55 页 · 原书第 53 页
 <a id="pdf-page-55"></a>
 
+<a id="paper-section-2-1-7"></a>
+
 ### 2.1.7 进一步的运算
 
 本节在平坦布局上进一步定义复合、平坦除法与平坦乘积。这些是（嵌套）布局上更自然的运算经展平后得到的版本。虽然实际中并不经常直接使用这些运算，为完整起见，仍在此列出。
@@ -1896,6 +1904,8 @@ Example 2.1.7.16. If A is any flat layout and B = () : () is the empty layout, t
 
 ## PDF 第 57 页 · 原书第 55 页
 <a id="pdf-page-57"></a>
+
+<a id="paper-section-2-1-8"></a>
 
 ### 2.1.8 可处理平坦布局
 

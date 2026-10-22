@@ -57,40 +57,40 @@ NVIDIA’s CUTLASS library provides a robust and expressive set of methods for d
 
 | 节 | 标题 | 原书页码 |
 | --- | --- | --- |
-| 1 | [引言](Translation-01-Introduction.md#pdf-page-5) | 3 |
-| 1.1 | [主要结果概述](Translation-01-Introduction.md#pdf-page-8) | 6 |
-| 1.2 | [文章结构](Translation-01-Introduction.md#pdf-page-10) | 8 |
-| 1.3 | [实现](Translation-01-Introduction.md#pdf-page-12) | 10 |
-| 1.4 | [记号](Translation-01-Introduction.md#pdf-page-18) | 16 |
-| 2 | [布局及其代数](Translation-02-Flat-Layouts.md#pdf-page-19) | 17 |
-| 2.1 | [平坦布局](Translation-02-Flat-Layouts.md#pdf-page-19) | 17 |
-| 2.1.1 | [元组](Translation-02-Flat-Layouts.md#pdf-page-19) | 17 |
-| 2.1.2 | [基本定义](Translation-02-Flat-Layouts.md#pdf-page-20) | 18 |
-| 2.1.3 | [基本运算](Translation-02-Flat-Layouts.md#pdf-page-28) | 26 |
-| 2.1.4 | [平坦合并](Translation-03-Flat-Layout-Algebra.md#pdf-page-37) | 35 |
-| 2.1.5 | [紧致平坦布局](Translation-03-Flat-Layout-Algebra.md#pdf-page-42) | 40 |
-| 2.1.6 | [补布局](Translation-03-Flat-Layout-Algebra.md#pdf-page-45) | 43 |
-| 2.1.7 | [进一步的运算](Translation-03-Flat-Layout-Algebra.md#pdf-page-55) | 53 |
-| 2.1.8 | [可处理平坦布局](Translation-03-Flat-Layout-Algebra.md#pdf-page-57) | 55 |
-| 2.2 | [嵌套元组](Translation-04-Nested-Tuples.md#pdf-page-59) | 57 |
-| 2.2.1 | [轮廓](Translation-04-Nested-Tuples.md#pdf-page-59) | 57 |
-| 2.2.2 | [基本定义](Translation-04-Nested-Tuples.md#pdf-page-61) | 59 |
-| 2.2.3 | [代入](Translation-04-Nested-Tuples.md#pdf-page-64) | 62 |
-| 2.2.4 | [细化](Translation-04-Nested-Tuples.md#pdf-page-65) | 63 |
-| 2.3 | [布局](Translation-05-Layouts.md#pdf-page-68) | 66 |
-| 2.3.1 | [基本定义](Translation-05-Layouts.md#pdf-page-68) | 66 |
-| 2.3.2 | [基本运算](Translation-05-Layouts.md#pdf-page-71) | 69 |
-| 2.3.3 | [合并](Translation-05-Layouts.md#pdf-page-73) | 71 |
-| 2.3.4 | [相对合并](Translation-05-Layouts.md#pdf-page-75) | 73 |
-| 2.3.5 | [紧致布局](Translation-05-Layouts.md#pdf-page-78) | 76 |
-| 2.3.6 | [补布局](Translation-05-Layouts.md#pdf-page-79) | 77 |
-| 2.3.7 | [复合](Translation-05-Layouts.md#pdf-page-81) | 79 |
-| 2.3.8 | [逻辑除法](Translation-05-Layouts.md#pdf-page-82) | 80 |
-| 2.3.9 | [逻辑乘积](Translation-05-Layouts.md#pdf-page-85) | 83 |
-| 2.3.10 | [可处理布局](Translation-05-Layouts.md#pdf-page-86) | 84 |
-| 3 | [布局的范畴](Translation-06-Tuple.md#pdf-page-88) | 86 |
-| 3.1 | [Tuple 范畴](Translation-06-Tuple.md#pdf-page-88) | 86 |
-| 3.1.1 | [基本定义](Translation-06-Tuple.md#pdf-page-88) | 86 |
+| 1 | [引言](Translation-01-Introduction.md#paper-section-1) | 3 |
+| 1.1 | [主要结果概述](Translation-01-Introduction.md#paper-section-1-1) | 6 |
+| 1.2 | [文章结构](Translation-01-Introduction.md#paper-section-1-2) | 8 |
+| 1.3 | [实现](Translation-01-Introduction.md#paper-section-1-3) | 10 |
+| 1.4 | [记号](Translation-01-Introduction.md#paper-section-1-4) | 16 |
+| 2 | [布局及其代数](Translation-02-Flat-Layouts.md#paper-section-2) | 17 |
+| 2.1 | [平坦布局](Translation-02-Flat-Layouts.md#paper-section-2-1) | 17 |
+| 2.1.1 | [元组](Translation-02-Flat-Layouts.md#paper-section-2-1-1) | 17 |
+| 2.1.2 | [基本定义](Translation-02-Flat-Layouts.md#paper-section-2-1-2) | 18 |
+| 2.1.3 | [基本运算](Translation-02-Flat-Layouts.md#paper-section-2-1-3) | 26 |
+| 2.1.4 | [平坦合并](Translation-03-Flat-Layout-Algebra.md#paper-section-2-1-4) | 35 |
+| 2.1.5 | [紧致平坦布局](Translation-03-Flat-Layout-Algebra.md#paper-section-2-1-5) | 40 |
+| 2.1.6 | [补布局](Translation-03-Flat-Layout-Algebra.md#paper-section-2-1-6) | 43 |
+| 2.1.7 | [进一步的运算](Translation-03-Flat-Layout-Algebra.md#paper-section-2-1-7) | 53 |
+| 2.1.8 | [可处理平坦布局](Translation-03-Flat-Layout-Algebra.md#paper-section-2-1-8) | 55 |
+| 2.2 | [嵌套元组](Translation-04-Nested-Tuples.md#paper-section-2-2) | 57 |
+| 2.2.1 | [轮廓](Translation-04-Nested-Tuples.md#paper-section-2-2-1) | 57 |
+| 2.2.2 | [基本定义](Translation-04-Nested-Tuples.md#paper-section-2-2-2) | 59 |
+| 2.2.3 | [代入](Translation-04-Nested-Tuples.md#paper-section-2-2-3) | 62 |
+| 2.2.4 | [细化](Translation-04-Nested-Tuples.md#paper-section-2-2-4) | 63 |
+| 2.3 | [布局](Translation-05-Layouts.md#paper-section-2-3) | 66 |
+| 2.3.1 | [基本定义](Translation-05-Layouts.md#paper-section-2-3-1) | 66 |
+| 2.3.2 | [基本运算](Translation-05-Layouts.md#paper-section-2-3-2) | 69 |
+| 2.3.3 | [合并](Translation-05-Layouts.md#paper-section-2-3-3) | 71 |
+| 2.3.4 | [相对合并](Translation-05-Layouts.md#paper-section-2-3-4) | 73 |
+| 2.3.5 | [紧致布局](Translation-05-Layouts.md#paper-section-2-3-5) | 76 |
+| 2.3.6 | [补布局](Translation-05-Layouts.md#paper-section-2-3-6) | 77 |
+| 2.3.7 | [复合](Translation-05-Layouts.md#paper-section-2-3-7) | 79 |
+| 2.3.8 | [逻辑除法](Translation-05-Layouts.md#paper-section-2-3-8) | 80 |
+| 2.3.9 | [逻辑乘积](Translation-05-Layouts.md#paper-section-2-3-9) | 83 |
+| 2.3.10 | [可处理布局](Translation-05-Layouts.md#paper-section-2-3-10) | 84 |
+| 3 | [布局的范畴](Translation-06-Tuple.md#paper-section-3) | 86 |
+| 3.1 | [Tuple 范畴](Translation-06-Tuple.md#paper-section-3-1) | 86 |
+| 3.1.1 | [基本定义](Translation-06-Tuple.md#paper-section-3-1-1) | 86 |
 
 <details>
 <summary>展开原页对照（保留全部图示、代码、标签和数学排版）</summary>
@@ -117,26 +117,26 @@ NVIDIA’s CUTLASS library provides a robust and expressive set of methods for d
 
 | 节 | 标题 | 原书页码 |
 | --- | --- | --- |
-| 3.1.2 | [从元组态射到平坦布局](Translation-06-Tuple.md#pdf-page-92) | 90 |
-| 3.1.3 | [例子](Translation-06-Tuple.md#pdf-page-100) | 98 |
-| 3.1.4 | [元组态射的具象化](Translation-06-Tuple.md#pdf-page-104) | 102 |
-| 3.1.5 | [元组态射上的运算](Translation-07-Tuple-Operations.md#pdf-page-107) | 105 |
-| 3.2 | [Nest 范畴](Translation-08-Nest.md#pdf-page-125) | 123 |
-| 3.2.1 | [基本定义](Translation-08-Nest.md#pdf-page-125) | 123 |
-| 3.2.2 | [从嵌套元组态射到布局](Translation-08-Nest.md#pdf-page-126) | 124 |
-| 3.2.3 | [例子](Translation-08-Nest.md#pdf-page-129) | 127 |
-| 3.2.4 | [嵌套元组态射的具象化](Translation-08-Nest.md#pdf-page-131) | 129 |
-| 3.2.5 | [细化](Translation-08-Nest.md#pdf-page-132) | 130 |
-| 3.2.6 | [嵌套元组态射上的运算](Translation-09-Nest-Operations.md#pdf-page-140) | 138 |
-| 4 | [计算](Translation-10-Computations.md#pdf-page-148) | 146 |
-| 4.1 | [复合](Translation-10-Computations.md#pdf-page-148) | 146 |
-| 4.1.1 | [共同细化](Translation-10-Computations.md#pdf-page-149) | 147 |
-| 4.1.2 | [从共同细化到可复合态射](Translation-10-Computations.md#pdf-page-153) | 151 |
-| 4.1.3 | [复合算法](Translation-10-Computations.md#pdf-page-154) | 152 |
-| 4.1.4 | [例子](Translation-10-Computations.md#pdf-page-155) | 153 |
-| A | [范畴入门](Translation-11-Appendix.md#pdf-page-159) | 157 |
-| A.1 | [什么是范畴？](Translation-11-Appendix.md#pdf-page-159) | 157 |
-| A.2 | [什么是函子？](Translation-11-Appendix.md#pdf-page-162) | 160 |
+| 3.1.2 | [从元组态射到平坦布局](Translation-06-Tuple.md#paper-section-3-1-2) | 90 |
+| 3.1.3 | [例子](Translation-06-Tuple.md#paper-section-3-1-3) | 98 |
+| 3.1.4 | [元组态射的具象化](Translation-06-Tuple.md#paper-section-3-1-4) | 102 |
+| 3.1.5 | [元组态射上的运算](Translation-07-Tuple-Operations.md#paper-section-3-1-5) | 105 |
+| 3.2 | [Nest 范畴](Translation-08-Nest.md#paper-section-3-2) | 123 |
+| 3.2.1 | [基本定义](Translation-08-Nest.md#paper-section-3-2-1) | 123 |
+| 3.2.2 | [从嵌套元组态射到布局](Translation-08-Nest.md#paper-section-3-2-2) | 124 |
+| 3.2.3 | [例子](Translation-08-Nest.md#paper-section-3-2-3) | 127 |
+| 3.2.4 | [嵌套元组态射的具象化](Translation-08-Nest.md#paper-section-3-2-4) | 129 |
+| 3.2.5 | [细化](Translation-08-Nest.md#paper-section-3-2-5) | 130 |
+| 3.2.6 | [嵌套元组态射上的运算](Translation-09-Nest-Operations.md#paper-section-3-2-6) | 138 |
+| 4 | [计算](Translation-10-Computations.md#paper-section-4) | 146 |
+| 4.1 | [复合](Translation-10-Computations.md#paper-section-4-1) | 146 |
+| 4.1.1 | [共同细化](Translation-10-Computations.md#paper-section-4-1-1) | 147 |
+| 4.1.2 | [从共同细化到可复合态射](Translation-10-Computations.md#paper-section-4-1-2) | 151 |
+| 4.1.3 | [复合算法](Translation-10-Computations.md#paper-section-4-1-3) | 152 |
+| 4.1.4 | [例子](Translation-10-Computations.md#paper-section-4-1-4) | 153 |
+| A | [范畴入门](Translation-11-Appendix.md#paper-section-A) | 157 |
+| A.1 | [什么是范畴？](Translation-11-Appendix.md#paper-section-A-1) | 157 |
+| A.2 | [什么是函子？](Translation-11-Appendix.md#paper-section-A-2) | 160 |
 
 ![原文公式、图示或代码（PDF 第 4 页）](./assets/p004-visual-999.png)
 

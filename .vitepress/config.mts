@@ -2,9 +2,10 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync, writeFileS
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitepress'
-import { buildSidebar, sectionLabels } from './sidebar.mjs'
+import { buildSidebars, sectionLabels } from './sidebar.mjs'
 import redirects from './redirects'
 import { installImportedTranslations } from './imported-translations.mjs'
+import { installPaperImageSizes } from './paper-images.mjs'
 
 const repositoryRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
 
@@ -74,6 +75,7 @@ export default defineConfig({
       const imports = JSON.parse(readFileSync(join(repositoryRoot, 'scripts/imported-translations.json'), 'utf8'))
       const formulas = Object.assign({}, ...imports.map((article: { formulas?: Record<string, string> }) => article.formulas ?? {}))
       installImportedTranslations(markdown, formulas)
+      installPaperImageSizes(markdown, join(repositoryRoot, 'Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts'))
 
       const defaultFence = markdown.renderer.rules.fence
 
@@ -102,7 +104,7 @@ export default defineConfig({
       { text: '学习路线', link: '/Foundations/05_Model_Architecture_and_Reasoning/Learning-Paths/llm' },
     ],
 
-    sidebar: buildSidebar(repositoryRoot),
+    sidebar: buildSidebars(repositoryRoot),
 
     outline: {
       level: [2, 3],

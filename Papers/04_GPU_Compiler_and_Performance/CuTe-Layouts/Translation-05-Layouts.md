@@ -5,9 +5,13 @@
 ## PDF 第 68 页 · 原书第 66 页
 <a id="pdf-page-68"></a>
 
+<a id="paper-section-2-3"></a>
+
 ### 2.3 布局
 
 有了嵌套元组的必要背景，现在转向布局。布局推广了平坦布局：其形状和步长可为嵌套元组。
+
+<a id="paper-section-2-3-1"></a>
 
 ### 2.3.1 基本定义
 
@@ -308,6 +312,8 @@ Proof. This follows from the definition of nested tuples, since a nested tuple i
 
 是退化的。
 
+<a id="paper-section-2-3-2"></a>
+
 ### 2.3.2 基本运算
 
 建立了布局的基本词汇后，我们转向它们支持的操作。在本节中，我们定义构建更复杂的操作所需的基本操作，例如合并、求补、复合、逻辑除法和逻辑乘积。
@@ -507,6 +513,8 @@ L2 = 2 : 0, and</pre>
 示例 2.3.2.15. 如果 <img src="./assets/p073-b013-m02.png" alt="原文数学符号" style="display:inline-block;height:1.155em;width:6.061em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 和 <img src="./assets/p073-b013-m03.png" alt="原文数学符号" style="display:inline-block;height:1.155em;width:3.061em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 那么
 
 ![原文公式、图示或代码（PDF 第 73 页）](./assets/p073-visual-009.png)
+
+<a id="paper-section-2-3-3"></a>
 
 ### 2.3.3 合并
 
@@ -737,6 +745,8 @@ Remark 2.3.3.13. If L is a layout, then coal(L) has depth 0 or 1.</pre>
 备注 2.3.3.17. 我们需要排除 <img src="./assets/p075-b018-m02.png" alt="原文数学符号" style="display:inline-block;height:1.155em;width:4.962em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 情况的唯一原因是，如果 <img src="./assets/p075-b018-m03.png" alt="原文数学符号" style="display:inline-block;height:1.155em;width:5.240em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" />
 
 那么 1 : 0 和空布局 () : () 是具有最小复杂度的不同布局，并且与 <img src="./assets/p075-b019-m02.png" alt="原文数学符号" style="display:inline-block;height:1.136em;width:0.858em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 具有相同的布局函数（即平凡布局函数 <img src="./assets/p075-b019-m03.png" alt="原文数学符号" style="display:inline-block;height:1.142em;width:3.384em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" />
+
+<a id="paper-section-2-3-4"></a>
 
 ### 2.3.4 相对合并
 
@@ -973,6 +983,8 @@ and we can write the layout function ΦB of B as</pre>
 
 根据需要。
 
+<a id="paper-section-2-3-5"></a>
+
 ### 2.3.5 紧致布局
 
 我们可以轻松地将紧致布局的概念扩展到嵌套情况。再次，从标准上来说
@@ -1061,6 +1073,8 @@ is compact, while the layouts</pre>
 证明。这些条件的等价性源自以下事实：
 
 ![原文公式、图示或代码（PDF 第 79 页）](./assets/p079-visual-011.png)
+
+<a id="paper-section-2-3-6"></a>
 
 ### 2.3.6 补布局
 
@@ -1226,6 +1240,8 @@ Example 2.3.6.11. If A = ((16, 4), 64) : ((1, 16), 64) and N = 4096 then</pre>
 
 ![原文公式、图示或代码（PDF 第 81 页）](./assets/p081-visual-002.png)
 
+<a id="paper-section-2-3-7"></a>
+
 ### 2.3.7 复合
 
 在本节中，我们讨论布局上最重要的操作，即复合。如果<img src="./assets/p081-b007-m01.png" alt="原文数学符号" style="display:inline-block;height:1.136em;width:0.927em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" />和<img src="./assets/p081-b007-m02.png" alt="原文数学符号" style="display:inline-block;height:1.136em;width:0.936em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" />是布局，那么<img src="./assets/p081-b007-m03.png" alt="原文数学符号" style="display:inline-block;height:1.136em;width:0.927em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" />和<img src="./assets/p081-b007-m04.png" alt="原文数学符号" style="display:inline-block;height:1.136em;width:0.936em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" />的复合就是一个布局<img src="./assets/p081-b007-m05.png" alt="原文数学符号" style="display:inline-block;height:1.149em;width:2.642em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" />，其布局函数是<img src="./assets/p081-b007-m06.png" alt="原文数学符号" style="display:inline-block;height:1.136em;width:0.927em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" />和<img src="./assets/p081-b007-m07.png" alt="原文数学符号" style="display:inline-block;height:1.155em;width:1.263em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" />的布局函数的复合。更准确地说，我们有以下定义。
@@ -1354,6 +1370,8 @@ Example 2.3.7.8. If A = ((2, 4), 8) : ((4, 8), 8) and B = (4, 4, 4, 4) : (2, 4, 
 ![原文公式、图示或代码（PDF 第 82 页）](./assets/p082-visual-007.png)
 
 现在我们已经掌握了布局复合的基本属性，我们将注意力转向复合的两个最重要的实例，即逻辑除法和逻辑乘积。
+
+<a id="paper-section-2-3-8"></a>
 
 ### 2.3.8 逻辑除法
 
@@ -1502,6 +1520,8 @@ as depicted below.</pre>
 
 ![原文公式、图示或代码（PDF 第 85 页）](./assets/p085-visual-006.png)
 
+<a id="paper-section-2-3-9"></a>
+
 ### 2.3.9 逻辑乘积
 
 在本节中，我们定义布局的逻辑积。
@@ -1590,6 +1610,8 @@ Example 2.3.9.3. If A = (2, 2) : (5, 10) and B = (3, 5) : (5, 1) are the layouts
 示例 2.3.9.6. 如果 <img src="./assets/p086-b019-m02.png" alt="原文数学符号" style="display:inline-block;height:1.155em;width:10.946em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 和 <img src="./assets/p086-b019-m03.png" alt="原文数学符号" style="display:inline-block;height:1.155em;width:11.281em;vertical-align:-0.24em;max-width:none;margin:0 0.08em" loading="lazy" /> 那么
 
 ![原文公式、图示或代码（PDF 第 86 页）](./assets/p086-visual-005.png)
+
+<a id="paper-section-2-3-10"></a>
 
 ### 2.3.10 可处理布局
 
