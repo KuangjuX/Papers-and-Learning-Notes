@@ -392,7 +392,7 @@ Papers/ | Projects/ | Foundations/
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ⬜ | **Categorical Foundations for CuTe Layouts** | [arXiv'26](https://arxiv.org/abs/2601.05972) | 用范畴与布局代数形式化 CuTe 的组合、乘积和除法，并验证其与实现一致 | [Paper](https://research.colfax-intl.com/categorical-foundations-for-cute-layouts/) |
+| ⬜ | **Categorical Foundations for CuTe Layouts** | [arXiv'26](https://arxiv.org/abs/2601.05972) | 用范畴与布局代数形式化 CuTe 的组合、乘积和除法，并验证其与实现一致 | [Paper](https://research.colfax-intl.com/categorical-foundations-for-cute-layouts/) / [中文全文](Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/Layout.md) / [2025-09 PDF](Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/source.pdf) / [Zotero](zotero://select/library/items/Q3PT5C24) |
 
 ### Compiler
 

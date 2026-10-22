@@ -31,6 +31,10 @@ Venue 与来源链接、阅读价值说明沿用原记录；原清单的元数�
 - [FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling（阅读中）](01_Attention/FlashAttention-4/zotero-reading.md)
 - [DoSA: Dots Sparse Attention（阅读中）](01_Attention/DoSA/zotero-reading.md) · [学习笔记：安全上界与完整筛选流程](01_Attention/DoSA/dosa.md)
 
+## 中文全文译文
+
+- [Categorical Foundations for CuTe Layouts（待读，已备译文与原图）](04_GPU_Compiler_and_Performance/CuTe-Layouts/Layout.md) · 2025 年 9 月版，163 页
+
 ## 旧分类入口
 
 

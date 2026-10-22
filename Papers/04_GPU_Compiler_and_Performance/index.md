@@ -15,7 +15,7 @@ GPU 编程、张量编译器、Megakernel、性能优化与相关项目。
 - [MLIR: Scaling Compiler Infrastructure for Domain Specifific Computation](Compiler/Papers/MLIR-Scaling-Compiler-Infrastructure-for-Domain-Specific-Computation.md)
 - [The Deep Learning Compiler: A Comprehensive Survey](Compiler/Papers/The-Deep-Learning-Compiler-A-Comprehensive-Survey.md)
 - [TIRAMISU: A Polyhedral Compiler for Expressing Fast and Portable Code](Compiler/TIRAMISU-CGO/tiramisu.md)
-- [Categorical Foundations for CuTe Layouts](CuTe-Layouts/Layout.md)
+- [Categorical Foundations for CuTe Layouts：中文全文译文与原图](CuTe-Layouts/Layout.md)
 - [Event Tensor：用“事件张量”编译动态 Megakernel](Event-Tensor/event-tensor.md)
 - [CAKE: Compiler-Agent Co-Design for Frontier Kernel Evolution](Kernel-Generation/CAKE.md)
 - [AVO: Agentic Variation Operators for Autonomous Evolutionary Search](Kernel-Generation/avo.md)
@@ -85,7 +85,7 @@ GPU 编程、张量编译器、Megakernel、性能优化与相关项目。
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ⬜ | **Categorical Foundations for CuTe Layouts** | [arXiv'26](https://arxiv.org/abs/2601.05972) | 用范畴与布局代数形式化 CuTe 的组合、乘积和除法，并验证其与实现一致 | [Paper](https://research.colfax-intl.com/categorical-foundations-for-cute-layouts/) |
+| ⬜ | **Categorical Foundations for CuTe Layouts** | [arXiv'26](https://arxiv.org/abs/2601.05972) | 用范畴与布局代数形式化 CuTe 的组合、乘积和除法，并验证其与实现一致 | [Paper](https://research.colfax-intl.com/categorical-foundations-for-cute-layouts/) / [中文全文](CuTe-Layouts/Layout.md) / [2025-09 PDF](CuTe-Layouts/source.pdf) / [Zotero](zotero://select/library/items/Q3PT5C24) |
 
 ## Compiler
 

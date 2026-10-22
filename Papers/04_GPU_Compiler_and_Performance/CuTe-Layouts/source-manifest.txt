@@ -1,0 +1,22 @@
+Title: Categorical Foundations for CuTe Layouts
+Version: September 2025, rev1
+Source: source.pdf
+SHA-256: c9718a5c91542bedcb53e94dbe4cffb9c50f2b14513d488a74045f8305ce5a91
+PDF pages: 163
+Prose blocks: 2168
+Zotero item: Q3PT5C24
+Zotero PDF: LUQPWFX6
+Method: Google Translate draft with protected source math, direct AI translation and a complete AI sentence-by-sentence bilingual review on 2026-10-22; mathematical source issues are explicitly annotated.
+
+001-004: Translation-00-Front-Matter.md
+005-018: Translation-01-Introduction.md
+019-036: Translation-02-Flat-Layouts.md
+037-058: Translation-03-Flat-Layout-Algebra.md
+059-067: Translation-04-Nested-Tuples.md
+068-087: Translation-05-Layouts.md
+088-106: Translation-06-Tuple.md
+107-124: Translation-07-Tuple-Operations.md
+125-139: Translation-08-Nest.md
+140-147: Translation-09-Nest-Operations.md
+148-158: Translation-10-Computations.md
+159-163: Translation-11-Appendix.md
