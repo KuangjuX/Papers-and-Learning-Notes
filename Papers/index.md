@@ -1,6 +1,6 @@
 # 论文归档
 
-共 **279 个分类条目**：已读 73，待读 206。数量包含原有跨分类重复收录。
+共 **341 个分类条目**：已读 74，待读 267。数量包含原有跨分类重复收录。
 
 按研究主题保存论文阅读笔记、原始标注和论文清单；源码实践见[项目归档](../Projects/index.md)，原理和课程见[基础归档](../Foundations/index.md)。
 
@@ -9,17 +9,21 @@
 | 主题 | 条目 | 已读 | 待读 |
 | --- | ---: | ---: | ---: |
 | [待分类](00_Inbox/index.md) | 0 | 0 | 0 |
-| [Attention](01_Attention/index.md) | 31 | 13 | 18 |
-| [推理与 KV Cache](02_Inference_and_KV_Cache/index.md) | 50 | 6 | 44 |
-| [分布式训练与 MoE](03_Distributed_Training_and_MoE/index.md) | 47 | 8 | 39 |
-| [GPU 编译与性能](04_GPU_Compiler_and_Performance/index.md) | 36 | 28 | 8 |
-| [模型架构与推理能力](05_Model_Architecture_and_Reasoning/index.md) | 101 | 4 | 97 |
-| [计算基础](06_Computing_Foundations/index.md) | 14 | 14 | 0 |
+| [Attention](01_Attention/index.md) | 42 | 13 | 29 |
+| [推理与 KV Cache](02_Inference_and_KV_Cache/index.md) | 56 | 6 | 50 |
+| [分布式训练与 MoE](03_Distributed_Training_and_MoE/index.md) | 53 | 8 | 45 |
+| [GPU 编译与性能](04_GPU_Compiler_and_Performance/index.md) | 64 | 29 | 35 |
+| [模型架构与推理能力](05_Model_Architecture_and_Reasoning/index.md) | 108 | 4 | 104 |
+| [计算基础](06_Computing_Foundations/index.md) | 18 | 14 | 4 |
 | [教材与技术参考](07_Books_and_Technical_References/index.md) | 0 | 0 | 0 |
 
 Venue 与来源链接、阅读价值说明沿用原记录；原清单的元数据核对日期为 2026-09-15。
 
 [LLM 学习路线](../Foundations/05_Model_Architecture_and_Reasoning/Learning-Paths/llm.md)
+
+## 已下载资料
+
+[按标签查看已下载的 146 份 PDF](downloaded-papers.md)：121 篇论文与 20 项教材／技术资料。重复条目和多个 PDF 版本共用阅读入口；教材及课程在 Foundations 中归档。
 
 ## Zotero 阅读进度
 

@@ -49,6 +49,8 @@ const block = [
   '',
   '✅ 已读 · ⬜ 待读 · 📝 有笔记。此清单由各主题索引生成；修改阅读状态后运行 `pnpm docs:sync-reading-list` 同步。',
   '',
+  '已下载论文、教材与技术资料的分类标签、PDF 和 Zotero 入口见 [PDF 归档与标签目录](Papers/downloaded-papers.md)。',
+  '',
   '| 主题 | 条目 | 已读 | 待读 |',
   '| --- | ---: | ---: | ---: |',
   ...topics.map(t => `| [${t.title}](${t.path}/index.md) | ${t.count} | ${t.done} | ${t.count - t.done} |`),

@@ -35,19 +35,21 @@ Papers/ | Projects/ | Foundations/
 <!-- paper-reading-list:start -->
 ## Paper 阅读清单
 
-共 **279 个分类条目**：已读 73，待读 206。保留原有跨分类重复收录；下载 PDF 或存在标注不代表已读。
+共 **341 个分类条目**：已读 74，待读 267。保留原有跨分类重复收录；下载 PDF 或存在标注不代表已读。
 
 ✅ 已读 · ⬜ 待读 · 📝 有笔记。此清单由各主题索引生成；修改阅读状态后运行 `pnpm docs:sync-reading-list` 同步。
+
+已下载论文、教材与技术资料的分类标签、PDF 和 Zotero 入口见 [PDF 归档与标签目录](Papers/downloaded-papers.md)。
 
 | 主题 | 条目 | 已读 | 待读 |
 | --- | ---: | ---: | ---: |
 | [待分类](Papers/00_Inbox/index.md) | 0 | 0 | 0 |
-| [Attention](Papers/01_Attention/index.md) | 31 | 13 | 18 |
-| [推理与 KV Cache](Papers/02_Inference_and_KV_Cache/index.md) | 50 | 6 | 44 |
-| [分布式训练与 MoE](Papers/03_Distributed_Training_and_MoE/index.md) | 47 | 8 | 39 |
-| [GPU 编译与性能](Papers/04_GPU_Compiler_and_Performance/index.md) | 36 | 28 | 8 |
-| [模型架构与推理能力](Papers/05_Model_Architecture_and_Reasoning/index.md) | 101 | 4 | 97 |
-| [计算基础](Papers/06_Computing_Foundations/index.md) | 14 | 14 | 0 |
+| [Attention](Papers/01_Attention/index.md) | 42 | 13 | 29 |
+| [推理与 KV Cache](Papers/02_Inference_and_KV_Cache/index.md) | 56 | 6 | 50 |
+| [分布式训练与 MoE](Papers/03_Distributed_Training_and_MoE/index.md) | 53 | 8 | 45 |
+| [GPU 编译与性能](Papers/04_GPU_Compiler_and_Performance/index.md) | 64 | 29 | 35 |
+| [模型架构与推理能力](Papers/05_Model_Architecture_and_Reasoning/index.md) | 108 | 4 | 104 |
+| [计算基础](Papers/06_Computing_Foundations/index.md) | 18 | 14 | 4 |
 | [教材与技术参考](Papers/07_Books_and_Technical_References/index.md) | 0 | 0 | 0 |
 
 ### Zotero 阅读进度
@@ -56,27 +58,27 @@ Papers/ | Projects/ | Foundations/
 - [DoSA: Dots Sparse Attention（阅读中）](Papers/01_Attention/DoSA/zotero-reading.md) · [学习笔记：安全上界与完整筛选流程](Papers/01_Attention/DoSA/dosa.md)
 
 <details>
-<summary>Attention（31 篇；已读 13，待读 18）</summary>
+<summary>Attention（42 篇；已读 13，待读 29）</summary>
 
 ### LLM Inference / Long Context Inference
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ✅ | **Quest: Query-Aware Sparsity for Efficient Long-Context LLM Inference** | [ICML'24](https://arxiv.org/pdf/2406.10774) | 根据当前 query 和 KV 页元数据选择重要页面，减少长上下文解码中的 KV 读取 | [Paper](https://arxiv.org/pdf/2406.10774) |
+| ✅ | <a id="pdf-gr8gnqvf"></a>**Quest: Query-Aware Sparsity for Efficient Long-Context LLM Inference** | [ICML'24](https://arxiv.org/pdf/2406.10774) | 根据当前 query 和 KV 页元数据选择重要页面，减少长上下文解码中的 KV 读取 | [Paper](https://arxiv.org/pdf/2406.10774) / [归档标签](Papers/downloaded-papers.md#pdf-gr8gnqvf) |
 | ✅ | **DuoAttention: Efficient Long-Context LLM Inference with Retrieval and Streaming Heads** | [ICLR'25](https://arxiv.org/pdf/2410.10819v1) | 区分 retrieval heads 与 streaming heads，为不同 head 分配不同 KV 保留策略 | [Paper](https://arxiv.org/pdf/2410.10819v1) |
-| ✅ | **MiniMax Sparse Attention** | [arXiv'26](https://arxiv.org/abs/2606.13392) | 按 GQA group 选择 KV 块并协同设计稀疏 kernel，将块级稀疏转化为长上下文加速 | [Paper](https://arxiv.org/abs/2606.13392) / [Note](Papers/01_Attention/MiniMax-MSA/msa.md) |
-| ✅ 📝 | **IndexCache: Accelerating Sparse Attention via Cross-Layer Index Reuse** | [arXiv'26](https://arxiv.org/abs/2603.12201v1) | 跨层复用 Top-k 位置，用 LM-loss 搜索或多层 KL 蒸馏减少 indexer 计算，并区分索引缓存与主 KV 缓存 | [Paper](https://arxiv.org/abs/2603.12201v1) / [Note](Papers/01_Attention/IndexCache/indexcache.md) |
+| ✅ | <a id="pdf-hzcjag36"></a>**MiniMax Sparse Attention** | [arXiv'26](https://arxiv.org/abs/2606.13392) | 按 GQA group 选择 KV 块并协同设计稀疏 kernel，将块级稀疏转化为长上下文加速 | [Paper](https://arxiv.org/abs/2606.13392) / [Note](Papers/01_Attention/MiniMax-MSA/msa.md) / [归档标签](Papers/downloaded-papers.md#pdf-hzcjag36) |
+| ✅ 📝 | <a id="pdf-xxevr2qa"></a>**IndexCache: Accelerating Sparse Attention via Cross-Layer Index Reuse** | [arXiv'26](https://arxiv.org/abs/2603.12201v1) | 跨层复用 Top-k 位置，用 LM-loss 搜索或多层 KL 蒸馏减少 indexer 计算，并区分索引缓存与主 KV 缓存 | [Paper](https://arxiv.org/abs/2603.12201v1) / [Note](Papers/01_Attention/IndexCache/indexcache.md) / [归档标签](Papers/downloaded-papers.md#pdf-xxevr2qa) |
 
 ### Deep Learning / Attention Mechanisms & Variants
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ✅ | **Attention Is All You Need** | [NeurIPS'17](https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf) | 用多头自注意力替代循环与卷积，建立可并行训练的 Transformer 架构 | [Paper](https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/32) |
-| ✅ | **Big Bird: Transformers for Longer Sequences** | [NeurIPS'20](https://proceedings.neurips.cc/paper/2020/hash/c8512d142a2d849725f31a9a7a361ab9-Abstract.html) | 结合局部、随机与全局连接实现线性稀疏注意力，并分析其表达能力 | [Paper](https://proceedings.neurips.cc/paper/2020/hash/c8512d142a2d849725f31a9a7a361ab9-Abstract.html) / [Note](Foundations/01_Attention/SparseAttention.md) |
-| ✅ | **FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness** | [NeurIPS'22](https://proceedings.neurips.cc/paper_files/paper/2022/file/67d57c32e20fd0a7a302cb81d36e40d5-Paper-Conference.pdf) | 通过分块、算子融合与重计算减少 HBM 读写，实现不近似的高效 attention | [Paper](https://proceedings.neurips.cc/paper_files/paper/2022/file/67d57c32e20fd0a7a302cb81d36e40d5-Paper-Conference.pdf) / [Note](Foundations/01_Attention/FlashAttention.md) |
-| ✅ | **FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning** | [ICLR'24](https://proceedings.iclr.cc/paper_files/paper/2024/hash/98ed250b203d1ac6b24bbcf263e3d4a7-Abstract-Conference.html) | 优化线程块与 warp 间工作划分，减少非矩阵计算和共享内存通信，提高 attention 吞吐 | [Paper](https://arxiv.org/pdf/2307.08691.pdf) / [Note](Foundations/01_Attention/FlashAttention.md) |
+| ✅ | <a id="pdf-fvzdyfpl"></a>**Big Bird: Transformers for Longer Sequences** | [NeurIPS'20](https://proceedings.neurips.cc/paper/2020/hash/c8512d142a2d849725f31a9a7a361ab9-Abstract.html) | 结合局部、随机与全局连接实现线性稀疏注意力，并分析其表达能力 | [Paper](https://proceedings.neurips.cc/paper/2020/hash/c8512d142a2d849725f31a9a7a361ab9-Abstract.html) / [Note](Foundations/01_Attention/SparseAttention.md) / [归档标签](Papers/downloaded-papers.md#pdf-fvzdyfpl) |
+| ✅ | <a id="pdf-jua6hwcg"></a>**FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness** | [NeurIPS'22](https://proceedings.neurips.cc/paper_files/paper/2022/file/67d57c32e20fd0a7a302cb81d36e40d5-Paper-Conference.pdf) | 通过分块、算子融合与重计算减少 HBM 读写，实现不近似的高效 attention | [Paper](https://proceedings.neurips.cc/paper_files/paper/2022/file/67d57c32e20fd0a7a302cb81d36e40d5-Paper-Conference.pdf) / [Note](Foundations/01_Attention/FlashAttention.md) / [归档标签](Papers/downloaded-papers.md#pdf-jua6hwcg) |
+| ✅ | <a id="pdf-e269ji6y"></a>**FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning** | [ICLR'24](https://proceedings.iclr.cc/paper_files/paper/2024/hash/98ed250b203d1ac6b24bbcf263e3d4a7-Abstract-Conference.html) | 优化线程块与 warp 间工作划分，减少非矩阵计算和共享内存通信，提高 attention 吞吐 | [Paper](https://arxiv.org/pdf/2307.08691.pdf) / [Note](Foundations/01_Attention/FlashAttention.md) / [归档标签](Papers/downloaded-papers.md#pdf-e269ji6y) |
 | ✅ | **Flash-Decoding for Long-Context Inference** | [Blog'23](https://crfm.stanford.edu/2023/10/12/flashdecoding.html) | 沿 KV 序列切分并合并部分 attention 结果，提高小 batch 长上下文 decode 的 GPU 利用率 | [Paper](https://crfm.stanford.edu/2023/10/12/flashdecoding.html) / [Note](Foundations/01_Attention/FlashDecoding.md) |
-| ✅ | **A Survey of Efficient Attention Methods: Hardware-efficient, Sparse, Compact, and Linear Attention** | [Tech report'25](https://github.com/attention-survey/Efficient_Attention_Survey) | 统一梳理硬件优化、稀疏、KV 压缩与线性 attention，区分计算和缓存优化的作用范围 | [Paper](https://attention-survey.github.io/files/Attention_Survey.pdf) |
+| ✅ | <a id="pdf-ycadddv3"></a>**A Survey of Efficient Attention Methods: Hardware-efficient, Sparse, Compact, and Linear Attention** | [Tech report'25](https://github.com/attention-survey/Efficient_Attention_Survey) | 统一梳理硬件优化、稀疏、KV 压缩与线性 attention，区分计算和缓存优化的作用范围 | [Paper](https://attention-survey.github.io/files/Attention_Survey.pdf) / [归档标签](Papers/downloaded-papers.md#pdf-ycadddv3) |
 
 ### Deep Learning / Sparse Attention Algorithms & Training / Architecture and Modern Sparse Attention
 
@@ -86,10 +88,10 @@ Papers/ | Projects/ | Foundations/
 | ⬜ | **GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints** | [EMNLP'23](https://aclanthology.org/2023.emnlp-main.298/) | 建立 MHA–GQA–MQA 的连续关系；理解 MSA 为什么按 GQA group 独立选择 | [Paper](https://arxiv.org/abs/2305.13245) |
 | ⬜ | **DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model** | [arXiv'24](https://arxiv.org/abs/2405.04434) | MLA、latent KV compression、decoupled RoPE，以及 `uk_proj` / `uo_proj` 的矩阵吸收 | [Paper](https://arxiv.org/abs/2405.04434) |
 | ⬜ | **SeerAttention: Learning Intrinsic Sparse Attention in Your LLMs** | [NeurIPS'25](https://proceedings.neurips.cc/paper_files/paper/2025/hash/50e9dbc4ab68d94f15261ddc26c8ca2b-Abstract-Conference.html) | 可学习的 block gate、自蒸馏与 block-sparse kernel；最接近 MSA Indexer 的对照之一 | [Paper](https://arxiv.org/abs/2410.13276) |
-| ⬜ | **Native Sparse Attention: Hardware-Aligned and Natively Trainable Sparse Attention** | [ACL'25](https://aclanthology.org/2025.acl-long.1126/) | 同时研究压缩、选择、局部窗口与硬件对齐；理解 DSA 的算法–kernel 协同背景 | [Paper](https://arxiv.org/abs/2502.11089) |
-| ⬜ | **MoBA: Mixture of Block Attention for Long-Context LLMs** | [NeurIPS'25](https://proceedings.neurips.cc/paper_files/paper/2025/hash/19eae75beed66321d62272e794a9c2ac-Abstract-Conference.html) | MoE 风格的 block routing；适合对比 MSA 的 block max-pooling 与 group-specific selection | [Paper](https://arxiv.org/abs/2502.13189) |
+| ⬜ | <a id="pdf-kniu8he3"></a>**Native Sparse Attention: Hardware-Aligned and Natively Trainable Sparse Attention** | [ACL'25](https://aclanthology.org/2025.acl-long.1126/) | 同时研究压缩、选择、局部窗口与硬件对齐；理解 DSA 的算法–kernel 协同背景 | [Paper](https://arxiv.org/abs/2502.11089) / [归档标签](Papers/downloaded-papers.md#pdf-kniu8he3) |
+| ⬜ | <a id="pdf-q3y9x5v3"></a>**MoBA: Mixture of Block Attention for Long-Context LLMs** | [NeurIPS'25](https://proceedings.neurips.cc/paper_files/paper/2025/hash/19eae75beed66321d62272e794a9c2ac-Abstract-Conference.html) | MoE 风格的 block routing；适合对比 MSA 的 block max-pooling 与 group-specific selection | [Paper](https://arxiv.org/abs/2502.13189) / [归档标签](Papers/downloaded-papers.md#pdf-q3y9x5v3) |
 | ⬜ | **MInference 1.0: Accelerating Pre-filling for Long-Context LLMs via Dynamic Sparse Attention** | [NeurIPS'24](https://proceedings.neurips.cc/paper_files/paper/2024/hash/5dfbe6f5671e82c76841ba687a8a9ecb-Abstract-Conference.html) | 无需重新训练的动态稀疏 prefill；对比学习式 Indexer 与预设 attention pattern | [Paper](https://arxiv.org/abs/2407.02490) |
-| ⬜ | **SpargeAttn: Accurate Sparse Attention Accelerating Any Model Inference** | [ICML'25](https://proceedings.mlr.press/v267/zhang25ch.html) | 两阶段在线过滤与 softmax-aware pruning；理解推理期稀疏化的另一条路线 | [Paper](https://arxiv.org/abs/2502.18137) |
+| ⬜ | <a id="pdf-9h6z7sbe"></a>**SpargeAttn: Accurate Sparse Attention Accelerating Any Model Inference** | [ICML'25](https://proceedings.mlr.press/v267/zhang25ch.html) | 两阶段在线过滤与 softmax-aware pruning；理解推理期稀疏化的另一条路线 | [Paper](https://arxiv.org/abs/2502.18137) / [归档标签](Papers/downloaded-papers.md#pdf-9h6z7sbe) |
 | ⬜ | **BLASST: Dynamic BLocked Attention Sparsity via Softmax Thresholding** | [MLSys'26](https://proceedings.mlsys.org/paper_files/paper/2026/hash/c6ee784cbe46d854843e4c883a3321ef-Abstract-Conference.html) | 复用 online softmax 统计量跳过低贡献 blocks；无需训练并覆盖 MHA/GQA/MQA/MLA | [Paper](https://proceedings.mlsys.org/paper_files/paper/2026/hash/c6ee784cbe46d854843e4c883a3321ef-Abstract-Conference.html) |
 
 ### Deep Learning / Sparse Attention Algorithms & Training / Algorithm and Training Foundations
@@ -111,30 +113,46 @@ Papers/ | Projects/ | Foundations/
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ✅ | **Gated Linear Attention Transformers with Hardware-Efficient Training** | [ICML'24](https://proceedings.mlr.press/v235/yang24ab.html) | 用数据依赖门控增强线性 attention，并以 IO 感知实现兼顾表达能力和训练吞吐 | [Paper](https://proceedings.mlr.press/v235/yang24ab.html) / [Note](Foundations/01_Attention/LinearAttention.md) |
-| ✅ | **Kimi Linear: An Expressive, Efficient Attention Architecture** | [arXiv'25](https://arxiv.org/pdf/2510.26692) | 用 Kimi Delta Attention 与混合架构改善线性 attention 的表达能力、长上下文效率和缓存成本 | [Paper](https://arxiv.org/pdf/2510.26692) |
+| ✅ | <a id="pdf-qxn82qc9"></a>**Gated Linear Attention Transformers with Hardware-Efficient Training** | [ICML'24](https://proceedings.mlr.press/v235/yang24ab.html) | 用数据依赖门控增强线性 attention，并以 IO 感知实现兼顾表达能力和训练吞吐 | [Paper](https://proceedings.mlr.press/v235/yang24ab.html) / [Note](Foundations/01_Attention/LinearAttention.md) / [归档标签](Papers/downloaded-papers.md#pdf-qxn82qc9) |
+| ✅ | <a id="pdf-l42twfp4"></a>**Kimi Linear: An Expressive, Efficient Attention Architecture** | [arXiv'25](https://arxiv.org/pdf/2510.26692) | 用 Kimi Delta Attention 与混合架构改善线性 attention 的表达能力、长上下文效率和缓存成本 | [Paper](https://arxiv.org/pdf/2510.26692) / [归档标签](Papers/downloaded-papers.md#pdf-l42twfp4) |
+
+### PapersPDF 补充阅读清单
+
+| Status | Paper | Venue | Why It Matters | Links |
+|:------:|-------|-------|----------------|-------|
+| ⬜ | <a id="pdf-cmk845zm"></a>**Block Sparse Attention with Log-Linear Complexity** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2609.31093) / [PDF](zotero://open-pdf/library/items/DK2DV9UZ) / [Zotero](zotero://select/library/items/CMK845ZM) / [归档标签](Papers/downloaded-papers.md#pdf-cmk845zm) |
+| ⬜ 📝 | <a id="pdf-l447a648"></a>**DoSA: Dots Sparse Attention** | arXiv · 2026 | 阅读中；标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2610.13990) / [PDF](zotero://open-pdf/library/items/Y75KTIVE) / [Zotero](zotero://select/library/items/L447A648) / [Note](Papers/01_Attention/DoSA/dosa.md) / [Annotations](Papers/01_Attention/DoSA/zotero-reading.md) / [归档标签](Papers/downloaded-papers.md#pdf-l447a648) |
+| ⬜ | <a id="pdf-ny88ejjb"></a>**Efficient Context Scaling with LongCat ZigZag Attention** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2512.23966) / [PDF](zotero://open-pdf/library/items/2VJX3AWK) / [Zotero](zotero://select/library/items/NY88EJJB) / [归档标签](Papers/downloaded-papers.md#pdf-ny88ejjb) |
+| ⬜ | <a id="pdf-yugv34kq"></a>**FSA: An Alternative Efficient Implementation of Native Sparse Attention Kernel** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2508.18224) / [PDF](zotero://open-pdf/library/items/ZUQSHLJQ) / [Zotero](zotero://select/library/items/YUGV34KQ) / [归档标签](Papers/downloaded-papers.md#pdf-yugv34kq) |
+| ⬜ | <a id="pdf-ehqb8nyq"></a>**PageWeaver: KV-Guided Query Unions for Sparse Attention** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2610.11201) / [PDF](zotero://open-pdf/library/items/SBISCM3P) / [Zotero](zotero://select/library/items/EHQB8NYQ) / [归档标签](Papers/downloaded-papers.md#pdf-ehqb8nyq) |
+| ⬜ | <a id="pdf-l8sl8v37"></a>**Conditional Memory via Scalable Lookup: A New Axis of Sparsity for Large Language Models** | 来源待补全 | 标签：Attention / 线性 Attention 与记忆 | [PDF](zotero://open-pdf/library/items/2RFQ4ZTQ) / [Zotero](zotero://select/library/items/L8SL8V37) / [归档标签](Papers/downloaded-papers.md#pdf-l8sl8v37) |
+| ⬜ | <a id="pdf-ywh3l2eu"></a>**Fast Weight Attention for Continual Learning** | arXiv · 2026 | 标签：Attention / 线性 Attention 与记忆 | [Paper](http://arxiv.org/abs/2608.27763) / [PDF](zotero://open-pdf/library/items/ZHREG8JF) / [Zotero](zotero://select/library/items/YWH3L2EU) / [归档标签](Papers/downloaded-papers.md#pdf-ywh3l2eu) |
+| ⬜ | <a id="pdf-dgf2kzzi"></a>**Memory Attention** | arXiv · 2026 | 标签：Attention / 线性 Attention 与记忆；推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2609.28399) / [PDF](zotero://open-pdf/library/items/S4YNUDPW) / [Zotero](zotero://select/library/items/DGF2KZZI) / [归档标签](Papers/downloaded-papers.md#pdf-dgf2kzzi) |
+| ⬜ | <a id="pdf-mnpehw5y"></a>**FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision** | arXiv · 2024 | 标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2407.08608) / [PDF](zotero://open-pdf/library/items/HTMXSCYS) / [Zotero](zotero://select/library/items/MNPEHW5Y) / [归档标签](Papers/downloaded-papers.md#pdf-mnpehw5y) |
+| ⬜ | <a id="pdf-tghhgfqg"></a>**FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling** | arXiv · 2026 | 阅读中；标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2603.05451) / [PDF](zotero://open-pdf/library/items/M8IKPE3M) / [Zotero](zotero://select/library/items/TGHHGFQG) / [Annotations](Papers/01_Attention/FlashAttention-4/zotero-reading.md) / [归档标签](Papers/downloaded-papers.md#pdf-tghhgfqg) |
+| ⬜ | <a id="pdf-5k4mwtrc"></a>**FlashDecoding++: Faster Large Language Model Inference on GPUs** | arXiv · 2024 | 标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2311.01282) / [PDF](zotero://open-pdf/library/items/8QQKNGYR) / [Zotero](zotero://select/library/items/5K4MWTRC) / [归档标签](Papers/downloaded-papers.md#pdf-5k4mwtrc) |
 
 </details>
 
 <details>
-<summary>推理与 KV Cache（50 篇；已读 6，待读 44）</summary>
+<summary>推理与 KV Cache（56 篇；已读 6，待读 50）</summary>
 
 ### LLM Inference / Decoding Algorithms
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ⬜ | **The Curious Case of Neural Text Degeneration** | [ICLR'20](https://pubs.cs.uct.ac.za/1407/1/the_curious_case_of_neural_text_degeneration.pdf) | 系统比较 greedy、beam、top-k 与 nucleus sampling，理解生成质量、随机性和退化 | [Paper](https://arxiv.org/abs/1904.09751) |
-| ⬜ | **Fast Inference from Transformers via Speculative Decoding** | [ICML'23](https://proceedings.mlr.press/v202/leviathan23a.html) | draft–verify 与拒绝采样；在保持目标分布不变的前提下并行生成多个 token | [Paper](https://proceedings.mlr.press/v202/leviathan23a.html) / [Zotero](zotero://select/library/items/3D2KG559) |
+| ⬜ | <a id="pdf-3d2kg559"></a>**Fast Inference from Transformers via Speculative Decoding** | [ICML'23](https://proceedings.mlr.press/v202/leviathan23a.html) | draft–verify 与拒绝采样；在保持目标分布不变的前提下并行生成多个 token | [Paper](https://proceedings.mlr.press/v202/leviathan23a.html) / [Zotero](zotero://select/library/items/3D2KG559) / [归档标签](Papers/downloaded-papers.md#pdf-3d2kg559) |
 | ⬜ | **Accelerating Large Language Model Decoding with Speculative Sampling** | [arXiv'23](https://arxiv.org/abs/2302.01318) | speculative sampling 的独立推导与工程验证，适合和上一论文对照阅读 | [Paper](https://arxiv.org/abs/2302.01318) |
 | ⬜ | **SpecInfer: Accelerating Large Language Model Serving with Tree-based Speculative Inference and Verification** | [ASPLOS'24](https://hsword.github.io/publications/) | 用候选树提高并行验证宽度，连接解码算法与 serving batch | [Paper](https://arxiv.org/abs/2305.09781) |
-| ⬜ | **Medusa: Simple LLM Inference Acceleration Framework with Multiple Decoding Heads** | [ICML'24](https://proceedings.mlr.press/v235/cai24b.html) | 不依赖独立 draft model 的多头预测与 tree attention | [Paper](https://arxiv.org/abs/2401.10774) / [Zotero](zotero://select/library/items/ZL7R492B) |
+| ⬜ | <a id="pdf-zl7r492b"></a>**Medusa: Simple LLM Inference Acceleration Framework with Multiple Decoding Heads** | [ICML'24](https://proceedings.mlr.press/v235/cai24b.html) | 不依赖独立 draft model 的多头预测与 tree attention | [Paper](https://arxiv.org/abs/2401.10774) / [Zotero](zotero://select/library/items/ZL7R492B) / [归档标签](Papers/downloaded-papers.md#pdf-zl7r492b) |
 | ⬜ | **Break the Sequential Dependency of LLM Inference Using Lookahead Decoding** | [ICML'24](https://icml.cc/virtual/2024/poster/33512) | 从 Jacobi iteration 理解无额外模型的并行候选生成 | [Paper](https://arxiv.org/abs/2402.02057) |
-| ⬜ | **EAGLE: Speculative Sampling Requires Rethinking Feature Uncertainty** | [ICML'24](https://proceedings.mlr.press/v235/li24bt.html) | 在 feature space 自回归预测，理解高接受率 drafter 的训练方法 | [Paper](https://arxiv.org/abs/2401.15077) / [Zotero](zotero://select/library/items/E7E8IFP3) |
-| ⬜ | **Better & Faster Large Language Models via Multi-token Prediction** | [ICML'24](https://proceedings.mlr.press/v235/gloeckle24a.html) | 训练时预测多个未来 token，将训练目标与推理解码并行性连接起来 | [Paper](https://arxiv.org/abs/2404.19737) / [Zotero](zotero://select/library/items/2ZY769N5) |
-| ⬜ | **DeepSeek-V3 Technical Report** | [arXiv'24](https://arxiv.org/abs/2412.19437) | 理解实际大模型中的 MTP：顺序连接的预测模块、hidden state 与 token embedding 的组合，以及 embedding／LM Head 共享；优先读 §2.2、Figure 3、§4.5.1 | [Paper](https://arxiv.org/abs/2412.19437) / [Zotero](zotero://select/library/items/D6RIU87T) |
-| ⬜ | **EAGLE-2: Faster Inference of Language Models with Dynamic Draft Trees** | [arXiv'24](https://arxiv.org/abs/2406.16858) | 利用上下文相关的草稿置信度构造动态候选树，理解节点预算如何分配并影响接受长度 | [Paper](https://arxiv.org/abs/2406.16858) / [Zotero](zotero://select/library/items/4Q25EJIP) |
-| ⬜ | **EAGLE-3: Scaling up Inference Acceleration of Large Language Models via Training-Time Test** | [arXiv'25](https://arxiv.org/abs/2503.01840) | 融合目标模型多层特征并直接预测 token，通过 training-time test 改善草稿训练与推理的匹配 | [Paper](https://arxiv.org/abs/2503.01840) / [Zotero](zotero://select/library/items/L7EDIM2T) |
-| ⬜ | **DFlash: Block Diffusion for Flash Speculative Decoding** | [arXiv'26](https://arxiv.org/abs/2602.06036) | 用目标模型特征作为条件，通过轻量 block diffusion 草稿并行预测多个候选 token，理解如何降低起草延迟 | [Paper](https://arxiv.org/abs/2602.06036) / [Zotero](zotero://select/library/items/RVRKYUSG) |
+| ⬜ | <a id="pdf-e7e8ifp3"></a>**EAGLE: Speculative Sampling Requires Rethinking Feature Uncertainty** | [ICML'24](https://proceedings.mlr.press/v235/li24bt.html) | 在 feature space 自回归预测，理解高接受率 drafter 的训练方法 | [Paper](https://arxiv.org/abs/2401.15077) / [Zotero](zotero://select/library/items/E7E8IFP3) / [归档标签](Papers/downloaded-papers.md#pdf-e7e8ifp3) |
+| ⬜ | <a id="pdf-2zy769n5"></a>**Better & Faster Large Language Models via Multi-token Prediction** | [ICML'24](https://proceedings.mlr.press/v235/gloeckle24a.html) | 训练时预测多个未来 token，将训练目标与推理解码并行性连接起来 | [Paper](https://arxiv.org/abs/2404.19737) / [Zotero](zotero://select/library/items/2ZY769N5) / [归档标签](Papers/downloaded-papers.md#pdf-2zy769n5) |
+| ⬜ | <a id="pdf-d6riu87t"></a>**DeepSeek-V3 Technical Report** | [arXiv'24](https://arxiv.org/abs/2412.19437) | 理解实际大模型中的 MTP：顺序连接的预测模块、hidden state 与 token embedding 的组合，以及 embedding／LM Head 共享；优先读 §2.2、Figure 3、§4.5.1 | [Paper](https://arxiv.org/abs/2412.19437) / [Zotero](zotero://select/library/items/D6RIU87T) / [归档标签](Papers/downloaded-papers.md#pdf-d6riu87t) |
+| ⬜ | <a id="pdf-4q25ejip"></a>**EAGLE-2: Faster Inference of Language Models with Dynamic Draft Trees** | [arXiv'24](https://arxiv.org/abs/2406.16858) | 利用上下文相关的草稿置信度构造动态候选树，理解节点预算如何分配并影响接受长度 | [Paper](https://arxiv.org/abs/2406.16858) / [Zotero](zotero://select/library/items/4Q25EJIP) / [归档标签](Papers/downloaded-papers.md#pdf-4q25ejip) |
+| ⬜ | <a id="pdf-l7edim2t"></a>**EAGLE-3: Scaling up Inference Acceleration of Large Language Models via Training-Time Test** | [arXiv'25](https://arxiv.org/abs/2503.01840) | 融合目标模型多层特征并直接预测 token，通过 training-time test 改善草稿训练与推理的匹配 | [Paper](https://arxiv.org/abs/2503.01840) / [Zotero](zotero://select/library/items/L7EDIM2T) / [归档标签](Papers/downloaded-papers.md#pdf-l7edim2t) |
+| ⬜ | <a id="pdf-rvrkyusg"></a>**DFlash: Block Diffusion for Flash Speculative Decoding** | [arXiv'26](https://arxiv.org/abs/2602.06036) | 用目标模型特征作为条件，通过轻量 block diffusion 草稿并行预测多个候选 token，理解如何降低起草延迟 | [Paper](https://arxiv.org/abs/2602.06036) / [Zotero](zotero://select/library/items/RVRKYUSG) / [归档标签](Papers/downloaded-papers.md#pdf-rvrkyusg) |
 
 ### LLM Inference / General
 
@@ -148,8 +166,8 @@ Papers/ | Projects/ | Foundations/
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ✅ | **Training-Free Long-Context Scaling of Large Language Models** | [ICML'24](https://arxiv.org/pdf/2402.17463) | 用 Dual Chunk Attention 调整位置关系，无继续训练地扩展模型可处理的上下文长度 | [Paper](https://arxiv.org/pdf/2402.17463) / [Note](Papers/02_Inference_and_KV_Cache/Dual-Chunk-Attention/DCA.md) |
-| ✅ | **Efficient Streaming Language Models with Attention Sinks** | [ICLR'24](https://arxiv.org/pdf/2309.17453) | 保留 attention sink 与滑动窗口，实现有界 KV 缓存的流式生成并明确历史信息保留边界 | [Paper](https://arxiv.org/pdf/2309.17453) / [讨论笔记](Foundations/01_Attention/Attention-Sinks/attention-sink-and-dsink.md) |
-| ✅ 📝 | **HiSparse: Scaling Sparse-Attention Decoding with Hierarchical KV Cache Management** | [arXiv'26](https://arxiv.org/abs/2608.07009v1) | 将完整 KV 放在主存、热点放在有界 GPU 缓存，并用跨层预取隐藏稀疏解码缺页开销 | [Paper](https://arxiv.org/abs/2608.07009v1) / [Note](Papers/02_Inference_and_KV_Cache/HiSparse/hisparse.md) |
+| ✅ | <a id="pdf-cuxi564s"></a>**Efficient Streaming Language Models with Attention Sinks** | [ICLR'24](https://arxiv.org/pdf/2309.17453) | 保留 attention sink 与滑动窗口，实现有界 KV 缓存的流式生成并明确历史信息保留边界 | [Paper](https://arxiv.org/pdf/2309.17453) / [讨论笔记](Foundations/01_Attention/Attention-Sinks/attention-sink-and-dsink.md) / [归档标签](Papers/downloaded-papers.md#pdf-cuxi564s) |
+| ✅ 📝 | <a id="pdf-bbqs6dzt"></a>**HiSparse: Scaling Sparse-Attention Decoding with Hierarchical KV Cache Management** | [arXiv'26](https://arxiv.org/abs/2608.07009v1) | 将完整 KV 放在主存、热点放在有界 GPU 缓存，并用跨层预取隐藏稀疏解码缺页开销 | [Paper](https://arxiv.org/abs/2608.07009v1) / [Note](Papers/02_Inference_and_KV_Cache/HiSparse/hisparse.md) / [归档标签](Papers/downloaded-papers.md#pdf-bbqs6dzt) |
 | ⬜ | **Unifying Sparse Attention with Hierarchical Memory for Scalable Long-Context LLM Serving (SPIN)** | [arXiv'26](https://arxiv.org/abs/2604.26837) | 统一不同稀疏粒度与分层 KV 存储，通过局部性感知缓存和元数据设计降低 GPU–CPU 传输开销 | [Paper](https://arxiv.org/abs/2604.26837) |
 
 ### LLM Inference / LLM Serving
@@ -157,7 +175,7 @@ Papers/ | Projects/ | Foundations/
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ⬜ | **Orca: A Distributed Serving System for Transformer-Based Generative Models** | [OSDI'22](https://www.usenix.org/conference/osdi22/presentation/yu) | 提出迭代级调度和选择性批处理，使不同长度请求能动态进入和离开生成批次 | [Paper](https://www.usenix.org/conference/osdi22/presentation/yu) |
-| ⬜ | **Efficient Memory Management for Large Language Model Serving with PagedAttention** | [SOSP'23](https://arxiv.org/abs/2309.06180) | 用分页 KV 管理消除大块连续分配需求，并支持缓存共享，奠定高吞吐 LLM serving 基础 | [Paper](https://arxiv.org/abs/2309.06180) |
+| ⬜ | <a id="pdf-arsj3h89"></a>**Efficient Memory Management for Large Language Model Serving with PagedAttention** | [SOSP'23](https://arxiv.org/abs/2309.06180) | 用分页 KV 管理消除大块连续分配需求，并支持缓存共享，奠定高吞吐 LLM serving 基础 | [Paper](https://arxiv.org/abs/2309.06180) / [归档标签](Papers/downloaded-papers.md#pdf-arsj3h89) |
 | ⬜ | **FlexGen: High-Throughput Generative Inference of Large Language Models with a Single GPU** | [ICML'23](https://proceedings.mlr.press/v202/sheng23a.html) | 联合规划 GPU、CPU 和磁盘上的权重与 KV 放置，以卸载和大批处理换取单 GPU 高吞吐 | [Paper](https://proceedings.mlr.press/v202/sheng23a.html) |
 | ⬜ | **AlpaServe: Statistical Multiplexing with Model Parallelism for Deep Learning Serving** | [OSDI'23](https://www.usenix.org/conference/osdi23/presentation/li-zhouhan) | 利用模型并行实现统计复用，理解多个模型共用集群时的资源配置和尾延迟取舍 | [Paper](https://www.usenix.org/conference/osdi23/presentation/li-zhouhan) |
 | ⬜ | **FastServe: Fast Distributed Inference Serving for Large Language Models** | [arXiv'23](https://arxiv.org/abs/2305.05920) | 以 token 级抢占和多级反馈队列缓解队首阻塞，并配合 KV 卸载改善请求完成延迟 | [Paper](https://arxiv.org/abs/2305.05920) |
@@ -168,15 +186,15 @@ Papers/ | Projects/ | Foundations/
 | ⬜ | **Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve** | [OSDI'24](https://arxiv.org/abs/2403.02310) | 用 chunked prefill 和混合批处理控制解码停顿，改善吞吐与逐 token 延迟的取舍 | [Paper](https://arxiv.org/abs/2403.02310) |
 | ⬜ | **Llumnix: Dynamic Scheduling for Large Language Model Serving** | [OSDI'24](https://arxiv.org/abs/2406.03243) | 通过运行时请求迁移协调多实例负载，在动态请求与资源变化下控制延迟 | [Paper](https://arxiv.org/abs/2406.03243) |
 | ⬜ | **Preble: Efficient Distributed Prompt Scheduling for LLM Serving** | [ICLR'25](https://proceedings.iclr.cc/paper_files/paper/2025/hash/5bc342f48de8264779952fac378f96dc-Abstract-Conference.html) | 联合优化跨 GPU 前缀 KV 复用与负载均衡，避免局部缓存命中率牺牲整体服务延迟 | [Paper](https://arxiv.org/abs/2407.00023) |
-| ✅ | **SGLang: Efficient Execution of Structured Language Model Programs** | [NeurIPS'24](https://proceedings.neurips.cc/paper_files/paper/2024/hash/724be4472168f31ba1c9ac630f15dec8-Abstract-Conference.html) | 以结构化程序前端、RadixAttention 前缀复用和约束解码优化多调用 LLM 应用 | [Paper](https://proceedings.neurips.cc/paper_files/paper/2024/hash/724be4472168f31ba1c9ac630f15dec8-Abstract-Conference.html) |
-| ✅ | **FlashInfer: Efficient and Customizable Attention Engine for LLM Inference Serving** | [MLSys'25](https://proceedings.mlsys.org/paper_files/paper/2025/hash/dbf02b21d77409a2db30e56866a8ab3a-Abstract-Conference.html) | 统一 KV 格式、可定制 attention kernel 与动态负载调度，连接算子优化和实际 serving | [Paper](https://proceedings.mlsys.org/paper_files/paper/2025/hash/dbf02b21d77409a2db30e56866a8ab3a-Abstract-Conference.html) |
+| ✅ | <a id="pdf-2stq9v35"></a>**SGLang: Efficient Execution of Structured Language Model Programs** | [NeurIPS'24](https://proceedings.neurips.cc/paper_files/paper/2024/hash/724be4472168f31ba1c9ac630f15dec8-Abstract-Conference.html) | 以结构化程序前端、RadixAttention 前缀复用和约束解码优化多调用 LLM 应用 | [Paper](https://proceedings.neurips.cc/paper_files/paper/2024/hash/724be4472168f31ba1c9ac630f15dec8-Abstract-Conference.html) / [归档标签](Papers/downloaded-papers.md#pdf-2stq9v35) |
+| ✅ | <a id="pdf-kcjrn274"></a>**FlashInfer: Efficient and Customizable Attention Engine for LLM Inference Serving** | [MLSys'25](https://proceedings.mlsys.org/paper_files/paper/2025/hash/dbf02b21d77409a2db30e56866a8ab3a-Abstract-Conference.html) | 统一 KV 格式、可定制 attention kernel 与动态负载调度，连接算子优化和实际 serving | [Paper](https://proceedings.mlsys.org/paper_files/paper/2025/hash/dbf02b21d77409a2db30e56866a8ab3a-Abstract-Conference.html) / [归档标签](Papers/downloaded-papers.md#pdf-kcjrn274) |
 | ⬜ | **DistServe: Disaggregating Prefill and Decoding for Goodput-optimized Large Language Model Serving** | [OSDI'24](https://www.usenix.org/system/files/osdi24-zhong-yinmin.pdf) | 按 TTFT 与 TPOT 目标独立配置 prefill、decode 资源，优化满足服务目标的有效吞吐 | [Paper](https://www.usenix.org/system/files/osdi24-zhong-yinmin.pdf) |
 | ⬜ | **LoongServe: Efficiently Serving Long-Context Large Language Models with Elastic Sequence Parallelism** | [SOSP'24](https://dl.acm.org/doi/pdf/10.1145/3694715.3695948) | 用弹性序列并行动态调整长请求占用的 GPU，协调长上下文 prefill 与 decode | [Paper](https://dl.acm.org/doi/pdf/10.1145/3694715.3695948) |
-| ⬜ | **Mooncake: Trading More Storage for Less Computation — A KVCache-centric Architecture for Serving LLM Chatbot** | [FAST'25](https://www.usenix.org/system/files/fast25-qin.pdf) | 围绕分离式 KV 缓存池组织推理，利用更多存储和跨请求复用减少重复 prefill | [Paper](https://www.usenix.org/system/files/fast25-qin.pdf) |
+| ⬜ | <a id="pdf-6skbr85n"></a>**Mooncake: Trading More Storage for Less Computation — A KVCache-centric Architecture for Serving LLM Chatbot** | [FAST'25](https://www.usenix.org/system/files/fast25-qin.pdf) | 围绕分离式 KV 缓存池组织推理，利用更多存储和跨请求复用减少重复 prefill | [Paper](https://www.usenix.org/system/files/fast25-qin.pdf) / [归档标签](Papers/downloaded-papers.md#pdf-6skbr85n) |
 | ⬜ | **NanoFlow: Towards Optimal Large Language Model Serving Throughput** | [OSDI'25](https://www.usenix.org/system/files/osdi25-zhu-kan.pdf) | 用 nano-batch 流水线重叠计算、访存和通信，突破逐算子执行对服务吞吐的限制 | [Paper](https://www.usenix.org/system/files/osdi25-zhu-kan.pdf) |
 | ⬜ | **From Tokens to Layers: Redefining Stall-Free Scheduling for MoE Serving with Layered Prefill** | [MLSys'26](https://proceedings.mlsys.org/paper_files/paper/2026/hash/c0f460c6d63599ea870ba9db63dc96a9-Abstract-Conference.html) | 沿层组而非 token 切分 prefill，减少 MoE 专家权重重复加载，同时保持解码连续性 | [Paper](https://proceedings.mlsys.org/paper_files/paper/2026/hash/c0f460c6d63599ea870ba9db63dc96a9-Abstract-Conference.html) |
 | ⬜ | **CRAFT: Fine-Grained Cost-Aware Expert Replication for Efficient Mixture-of-Experts Serving** | [MLSys'26](https://proceedings.mlsys.org/paper_files/paper/2026/hash/3a7f9e485845dac27423375c934cb4db-Abstract-Conference.html) | 按层估计专家复制收益，在显存预算内平衡路由负载，避免过度复制挤占 KV 空间 | [Paper](https://proceedings.mlsys.org/paper_files/paper/2026/hash/3a7f9e485845dac27423375c934cb4db-Abstract-Conference.html) |
-| ⬜ | **Strata: Hierarchical Context Caching for Long Context Language Model Serving** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/xie-zhiqiang) | 结合大块 KV I/O 与缓存感知调度，缓解 GPU、主存和 SSD 分层上下文缓存的加载停顿 | [Paper](https://www.usenix.org/conference/osdi26/presentation/xie-zhiqiang) |
+| ⬜ | <a id="pdf-ix73leff"></a>**Strata: Hierarchical Context Caching for Long Context Language Model Serving** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/xie-zhiqiang) | 结合大块 KV I/O 与缓存感知调度，缓解 GPU、主存和 SSD 分层上下文缓存的加载停顿 | [Paper](https://www.usenix.org/conference/osdi26/presentation/xie-zhiqiang) / [归档标签](Papers/downloaded-papers.md#pdf-ix73leff) |
 | ⬜ | **No Buffer, No Bottleneck: Efficient Zero-Copy KV Cache Offloading for Long-Context LLMs (DirectKV)** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/luo) | 在 NVLink-C2C 平台让 GPU 直接访问主存 KV，消除 staging buffer 与额外拷贝 | [Paper](https://www.usenix.org/conference/osdi26/presentation/luo) |
 
 ### LLM Inference / Quantization & Compression
@@ -194,10 +212,21 @@ Papers/ | Projects/ | Foundations/
 | ⬜ | **QuaRot: Outlier-Free 4-Bit Inference in Rotated LLMs** | [NeurIPS'24](https://proceedings.neurips.cc/paper_files/paper/2024/hash/b5b939436789f76f08b9d0da5e81af7c-Abstract-Conference.html) | 用 Hadamard rotation 消除 outlier，适合从算法追到融合 kernel | [Paper](https://arxiv.org/abs/2404.00456) |
 | ⬜ | **The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits** | [arXiv'24](https://arxiv.org/abs/2402.17764) | BitNet b1.58 与三值权重，理解量化感知训练的架构路线 | [Paper](https://arxiv.org/abs/2402.17764) |
 
+### PapersPDF 补充阅读清单
+
+| Status | Paper | Venue | Why It Matters | Links |
+|:------:|-------|-------|----------------|-------|
+| ⬜ | <a id="pdf-t2z2ms8t"></a>**ByteTransformer: A High-Performance Transformer Boosted for Variable-Length Inputs** | 2023 IEEE International Parallel and Distributed Processing Symposium (IPDPS) · 2023 | 标签：推理服务与 KV Cache | [Paper](https://ieeexplore.ieee.org/document/10177488/) / [PDF](zotero://open-pdf/library/items/XTL5JC62) / [Zotero](zotero://select/library/items/T2Z2MS8T) / [归档标签](Papers/downloaded-papers.md#pdf-t2z2ms8t) |
+| ⬜ | <a id="pdf-ttfudeki"></a>**HiCache: A Plug-in Scaled-Hermite Upgrade for Taylor-Style Cache-then-Forecast Diffusion Acceleration** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2508.16984) / [PDF](zotero://open-pdf/library/items/7AF67XK4) / [Zotero](zotero://select/library/items/TTFUDEKI) / [归档标签](Papers/downloaded-papers.md#pdf-ttfudeki) |
+| ⬜ | <a id="pdf-ff3ujclj"></a>**Jenga: Effective Memory Management for Serving LLM with Heterogeneity** | arXiv · 2025 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2503.18292) / [PDF](zotero://open-pdf/library/items/DGM8PGQI) / [Zotero](zotero://select/library/items/FF3UJCLJ) / [归档标签](Papers/downloaded-papers.md#pdf-ff3ujclj) |
+| ⬜ | <a id="pdf-p7ztutbr"></a>**ShadowKV: KV Cache in Shadows for High-Throughput Long-Context LLM Inference** | arXiv · 2025 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2410.21465) / [PDF](zotero://open-pdf/library/items/I9NKKG32) / [Zotero](zotero://select/library/items/P7ZTUTBR) / [归档标签](Papers/downloaded-papers.md#pdf-p7ztutbr) |
+| ⬜ | <a id="pdf-8jjabzda"></a>**SparseEngine: Sparse-First Inference Engine** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2609.39068) / [PDF](zotero://open-pdf/library/items/I8VMS8D4) / [Zotero](zotero://select/library/items/8JJABZDA) / [归档标签](Papers/downloaded-papers.md#pdf-8jjabzda) |
+| ⬜ | <a id="pdf-en4xe3zy"></a>**TensorCast: The Missing Tensor Management Layer in Large Language Model Infrastructure** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2608.06007) / [PDF](zotero://open-pdf/library/items/4AYH4XIP) / [Zotero](zotero://select/library/items/EN4XE3ZY) / [归档标签](Papers/downloaded-papers.md#pdf-en4xe3zy) |
+
 </details>
 
 <details>
-<summary>分布式训练与 MoE（47 篇；已读 8，待读 39）</summary>
+<summary>分布式训练与 MoE（53 篇；已读 8，待读 45）</summary>
 
 ### LLM Inference / MegaKernel
 
@@ -230,13 +259,13 @@ Papers/ | Projects/ | Foundations/
 | ⬜ | **ZeRO-Infinity: Breaking the GPU Memory Wall for Extreme Scale Deep Learning** | [SC'21](https://arxiv.org/abs/2104.07857) | 联合 GPU、CPU 与 NVMe 分层卸载和带宽管理，突破超大模型训练的 GPU 显存容量限制 | [Paper](https://arxiv.org/abs/2104.07857) |
 | ⬜ | **Efficient Large-Scale Language Model Training on GPU Clusters Using Megatron-LM** | [SC'21](https://arxiv.org/abs/2104.04473) | 组合张量、流水线与数据并行，并用交错流水线减少大模型训练气泡 | [Paper](https://arxiv.org/abs/2104.04473) |
 | ⬜ | **GSPMD: General and Scalable Parallelization for ML Computation Graphs** | [arXiv'21](https://arxiv.org/abs/2105.04663) | 用少量张量分片标注自动传播并行策略，将单设备计算图扩展到多设备 | [Paper](https://arxiv.org/abs/2105.04663) |
-| ⬜ | **Alpa: Automating Inter- and Intra-Operator Parallelism for Distributed Deep Learning** | [OSDI'22](https://www.usenix.org/conference/osdi22/presentation/zheng-lianmin) | 分层搜索算子内与算子间并行策略，自动规划分布式训练执行方案 | [Paper](https://www.usenix.org/conference/osdi22/presentation/zheng-lianmin) |
+| ⬜ | <a id="pdf-5dhgh5an"></a>**Alpa: Automating Inter- and Intra-Operator Parallelism for Distributed Deep Learning** | [OSDI'22](https://www.usenix.org/conference/osdi22/presentation/zheng-lianmin) | 分层搜索算子内与算子间并行策略，自动规划分布式训练执行方案 | [Paper](https://www.usenix.org/conference/osdi22/presentation/zheng-lianmin) / [归档标签](Papers/downloaded-papers.md#pdf-5dhgh5an) |
 | ⬜ | **DeepSpeed Ulysses: System Optimizations for Enabling Training of Extreme Long Sequence Transformer Models** | [arXiv'23](https://arxiv.org/abs/2309.14509) | 通过 all-to-all 转换序列与 attention head 分片，支持极长序列训练 | [Paper](https://arxiv.org/abs/2309.14509) |
 | ⬜ | **Ring Attention with Blockwise Transformers for Near-Infinite Context** | [ICLR'24](https://proceedings.iclr.cc/paper_files/paper/2024/hash/1119587863e78451f080da2a768c4935-Abstract-Conference.html) | 用环形 KV 块传输重叠分块 attention 计算，将长上下文分摊到多设备 | [Paper](https://arxiv.org/abs/2310.01889) |
 | ⬜ | **Oobleck: Resilient Distributed Training of Large Models Using Pipeline Templates** | [SOSP'23](https://arxiv.org/abs/2309.08125) | 以异构流水线模板和冗余模型状态实现故障后的快速恢复与重配置 | [Paper](https://arxiv.org/abs/2309.08125) |
-| ⬜ | **MegaScale: Scaling Large Language Model Training to More Than 10,000 GPUs** | [NSDI'24](https://www.usenix.org/conference/nsdi24/presentation/jiang-ziheng) | 结合训练算法、通信与故障监控优化，展示万卡规模 LLM 训练的工程瓶颈 | [Paper](https://www.usenix.org/conference/nsdi24/presentation/jiang-ziheng) |
-| ⬜ | **LoongTrain: Efficient Training of Long-Sequence LLMs with Head-Context Parallelism** | [arXiv'24](https://arxiv.org/abs/2406.18485) | 结合 head 与 context 二维并行及双环通信，突破长序列训练的扩展限制 | [Paper](https://arxiv.org/pdf/2406.18485) |
-| ✅ 📝 | **PithTrain: A Compact and Agent-Native MoE Training System** | [arXiv'26](https://arxiv.org/abs/2605.31463) | 以紧凑模块和显式训练结构降低 MoE 系统修改成本，支持编码代理迭代优化 | [Paper](https://arxiv.org/abs/2605.31463) / [Note](Papers/03_Distributed_Training_and_MoE/PithTrain/pithtrain.md) / [Code Guide](Projects/03_Distributed_Training_and_MoE/PithTrain/index.md) |
+| ⬜ | <a id="pdf-xn3au5xv"></a>**MegaScale: Scaling Large Language Model Training to More Than 10,000 GPUs** | [NSDI'24](https://www.usenix.org/conference/nsdi24/presentation/jiang-ziheng) | 结合训练算法、通信与故障监控优化，展示万卡规模 LLM 训练的工程瓶颈 | [Paper](https://www.usenix.org/conference/nsdi24/presentation/jiang-ziheng) / [归档标签](Papers/downloaded-papers.md#pdf-xn3au5xv) |
+| ⬜ | <a id="pdf-qcnk8s78"></a>**LoongTrain: Efficient Training of Long-Sequence LLMs with Head-Context Parallelism** | [arXiv'24](https://arxiv.org/abs/2406.18485) | 结合 head 与 context 二维并行及双环通信，突破长序列训练的扩展限制 | [Paper](https://arxiv.org/pdf/2406.18485) / [归档标签](Papers/downloaded-papers.md#pdf-qcnk8s78) |
+| ✅ 📝 | <a id="pdf-vcw4ly38"></a>**PithTrain: A Compact and Agent-Native MoE Training System** | [arXiv'26](https://arxiv.org/abs/2605.31463) | 以紧凑模块和显式训练结构降低 MoE 系统修改成本，支持编码代理迭代优化 | [Paper](https://arxiv.org/abs/2605.31463) / [Note](Papers/03_Distributed_Training_and_MoE/PithTrain/pithtrain.md) / [Code Guide](Projects/03_Distributed_Training_and_MoE/PithTrain/index.md) / [归档标签](Papers/downloaded-papers.md#pdf-vcw4ly38) |
 
 ### LLM Training / Mixture-of-Experts Training
 
@@ -255,7 +284,7 @@ Papers/ | Projects/ | Foundations/
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ✅ | **Seer: Online Context Learning for Fast Synchronous LLM Reinforcement Learning** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/qin) | 利用同一 prompt 下响应长度和模式的相似性，减少同步 RL rollout 长尾与资源浪费 | [Paper](https://arxiv.org/pdf/2511.14617) |
+| ✅ | <a id="pdf-lv4qk9kg"></a>**Seer: Online Context Learning for Fast Synchronous LLM Reinforcement Learning** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/qin) | 利用同一 prompt 下响应长度和模式的相似性，减少同步 RL rollout 长尾与资源浪费 | [Paper](https://arxiv.org/pdf/2511.14617) / [归档标签](Papers/downloaded-papers.md#pdf-lv4qk9kg) |
 
 ### LLM Training / Compute-Communication Overlap
 
@@ -284,37 +313,48 @@ Papers/ | Projects/ | Foundations/
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ✅ | **On-Device Training Under 256KB Memory** | [NeurIPS'22](https://proceedings.neurips.cc/paper_files/paper/2022/hash/90c56c77c6df45fc8e556a096b7a2b2e-Abstract-Conference.html) | 通过量化感知梯度缩放、稀疏更新与编译期反向图裁剪，在 256KB 内存下训练模型 | [Paper](https://arxiv.org/pdf/2206.15472.pdf) |
-| ✅ | **PockEngine: Sparse and Efficient Fine-tuning in a Pocket** | [MICRO'23](https://hanlab.mit.edu/projects/pockengine ; https://hanlab.mit.edu/projects/tinyml) | 把稀疏反向传播与完整训练图编译结合，降低边缘设备微调的内存和运行时开销 | [Paper](https://hanlab.mit.edu/projects/pockengine ; https://hanlab.mit.edu/projects/tinyml) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/29) |
+| ✅ | <a id="pdf-fayd7t8v"></a>**PockEngine: Sparse and Efficient Fine-tuning in a Pocket** | [MICRO'23](https://hanlab.mit.edu/projects/pockengine ; https://hanlab.mit.edu/projects/tinyml) | 把稀疏反向传播与完整训练图编译结合，降低边缘设备微调的内存和运行时开销 | [Paper](https://hanlab.mit.edu/projects/pockengine ; https://hanlab.mit.edu/projects/tinyml) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/29) / [归档标签](Papers/downloaded-papers.md#pdf-fayd7t8v) |
+
+### PapersPDF 补充阅读清单
+
+| Status | Paper | Venue | Why It Matters | Links |
+|:------:|-------|-------|----------------|-------|
+| ⬜ | <a id="pdf-i3m9y4v9"></a>**DeepSeek Elastic Compute (DSec): A Sandbox Infrastructure for Effective Agentic Training at Scale** | arXiv · 2026 | 标签：分布式训练与 MoE | [Paper](http://arxiv.org/abs/2609.22978) / [PDF](zotero://open-pdf/library/items/XBZEVX2N) / [Zotero](zotero://select/library/items/I3M9Y4V9) / [归档标签](Papers/downloaded-papers.md#pdf-i3m9y4v9) |
+| ⬜ | <a id="pdf-xxvli24b"></a>**FOLDMOE: Efficient Long Sequence MoE Training via Attention-MoE Pipelining** | 来源待补全 | 标签：分布式训练与 MoE | [PDF](zotero://open-pdf/library/items/C4UQSUQ3) / [Zotero](zotero://select/library/items/XXVLI24B) / [归档标签](Papers/downloaded-papers.md#pdf-xxvli24b) |
+| ⬜ | <a id="pdf-c5lnh2yd"></a>**Insights into DeepSeek-V3: Scaling Challenges and Reflections on Hardware for AI Architectures** | Proceedings of the 52nd Annual International Symposium on Computer Architecture · 2025 | 标签：分布式训练与 MoE | [Paper](http://arxiv.org/abs/2505.09343) / [PDF](zotero://open-pdf/library/items/XPT4R2PX) / [Zotero](zotero://select/library/items/C5LNH2YD) / [归档标签](Papers/downloaded-papers.md#pdf-c5lnh2yd) |
+| ⬜ | <a id="pdf-2ljkaklx"></a>**UniEP: Unified Expert-Parallel MegaKernel MoE for LLM Training** | Proceedings of the 35th International Symposium on High-Performance Parallel and Distributed Computing · 2026 | 标签：分布式训练与 MoE | [Paper](https://dl.acm.org/doi/10.1145/3806645.3807818) / [PDF](zotero://open-pdf/library/items/TWBKWUCN) / [Zotero](zotero://select/library/items/2LJKAKLX) / [归档标签](Papers/downloaded-papers.md#pdf-2ljkaklx) |
+| ⬜ | <a id="pdf-x54t96iz"></a>**ECO: An AI-Driven Code Efficiency Optimizer for Warehouse Scale Computers (Operational Systems)** | 来源待补全 | 标签：分布式训练与 MoE / 分布式运行时 | [PDF](zotero://open-pdf/library/items/ZZ48FKB2) / [Zotero](zotero://select/library/items/X54T96IZ) / [归档标签](Papers/downloaded-papers.md#pdf-x54t96iz) |
+| ⬜ | <a id="pdf-84l6g9l7"></a>**Ray: A Distributed Framework for Emerging AI Applications** | arXiv · 2018 | 标签：分布式训练与 MoE / 分布式运行时 | [Paper](http://arxiv.org/abs/1712.05889) / [PDF](zotero://open-pdf/library/items/JYZPKSY8) / [Zotero](zotero://select/library/items/84L6G9L7) / [归档标签](Papers/downloaded-papers.md#pdf-84l6g9l7) |
 
 </details>
 
 <details>
-<summary>GPU 编译与性能（36 篇；已读 28，待读 8）</summary>
+<summary>GPU 编译与性能（64 篇；已读 29，待读 35）</summary>
 
 ### Deep Learning Compiler
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ✅ | **The Deep Learning Compiler: A Comprehensive Survey** | [TPDS'21](https://arxiv.org/abs/2002.03794) | 梳理多层 IR、图优化与后端调度，建立深度学习编译器的整体知识框架 | [Paper](https://arxiv.org/pdf/2002.03794.pdf) / [Note](Papers/04_GPU_Compiler_and_Performance/Compiler/Papers/The-Deep-Learning-Compiler-A-Comprehensive-Survey.md) |
+| ✅ | <a id="pdf-bzhnqksp"></a>**The Deep Learning Compiler: A Comprehensive Survey** | [TPDS'21](https://arxiv.org/abs/2002.03794) | 梳理多层 IR、图优化与后端调度，建立深度学习编译器的整体知识框架 | [Paper](https://arxiv.org/pdf/2002.03794.pdf) / [Note](Papers/04_GPU_Compiler_and_Performance/Compiler/Papers/The-Deep-Learning-Compiler-A-Comprehensive-Survey.md) / [归档标签](Papers/downloaded-papers.md#pdf-bzhnqksp) |
 | ✅ | **MLIR: Scaling Compiler Infrastructure for Domain Specific Computation** | [CGO'21](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9370308) | 通过可扩展 dialect 与逐层 lowering 复用编译基础设施，理解现代 AI 编译器架构 | [Paper](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9370308) / [Note](Papers/04_GPU_Compiler_and_Performance/Compiler/Papers/MLIR-Scaling-Compiler-Infrastructure-for-Domain-Specific-Computation.md) |
-| ✅ | **TIRAMISU: A Polyhedral Compiler for Expressing Fast and Portable Code** | [CGO'19](https://arxiv.org/abs/1804.10694) | 分离算法、循环变换、数据布局和通信，理解多面体调度与跨硬件代码生成 | [Paper](https://arxiv.org/abs/1804.10694) / [Note](Papers/04_GPU_Compiler_and_Performance/Compiler/TIRAMISU-CGO/tiramisu.md) |
-| ✅ | **Rammer: Enabling Holistic Deep Learning Compiler Optimizations with rTasks** | [OSDI'20](https://www.usenix.org/conference/osdi20/presentation/ma) | 用 rTask 统一算子内外并行性，在编译期生成静态时空调度以减少运行时开销 | [Paper](https://www.usenix.org/system/files/osdi20-ma.pdf) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/22) |
-| ✅ | **ROLLER: Fast and Efficient Tensor Compilation for Deep Learning** | [OSDI'22](https://www.usenix.org/conference/osdi22/presentation/zhu) | 用硬件感知 rTile 和性能模型构造候选 kernel，缩短传统大规模自动调优时间 | [Paper](https://www.usenix.org/system/files/osdi22-zhu.pdf) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/24) |
-| ✅ | **BOLT: Bridging The Gap Between Auto-Tuners and Hardware-Native Performance** | [MLSys'22](https://proceedings.mlsys.org/paper_files/paper/2022/hash/1f8053a67ec8e0b57455713cefdd8218-Abstract.html) | 利用 CUTLASS 等硬件原生模板进行搜索，连接自动调优的灵活性与库级性能 | [Paper](http://yibozhu.com/doc/bolt-mlsys22.pdf) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/28) |
-| ✅ | **AStitch: Enabling a New Multi-dimensional Optimization Space for Memory-Intensive ML Training and Inference on Modern SIMT Architectures** | [ASPLOS'22](https://dl.acm.org/doi/10.1145/3503222.3507723) | 联合探索线程映射、片上复用与算子融合，优化访存密集型训练和推理算子 | [Paper](https://dl.acm.org/doi/10.1145/3503222.3507723) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/26) |
-| ✅ | **AMOS: Enabling Automatic Mapping for Tensor Computations On Spatial Accelerators with Hardware Abstraction** | [ISCA'22](https://cs.stanford.edu/~anjiang/papers/ZhengETAL22AMOS.pdf) | 将硬件 intrinsic 抽象成可分析的计算与访存语义，自动生成张量到加速器的映射 | [Paper](https://cs.stanford.edu/~anjiang/papers/ZhengETAL22AMOS.pdf) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/31) |
-| ✅ | **Welder: Scheduling Deep Learning Memory Access via Tile-graph** | [OSDI'23](https://www.usenix.org/conference/osdi23/presentation/shi) | 用 tile-graph 与数据流量模型统一算子内外数据复用，降低端到端访存开销 | [Paper](https://www.usenix.org/system/files/osdi23-shi.pdf) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/25) |
-| ✅ | **Effectively Scheduling Computational Graphs of Deep Neural Networks toward Their Domain-Specific Accelerators** | [OSDI'23](https://www.usenix.org/conference/osdi23/presentation/zhao) | 将硬件资源纳入子图划分和跨层指令调度，减少片外数据搬运并提高加速器利用率 | [Paper](https://www.usenix.org/conference/osdi23/presentation/zhao) |
-| ✅ | **Cocktailer: Analyzing and Optimizing Dynamic Control Flow in Deep Learning** | [OSDI'23](https://www.usenix.org/conference/osdi23/presentation/zhang-chen) | 以 uTask 统一控制流和数据流，把动态分支与循环下沉到加速器以减少 CPU 同步 | [Paper](https://www.usenix.org/system/files/osdi23-zhang-chen.pdf) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/21) |
-| ✅ | **Chimera: An Analytical Optimizing Framework for Effective Compute-intensive Operators Fusion** | [HPCA'23](https://light-of-hers.github.io/assets/Chimera.pdf) | 用分析模型选择计算块执行顺序，并结合硬件微内核优化计算密集型算子链融合 | [Paper](https://light-of-hers.github.io/assets/Chimera.pdf) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/30) |
-| ✅ | **Graphene: An IR for Optimized Tensor Computations on GPUs** | [ASPLOS'23](https://mgarland.org/papers/2023/graphene/) | 将数据和线程都表示为可分块张量，显式表达 GPU tensor 指令要求的复杂映射 | [Paper](https://dl.acm.org/doi/pdf/10.1145/3582016.3582018) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/27) |
+| ✅ | <a id="pdf-fspxsd3e"></a>**TIRAMISU: A Polyhedral Compiler for Expressing Fast and Portable Code** | [CGO'19](https://arxiv.org/abs/1804.10694) | 分离算法、循环变换、数据布局和通信，理解多面体调度与跨硬件代码生成 | [Paper](https://arxiv.org/abs/1804.10694) / [Note](Papers/04_GPU_Compiler_and_Performance/Compiler/TIRAMISU-CGO/tiramisu.md) / [归档标签](Papers/downloaded-papers.md#pdf-fspxsd3e) |
+| ✅ | <a id="pdf-iudcdq55"></a>**Rammer: Enabling Holistic Deep Learning Compiler Optimizations with rTasks** | [OSDI'20](https://www.usenix.org/conference/osdi20/presentation/ma) | 用 rTask 统一算子内外并行性，在编译期生成静态时空调度以减少运行时开销 | [Paper](https://www.usenix.org/system/files/osdi20-ma.pdf) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/22) / [归档标签](Papers/downloaded-papers.md#pdf-iudcdq55) |
+| ✅ | <a id="pdf-qt9999j2"></a>**ROLLER: Fast and Efficient Tensor Compilation for Deep Learning** | [OSDI'22](https://www.usenix.org/conference/osdi22/presentation/zhu) | 用硬件感知 rTile 和性能模型构造候选 kernel，缩短传统大规模自动调优时间 | [Paper](https://www.usenix.org/system/files/osdi22-zhu.pdf) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/24) / [归档标签](Papers/downloaded-papers.md#pdf-qt9999j2) |
+| ✅ | <a id="pdf-442yd3j8"></a>**BOLT: Bridging The Gap Between Auto-Tuners and Hardware-Native Performance** | [MLSys'22](https://proceedings.mlsys.org/paper_files/paper/2022/hash/1f8053a67ec8e0b57455713cefdd8218-Abstract.html) | 利用 CUTLASS 等硬件原生模板进行搜索，连接自动调优的灵活性与库级性能 | [Paper](http://yibozhu.com/doc/bolt-mlsys22.pdf) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/28) / [归档标签](Papers/downloaded-papers.md#pdf-442yd3j8) |
+| ✅ | <a id="pdf-lggjf8m7"></a>**AStitch: Enabling a New Multi-dimensional Optimization Space for Memory-Intensive ML Training and Inference on Modern SIMT Architectures** | [ASPLOS'22](https://dl.acm.org/doi/10.1145/3503222.3507723) | 联合探索线程映射、片上复用与算子融合，优化访存密集型训练和推理算子 | [Paper](https://dl.acm.org/doi/10.1145/3503222.3507723) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/26) / [归档标签](Papers/downloaded-papers.md#pdf-lggjf8m7) |
+| ✅ | <a id="pdf-3mkpy6ya"></a>**AMOS: Enabling Automatic Mapping for Tensor Computations On Spatial Accelerators with Hardware Abstraction** | [ISCA'22](https://cs.stanford.edu/~anjiang/papers/ZhengETAL22AMOS.pdf) | 将硬件 intrinsic 抽象成可分析的计算与访存语义，自动生成张量到加速器的映射 | [Paper](https://cs.stanford.edu/~anjiang/papers/ZhengETAL22AMOS.pdf) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/31) / [归档标签](Papers/downloaded-papers.md#pdf-3mkpy6ya) |
+| ✅ | <a id="pdf-d8ryqp7s"></a>**Welder: Scheduling Deep Learning Memory Access via Tile-graph** | [OSDI'23](https://www.usenix.org/conference/osdi23/presentation/shi) | 用 tile-graph 与数据流量模型统一算子内外数据复用，降低端到端访存开销 | [Paper](https://www.usenix.org/system/files/osdi23-shi.pdf) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/25) / [归档标签](Papers/downloaded-papers.md#pdf-d8ryqp7s) |
+| ✅ | <a id="pdf-qsbafgrs"></a>**Effectively Scheduling Computational Graphs of Deep Neural Networks toward Their Domain-Specific Accelerators** | [OSDI'23](https://www.usenix.org/conference/osdi23/presentation/zhao) | 将硬件资源纳入子图划分和跨层指令调度，减少片外数据搬运并提高加速器利用率 | [Paper](https://www.usenix.org/conference/osdi23/presentation/zhao) / [归档标签](Papers/downloaded-papers.md#pdf-qsbafgrs) |
+| ✅ | <a id="pdf-y85sa3rg"></a>**Cocktailer: Analyzing and Optimizing Dynamic Control Flow in Deep Learning** | [OSDI'23](https://www.usenix.org/conference/osdi23/presentation/zhang-chen) | 以 uTask 统一控制流和数据流，把动态分支与循环下沉到加速器以减少 CPU 同步 | [Paper](https://www.usenix.org/system/files/osdi23-zhang-chen.pdf) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/21) / [归档标签](Papers/downloaded-papers.md#pdf-y85sa3rg) |
+| ✅ | <a id="pdf-ku4qf7dt"></a>**Chimera: An Analytical Optimizing Framework for Effective Compute-intensive Operators Fusion** | [HPCA'23](https://light-of-hers.github.io/assets/Chimera.pdf) | 用分析模型选择计算块执行顺序，并结合硬件微内核优化计算密集型算子链融合 | [Paper](https://light-of-hers.github.io/assets/Chimera.pdf) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/30) / [归档标签](Papers/downloaded-papers.md#pdf-ku4qf7dt) |
+| ✅ | <a id="pdf-ddhsem5z"></a>**Graphene: An IR for Optimized Tensor Computations on GPUs** | [ASPLOS'23](https://mgarland.org/papers/2023/graphene/) | 将数据和线程都表示为可分块张量，显式表达 GPU tensor 指令要求的复杂映射 | [Paper](https://dl.acm.org/doi/pdf/10.1145/3582016.3582018) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/27) / [归档标签](Papers/downloaded-papers.md#pdf-ddhsem5z) |
 | ✅ | **Uncovering Nested Data Parallelism and Data Reuse in DNN Computation with FractalTensor** | [SOSP'24](https://dl.acm.org/doi/10.1145/3694715.3695961) | 通过嵌套张量与数组算子表达跨循环、跨算子的并行性和复用，突破平面计算图限制 | [Paper](https://dl.acm.org/doi/10.1145/3694715.3695961) |
-| ✅ | **ThunderKittens: Simple, Fast, and Adorable AI Kernels** | [ICLR'25](https://proceedings.iclr.cc/paper_files/paper/2025/hash/05dc08730e32441edff52b0fa6caab5f-Abstract-Conference.html) | 以 tile 数据结构、异步流水线模板和网格调度简化高性能 GPU kernel 编写 | [Paper](https://proceedings.iclr.cc/paper_files/paper/2025/hash/05dc08730e32441edff52b0fa6caab5f-Abstract-Conference.html) |
-| ✅ | **Mirage: A Multi-Level Superoptimizer for Tensor Programs** | [OSDI'25](https://www.usenix.org/conference/osdi25/presentation/wu-mengdi) | 用多层 µGraph 搜索代数和调度变换，并验证等价性，探索超越既有算子库的融合 | [Paper](https://www.usenix.org/system/files/osdi25-wu-mengdi.pdf) |
+| ✅ | <a id="pdf-zfws5neu"></a>**ThunderKittens: Simple, Fast, and Adorable AI Kernels** | [ICLR'25](https://proceedings.iclr.cc/paper_files/paper/2025/hash/05dc08730e32441edff52b0fa6caab5f-Abstract-Conference.html) | 以 tile 数据结构、异步流水线模板和网格调度简化高性能 GPU kernel 编写 | [Paper](https://proceedings.iclr.cc/paper_files/paper/2025/hash/05dc08730e32441edff52b0fa6caab5f-Abstract-Conference.html) / [归档标签](Papers/downloaded-papers.md#pdf-zfws5neu) |
+| ✅ | <a id="pdf-a2sdd4xx"></a>**Mirage: A Multi-Level Superoptimizer for Tensor Programs** | [OSDI'25](https://www.usenix.org/conference/osdi25/presentation/wu-mengdi) | 用多层 µGraph 搜索代数和调度变换，并验证等价性，探索超越既有算子库的融合 | [Paper](https://www.usenix.org/system/files/osdi25-wu-mengdi.pdf) / [归档标签](Papers/downloaded-papers.md#pdf-a2sdd4xx) |
 | ✅ | **PipeThreader: Software-Defined Pipelining for Efficient DNN Execution** | [OSDI'25](https://www.usenix.org/conference/osdi25/presentation/cheng) | 用 sTask-graph 和软件定义流水线协调 GPU 专用单元，自动发现计算与数据搬运的重叠方案 | [Paper](https://www.usenix.org/system/files/osdi25-cheng.pdf) |
-| ✅ | **TileLang: A Composable Tiled Programming Model for AI Systems** | [arXiv'25](https://arxiv.org/abs/2504.17577) | 将 tile 数据流与布局、线程映射和流水线调度解耦，降低高性能 AI kernel 编程负担 | [Paper](https://arxiv.org/pdf/2504.17577) |
-| ✅ | **Tawa: Automatic Warp Specialization for Modern GPUs with Asynchronous References** | [CGO'26](https://arxiv.org/abs/2510.14719) | 以异步引用表达依赖并自动生成 warp specialization，减少手工管理并发和同步的负担 | [Paper](https://arxiv.org/pdf/2510.14719) |
-| ✅ | **KPerfIR: Towards an Open and Compiler-centric Ecosystem for GPU Kernel Performance Tooling on Modern AI Workloads** | [OSDI'25](https://www.usenix.org/conference/osdi25/presentation/guan) | 将性能测量实现为编译器 pass，观察 GPU kernel 内部的细粒度执行与重叠瓶颈 | [Paper](https://www.usenix.org/system/files/osdi25-guan.pdf) |
+| ✅ | <a id="pdf-xud9jbj4"></a>**TileLang: A Composable Tiled Programming Model for AI Systems** | [arXiv'25](https://arxiv.org/abs/2504.17577) | 将 tile 数据流与布局、线程映射和流水线调度解耦，降低高性能 AI kernel 编程负担 | [Paper](https://arxiv.org/pdf/2504.17577) / [归档标签](Papers/downloaded-papers.md#pdf-xud9jbj4) |
+| ✅ | <a id="pdf-hx7i8979"></a>**Tawa: Automatic Warp Specialization for Modern GPUs with Asynchronous References** | [CGO'26](https://arxiv.org/abs/2510.14719) | 以异步引用表达依赖并自动生成 warp specialization，减少手工管理并发和同步的负担 | [Paper](https://arxiv.org/pdf/2510.14719) / [归档标签](Papers/downloaded-papers.md#pdf-hx7i8979) |
+| ✅ | <a id="pdf-k8hmzhbp"></a>**KPerfIR: Towards an Open and Compiler-centric Ecosystem for GPU Kernel Performance Tooling on Modern AI Workloads** | [OSDI'25](https://www.usenix.org/conference/osdi25/presentation/guan) | 将性能测量实现为编译器 pass，观察 GPU kernel 内部的细粒度执行与重叠瓶颈 | [Paper](https://www.usenix.org/system/files/osdi25-guan.pdf) / [归档标签](Papers/downloaded-papers.md#pdf-k8hmzhbp) |
 | ⬜ | **Optimal Software Pipelining and Warp Specialization for Tensor Core GPUs** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/soi) | 将软件流水线和 warp specialization 联合建模为约束优化，推导模型假设下的最优调度 | [Paper](https://www.usenix.org/conference/osdi26/presentation/soi) |
 | ⬜ | **GraCE: Unlocking CUDA Graphs with Compiler Support for ML Workloads** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/ghosh) | 自动变换程序并分析成本收益，扩大 CUDA Graph 覆盖率并减少参数拷贝和启动开销 | [Paper](https://www.usenix.org/conference/osdi26/presentation/ghosh) |
 
@@ -323,8 +363,8 @@ Papers/ | Projects/ | Foundations/
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ✅ | **Look Ma, No Bubbles! Designing a Low-Latency Megakernel for Llama-1B** | [Blog'25](https://hazyresearch.stanford.edu/blog/2025-05-27-no-bubbles) | 以 Llama-1B 实例解释 megakernel 如何消除 kernel 边界气泡，并管理细粒度同步和共享内存 | [Paper](https://hazyresearch.stanford.edu/blog/2025-05-27-no-bubbles) |
-| ✅ | **MPK: A Compiler and Runtime for Mega-Kernelizing Tensor Programs** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/cheng) | 将多 GPU 推理编译成 SM 级任务图，在持久化 kernel 内调度计算与通信以降低端到端延迟 | [Paper](https://www.usenix.org/conference/osdi26/presentation/cheng) |
-| ✅ 📝 | **Event Tensor: A Unified Abstraction for Compiling Dynamic Megakernel** | [MLSys'26](https://arxiv.org/abs/2604.13327) | 以 Event Tensor 统一 tile 任务依赖、动态形状和数据相关控制流，支持动态 megakernel 编译 | [Paper](https://arxiv.org/abs/2604.13327) / [Note](Papers/04_GPU_Compiler_and_Performance/Event-Tensor/event-tensor.md) |
+| ✅ | <a id="pdf-ys4nklly"></a>**MPK: A Compiler and Runtime for Mega-Kernelizing Tensor Programs** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/cheng) | 将多 GPU 推理编译成 SM 级任务图，在持久化 kernel 内调度计算与通信以降低端到端延迟 | [Paper](https://www.usenix.org/conference/osdi26/presentation/cheng) / [归档标签](Papers/downloaded-papers.md#pdf-ys4nklly) |
+| ✅ 📝 | <a id="pdf-32ktjcln"></a>**Event Tensor: A Unified Abstraction for Compiling Dynamic Megakernel** | [MLSys'26](https://arxiv.org/abs/2604.13327) | 以 Event Tensor 统一 tile 任务依赖、动态形状和数据相关控制流，支持动态 megakernel 编译 | [Paper](https://arxiv.org/abs/2604.13327) / [Note](Papers/04_GPU_Compiler_and_Performance/Event-Tensor/event-tensor.md) / [归档标签](Papers/downloaded-papers.md#pdf-32ktjcln) |
 | ✅ | **TileRT: Tile-Based Runtime for Ultra-Low-Latency LLM Inference** | [GitHub project'25](https://github.com/tile-ai/TileRT) | 用 tile 级运行时重排并重叠计算、I/O 与跨设备通信，探索大模型低延迟推理的工程路径 | [Paper](https://github.com/tile-ai/TileRT) |
 | ✅ | **Compiling LLMs into a MegaKernel: A Path to Low-Latency Inference** | [Blog](https://zhihaojia.medium.com/compiling-llms-into-a-megakernel-a-path-to-low-latency-inference-cf7840913c17) | 从编译器和运行时角度解释全模型 megakernel，连接任务依赖、跨算子调度与低延迟推理 | [Paper](https://zhihaojia.medium.com/compiling-llms-into-a-megakernel-a-path-to-low-latency-inference-cf7840913c17) |
 | ⬜ | **Ada-MK: Adaptive MegaKernel Optimization via Automated DAG-based Search for LLM Inference** | [arXiv'26](https://arxiv.org/abs/2605.11581) | 用离线 DAG 搜索固定 megakernel 执行路径，减少资源受限 GPU 上动态调度和共享内存开销 | [Paper](https://arxiv.org/abs/2605.11581) |
@@ -334,7 +374,7 @@ Papers/ | Projects/ | Foundations/
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ✅ | **AVO: Agentic Variation Operators for Autonomous Evolutionary Search** | [arXiv'26](https://arxiv.org/abs/2603.24517) | 用自主编码 agent 替代固定变异与交叉算子，让进化搜索自适应生成和验证程序候选 | [Paper](https://arxiv.org/abs/2603.24517) / [Note](Papers/04_GPU_Compiler_and_Performance/Kernel-Generation/avo.md) |
-| ✅ 📝 | **CAKE: Compiler-Agent Co-Design for Frontier Kernel Evolution** | [arXiv'26](https://arxiv.org/abs/2608.12629) | 让 agent 编写显式硬件调度 IR，并结合验证、成本模型与局部诊断迭代优化 GPU kernel | [Paper](https://arxiv.org/abs/2608.12629) / [Note](Papers/04_GPU_Compiler_and_Performance/Kernel-Generation/CAKE.md) |
+| ✅ 📝 | <a id="pdf-ggpeq93n"></a>**CAKE: Compiler-Agent Co-Design for Frontier Kernel Evolution** | [arXiv'26](https://arxiv.org/abs/2608.12629) | 让 agent 编写显式硬件调度 IR，并结合验证、成本模型与局部诊断迭代优化 GPU kernel | [Paper](https://arxiv.org/abs/2608.12629) / [Note](Papers/04_GPU_Compiler_and_Performance/Kernel-Generation/CAKE.md) / [归档标签](Papers/downloaded-papers.md#pdf-ggpeq93n) |
 | ⬜ | **FlashInfer-Bench: Building the Virtuous Cycle for AI-driven LLM Systems** | [MLSys'26](https://proceedings.mlsys.org/paper_files/paper/2026/hash/37e44c4b5321605735be9761f9b758fc-Abstract-Conference.html) | 以真实 LLM 工作负载、正确性验证和性能评测连接 AI kernel 生成与系统部署 | [Paper](https://proceedings.mlsys.org/paper_files/paper/2026/hash/37e44c4b5321605735be9761f9b758fc-Abstract-Conference.html) |
 | ⬜ | **Harness Engineering for LLM-Driven GPU Kernel Generation** | [arXiv'26](https://arxiv.org/abs/2607.17979) | 围绕约束、正确性验证、性能分析和候选筛选设计 harness，提高 LLM 生成 GPU kernel 的可靠性 | [Paper](https://arxiv.org/abs/2607.17979) |
 | ⬜ | **Agentic Kernel Optimization: Generating State-of-the-Art GPU Kernels Without Hand-Written CUDA** | [Tech report'26](https://arxiv.org/abs/2608.14560) | 在正确性门控的 FlashInfer-Bench 流程中评估通用代码 agent 自动优化 MoE 与 DSA kernel 的能力 | [Paper](https://arxiv.org/abs/2608.14560) |
@@ -355,12 +395,45 @@ Papers/ | Projects/ | Foundations/
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ✅ | **HIDA: A Hierarchical Dataflow Compiler for High-Level Synthesis** | [ASPLOS'24](https://arxiv.org/abs/2311.03379) | 用分层数据流表示与多级优化自动生成 FPGA 数据流架构，减少手工 HLS 调优 | [Paper](https://arxiv.org/abs/2311.03379) / [Note](Papers/04_GPU_Compiler_and_Performance/Compiler/HIDA/hida.md) |
+| ✅ | <a id="pdf-4uvspptv"></a>**HIDA: A Hierarchical Dataflow Compiler for High-Level Synthesis** | [ASPLOS'24](https://arxiv.org/abs/2311.03379) | 用分层数据流表示与多级优化自动生成 FPGA 数据流架构，减少手工 HLS 调优 | [Paper](https://arxiv.org/abs/2311.03379) / [Note](Papers/04_GPU_Compiler_and_Performance/Compiler/HIDA/hida.md) / [归档标签](Papers/downloaded-papers.md#pdf-4uvspptv) |
+
+### PapersPDF 补充阅读清单
+
+| Status | Paper | Venue | Why It Matters | Links |
+|:------:|-------|-------|----------------|-------|
+| ⬜ | <a id="pdf-qbqw7v9r"></a>**AffineGraph: A Dataflow Graph Representation for Effective DNN Hardware-Aware Algorithms** | 来源待补全 | 标签：GPU 编译与性能优化 | [PDF](zotero://open-pdf/library/items/L9PBDJL3) / [Zotero](zotero://select/library/items/QBQW7V9R) / [归档标签](Papers/downloaded-papers.md#pdf-qbqw7v9r) |
+| ⬜ | <a id="pdf-a8tkxuy6"></a>**ClusterFusion: Expanding Operator Fusion Scope for LLM Inference via Cluster-Level Collective Primitive** | arXiv · 2025 | 标签：GPU 编译与性能优化 | [Paper](http://arxiv.org/abs/2508.18850) / [PDF](zotero://open-pdf/library/items/B4555BYV) / [Zotero](zotero://select/library/items/A8TKXUY6) / [归档标签](Papers/downloaded-papers.md#pdf-a8tkxuy6) |
+| ⬜ | <a id="pdf-fq6vyvp7"></a>**CODA: Rewriting Transformer Blocks as GEMM-Epilogue Programs** | arXiv · 2026 | 标签：GPU 编译与性能优化 | [Paper](http://arxiv.org/abs/2605.19269) / [PDF](zotero://open-pdf/library/items/ZEPXG6YF) / [Zotero](zotero://select/library/items/FQ6VYVP7) / [归档标签](Papers/downloaded-papers.md#pdf-fq6vyvp7) |
+| ⬜ | <a id="pdf-9mb4wuba"></a>**mKernel: Fast Multi-GPU, Multi-Node Fused Kernels** | arXiv · 2026 | 标签：GPU 编译与性能优化 | [Paper](http://arxiv.org/abs/2609.13585) / [PDF](zotero://open-pdf/library/items/B7346TDX) / [Zotero](zotero://select/library/items/9MB4WUBA) / [归档标签](Papers/downloaded-papers.md#pdf-9mb4wuba) |
+| ⬜ | <a id="pdf-8cwabfp9"></a>**Open-CAKE-IR：跨硬件优化机制复用与编译器协同演进** | 技术报告 · 2026 | 标签：GPU 编译与性能优化 | [PDF](zotero://open-pdf/library/items/WWGR9WGJ) / [Zotero](zotero://select/library/items/8CWABFP9) / [归档标签](Papers/downloaded-papers.md#pdf-8cwabfp9) |
+| ⬜ | <a id="pdf-vdc3bvfn"></a>**TileSight: A First-Principles Tile-Centric Analytical GPU Performance Model from Cores to Clusters** | arXiv · 2026 | 标签：GPU 编译与性能优化 | [Paper](http://arxiv.org/abs/2607.22432) / [PDF](zotero://open-pdf/library/items/RZDVW9MX) / [Zotero](zotero://select/library/items/VDC3BVFN) / [归档标签](Papers/downloaded-papers.md#pdf-vdc3bvfn) |
+| ⬜ | <a id="pdf-rczkv7b3"></a>**X-Stage: Modeling Post-Issue Backpressure in GPU Communication--Computation Fusion** | arXiv · 2026 | 标签：GPU 编译与性能优化 | [Paper](http://arxiv.org/abs/2607.23264) / [PDF](zotero://open-pdf/library/items/H5JS78CN) / [Zotero](zotero://select/library/items/RCZKV7B3) / [归档标签](Papers/downloaded-papers.md#pdf-rczkv7b3) |
+| ⬜ | <a id="pdf-nbpphe8k"></a>**FlashFFTConv: Efficient Convolutions for Long Sequences with Tensor Cores** | arXiv · 2023 | 标签：GPU 编译与性能优化 / GPU 算子 | [Paper](http://arxiv.org/abs/2311.05908) / [PDF](zotero://open-pdf/library/items/QDPRZPX2) / [Zotero](zotero://select/library/items/NBPPHE8K) / [归档标签](Papers/downloaded-papers.md#pdf-nbpphe8k) |
+| ⬜ | <a id="pdf-pcx9kbe8"></a>**Slapo: A Schedule Language for Progressive Optimization of Large Deep Learning Model Training** | arXiv · 2023 | 标签：GPU 编译与性能优化 / GPU 编程语言与 DSL | [Paper](http://arxiv.org/abs/2302.08005) / [PDF](zotero://open-pdf/library/items/3DBN55V2) / [Zotero](zotero://select/library/items/PCX9KBE8) / [归档标签](Papers/downloaded-papers.md#pdf-pcx9kbe8) |
+| ⬜ | <a id="pdf-daasnkmz"></a>**Task-Based Tensor Computations on Modern GPUs** | arXiv · 2025 | 标签：GPU 编译与性能优化 / GPU 编程语言与 DSL | [Paper](http://arxiv.org/abs/2504.07004) / [PDF](zotero://open-pdf/library/items/RAQT8GSR) / [Zotero](zotero://select/library/items/DAASNKMZ) / [归档标签](Papers/downloaded-papers.md#pdf-daasnkmz) |
+| ⬜ | <a id="pdf-ykm5hmfz"></a>**Tilus: A Virtual Machine for Arbitrary Low-Precision GPGPU Computation in LLM Serving** | arXiv · 2025 | 标签：GPU 编译与性能优化 / GPU 编程语言与 DSL | [Paper](http://arxiv.org/abs/2504.12984) / [PDF](zotero://open-pdf/library/items/ZUCBLEW5) / [Zotero](zotero://select/library/items/YKM5HMFZ) / [归档标签](Papers/downloaded-papers.md#pdf-ykm5hmfz) |
+| ⬜ | <a id="pdf-bcntjhsm"></a>**Dual-side Sparse Tensor Core** | 2021 ACM/IEEE 48th Annual International Symposium on Computer Architecture (ISCA) · 2021 | 标签：GPU 编译与性能优化 / IR 与张量化 | [Paper](https://ieeexplore.ieee.org/document/9499745/) / [PDF](zotero://open-pdf/library/items/LYZ6VBHY) / [Zotero](zotero://select/library/items/BCNTJHSM) / [归档标签](Papers/downloaded-papers.md#pdf-bcntjhsm) |
+| ⬜ | <a id="pdf-n352gm8m"></a>**LADDER: Enabling Efficient Low-Precision Deep Learning Computing through Hardware-aware Tensor Transformation** | 来源待补全 | 标签：GPU 编译与性能优化 / IR 与张量化 | [PDF](zotero://open-pdf/library/items/4Z3T48EM) / [Zotero](zotero://select/library/items/N352GM8M) / [归档标签](Papers/downloaded-papers.md#pdf-n352gm8m) |
+| ⬜ | <a id="pdf-ant4qwkr"></a>**MLIR-based code generation for GPU tensor cores** | Proceedings of the 31st ACM SIGPLAN International Conference on Compiler Construction · 2022 | 标签：GPU 编译与性能优化 / IR 与张量化 | [Paper](https://dl.acm.org/doi/10.1145/3497776.3517770) / [PDF](zotero://open-pdf/library/items/8L7I4TM7) / [Zotero](zotero://select/library/items/ANT4QWKR) / [归档标签](Papers/downloaded-papers.md#pdf-ant4qwkr) |
+| ⬜ | <a id="pdf-5etazt8g"></a>**PIT: Optimization of Dynamic Sparse Deep Learning Models via Permutation Invariant Transformation** | 来源待补全 · 2023 | 标签：GPU 编译与性能优化 / IR 与张量化 | [PDF](zotero://open-pdf/library/items/3PFGF8PF) / [Zotero](zotero://select/library/items/5ETAZT8G) / [归档标签](Papers/downloaded-papers.md#pdf-5etazt8g) |
+| ✅ | <a id="pdf-3rmrwj56"></a>**SparseTIR: Composable Abstractions for Sparse Compilation in Deep Learning** | Proceedings of the 28th ACM International Conference on Architectural Support for Programming Languages and Operating Systems, Volume 3 · 2023 | 标签：GPU 编译与性能优化 / IR 与张量化 | [Paper](https://dl.acm.org/doi/10.1145/3582016.3582047) / [PDF](zotero://open-pdf/library/items/4F4IIX46) / [PDF2](zotero://open-pdf/library/items/8QAZ5LTU) / [PDF3](zotero://open-pdf/library/items/9GGQREBY) / [Zotero](zotero://select/library/items/3RMRWJ56) / [归档标签](Papers/downloaded-papers.md#pdf-3rmrwj56) |
+| ⬜ | <a id="pdf-l7udh9yc"></a>**Automatic Horizontal Fusion for GPU Kernels** | 2022 IEEE/ACM International Symposium on Code Generation and Optimization (CGO) · 2022 | 标签：GPU 编译与性能优化 / Kernel Fusion | [Paper](https://ieeexplore.ieee.org/document/9741270/) / [PDF](zotero://open-pdf/library/items/DBCSL5U7) / [Zotero](zotero://select/library/items/L7UDH9YC) / [归档标签](Papers/downloaded-papers.md#pdf-l7udh9yc) |
+| ⬜ | <a id="pdf-j6td7kjm"></a>**DISTAL: the distributed tensor algebra compiler** | Proceedings of the 43rd ACM SIGPLAN International Conference on Programming Language Design and Implementation · 2022 | 标签：GPU 编译与性能优化 / 分布式编译 | [Paper](https://dl.acm.org/doi/10.1145/3519939.3523437) / [PDF](zotero://open-pdf/library/items/AMVNYVPH) / [Zotero](zotero://select/library/items/J6TD7KJM) / [归档标签](Papers/downloaded-papers.md#pdf-j6td7kjm) |
+| ⬜ | <a id="pdf-rgznhh6b"></a>**Ansor: Generating High-Performance Tensor Programs for Deep Learning** | 来源待补全 | 标签：GPU 编译与性能优化 / 编译器架构与调度 | [PDF](zotero://open-pdf/library/items/A4GT2NTU) / [Zotero](zotero://select/library/items/RGZNHH6B) / [归档标签](Papers/downloaded-papers.md#pdf-rgznhh6b) |
+| ⬜ | <a id="pdf-cuzav7by"></a>**Graphiler: A Compiler for Graph Neural Networks** | 来源待补全 | 标签：GPU 编译与性能优化 / 编译器架构与调度 | [PDF](zotero://open-pdf/library/items/IYTUH2XV) / [Zotero](zotero://select/library/items/CUZAV7BY) / [归档标签](Papers/downloaded-papers.md#pdf-cuzav7by) |
+| ⬜ | <a id="pdf-dustz3lm"></a>**The tensor algebra compiler** | Proceedings of the ACM on Programming Languages · 2017 | 标签：GPU 编译与性能优化 / 编译器架构与调度 | [Paper](https://dl.acm.org/doi/10.1145/3133901) / [PDF](zotero://open-pdf/library/items/ZVZ6LMVF) / [Zotero](zotero://select/library/items/DUSTZ3LM) / [归档标签](Papers/downloaded-papers.md#pdf-dustz3lm) |
+| ⬜ | <a id="pdf-arcxwwsf"></a>**DNNFusion: accelerating deep neural networks execution with advanced operator fusion** | Proceedings of the 42nd ACM SIGPLAN International Conference on Programming Language Design and Implementation · 2021 | 标签：GPU 编译与性能优化 / 计算图优化 | [Paper](https://dl.acm.org/doi/10.1145/3453483.3454083) / [PDF](zotero://open-pdf/library/items/6EEYF2XM) / [Zotero](zotero://select/library/items/ARCXWWSF) / [归档标签](Papers/downloaded-papers.md#pdf-arcxwwsf) |
+| ⬜ | <a id="pdf-qk42tmsb"></a>**EINNET: Optimizing Tensor Programs with Derivation-Based Transformations** | 来源待补全 | 标签：GPU 编译与性能优化 / 计算图优化 | [PDF](zotero://open-pdf/library/items/C8455AUK) / [Zotero](zotero://select/library/items/QK42TMSB) / [归档标签](Papers/downloaded-papers.md#pdf-qk42tmsb) |
+| ⬜ | <a id="pdf-tekz8y2f"></a>**PET: Optimizing Tensor Programs with Partially Equivalent Transformations and Automated Corrections** | 来源待补全 | 标签：GPU 编译与性能优化 / 计算图优化 | [PDF](zotero://open-pdf/library/items/B8UQIZHU) / [Zotero](zotero://select/library/items/TEKZ8Y2F) / [归档标签](Papers/downloaded-papers.md#pdf-tekz8y2f) |
+| ⬜ | <a id="pdf-eclineu8"></a>**TASO: optimizing deep learning computation with automatic generation of graph substitutions** | Proceedings of the 27th ACM Symposium on Operating Systems Principles · 2019 | 标签：GPU 编译与性能优化 / 计算图优化 | [Paper](https://dl.acm.org/doi/10.1145/3341301.3359630) / [PDF](zotero://open-pdf/library/items/S64TB9IQ) / [Zotero](zotero://select/library/items/ECLINEU8) / [归档标签](Papers/downloaded-papers.md#pdf-eclineu8) |
+| ⬜ | <a id="pdf-d7vqpngg"></a>**CoSA: Scheduling by Constrained Optimization for Spatial Accelerators** | 2021 ACM/IEEE 48th Annual International Symposium on Computer Architecture (ISCA) · 2021 | 标签：GPU 编译与性能优化 / 软硬件协同设计 | [Paper](https://ieeexplore.ieee.org/document/9499855/) / [PDF](zotero://open-pdf/library/items/9B35YJJ3) / [Zotero](zotero://select/library/items/D7VQPNGG) / [归档标签](Papers/downloaded-papers.md#pdf-d7vqpngg) |
+| ⬜ | <a id="pdf-byw5msmm"></a>**HASCO: Towards Agile HArdware and Software CO-design for Tensor Computation** | 2021 ACM/IEEE 48th Annual International Symposium on Computer Architecture (ISCA) · 2021 | 标签：GPU 编译与性能优化 / 软硬件协同设计 | [Paper](https://ieeexplore.ieee.org/document/9499796/) / [PDF](zotero://open-pdf/library/items/CZXLU8MM) / [Zotero](zotero://select/library/items/BYW5MSMM) / [归档标签](Papers/downloaded-papers.md#pdf-byw5msmm) |
+| ⬜ | <a id="pdf-mnhpwtau"></a>**SARA: Scaling a Reconfigurable Dataflow Accelerator** | 2021 ACM/IEEE 48th Annual International Symposium on Computer Architecture (ISCA) · 2021 | 标签：GPU 编译与性能优化 / 软硬件协同设计 | [Paper](https://ieeexplore.ieee.org/document/9499943/) / [PDF](zotero://open-pdf/library/items/U55E5DCP) / [Zotero](zotero://select/library/items/MNHPWTAU) / [归档标签](Papers/downloaded-papers.md#pdf-mnhpwtau) |
 
 </details>
 
 <details>
-<summary>模型架构与推理能力（101 篇；已读 4，待读 97）</summary>
+<summary>模型架构与推理能力（108 篇；已读 4，待读 104）</summary>
 
 ### LLM Training / Fine-Tuning & Alignment
 
@@ -386,7 +459,7 @@ Papers/ | Projects/ | Foundations/
 | ⬜ | **ORPO: Monolithic Preference Optimization without Reference Model** | [EMNLP'24](https://aclanthology.org/2024.emnlp-main.626/) | 将 SFT 与偏好约束合并，移除独立 reference model | [Paper](https://arxiv.org/abs/2403.07691) |
 | ⬜ | **SimPO: Simple Preference Optimization with a Reference-Free Reward** | [NeurIPS'24](https://arxiv.org/abs/2405.14734) | reference-free、长度归一化 reward 与 margin objective | [Paper](https://arxiv.org/abs/2405.14734) |
 | ⬜ | **DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models** | [arXiv'24](https://arxiv.org/abs/2402.03300) | GRPO、数学数据与可验证奖励，是 reasoning RL 的关键前置 | [Paper](https://arxiv.org/abs/2402.03300) |
-| ⬜ | **DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning** | [Nature'25](https://www.nature.com/articles/s41586-025-09422-z) | 大规模 reasoning RL、冷启动数据与蒸馏路线 | [Paper](https://arxiv.org/abs/2501.12948) |
+| ⬜ | <a id="pdf-llgxksrv"></a>**DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning** | [Nature'25](https://www.nature.com/articles/s41586-025-09422-z) | 大规模 reasoning RL、冷启动数据与蒸馏路线 | [Paper](https://arxiv.org/abs/2501.12948) / [归档标签](Papers/downloaded-papers.md#pdf-llgxksrv) |
 
 ### Deep Learning / Foundations & Optimization
 
@@ -464,7 +537,7 @@ Papers/ | Projects/ | Foundations/
 | ⬜ | **Mamba: Linear-Time Sequence Modeling with Selective State Spaces** | [COLM'24](https://dao-lab.ai/publications/) | 以输入依赖的选择性状态空间和硬件感知扫描，提高线性时间模型的内容选择能力 | [Paper](https://arxiv.org/abs/2312.00752) |
 | ⬜ | **Transformers are SSMs: Generalized Models and Efficient Algorithms Through Structured State Space Duality** | [ICML'24](https://proceedings.mlr.press/v235/dao24a.html) | 建立 attention 与结构化状态空间的对偶关系，导出 Mamba-2 及高效分块算法 | [Paper](https://arxiv.org/abs/2405.21060) |
 | ⬜ | **xLSTM: Extended Long Short-Term Memory** | [NeurIPS'24](https://proceedings.neurips.cc/paper_files/paper/2024/hash/c2ce2f2701c10a2b2f2ea0bfa43cfaa3-Abstract-Conference.html) | 通过指数门控与标量或矩阵记忆扩展 LSTM，探索可扩展的循环语言模型 | [Paper](https://arxiv.org/abs/2405.04517) |
-| ✅ | **DeepSeek-V3.2: Pushing the Frontier of Open Large Language Models** | [arXiv'25](https://arxiv.org/pdf/2512.02556) | 以 DSA 降低长上下文 attention 成本，并结合可扩展强化学习提升推理与工具使用能力 | [Paper](https://arxiv.org/pdf/2512.02556) |
+| ✅ | <a id="pdf-ac84rd85"></a>**DeepSeek-V3.2: Pushing the Frontier of Open Large Language Models** | [arXiv'25](https://arxiv.org/pdf/2512.02556) | 以 DSA 降低长上下文 attention 成本，并结合可扩展强化学习提升推理与工具使用能力 | [Paper](https://arxiv.org/pdf/2512.02556) / [归档标签](Papers/downloaded-papers.md#pdf-ac84rd85) |
 | ✅ 📝 | **DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence** | [Tech report'26](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash) | 组合压缩稀疏与高度压缩 attention，降低百万 token 上下文的计算和 KV 缓存开销 | [Paper](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/blob/main/DeepSeek_V4.pdf) / [Note](Papers/05_Model_Architecture_and_Reasoning/DeepSeek-V4/deepseek-v4.md) |
 
 ### LLM Evaluation & Safety / Capability & Quality Evaluation
@@ -508,16 +581,28 @@ Papers/ | Projects/ | Foundations/
 |:------:|-------|-------|----------------|-------|
 | ✅ 📝 | **SkVM: Revisiting Language VM for Skills across Heterogenous LLMs and Harnesses** | [arXiv'26](https://arxiv.org/abs/2604.03088) | 按模型与 harness 能力编译 skills，并用运行时代码固化和自适应重编译提高可移植性与执行效率 | [Paper](https://arxiv.org/abs/2604.03088) / [Note](Papers/05_Model_Architecture_and_Reasoning/Agents/SkVM/skvm.md) |
 
+### PapersPDF 补充阅读清单
+
+| Status | Paper | Venue | Why It Matters | Links |
+|:------:|-------|-------|----------------|-------|
+| ⬜ | <a id="pdf-eumymezx"></a>**DeepSeek-V4.1-Flash: Pushing the Limits of KV Cache Compression** | arXiv · 2026 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2609.19969) / [PDF](zotero://open-pdf/library/items/S7D47QU2) / [Zotero](zotero://select/library/items/EUMYMEZX) / [归档标签](Papers/downloaded-papers.md#pdf-eumymezx) |
+| ⬜ | <a id="pdf-lgssufuy"></a>**Forking: Sudden Overfitting Under Replay** | arXiv · 2026 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2610.00394) / [PDF](zotero://open-pdf/library/items/UUKKY3ZD) / [Zotero](zotero://select/library/items/LGSSUFUY) / [归档标签](Papers/downloaded-papers.md#pdf-lgssufuy) |
+| ⬜ | <a id="pdf-ndm56t2p"></a>**mHC: Manifold-Constrained Hyper-Connections** | arXiv · 2026 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2512.24880) / [PDF](zotero://open-pdf/library/items/G5UP6HY5) / [Zotero](zotero://select/library/items/NDM56T2P) / [归档标签](Papers/downloaded-papers.md#pdf-ndm56t2p) |
+| ⬜ | <a id="pdf-tnx3548w"></a>**Qwen3 Technical Report** | arXiv · 2025 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2505.09388) / [PDF](zotero://open-pdf/library/items/D664IKR9) / [Zotero](zotero://select/library/items/TNX3548W) / [归档标签](Papers/downloaded-papers.md#pdf-tnx3548w) |
+| ⬜ | <a id="pdf-d672fsr3"></a>**SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diffusion Transformer** | arXiv · 2026 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2605.15178) / [PDF](zotero://open-pdf/library/items/WPBIFRLY) / [Zotero](zotero://select/library/items/D672FSR3) / [归档标签](Papers/downloaded-papers.md#pdf-d672fsr3) |
+| ⬜ | <a id="pdf-stmlx3iu"></a>**Scaling Latent Reasoning via Looped Language Models** | arXiv · 2026 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2510.25741) / [PDF](zotero://open-pdf/library/items/JUFCNBBH) / [Zotero](zotero://select/library/items/STMLX3IU) / [归档标签](Papers/downloaded-papers.md#pdf-stmlx3iu) |
+| ⬜ | <a id="pdf-cen64b84"></a>**Virtual Width Networks** | arXiv · 2025 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2511.11238) / [PDF](zotero://open-pdf/library/items/V2PVED9S) / [Zotero](zotero://select/library/items/CEN64B84) / [归档标签](Papers/downloaded-papers.md#pdf-cen64b84) |
+
 </details>
 
 <details>
-<summary>计算基础（14 篇；已读 14，待读 0）</summary>
+<summary>计算基础（18 篇；已读 14，待读 4）</summary>
 
 ### Compiler
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ✅ | **Honeycomb: Secure and Efficient GPU Executions via Static Validation** | [OSDI'23](https://www.usenix.org/conference/osdi23/presentation/mai) | 在加载时静态验证 GPU 程序，结合 CPU TEE 将 OS 与驱动移出可信计算基 | [Paper](https://www.usenix.org/conference/osdi23/presentation/mai) / [Note](Papers/06_Computing_Foundations/Virtualization/Honeycomb/honeycomb.md) |
+| ✅ | <a id="pdf-9q5ea69n"></a>**Honeycomb: Secure and Efficient GPU Executions via Static Validation** | [OSDI'23](https://www.usenix.org/conference/osdi23/presentation/mai) | 在加载时静态验证 GPU 程序，结合 CPU TEE 将 OS 与驱动移出可信计算基 | [Paper](https://www.usenix.org/conference/osdi23/presentation/mai) / [Note](Papers/06_Computing_Foundations/Virtualization/Honeycomb/honeycomb.md) / [归档标签](Papers/downloaded-papers.md#pdf-9q5ea69n) |
 
 ### Operating Systems
 
@@ -535,10 +620,10 @@ Papers/ | Projects/ | Foundations/
 | ✅ | **HyperBench: A Benchmark Suite for Virtualization Capabilities** | [SIGMETRICS / POMACS'19](https://www.sigmetrics.org/opentoc/pomacs19_2toc.html) | 用独立于特定 hypervisor 的微基准测量 VM 切换、地址转换等关键虚拟化能力 | [Paper](https://dl.acm.org/doi/pdf/10.1145/3341617.3326138) / [Note](Papers/06_Computing_Foundations/Virtualization/Benchmarks/Hyperbench-A-Benchmark-Suite-for-Virtualization-Capabilities.md) |
 | ✅ | **DuVisor: a User-level Hypervisor Through Delegated Virtualization** | [arXiv'22](https://arxiv.org/pdf/2201.09652.pdf) | 通过硬件授权把 VM 退出等运行时操作下放用户态，减少内核攻击面与特权切换成本 | [Paper](https://arxiv.org/pdf/2201.09652.pdf) |
 | ✅ | **AvA: Accelerated Virtualization of Accelerators** | [ASPLOS'20](https://oscarlab.github.io/papers/ava-asplos20.pdf) | 以 API 描述生成加速器虚拟化与远程调用支持，兼顾多种加速器的兼容性和性能 | [Paper](https://dl.acm.org/doi/pdf/10.1145/3373376.3378466) |
-| ✅ | **Security and Performance in the Delegated User-level Virtualization** | [OSDI'23](https://www.usenix.org/conference/osdi23/presentation/chen) | 分离 hypervisor 控制面与用户态 VM 处理面，用硬件授权同时降低攻击面和运行时开销 | [Paper](https://www.usenix.org/system/files/osdi23-chen.pdf) / [Note](Papers/06_Computing_Foundations/Virtualization/DuVisor/duvisor.md) |
+| ✅ | <a id="pdf-tneellgq"></a>**Security and Performance in the Delegated User-level Virtualization** | [OSDI'23](https://www.usenix.org/conference/osdi23/presentation/chen) | 分离 hypervisor 控制面与用户态 VM 处理面，用硬件授权同时降低攻击面和运行时开销 | [Paper](https://www.usenix.org/system/files/osdi23-chen.pdf) / [Note](Papers/06_Computing_Foundations/Virtualization/DuVisor/duvisor.md) / [归档标签](Papers/downloaded-papers.md#pdf-tneellgq) |
 | ✅ | **System Virtualization for Neural Processing Units** | [HotOS'23](https://sigops.org/s/conferences/hotos/2023/papers/xue.pdf) | 提出 vNPU 抽象及分配、映射、调度机制，探索 NPU 多租户利用率与隔离的协同设计 | [Paper](https://sigops.org/s/conferences/hotos/2023/papers/xue.pdf) |
-| ✅ | **Nephele: Extending Virtualization Environments for Cloning Unikernel-based VMs** | [EuroSys'23](https://cordis.europa.eu/project/id/758815/results) | 扩展虚拟化环境支持低开销克隆 unikernel VM，复用初始化状态并降低实例创建成本 | [Paper](http://nets.cs.pub.ro/~costin/files/nephele.pdf) / [Note](Papers/06_Computing_Foundations/Virtualization/Nephele/nephele.md) |
-| ✅ | **Honeycomb: Secure and Efficient GPU Executions via Static Validation** | [OSDI'23](https://www.usenix.org/conference/osdi23/presentation/mai) | 在加载时静态验证 GPU 程序，结合 CPU TEE 将 OS 与驱动移出可信计算基 | [Paper](https://www.usenix.org/conference/osdi23/presentation/mai) / [Note](Papers/06_Computing_Foundations/Virtualization/Honeycomb/honeycomb.md) |
+| ✅ | <a id="pdf-k9vm2qmu"></a>**Nephele: Extending Virtualization Environments for Cloning Unikernel-based VMs** | [EuroSys'23](https://cordis.europa.eu/project/id/758815/results) | 扩展虚拟化环境支持低开销克隆 unikernel VM，复用初始化状态并降低实例创建成本 | [Paper](http://nets.cs.pub.ro/~costin/files/nephele.pdf) / [Note](Papers/06_Computing_Foundations/Virtualization/Nephele/nephele.md) / [归档标签](Papers/downloaded-papers.md#pdf-k9vm2qmu) |
+| ✅ | **Honeycomb: Secure and Efficient GPU Executions via Static Validation** | [OSDI'23](https://www.usenix.org/conference/osdi23/presentation/mai) | 在加载时静态验证 GPU 程序，结合 CPU TEE 将 OS 与驱动移出可信计算基 | [Paper](https://www.usenix.org/conference/osdi23/presentation/mai) / [Note](Papers/06_Computing_Foundations/Virtualization/Honeycomb/honeycomb.md) / [归档标签](Papers/downloaded-papers.md#pdf-9q5ea69n) |
 
 ### RISC-V
 
@@ -546,6 +631,15 @@ Papers/ | Projects/ | Foundations/
 |:------:|-------|-------|----------------|-------|
 | ✅ | **A First Look at RISC-V Virtualization from an Embedded Systems Perspective** | [IEEE TC'22 (online'21)](https://ieeexplore.ieee.org/document/9606600/) | 在 Rocket 上实现并评估 RISC-V H 扩展，分析嵌入式虚拟化中的中断、计时器与隔离开销 | [Paper](https://arxiv.org/pdf/2103.14951.pdf) |
 | ✅ | **CVA6 RISC-V Virtualization: Architecture, Microarchitecture, and Design Space Exploration** | [IEEE TVLSI'23](https://cris.unibo.it/handle/11585/952940) | 为 CVA6 实现硬件虚拟化并探索 GTLB、L2 TLB 等设计的性能、功耗和面积权衡 | [Paper](https://arxiv.org/pdf/2302.02969.pdf) |
+
+### PapersPDF 补充阅读清单
+
+| Status | Paper | Venue | Why It Matters | Links |
+|:------:|-------|-------|----------------|-------|
+| ⬜ | <a id="pdf-vk2mx5h8"></a>**A loop transformation theory and an algorithm to maximize parallelism** | IEEE Transactions on Parallel and Distributed Systems · 1991 | 标签：计算机系统与并行基础 / 并行计算与体系结构 | [Paper](http://ieeexplore.ieee.org/document/97902/) / [PDF](zotero://open-pdf/library/items/X5R3KCBT) / [PDF2](zotero://open-pdf/library/items/R3PQDJEZ) / [Zotero](zotero://select/library/items/VK2MX5H8) / [归档标签](Papers/downloaded-papers.md#pdf-vk2mx5h8) |
+| ⬜ | <a id="pdf-g6dnrdam"></a>**Exploiting Memory Access Patterns to Improve Memory Performance in Data-Parallel Architectures** | IEEE Transactions on Parallel and Distributed Systems · 2011 | 标签：计算机系统与并行基础 / 并行计算与体系结构 | [Paper](http://ieeexplore.ieee.org/document/5473222/) / [PDF](zotero://open-pdf/library/items/G7G54FHS) / [Zotero](zotero://select/library/items/G6DNRDAM) / [归档标签](Papers/downloaded-papers.md#pdf-g6dnrdam) |
+| ⬜ | <a id="pdf-i9gwwhe7"></a>**A Survey on Register Allocation** | 来源待补全 | 标签：计算机系统与并行基础 / 编译原理 | [PDF](zotero://open-pdf/library/items/9WWM8C8A) / [Zotero](zotero://select/library/items/I9GWWHE7) / [归档标签](Papers/downloaded-papers.md#pdf-i9gwwhe7) |
+| ⬜ | <a id="pdf-athndb3u"></a>**Characterizing Off-path SmartNIC for Accelerating Distributed Systems** | 来源待补全 | 标签：计算机系统与并行基础 / 网络与 SmartNIC | [PDF](zotero://open-pdf/library/items/RTBRCBWY) / [Zotero](zotero://select/library/items/ATHNDB3U) / [归档标签](Papers/downloaded-papers.md#pdf-athndb3u) |
 
 </details>
 
