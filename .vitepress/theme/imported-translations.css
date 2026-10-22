@@ -52,9 +52,12 @@
   margin: 1em 0;
   padding: 12px;
   background: white;
-  border-radius: 8px;
+  border-radius: 0;
 }
 .translated-article .translation-math-figure img { max-width: none; }
+.translated-article .translation-math img,
+.translated-article img.eqn,
+.translated-article img.eqnvec { display: inline; margin: 0; vertical-align: middle; }
 .translated-article table { font-size: 15px; }
 .translated-article td .translation-math--display { font-size: 1em; }
 .translated-article img.blkeqn { display: block; margin: 1em auto; background: white; }

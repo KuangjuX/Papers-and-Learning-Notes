@@ -211,13 +211,14 @@ export default defineConfig({
   },
 
   head: [
-    ['meta', { name: 'theme-color', content: '#0f766e' }],
+    ['meta', { name: 'theme-color', content: '#ffffff' }],
     ['meta', { name: 'author', content: 'KuangjuX' }],
   ],
 
   markdown: {
     math: true,
     lineNumbers: true,
+    theme: { light: 'github-light', dark: 'github-dark' },
     image: {
       lazyLoading: true,
     },
