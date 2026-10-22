@@ -22,6 +22,7 @@
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ✅ | <a id="pdf-9q5ea69n"></a>**Honeycomb: Secure and Efficient GPU Executions via Static Validation** | [OSDI'23](https://www.usenix.org/conference/osdi23/presentation/mai) | 在加载时静态验证 GPU 程序，结合 CPU TEE 将 OS 与驱动移出可信计算基 | [Paper](https://www.usenix.org/conference/osdi23/presentation/mai) / [Note](Virtualization/Honeycomb/honeycomb.md) / [归档标签](../downloaded-papers.md#pdf-9q5ea69n) |
+| ⬜ | <a id="pdf-i9gwwhe7"></a>**A Survey on Register Allocation** | 来源待补全 | 标签：计算机系统与并行基础 / 编译原理 | [PDF](zotero://open-pdf/library/items/9WWM8C8A) / [Zotero](zotero://select/library/items/I9GWWHE7) / [归档标签](../downloaded-papers.md#pdf-i9gwwhe7) |
 
 ## Operating Systems
 
@@ -51,24 +52,14 @@
 | ✅ | **A First Look at RISC-V Virtualization from an Embedded Systems Perspective** | [IEEE TC'22 (online'21)](https://ieeexplore.ieee.org/document/9606600/) | 在 Rocket 上实现并评估 RISC-V H 扩展，分析嵌入式虚拟化中的中断、计时器与隔离开销 | [Paper](https://arxiv.org/pdf/2103.14951.pdf) |
 | ✅ | **CVA6 RISC-V Virtualization: Architecture, Microarchitecture, and Design Space Exploration** | [IEEE TVLSI'23](https://cris.unibo.it/handle/11585/952940) | 为 CVA6 实现硬件虚拟化并探索 GTLB、L2 TLB 等设计的性能、功耗和面积权衡 | [Paper](https://arxiv.org/pdf/2302.02969.pdf) |
 
-## PapersPDF 补充阅读清单
-
-来源：PapersPDF 已下载资料及 Zotero 分类，整理于 2026-10-22。以下条目按原分类标签分组；阅读价值解读待后续精读补充。
-
-### 计算机系统与并行基础 / 并行计算与体系结构
+## 计算机系统与并行基础 / 并行计算与体系结构
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ⬜ | <a id="pdf-vk2mx5h8"></a>**A loop transformation theory and an algorithm to maximize parallelism** | IEEE Transactions on Parallel and Distributed Systems · 1991 | 标签：计算机系统与并行基础 / 并行计算与体系结构 | [Paper](http://ieeexplore.ieee.org/document/97902/) / [PDF](zotero://open-pdf/library/items/X5R3KCBT) / [PDF2](zotero://open-pdf/library/items/R3PQDJEZ) / [Zotero](zotero://select/library/items/VK2MX5H8) / [归档标签](../downloaded-papers.md#pdf-vk2mx5h8) |
 | ⬜ | <a id="pdf-g6dnrdam"></a>**Exploiting Memory Access Patterns to Improve Memory Performance in Data-Parallel Architectures** | IEEE Transactions on Parallel and Distributed Systems · 2011 | 标签：计算机系统与并行基础 / 并行计算与体系结构 | [Paper](http://ieeexplore.ieee.org/document/5473222/) / [PDF](zotero://open-pdf/library/items/G7G54FHS) / [Zotero](zotero://select/library/items/G6DNRDAM) / [归档标签](../downloaded-papers.md#pdf-g6dnrdam) |
 
-### 计算机系统与并行基础 / 编译原理
-
-| Status | Paper | Venue | Why It Matters | Links |
-|:------:|-------|-------|----------------|-------|
-| ⬜ | <a id="pdf-i9gwwhe7"></a>**A Survey on Register Allocation** | 来源待补全 | 标签：计算机系统与并行基础 / 编译原理 | [PDF](zotero://open-pdf/library/items/9WWM8C8A) / [Zotero](zotero://select/library/items/I9GWWHE7) / [归档标签](../downloaded-papers.md#pdf-i9gwwhe7) |
-
-### 计算机系统与并行基础 / 网络与 SmartNIC
+## 计算机系统与并行基础 / 网络与 SmartNIC
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|

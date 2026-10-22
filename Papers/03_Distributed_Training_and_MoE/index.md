@@ -51,6 +51,7 @@
 | ⬜ | <a id="pdf-xn3au5xv"></a>**MegaScale: Scaling Large Language Model Training to More Than 10,000 GPUs** | [NSDI'24](https://www.usenix.org/conference/nsdi24/presentation/jiang-ziheng) | 结合训练算法、通信与故障监控优化，展示万卡规模 LLM 训练的工程瓶颈 | [Paper](https://www.usenix.org/conference/nsdi24/presentation/jiang-ziheng) / [归档标签](../downloaded-papers.md#pdf-xn3au5xv) |
 | ⬜ | <a id="pdf-qcnk8s78"></a>**LoongTrain: Efficient Training of Long-Sequence LLMs with Head-Context Parallelism** | [arXiv'24](https://arxiv.org/abs/2406.18485) | 结合 head 与 context 二维并行及双环通信，突破长序列训练的扩展限制 | [Paper](https://arxiv.org/pdf/2406.18485) / [归档标签](../downloaded-papers.md#pdf-qcnk8s78) |
 | ✅ 📝 | <a id="pdf-vcw4ly38"></a>**PithTrain: A Compact and Agent-Native MoE Training System** | [arXiv'26](https://arxiv.org/abs/2605.31463) | 以紧凑模块和显式训练结构降低 MoE 系统修改成本，支持编码代理迭代优化 | [Paper](https://arxiv.org/abs/2605.31463) / [Note](PithTrain/pithtrain.md) / [Code Guide](../../Projects/03_Distributed_Training_and_MoE/PithTrain/index.md) / [归档标签](../downloaded-papers.md#pdf-vcw4ly38) |
+| ⬜ | <a id="pdf-c5lnh2yd"></a>**Insights into DeepSeek-V3: Scaling Challenges and Reflections on Hardware for AI Architectures** | Proceedings of the 52nd Annual International Symposium on Computer Architecture · 2025 | 标签：分布式训练与 MoE | [Paper](http://arxiv.org/abs/2505.09343) / [PDF](zotero://open-pdf/library/items/XPT4R2PX) / [Zotero](zotero://select/library/items/C5LNH2YD) / [归档标签](../downloaded-papers.md#pdf-c5lnh2yd) |
 
 ## LLM Training / Mixture-of-Experts Training
 
@@ -64,12 +65,15 @@
 | ⬜ | **FasterMoE: Modeling and Optimizing Training of Large-Scale Dynamic Pre-Trained Models** | [PPoPP'22](https://doi.org/10.1145/3503221.3508418) | 动态路由下的 shadowing 与拓扑感知通信优化 | [Paper](https://doi.org/10.1145/3503221.3508418) |
 | ⬜ | **Tutel: Adaptive Mixture-of-Experts at Scale** | [MLSys'23](https://proceedings.mlsys.org/paper_files/paper/2023/hash/5616d34cf8ff73942cfd5aa922842556-Abstract-mlsys2023.html) | 自适应并行、all-to-all 与 kernel 优化的完整 MoE 系统 | [Paper](https://arxiv.org/abs/2206.03382) |
 | ⬜ | **MegaBlocks: Efficient Sparse Training with Mixture-of-Experts** | [MLSys'23](https://proceedings.mlsys.org/paper_files/paper/2023/hash/5a54f79333768effe7e8927bcccffe40-Abstract-mlsys2023.html) | 将 token dropping 问题转成 block-sparse GEMM，最贴近算子视角 | [Paper](https://arxiv.org/abs/2211.15841) |
+| ⬜ | <a id="pdf-xxvli24b"></a>**FOLDMOE: Efficient Long Sequence MoE Training via Attention-MoE Pipelining** | 来源待补全 | 标签：分布式训练与 MoE | [PDF](zotero://open-pdf/library/items/C4UQSUQ3) / [Zotero](zotero://select/library/items/XXVLI24B) / [归档标签](../downloaded-papers.md#pdf-xxvli24b) |
+| ⬜ | <a id="pdf-2ljkaklx"></a>**UniEP: Unified Expert-Parallel MegaKernel MoE for LLM Training** | Proceedings of the 35th International Symposium on High-Performance Parallel and Distributed Computing · 2026 | 标签：分布式训练与 MoE | [Paper](https://dl.acm.org/doi/10.1145/3806645.3807818) / [PDF](zotero://open-pdf/library/items/TWBKWUCN) / [Zotero](zotero://select/library/items/2LJKAKLX) / [归档标签](../downloaded-papers.md#pdf-2ljkaklx) |
 
 ## LLM Training / RL Training
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ✅ | <a id="pdf-lv4qk9kg"></a>**Seer: Online Context Learning for Fast Synchronous LLM Reinforcement Learning** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/qin) | 利用同一 prompt 下响应长度和模式的相似性，减少同步 RL rollout 长尾与资源浪费 | [Paper](https://arxiv.org/pdf/2511.14617) / [归档标签](../downloaded-papers.md#pdf-lv4qk9kg) |
+| ⬜ | <a id="pdf-i3m9y4v9"></a>**DeepSeek Elastic Compute (DSec): A Sandbox Infrastructure for Effective Agentic Training at Scale** | arXiv · 2026 | 标签：分布式训练与 MoE | [Paper](http://arxiv.org/abs/2609.22978) / [PDF](zotero://open-pdf/library/items/XBZEVX2N) / [Zotero](zotero://select/library/items/I3M9Y4V9) / [归档标签](../downloaded-papers.md#pdf-i3m9y4v9) |
 
 ## LLM Training / Compute-Communication Overlap
 
@@ -100,20 +104,7 @@
 | ✅ | **On-Device Training Under 256KB Memory** | [NeurIPS'22](https://proceedings.neurips.cc/paper_files/paper/2022/hash/90c56c77c6df45fc8e556a096b7a2b2e-Abstract-Conference.html) | 通过量化感知梯度缩放、稀疏更新与编译期反向图裁剪，在 256KB 内存下训练模型 | [Paper](https://arxiv.org/pdf/2206.15472.pdf) |
 | ✅ | <a id="pdf-fayd7t8v"></a>**PockEngine: Sparse and Efficient Fine-tuning in a Pocket** | [MICRO'23](https://hanlab.mit.edu/projects/pockengine ; https://hanlab.mit.edu/projects/tinyml) | 把稀疏反向传播与完整训练图编译结合，降低边缘设备微调的内存和运行时开销 | [Paper](https://hanlab.mit.edu/projects/pockengine ; https://hanlab.mit.edu/projects/tinyml) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/29) / [归档标签](../downloaded-papers.md#pdf-fayd7t8v) |
 
-## PapersPDF 补充阅读清单
-
-来源：PapersPDF 已下载资料及 Zotero 分类，整理于 2026-10-22。以下条目按原分类标签分组；阅读价值解读待后续精读补充。
-
-### 分布式训练与 MoE
-
-| Status | Paper | Venue | Why It Matters | Links |
-|:------:|-------|-------|----------------|-------|
-| ⬜ | <a id="pdf-i3m9y4v9"></a>**DeepSeek Elastic Compute (DSec): A Sandbox Infrastructure for Effective Agentic Training at Scale** | arXiv · 2026 | 标签：分布式训练与 MoE | [Paper](http://arxiv.org/abs/2609.22978) / [PDF](zotero://open-pdf/library/items/XBZEVX2N) / [Zotero](zotero://select/library/items/I3M9Y4V9) / [归档标签](../downloaded-papers.md#pdf-i3m9y4v9) |
-| ⬜ | <a id="pdf-xxvli24b"></a>**FOLDMOE: Efficient Long Sequence MoE Training via Attention-MoE Pipelining** | 来源待补全 | 标签：分布式训练与 MoE | [PDF](zotero://open-pdf/library/items/C4UQSUQ3) / [Zotero](zotero://select/library/items/XXVLI24B) / [归档标签](../downloaded-papers.md#pdf-xxvli24b) |
-| ⬜ | <a id="pdf-c5lnh2yd"></a>**Insights into DeepSeek-V3: Scaling Challenges and Reflections on Hardware for AI Architectures** | Proceedings of the 52nd Annual International Symposium on Computer Architecture · 2025 | 标签：分布式训练与 MoE | [Paper](http://arxiv.org/abs/2505.09343) / [PDF](zotero://open-pdf/library/items/XPT4R2PX) / [Zotero](zotero://select/library/items/C5LNH2YD) / [归档标签](../downloaded-papers.md#pdf-c5lnh2yd) |
-| ⬜ | <a id="pdf-2ljkaklx"></a>**UniEP: Unified Expert-Parallel MegaKernel MoE for LLM Training** | Proceedings of the 35th International Symposium on High-Performance Parallel and Distributed Computing · 2026 | 标签：分布式训练与 MoE | [Paper](https://dl.acm.org/doi/10.1145/3806645.3807818) / [PDF](zotero://open-pdf/library/items/TWBKWUCN) / [Zotero](zotero://select/library/items/2LJKAKLX) / [归档标签](../downloaded-papers.md#pdf-2ljkaklx) |
-
-### 分布式训练与 MoE / 分布式运行时
+## 分布式训练与 MoE / 分布式运行时
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|

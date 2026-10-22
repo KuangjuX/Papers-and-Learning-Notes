@@ -41,6 +41,7 @@
 |:------:|-------|-------|----------------|-------|
 | ✅ | **A Survey of LLM Inference Systems** | [arXiv'25](https://arxiv.org/abs/2506.21901) | 贯通 kernel、批处理、调度与 KV 管理，理解单副本、分离式和分布式推理系统的设计取舍 | [Paper](https://arxiv.org/pdf/2506.21901) / [Note](Surveys/llm_inference_survey.pdf) |
 | ⬜ | **WaferLLM: Large Language Model Inference at Wafer Scale** | [OSDI'25](https://www.usenix.org/system/files/osdi25-he.pdf) | 研究晶圆级互连和存储条件下的 LLM 映射，理解不同硬件形态如何改变推理并行策略 | [Paper](https://www.usenix.org/system/files/osdi25-he.pdf) |
+| ⬜ | <a id="pdf-ttfudeki"></a>**HiCache: A Plug-in Scaled-Hermite Upgrade for Taylor-Style Cache-then-Forecast Diffusion Acceleration** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2508.16984) / [PDF](zotero://open-pdf/library/items/7AF67XK4) / [Zotero](zotero://select/library/items/TTFUDEKI) / [归档标签](../downloaded-papers.md#pdf-ttfudeki) |
 
 ## LLM Inference / Long Context Inference
 
@@ -50,6 +51,7 @@
 | ✅ | <a id="pdf-cuxi564s"></a>**Efficient Streaming Language Models with Attention Sinks** | [ICLR'24](https://arxiv.org/pdf/2309.17453) | 保留 attention sink 与滑动窗口，实现有界 KV 缓存的流式生成并明确历史信息保留边界 | [Paper](https://arxiv.org/pdf/2309.17453) / [讨论笔记](../../Foundations/01_Attention/Attention-Sinks/attention-sink-and-dsink.md) / [归档标签](../downloaded-papers.md#pdf-cuxi564s) |
 | ✅ 📝 | <a id="pdf-bbqs6dzt"></a>**HiSparse: Scaling Sparse-Attention Decoding with Hierarchical KV Cache Management** | [arXiv'26](https://arxiv.org/abs/2608.07009v1) | 将完整 KV 放在主存、热点放在有界 GPU 缓存，并用跨层预取隐藏稀疏解码缺页开销 | [Paper](https://arxiv.org/abs/2608.07009v1) / [Note](HiSparse/hisparse.md) / [归档标签](../downloaded-papers.md#pdf-bbqs6dzt) |
 | ⬜ | **Unifying Sparse Attention with Hierarchical Memory for Scalable Long-Context LLM Serving (SPIN)** | [arXiv'26](https://arxiv.org/abs/2604.26837) | 统一不同稀疏粒度与分层 KV 存储，通过局部性感知缓存和元数据设计降低 GPU–CPU 传输开销 | [Paper](https://arxiv.org/abs/2604.26837) |
+| ⬜ | <a id="pdf-p7ztutbr"></a>**ShadowKV: KV Cache in Shadows for High-Throughput Long-Context LLM Inference** | arXiv · 2025 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2410.21465) / [PDF](zotero://open-pdf/library/items/I9NKKG32) / [Zotero](zotero://select/library/items/P7ZTUTBR) / [归档标签](../downloaded-papers.md#pdf-p7ztutbr) |
 
 ## LLM Inference / LLM Serving
 
@@ -77,6 +79,10 @@
 | ⬜ | **CRAFT: Fine-Grained Cost-Aware Expert Replication for Efficient Mixture-of-Experts Serving** | [MLSys'26](https://proceedings.mlsys.org/paper_files/paper/2026/hash/3a7f9e485845dac27423375c934cb4db-Abstract-Conference.html) | 按层估计专家复制收益，在显存预算内平衡路由负载，避免过度复制挤占 KV 空间 | [Paper](https://proceedings.mlsys.org/paper_files/paper/2026/hash/3a7f9e485845dac27423375c934cb4db-Abstract-Conference.html) |
 | ⬜ | <a id="pdf-ix73leff"></a>**Strata: Hierarchical Context Caching for Long Context Language Model Serving** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/xie-zhiqiang) | 结合大块 KV I/O 与缓存感知调度，缓解 GPU、主存和 SSD 分层上下文缓存的加载停顿 | [Paper](https://www.usenix.org/conference/osdi26/presentation/xie-zhiqiang) / [归档标签](../downloaded-papers.md#pdf-ix73leff) |
 | ⬜ | **No Buffer, No Bottleneck: Efficient Zero-Copy KV Cache Offloading for Long-Context LLMs (DirectKV)** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/luo) | 在 NVLink-C2C 平台让 GPU 直接访问主存 KV，消除 staging buffer 与额外拷贝 | [Paper](https://www.usenix.org/conference/osdi26/presentation/luo) |
+| ⬜ | <a id="pdf-t2z2ms8t"></a>**ByteTransformer: A High-Performance Transformer Boosted for Variable-Length Inputs** | 2023 IEEE International Parallel and Distributed Processing Symposium (IPDPS) · 2023 | 标签：推理服务与 KV Cache | [Paper](https://ieeexplore.ieee.org/document/10177488/) / [PDF](zotero://open-pdf/library/items/XTL5JC62) / [Zotero](zotero://select/library/items/T2Z2MS8T) / [归档标签](../downloaded-papers.md#pdf-t2z2ms8t) |
+| ⬜ | <a id="pdf-ff3ujclj"></a>**Jenga: Effective Memory Management for Serving LLM with Heterogeneity** | arXiv · 2025 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2503.18292) / [PDF](zotero://open-pdf/library/items/DGM8PGQI) / [Zotero](zotero://select/library/items/FF3UJCLJ) / [归档标签](../downloaded-papers.md#pdf-ff3ujclj) |
+| ⬜ | <a id="pdf-8jjabzda"></a>**SparseEngine: Sparse-First Inference Engine** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2609.39068) / [PDF](zotero://open-pdf/library/items/I8VMS8D4) / [Zotero](zotero://select/library/items/8JJABZDA) / [归档标签](../downloaded-papers.md#pdf-8jjabzda) |
+| ⬜ | <a id="pdf-en4xe3zy"></a>**TensorCast: The Missing Tensor Management Layer in Large Language Model Infrastructure** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2608.06007) / [PDF](zotero://open-pdf/library/items/4AYH4XIP) / [Zotero](zotero://select/library/items/EN4XE3ZY) / [归档标签](../downloaded-papers.md#pdf-en4xe3zy) |
 
 ## LLM Inference / Quantization & Compression
 
@@ -92,18 +98,3 @@
 | ⬜ | **KIVI: A Tuning-Free Asymmetric 2bit Quantization for KV Cache** | [ICML'24](https://github.com/jy-yuan/KIVI) | 区分 K/V 的通道与 token 统计特性，理解 KV cache 低比特化 | [Paper](https://arxiv.org/abs/2402.02750) |
 | ⬜ | **QuaRot: Outlier-Free 4-Bit Inference in Rotated LLMs** | [NeurIPS'24](https://proceedings.neurips.cc/paper_files/paper/2024/hash/b5b939436789f76f08b9d0da5e81af7c-Abstract-Conference.html) | 用 Hadamard rotation 消除 outlier，适合从算法追到融合 kernel | [Paper](https://arxiv.org/abs/2404.00456) |
 | ⬜ | **The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits** | [arXiv'24](https://arxiv.org/abs/2402.17764) | BitNet b1.58 与三值权重，理解量化感知训练的架构路线 | [Paper](https://arxiv.org/abs/2402.17764) |
-
-## PapersPDF 补充阅读清单
-
-来源：PapersPDF 已下载资料及 Zotero 分类，整理于 2026-10-22。以下条目按原分类标签分组；阅读价值解读待后续精读补充。
-
-### 推理服务与 KV Cache
-
-| Status | Paper | Venue | Why It Matters | Links |
-|:------:|-------|-------|----------------|-------|
-| ⬜ | <a id="pdf-t2z2ms8t"></a>**ByteTransformer: A High-Performance Transformer Boosted for Variable-Length Inputs** | 2023 IEEE International Parallel and Distributed Processing Symposium (IPDPS) · 2023 | 标签：推理服务与 KV Cache | [Paper](https://ieeexplore.ieee.org/document/10177488/) / [PDF](zotero://open-pdf/library/items/XTL5JC62) / [Zotero](zotero://select/library/items/T2Z2MS8T) / [归档标签](../downloaded-papers.md#pdf-t2z2ms8t) |
-| ⬜ | <a id="pdf-ttfudeki"></a>**HiCache: A Plug-in Scaled-Hermite Upgrade for Taylor-Style Cache-then-Forecast Diffusion Acceleration** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2508.16984) / [PDF](zotero://open-pdf/library/items/7AF67XK4) / [Zotero](zotero://select/library/items/TTFUDEKI) / [归档标签](../downloaded-papers.md#pdf-ttfudeki) |
-| ⬜ | <a id="pdf-ff3ujclj"></a>**Jenga: Effective Memory Management for Serving LLM with Heterogeneity** | arXiv · 2025 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2503.18292) / [PDF](zotero://open-pdf/library/items/DGM8PGQI) / [Zotero](zotero://select/library/items/FF3UJCLJ) / [归档标签](../downloaded-papers.md#pdf-ff3ujclj) |
-| ⬜ | <a id="pdf-p7ztutbr"></a>**ShadowKV: KV Cache in Shadows for High-Throughput Long-Context LLM Inference** | arXiv · 2025 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2410.21465) / [PDF](zotero://open-pdf/library/items/I9NKKG32) / [Zotero](zotero://select/library/items/P7ZTUTBR) / [归档标签](../downloaded-papers.md#pdf-p7ztutbr) |
-| ⬜ | <a id="pdf-8jjabzda"></a>**SparseEngine: Sparse-First Inference Engine** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2609.39068) / [PDF](zotero://open-pdf/library/items/I8VMS8D4) / [Zotero](zotero://select/library/items/8JJABZDA) / [归档标签](../downloaded-papers.md#pdf-8jjabzda) |
-| ⬜ | <a id="pdf-en4xe3zy"></a>**TensorCast: The Missing Tensor Management Layer in Large Language Model Infrastructure** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2608.06007) / [PDF](zotero://open-pdf/library/items/4AYH4XIP) / [Zotero](zotero://select/library/items/EN4XE3ZY) / [归档标签](../downloaded-papers.md#pdf-en4xe3zy) |

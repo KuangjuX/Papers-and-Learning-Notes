@@ -46,6 +46,10 @@ GPU 编程、张量编译器、Megakernel、性能优化与相关项目。
 | ✅ | <a id="pdf-k8hmzhbp"></a>**KPerfIR: Towards an Open and Compiler-centric Ecosystem for GPU Kernel Performance Tooling on Modern AI Workloads** | [OSDI'25](https://www.usenix.org/conference/osdi25/presentation/guan) | 将性能测量实现为编译器 pass，观察 GPU kernel 内部的细粒度执行与重叠瓶颈 | [Paper](https://www.usenix.org/system/files/osdi25-guan.pdf) / [归档标签](../downloaded-papers.md#pdf-k8hmzhbp) |
 | ⬜ | **Optimal Software Pipelining and Warp Specialization for Tensor Core GPUs** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/soi) | 将软件流水线和 warp specialization 联合建模为约束优化，推导模型假设下的最优调度 | [Paper](https://www.usenix.org/conference/osdi26/presentation/soi) |
 | ⬜ | **GraCE: Unlocking CUDA Graphs with Compiler Support for ML Workloads** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/ghosh) | 自动变换程序并分析成本收益，扩大 CUDA Graph 覆盖率并减少参数拷贝和启动开销 | [Paper](https://www.usenix.org/conference/osdi26/presentation/ghosh) |
+| ⬜ | <a id="pdf-qbqw7v9r"></a>**AffineGraph: A Dataflow Graph Representation for Effective DNN Hardware-Aware Algorithms** | 来源待补全 | 标签：GPU 编译与性能优化 | [PDF](zotero://open-pdf/library/items/L9PBDJL3) / [Zotero](zotero://select/library/items/QBQW7V9R) / [归档标签](../downloaded-papers.md#pdf-qbqw7v9r) |
+| ⬜ | <a id="pdf-rgznhh6b"></a>**Ansor: Generating High-Performance Tensor Programs for Deep Learning** | 来源待补全 | 标签：GPU 编译与性能优化 / 编译器架构与调度 | [PDF](zotero://open-pdf/library/items/A4GT2NTU) / [Zotero](zotero://select/library/items/RGZNHH6B) / [归档标签](../downloaded-papers.md#pdf-rgznhh6b) |
+| ⬜ | <a id="pdf-cuzav7by"></a>**Graphiler: A Compiler for Graph Neural Networks** | 来源待补全 | 标签：GPU 编译与性能优化 / 编译器架构与调度 | [PDF](zotero://open-pdf/library/items/IYTUH2XV) / [Zotero](zotero://select/library/items/CUZAV7BY) / [归档标签](../downloaded-papers.md#pdf-cuzav7by) |
+| ⬜ | <a id="pdf-dustz3lm"></a>**The tensor algebra compiler** | Proceedings of the ACM on Programming Languages · 2017 | 标签：GPU 编译与性能优化 / 编译器架构与调度 | [Paper](https://dl.acm.org/doi/10.1145/3133901) / [PDF](zotero://open-pdf/library/items/ZVZ6LMVF) / [Zotero](zotero://select/library/items/DUSTZ3LM) / [归档标签](../downloaded-papers.md#pdf-dustz3lm) |
 
 ## LLM Inference / MegaKernel
 
@@ -57,6 +61,8 @@ GPU 编程、张量编译器、Megakernel、性能优化与相关项目。
 | ✅ | **TileRT: Tile-Based Runtime for Ultra-Low-Latency LLM Inference** | [GitHub project'25](https://github.com/tile-ai/TileRT) | 用 tile 级运行时重排并重叠计算、I/O 与跨设备通信，探索大模型低延迟推理的工程路径 | [Paper](https://github.com/tile-ai/TileRT) |
 | ✅ | **Compiling LLMs into a MegaKernel: A Path to Low-Latency Inference** | [Blog](https://zhihaojia.medium.com/compiling-llms-into-a-megakernel-a-path-to-low-latency-inference-cf7840913c17) | 从编译器和运行时角度解释全模型 megakernel，连接任务依赖、跨算子调度与低延迟推理 | [Paper](https://zhihaojia.medium.com/compiling-llms-into-a-megakernel-a-path-to-low-latency-inference-cf7840913c17) |
 | ⬜ | **Ada-MK: Adaptive MegaKernel Optimization via Automated DAG-based Search for LLM Inference** | [arXiv'26](https://arxiv.org/abs/2605.11581) | 用离线 DAG 搜索固定 megakernel 执行路径，减少资源受限 GPU 上动态调度和共享内存开销 | [Paper](https://arxiv.org/abs/2605.11581) |
+| ⬜ | <a id="pdf-a8tkxuy6"></a>**ClusterFusion: Expanding Operator Fusion Scope for LLM Inference via Cluster-Level Collective Primitive** | arXiv · 2025 | 标签：GPU 编译与性能优化 | [Paper](http://arxiv.org/abs/2508.18850) / [PDF](zotero://open-pdf/library/items/B4555BYV) / [Zotero](zotero://select/library/items/A8TKXUY6) / [归档标签](../downloaded-papers.md#pdf-a8tkxuy6) |
+| ⬜ | <a id="pdf-9mb4wuba"></a>**mKernel: Fast Multi-GPU, Multi-Node Fused Kernels** | arXiv · 2026 | 标签：GPU 编译与性能优化 | [Paper](http://arxiv.org/abs/2609.13585) / [PDF](zotero://open-pdf/library/items/B7346TDX) / [Zotero](zotero://select/library/items/9MB4WUBA) / [归档标签](../downloaded-papers.md#pdf-9mb4wuba) |
 
 ## LLM for Kernel Optimization
 
@@ -67,6 +73,7 @@ GPU 编程、张量编译器、Megakernel、性能优化与相关项目。
 | ⬜ | **FlashInfer-Bench: Building the Virtuous Cycle for AI-driven LLM Systems** | [MLSys'26](https://proceedings.mlsys.org/paper_files/paper/2026/hash/37e44c4b5321605735be9761f9b758fc-Abstract-Conference.html) | 以真实 LLM 工作负载、正确性验证和性能评测连接 AI kernel 生成与系统部署 | [Paper](https://proceedings.mlsys.org/paper_files/paper/2026/hash/37e44c4b5321605735be9761f9b758fc-Abstract-Conference.html) |
 | ⬜ | **Harness Engineering for LLM-Driven GPU Kernel Generation** | [arXiv'26](https://arxiv.org/abs/2607.17979) | 围绕约束、正确性验证、性能分析和候选筛选设计 harness，提高 LLM 生成 GPU kernel 的可靠性 | [Paper](https://arxiv.org/abs/2607.17979) |
 | ⬜ | **Agentic Kernel Optimization: Generating State-of-the-Art GPU Kernels Without Hand-Written CUDA** | [Tech report'26](https://arxiv.org/abs/2608.14560) | 在正确性门控的 FlashInfer-Bench 流程中评估通用代码 agent 自动优化 MoE 与 DSA kernel 的能力 | [Paper](https://arxiv.org/abs/2608.14560) |
+| ⬜ | <a id="pdf-8cwabfp9"></a>**Open-CAKE-IR：跨硬件优化机制复用与编译器协同演进** | 技术报告 · 2026 | 标签：GPU 编译与性能优化 | [PDF](zotero://open-pdf/library/items/WWGR9WGJ) / [Zotero](zotero://select/library/items/8CWABFP9) / [归档标签](../downloaded-papers.md#pdf-8cwabfp9) |
 
 ## GPU Microarchitecture
 
@@ -86,29 +93,27 @@ GPU 编程、张量编译器、Megakernel、性能优化与相关项目。
 |:------:|-------|-------|----------------|-------|
 | ✅ | <a id="pdf-4uvspptv"></a>**HIDA: A Hierarchical Dataflow Compiler for High-Level Synthesis** | [ASPLOS'24](https://arxiv.org/abs/2311.03379) | 用分层数据流表示与多级优化自动生成 FPGA 数据流架构，减少手工 HLS 调优 | [Paper](https://arxiv.org/abs/2311.03379) / [Note](Compiler/HIDA/hida.md) / [归档标签](../downloaded-papers.md#pdf-4uvspptv) |
 
-## PapersPDF 补充阅读清单
-
-来源：PapersPDF 已下载资料及 Zotero 分类，整理于 2026-10-22。以下条目按原分类标签分组；阅读价值解读待后续精读补充。
-
-### GPU 编译与性能优化
+## GPU 编译与性能优化 / Kernel Fusion
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ⬜ | <a id="pdf-qbqw7v9r"></a>**AffineGraph: A Dataflow Graph Representation for Effective DNN Hardware-Aware Algorithms** | 来源待补全 | 标签：GPU 编译与性能优化 | [PDF](zotero://open-pdf/library/items/L9PBDJL3) / [Zotero](zotero://select/library/items/QBQW7V9R) / [归档标签](../downloaded-papers.md#pdf-qbqw7v9r) |
-| ⬜ | <a id="pdf-a8tkxuy6"></a>**ClusterFusion: Expanding Operator Fusion Scope for LLM Inference via Cluster-Level Collective Primitive** | arXiv · 2025 | 标签：GPU 编译与性能优化 | [Paper](http://arxiv.org/abs/2508.18850) / [PDF](zotero://open-pdf/library/items/B4555BYV) / [Zotero](zotero://select/library/items/A8TKXUY6) / [归档标签](../downloaded-papers.md#pdf-a8tkxuy6) |
 | ⬜ | <a id="pdf-fq6vyvp7"></a>**CODA: Rewriting Transformer Blocks as GEMM-Epilogue Programs** | arXiv · 2026 | 标签：GPU 编译与性能优化 | [Paper](http://arxiv.org/abs/2605.19269) / [PDF](zotero://open-pdf/library/items/ZEPXG6YF) / [Zotero](zotero://select/library/items/FQ6VYVP7) / [归档标签](../downloaded-papers.md#pdf-fq6vyvp7) |
-| ⬜ | <a id="pdf-9mb4wuba"></a>**mKernel: Fast Multi-GPU, Multi-Node Fused Kernels** | arXiv · 2026 | 标签：GPU 编译与性能优化 | [Paper](http://arxiv.org/abs/2609.13585) / [PDF](zotero://open-pdf/library/items/B7346TDX) / [Zotero](zotero://select/library/items/9MB4WUBA) / [归档标签](../downloaded-papers.md#pdf-9mb4wuba) |
-| ⬜ | <a id="pdf-8cwabfp9"></a>**Open-CAKE-IR：跨硬件优化机制复用与编译器协同演进** | 技术报告 · 2026 | 标签：GPU 编译与性能优化 | [PDF](zotero://open-pdf/library/items/WWGR9WGJ) / [Zotero](zotero://select/library/items/8CWABFP9) / [归档标签](../downloaded-papers.md#pdf-8cwabfp9) |
+| ⬜ | <a id="pdf-l7udh9yc"></a>**Automatic Horizontal Fusion for GPU Kernels** | 2022 IEEE/ACM International Symposium on Code Generation and Optimization (CGO) · 2022 | 标签：GPU 编译与性能优化 / Kernel Fusion | [Paper](https://ieeexplore.ieee.org/document/9741270/) / [PDF](zotero://open-pdf/library/items/DBCSL5U7) / [Zotero](zotero://select/library/items/L7UDH9YC) / [归档标签](../downloaded-papers.md#pdf-l7udh9yc) |
+
+## GPU 编译与性能优化 / GPU 运行时与性能工具
+
+| Status | Paper | Venue | Why It Matters | Links |
+|:------:|-------|-------|----------------|-------|
 | ⬜ | <a id="pdf-vdc3bvfn"></a>**TileSight: A First-Principles Tile-Centric Analytical GPU Performance Model from Cores to Clusters** | arXiv · 2026 | 标签：GPU 编译与性能优化 | [Paper](http://arxiv.org/abs/2607.22432) / [PDF](zotero://open-pdf/library/items/RZDVW9MX) / [Zotero](zotero://select/library/items/VDC3BVFN) / [归档标签](../downloaded-papers.md#pdf-vdc3bvfn) |
 | ⬜ | <a id="pdf-rczkv7b3"></a>**X-Stage: Modeling Post-Issue Backpressure in GPU Communication--Computation Fusion** | arXiv · 2026 | 标签：GPU 编译与性能优化 | [Paper](http://arxiv.org/abs/2607.23264) / [PDF](zotero://open-pdf/library/items/H5JS78CN) / [Zotero](zotero://select/library/items/RCZKV7B3) / [归档标签](../downloaded-papers.md#pdf-rczkv7b3) |
 
-### GPU 编译与性能优化 / GPU 算子
+## GPU 编译与性能优化 / GPU 算子
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ⬜ | <a id="pdf-nbpphe8k"></a>**FlashFFTConv: Efficient Convolutions for Long Sequences with Tensor Cores** | arXiv · 2023 | 标签：GPU 编译与性能优化 / GPU 算子 | [Paper](http://arxiv.org/abs/2311.05908) / [PDF](zotero://open-pdf/library/items/QDPRZPX2) / [Zotero](zotero://select/library/items/NBPPHE8K) / [归档标签](../downloaded-papers.md#pdf-nbpphe8k) |
 
-### GPU 编译与性能优化 / GPU 编程语言与 DSL
+## GPU 编译与性能优化 / GPU 编程语言与 DSL
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
@@ -116,7 +121,7 @@ GPU 编程、张量编译器、Megakernel、性能优化与相关项目。
 | ⬜ | <a id="pdf-daasnkmz"></a>**Task-Based Tensor Computations on Modern GPUs** | arXiv · 2025 | 标签：GPU 编译与性能优化 / GPU 编程语言与 DSL | [Paper](http://arxiv.org/abs/2504.07004) / [PDF](zotero://open-pdf/library/items/RAQT8GSR) / [Zotero](zotero://select/library/items/DAASNKMZ) / [归档标签](../downloaded-papers.md#pdf-daasnkmz) |
 | ⬜ | <a id="pdf-ykm5hmfz"></a>**Tilus: A Virtual Machine for Arbitrary Low-Precision GPGPU Computation in LLM Serving** | arXiv · 2025 | 标签：GPU 编译与性能优化 / GPU 编程语言与 DSL | [Paper](http://arxiv.org/abs/2504.12984) / [PDF](zotero://open-pdf/library/items/ZUCBLEW5) / [Zotero](zotero://select/library/items/YKM5HMFZ) / [归档标签](../downloaded-papers.md#pdf-ykm5hmfz) |
 
-### GPU 编译与性能优化 / IR 与张量化
+## GPU 编译与性能优化 / IR 与张量化
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
@@ -126,27 +131,13 @@ GPU 编程、张量编译器、Megakernel、性能优化与相关项目。
 | ⬜ | <a id="pdf-5etazt8g"></a>**PIT: Optimization of Dynamic Sparse Deep Learning Models via Permutation Invariant Transformation** | 来源待补全 · 2023 | 标签：GPU 编译与性能优化 / IR 与张量化 | [PDF](zotero://open-pdf/library/items/3PFGF8PF) / [Zotero](zotero://select/library/items/5ETAZT8G) / [归档标签](../downloaded-papers.md#pdf-5etazt8g) |
 | ✅ | <a id="pdf-3rmrwj56"></a>**SparseTIR: Composable Abstractions for Sparse Compilation in Deep Learning** | Proceedings of the 28th ACM International Conference on Architectural Support for Programming Languages and Operating Systems, Volume 3 · 2023 | 标签：GPU 编译与性能优化 / IR 与张量化 | [Paper](https://dl.acm.org/doi/10.1145/3582016.3582047) / [PDF](zotero://open-pdf/library/items/4F4IIX46) / [PDF2](zotero://open-pdf/library/items/8QAZ5LTU) / [PDF3](zotero://open-pdf/library/items/9GGQREBY) / [Zotero](zotero://select/library/items/3RMRWJ56) / [归档标签](../downloaded-papers.md#pdf-3rmrwj56) |
 
-### GPU 编译与性能优化 / Kernel Fusion
-
-| Status | Paper | Venue | Why It Matters | Links |
-|:------:|-------|-------|----------------|-------|
-| ⬜ | <a id="pdf-l7udh9yc"></a>**Automatic Horizontal Fusion for GPU Kernels** | 2022 IEEE/ACM International Symposium on Code Generation and Optimization (CGO) · 2022 | 标签：GPU 编译与性能优化 / Kernel Fusion | [Paper](https://ieeexplore.ieee.org/document/9741270/) / [PDF](zotero://open-pdf/library/items/DBCSL5U7) / [Zotero](zotero://select/library/items/L7UDH9YC) / [归档标签](../downloaded-papers.md#pdf-l7udh9yc) |
-
-### GPU 编译与性能优化 / 分布式编译
+## GPU 编译与性能优化 / 分布式编译
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ⬜ | <a id="pdf-j6td7kjm"></a>**DISTAL: the distributed tensor algebra compiler** | Proceedings of the 43rd ACM SIGPLAN International Conference on Programming Language Design and Implementation · 2022 | 标签：GPU 编译与性能优化 / 分布式编译 | [Paper](https://dl.acm.org/doi/10.1145/3519939.3523437) / [PDF](zotero://open-pdf/library/items/AMVNYVPH) / [Zotero](zotero://select/library/items/J6TD7KJM) / [归档标签](../downloaded-papers.md#pdf-j6td7kjm) |
 
-### GPU 编译与性能优化 / 编译器架构与调度
-
-| Status | Paper | Venue | Why It Matters | Links |
-|:------:|-------|-------|----------------|-------|
-| ⬜ | <a id="pdf-rgznhh6b"></a>**Ansor: Generating High-Performance Tensor Programs for Deep Learning** | 来源待补全 | 标签：GPU 编译与性能优化 / 编译器架构与调度 | [PDF](zotero://open-pdf/library/items/A4GT2NTU) / [Zotero](zotero://select/library/items/RGZNHH6B) / [归档标签](../downloaded-papers.md#pdf-rgznhh6b) |
-| ⬜ | <a id="pdf-cuzav7by"></a>**Graphiler: A Compiler for Graph Neural Networks** | 来源待补全 | 标签：GPU 编译与性能优化 / 编译器架构与调度 | [PDF](zotero://open-pdf/library/items/IYTUH2XV) / [Zotero](zotero://select/library/items/CUZAV7BY) / [归档标签](../downloaded-papers.md#pdf-cuzav7by) |
-| ⬜ | <a id="pdf-dustz3lm"></a>**The tensor algebra compiler** | Proceedings of the ACM on Programming Languages · 2017 | 标签：GPU 编译与性能优化 / 编译器架构与调度 | [Paper](https://dl.acm.org/doi/10.1145/3133901) / [PDF](zotero://open-pdf/library/items/ZVZ6LMVF) / [Zotero](zotero://select/library/items/DUSTZ3LM) / [归档标签](../downloaded-papers.md#pdf-dustz3lm) |
-
-### GPU 编译与性能优化 / 计算图优化
+## GPU 编译与性能优化 / 计算图优化
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
@@ -155,7 +146,7 @@ GPU 编程、张量编译器、Megakernel、性能优化与相关项目。
 | ⬜ | <a id="pdf-tekz8y2f"></a>**PET: Optimizing Tensor Programs with Partially Equivalent Transformations and Automated Corrections** | 来源待补全 | 标签：GPU 编译与性能优化 / 计算图优化 | [PDF](zotero://open-pdf/library/items/B8UQIZHU) / [Zotero](zotero://select/library/items/TEKZ8Y2F) / [归档标签](../downloaded-papers.md#pdf-tekz8y2f) |
 | ⬜ | <a id="pdf-eclineu8"></a>**TASO: optimizing deep learning computation with automatic generation of graph substitutions** | Proceedings of the 27th ACM Symposium on Operating Systems Principles · 2019 | 标签：GPU 编译与性能优化 / 计算图优化 | [Paper](https://dl.acm.org/doi/10.1145/3341301.3359630) / [PDF](zotero://open-pdf/library/items/S64TB9IQ) / [Zotero](zotero://select/library/items/ECLINEU8) / [归档标签](../downloaded-papers.md#pdf-eclineu8) |
 
-### GPU 编译与性能优化 / 软硬件协同设计
+## GPU 编译与性能优化 / 软硬件协同设计
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
