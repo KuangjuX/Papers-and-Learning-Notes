@@ -14,11 +14,14 @@
 - [PithTrain: A Compact and Agent-Native MoE Training System](PithTrain/pithtrain.md)
 - [PockEngine: Sparse and Efficient Fine-tuning in a Pocket：历史笔记](PockEngine/github-reading.md)
 
+- [Seer：同步 RL 的 rollout 切分、调度与分组投机](Seer/zhihu-reading.md)
+- [SonicMoE：梯度重排、异步 IO 与 tile 感知路由](SonicMoE/sonicmoe.md)
+
 ## LLM Inference / MegaKernel
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ✅ | **SonicMoE: Accelerating MoE with IO and Tile-aware Optimizations** | [arXiv'25](https://arxiv.org/pdf/2512.14080) | 减少 MoE 前后向激活缓存和 I/O，并用 token rounding 降低 grouped GEMM 的填充浪费 | [Paper](https://arxiv.org/pdf/2512.14080) |
+| ✅ 📝 | **SonicMoE: Accelerating MoE with IO and Tile-aware Optimizations** | [arXiv'25](https://arxiv.org/pdf/2512.14080) | 减少 MoE 前后向激活缓存和 I/O，并用 token rounding 降低 grouped GEMM 的填充浪费 | [Paper](https://arxiv.org/pdf/2512.14080) / [Note](SonicMoE/sonicmoe.md) |
 | ✅ 📝 | **MegaMoE** (fused MoE megakernel, DeepGEMM) | [DeepGEMM PR'26](https://github.com/deepseek-ai/DeepGEMM/pull/304) | 将专家分发、两次线性层、SwiGLU 和合并融合，展示 NVLink 通信与 Tensor Core 计算重叠 | [Source](https://github.com/deepseek-ai/DeepGEMM/pull/304) / [Note](MegaMoE/megamoe.md) |
 
 ## LLM Training / Training Numerics & Memory
@@ -73,7 +76,7 @@
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ✅ | <a id="pdf-lv4qk9kg"></a>**Seer: Online Context Learning for Fast Synchronous LLM Reinforcement Learning** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/qin) | 利用同一 prompt 下响应长度和模式的相似性，减少同步 RL rollout 长尾与资源浪费 | [Paper](https://arxiv.org/pdf/2511.14617) / [归档标签](../downloaded-papers.md#pdf-lv4qk9kg) |
+| ✅ 📝 | <a id="pdf-lv4qk9kg"></a>**Seer: Online Context Learning for Fast Synchronous LLM Reinforcement Learning** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/qin) | 利用同一 prompt 下响应长度和模式的相似性，减少同步 RL rollout 长尾与资源浪费 | [Paper](https://arxiv.org/pdf/2511.14617) / [归档标签](../downloaded-papers.md#pdf-lv4qk9kg) / [Note](Seer/zhihu-reading.md) |
 | ⬜ | <a id="pdf-i3m9y4v9"></a>**DeepSeek Elastic Compute (DSec): A Sandbox Infrastructure for Effective Agentic Training at Scale** | arXiv · 2026 | 标签：分布式训练与 MoE | [Paper](http://arxiv.org/abs/2609.22978) / [PDF](zotero://open-pdf/library/items/XBZEVX2N) / [Zotero](zotero://select/library/items/I3M9Y4V9) / [归档标签](../downloaded-papers.md#pdf-i3m9y4v9) |
 
 ## LLM Training / Compute-Communication Overlap

@@ -8,3 +8,5 @@
 - [学习路线](Learning-Paths/index.md)
 - [神经网络](neural-network.md)
 - [优化方法](Optimization/index.md)
+
+- [2025 年度 LLM 研究总结：知乎原文归档](Research-Reviews/llm-2025.md)

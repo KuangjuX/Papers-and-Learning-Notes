@@ -29,6 +29,10 @@ GPU 编程、张量编译器、Megakernel、性能优化与相关项目。
 - [Chimera: An Analytical Optimizing Framework for Effective Compute-intensive Operators Fusion：历史笔记](Compiler/Chimera/github-reading.md)
 - [AMOS: Enabling Automatic Mapping for Tensor Computations On Spatial Accelerators with Hardware Abstraction：历史笔记](Compiler/AMOS/github-reading.md)
 
+- [Mirage Persistent Kernel：任务图与持久化运行时](MPK/zhihu-reading.md)
+- [Tawa：用异步引用自动生成 warp specialization](Compiler/Tawa/zhihu-reading.md)
+- [Look Ma, No Bubbles!：Llama-1B Megakernel 阅读摘记](Megakernels/zhihu-reading.md)
+
 ## Deep Learning Compiler
 
 | Status | Paper | Venue | Why It Matters | Links |
@@ -51,7 +55,7 @@ GPU 编程、张量编译器、Megakernel、性能优化与相关项目。
 | ✅ | <a id="pdf-a2sdd4xx"></a>**Mirage: A Multi-Level Superoptimizer for Tensor Programs** | [OSDI'25](https://www.usenix.org/conference/osdi25/presentation/wu-mengdi) | 用多层 µGraph 搜索代数和调度变换，并验证等价性，探索超越既有算子库的融合 | [Paper](https://www.usenix.org/system/files/osdi25-wu-mengdi.pdf) / [归档标签](../downloaded-papers.md#pdf-a2sdd4xx) |
 | ✅ | **PipeThreader: Software-Defined Pipelining for Efficient DNN Execution** | [OSDI'25](https://www.usenix.org/conference/osdi25/presentation/cheng) | 用 sTask-graph 和软件定义流水线协调 GPU 专用单元，自动发现计算与数据搬运的重叠方案 | [Paper](https://www.usenix.org/system/files/osdi25-cheng.pdf) |
 | ✅ | <a id="pdf-xud9jbj4"></a>**TileLang: A Composable Tiled Programming Model for AI Systems** | [arXiv'25](https://arxiv.org/abs/2504.17577) | 将 tile 数据流与布局、线程映射和流水线调度解耦，降低高性能 AI kernel 编程负担 | [Paper](https://arxiv.org/pdf/2504.17577) / [归档标签](../downloaded-papers.md#pdf-xud9jbj4) |
-| ✅ | <a id="pdf-hx7i8979"></a>**Tawa: Automatic Warp Specialization for Modern GPUs with Asynchronous References** | [CGO'26](https://arxiv.org/abs/2510.14719) | 以异步引用表达依赖并自动生成 warp specialization，减少手工管理并发和同步的负担 | [Paper](https://arxiv.org/pdf/2510.14719) / [归档标签](../downloaded-papers.md#pdf-hx7i8979) |
+| ✅ 📝 | <a id="pdf-hx7i8979"></a>**Tawa: Automatic Warp Specialization for Modern GPUs with Asynchronous References** | [CGO'26](https://arxiv.org/abs/2510.14719) | 以异步引用表达依赖并自动生成 warp specialization，减少手工管理并发和同步的负担 | [Paper](https://arxiv.org/pdf/2510.14719) / [归档标签](../downloaded-papers.md#pdf-hx7i8979) / [Note](Compiler/Tawa/zhihu-reading.md) |
 | ✅ | <a id="pdf-k8hmzhbp"></a>**KPerfIR: Towards an Open and Compiler-centric Ecosystem for GPU Kernel Performance Tooling on Modern AI Workloads** | [OSDI'25](https://www.usenix.org/conference/osdi25/presentation/guan) | 将性能测量实现为编译器 pass，观察 GPU kernel 内部的细粒度执行与重叠瓶颈 | [Paper](https://www.usenix.org/system/files/osdi25-guan.pdf) / [归档标签](../downloaded-papers.md#pdf-k8hmzhbp) |
 | ⬜ | **Optimal Software Pipelining and Warp Specialization for Tensor Core GPUs** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/soi) | 将软件流水线和 warp specialization 联合建模为约束优化，推导模型假设下的最优调度 | [Paper](https://www.usenix.org/conference/osdi26/presentation/soi) |
 | ⬜ | **GraCE: Unlocking CUDA Graphs with Compiler Support for ML Workloads** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/ghosh) | 自动变换程序并分析成本收益，扩大 CUDA Graph 覆盖率并减少参数拷贝和启动开销 | [Paper](https://www.usenix.org/conference/osdi26/presentation/ghosh) |
@@ -64,10 +68,10 @@ GPU 编程、张量编译器、Megakernel、性能优化与相关项目。
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ✅ | **Look Ma, No Bubbles! Designing a Low-Latency Megakernel for Llama-1B** | [Blog'25](https://hazyresearch.stanford.edu/blog/2025-05-27-no-bubbles) | 以 Llama-1B 实例解释 megakernel 如何消除 kernel 边界气泡，并管理细粒度同步和共享内存 | [Paper](https://hazyresearch.stanford.edu/blog/2025-05-27-no-bubbles) |
-| ✅ | <a id="pdf-ys4nklly"></a>**MPK: A Compiler and Runtime for Mega-Kernelizing Tensor Programs** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/cheng) | 将多 GPU 推理编译成 SM 级任务图，在持久化 kernel 内调度计算与通信以降低端到端延迟 | [Paper](https://www.usenix.org/conference/osdi26/presentation/cheng) / [归档标签](../downloaded-papers.md#pdf-ys4nklly) |
+| ✅ 📝 | **Look Ma, No Bubbles! Designing a Low-Latency Megakernel for Llama-1B** | [Blog'25](https://hazyresearch.stanford.edu/blog/2025-05-27-no-bubbles) | 以 Llama-1B 实例解释 megakernel 如何消除 kernel 边界气泡，并管理细粒度同步和共享内存 | [Paper](https://hazyresearch.stanford.edu/blog/2025-05-27-no-bubbles) / [Note](Megakernels/zhihu-reading.md) |
+| ✅ 📝 | <a id="pdf-ys4nklly"></a>**MPK: A Compiler and Runtime for Mega-Kernelizing Tensor Programs** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/cheng) | 将多 GPU 推理编译成 SM 级任务图，在持久化 kernel 内调度计算与通信以降低端到端延迟 | [Paper](https://www.usenix.org/conference/osdi26/presentation/cheng) / [归档标签](../downloaded-papers.md#pdf-ys4nklly) / [Note](MPK/zhihu-reading.md) |
 | ✅ 📝 | <a id="pdf-32ktjcln"></a>**Event Tensor: A Unified Abstraction for Compiling Dynamic Megakernel** | [MLSys'26](https://arxiv.org/abs/2604.13327) | 以 Event Tensor 统一 tile 任务依赖、动态形状和数据相关控制流，支持动态 megakernel 编译 | [Paper](https://arxiv.org/abs/2604.13327) / [Note](Event-Tensor/event-tensor.md) / [归档标签](../downloaded-papers.md#pdf-32ktjcln) |
-| ✅ | **TileRT: Tile-Based Runtime for Ultra-Low-Latency LLM Inference** | [GitHub project'25](https://github.com/tile-ai/TileRT) | 用 tile 级运行时重排并重叠计算、I/O 与跨设备通信，探索大模型低延迟推理的工程路径 | [Paper](https://github.com/tile-ai/TileRT) |
+| ✅ 📝 | **TileRT: Tile-Based Runtime for Ultra-Low-Latency LLM Inference** | [GitHub project'25](https://github.com/tile-ai/TileRT) | 用 tile 级运行时重排并重叠计算、I/O 与跨设备通信，探索大模型低延迟推理的工程路径 | [Paper](https://github.com/tile-ai/TileRT) / [Note](../../Projects/02_Inference_and_KV_Cache/TileRT/zhihu-reading.md) |
 | ✅ | **Compiling LLMs into a MegaKernel: A Path to Low-Latency Inference** | [Blog](https://zhihaojia.medium.com/compiling-llms-into-a-megakernel-a-path-to-low-latency-inference-cf7840913c17) | 从编译器和运行时角度解释全模型 megakernel，连接任务依赖、跨算子调度与低延迟推理 | [Paper](https://zhihaojia.medium.com/compiling-llms-into-a-megakernel-a-path-to-low-latency-inference-cf7840913c17) |
 | ⬜ | **Ada-MK: Adaptive MegaKernel Optimization via Automated DAG-based Search for LLM Inference** | [arXiv'26](https://arxiv.org/abs/2605.11581) | 用离线 DAG 搜索固定 megakernel 执行路径，减少资源受限 GPU 上动态调度和共享内存开销 | [Paper](https://arxiv.org/abs/2605.11581) |
 | ⬜ | <a id="pdf-a8tkxuy6"></a>**ClusterFusion: Expanding Operator Fusion Scope for LLM Inference via Cluster-Level Collective Primitive** | arXiv · 2025 | 标签：GPU 编译与性能优化 | [Paper](http://arxiv.org/abs/2508.18850) / [PDF](zotero://open-pdf/library/items/B4555BYV) / [Zotero](zotero://select/library/items/A8TKXUY6) / [归档标签](../downloaded-papers.md#pdf-a8tkxuy6) |

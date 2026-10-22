@@ -29,6 +29,8 @@ Venue 与来源链接、阅读价值说明沿用原记录；原清单的元数�
 
 - [历史 issue 笔记归档与来源清单](github-issues.md)：34 个论文 issue；12 篇成段笔记、2 篇未完成摘记、1 个外部笔记入口及 87 张截图，按既有主题归档。
 
+- [个人外部文章、全文归档与分篇笔记](external-notes.md)
+
 ## Zotero 阅读进度
 
 - [PageWeaver（已读）：在线 regroup、Union8 kernel 与评测](01_Attention/PageWeaver/pageweaver.md) · [原始批注](01_Attention/PageWeaver/zotero-reading.md)

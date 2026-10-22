@@ -8,6 +8,8 @@
 
 历史笔记里的性能结论和“当前系统”描述保留其发表时的背景；各页单列本次核对的 AI 校注与缺失部分。正文和评论仍可回到 GitHub 查看，原 issue 未修改。
 
+补充：Unikraft 的外部文章现已[完整本地化](external-notes.md)，原 issue 来源仍保留。
+
 ## 归档清单
 
 | Issue | 论文 | 主题 | 材料与归档入口 |
@@ -20,7 +22,7 @@
 | <a id="issue-6"></a>[#6](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/6) | The Demikernel Datapath OS Architecture for Microsecond-scale Datacenter Systems | [计算基础](06_Computing_Foundations/index.md) | [已有本地笔记](06_Computing_Foundations/Operating-Systems/Demikernel.md)；issue 本身仅有来源链接 |
 | <a id="issue-7"></a>[#7](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/7) | Every Walk’s a Hit: Making Page Walks Single-Access Cache Hits | [计算基础](06_Computing_Foundations/index.md) | [论文链接](https://dl.acm.org/doi/pdf/10.1145/3503222.3507718)；无笔记正文 |
 | <a id="issue-8"></a>[#8](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/8) | The benefits and costs of writing a POSIX kernel in a high-level language | [计算基础](06_Computing_Foundations/index.md) | [论文链接](https://www.usenix.org/system/files/osdi18-cutler.pdf)；无笔记正文 |
-| <a id="issue-9"></a>[#9](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/9) | Unikraft: Fast, Specialized Unikernels the Easy Way | [计算基础](06_Computing_Foundations/index.md) | [外部笔记入口](06_Computing_Foundations/Operating-Systems/Unikraft/github-reading.md) |
+| <a id="issue-9"></a>[#9](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/9) | Unikraft: Fast, Specialized Unikernels the Easy Way | [计算基础](06_Computing_Foundations/index.md) | [本地笔记与来源](06_Computing_Foundations/Operating-Systems/Unikraft/github-reading.md) |
 | <a id="issue-10"></a>[#10](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/10) | Alpa: Automating Inter- and Intra-Operator Parallelism for Distributed Deep Learning | [分布式训练与 MoE](03_Distributed_Training_and_MoE/index.md) | [论文链接](https://arxiv.org/pdf/2201.12023.pdf)；无笔记正文 |
 | <a id="issue-11"></a>[#11](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/11) | Ray: A Distributed Framework for Emerging AI Applications | [分布式训练与 MoE](03_Distributed_Training_and_MoE/index.md) | [论文链接](https://arxiv.org/pdf/1712.05889.pdf)；无笔记正文 |
 | <a id="issue-12"></a>[#12](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/12) | SkyBridge: Fast and Secure Inter-Process Communication for Microkernels | [计算基础](06_Computing_Foundations/index.md) | [论文链接](https://dl.acm.org/doi/10.1145/3302424.3303946)；无笔记正文 |
@@ -51,7 +53,7 @@
 
 以下短评属于原 issue 作者的记录；保留来源，不将推荐语改写为论文结论。
 
-- [#9](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/9)：[Unikraft 知乎笔记](https://zhuanlan.zhihu.com/p/622751025)。该外链本次返回 403，未复制正文。
+- [#9](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/9)：[Unikraft 知乎笔记](https://zhuanlan.zhihu.com/p/622751025)。首次读取返回 403，后续已通过浏览器补入[本地全文](../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/zhihu-reading.md)。
 - [#15](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/15)：[system-notes 仓库中的原笔记](https://github.com/KuangjuX/system-notes/blob/main/ai-compiler/The-Deep-Learning-Compiler-A-Comprehensive-Survey.md)；当前已有[本地版本](04_GPU_Compiler_and_Performance/Compiler/Papers/The-Deep-Learning-Compiler-A-Comprehensive-Survey.md)。
 - [#18](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/18)：原记录为“导师推荐的文章”，仅附 Fast Segment Anything 论文链接。
 - [#19](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/19)：原记录为“导师推荐的关于 NPU 虚拟化的文章”，仅附论文链接。

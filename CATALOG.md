@@ -18,6 +18,8 @@
 - [A Survey of Efficient Attention Methods: Hardware-efficient,  Sparse, Compact, and Linear Attention](Papers/01_Attention/Surveys/efficient_attention_survey.md)
 - [Attention is all you need：历史笔记](Papers/01_Attention/Transformer/github-reading.md)
 - [FLASHATTENTION: Fast and Memory-Efficient Exact Attention with IO-Awareness：历史笔记](Papers/01_Attention/FlashAttention/github-reading.md)
+- [Kimi Linear：状态更新与混合注意力](Papers/01_Attention/Kimi-Linear/zhihu-reading.md)
+- [DeepSeek-V3.2 与 DSA：年度总结摘记](Papers/01_Attention/DeepSeek-DSA/zhihu-reading.md)
 
 ### 推理与 KV Cache
 
@@ -31,6 +33,8 @@
 - [MegaMoE：把 MoE 前向路径压进一个通信计算融合核](Papers/03_Distributed_Training_and_MoE/MegaMoE/megamoe.md)
 - [PithTrain: A Compact and Agent-Native MoE Training System](Papers/03_Distributed_Training_and_MoE/PithTrain/pithtrain.md)
 - [PockEngine: Sparse and Efficient Fine-tuning in a Pocket：历史笔记](Papers/03_Distributed_Training_and_MoE/PockEngine/github-reading.md)
+- [Seer：同步 RL 的 rollout 切分、调度与分组投机](Papers/03_Distributed_Training_and_MoE/Seer/zhihu-reading.md)
+- [SonicMoE：梯度重排、异步 IO 与 tile 感知路由](Papers/03_Distributed_Training_and_MoE/SonicMoE/sonicmoe.md)
 
 ### GPU 编译与性能
 
@@ -51,6 +55,9 @@
 - [BOLT: BRIDGING THE GAP BETWEEN AUTO-TUNERS AND HARDWARE-NATIVE PERFORMANCE：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/BOLT/github-reading.md)
 - [Chimera: An Analytical Optimizing Framework for Effective Compute-intensive Operators Fusion：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/Chimera/github-reading.md)
 - [AMOS: Enabling Automatic Mapping for Tensor Computations On Spatial Accelerators with Hardware Abstraction：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/AMOS/github-reading.md)
+- [Mirage Persistent Kernel：任务图与持久化运行时](Papers/04_GPU_Compiler_and_Performance/MPK/zhihu-reading.md)
+- [Tawa：用异步引用自动生成 warp specialization](Papers/04_GPU_Compiler_and_Performance/Compiler/Tawa/zhihu-reading.md)
+- [Look Ma, No Bubbles!：Llama-1B Megakernel 阅读摘记](Papers/04_GPU_Compiler_and_Performance/Megakernels/zhihu-reading.md)
 
 ### 模型架构与推理能力
 
@@ -66,8 +73,9 @@
 - [Security and Performance in the Delegated User-level Virtualization](Papers/06_Computing_Foundations/Virtualization/DuVisor/duvisor.md)
 - [Honeycomb: Secure and Efficient GPU Executions via Static Validation](Papers/06_Computing_Foundations/Virtualization/Honeycomb/honeycomb.md)
 - [Nephele: Extending Virtualization Environments for Cloning Unikernel-based VMs](Papers/06_Computing_Foundations/Virtualization/Nephele/nephele.md)
-- [Unikraft: Fast, Specialized Unikernels the Easy Way：外部笔记入口](Papers/06_Computing_Foundations/Operating-Systems/Unikraft/github-reading.md)
+- [Unikraft: Fast, Specialized Unikernels the Easy Way：历史来源](Papers/06_Computing_Foundations/Operating-Systems/Unikraft/github-reading.md)
 - [A Loop Transformation Theory and an Algorithm to Maximize Parallelism：未完成摘记](Papers/06_Computing_Foundations/Compiler/Loop-Transformation/github-reading.md)
+- [Unikraft：模块化 library OS 与专用内核](Papers/06_Computing_Foundations/Operating-Systems/Unikraft/unikraft.md)
 
 ## 项目
 
@@ -82,10 +90,14 @@
 - [Mooncake：GPU-source 传输取消与资源回收](Projects/02_Inference_and_KV_Cache/SGLang/Disaggregation/mooncake-gpu-source-lifetime.md)
 - [WeLM Sparse Attention 推理学习](Projects/02_Inference_and_KV_Cache/SGLang/WeLM-Sparse-Attention/index.md)
 - [WeLM Sparse 的 HiCache：Indexer-K、Host 内存与页面恢复](Projects/02_Inference_and_KV_Cache/SGLang/WeLM-Sparse-Attention/hicache-indexer-k.md)
+- [Light-DuoAttention：CuTeDSL 与 SGLang 实践](Projects/02_Inference_and_KV_Cache/Light-DuoAttention/zhihu-reading.md)
+- [TileRT：面向低延迟推理的 tile 运行时](Projects/02_Inference_and_KV_Cache/TileRT/zhihu-reading.md)
 
 ### 分布式训练与 MoE
 
 - [PithTrain 代码解读与训练系统学习路线](Projects/03_Distributed_Training_and_MoE/PithTrain/index.md)
+- [NVSHMEM 与 DeepEP-like Buffer：初始化与内存模型](Projects/03_Distributed_Training_and_MoE/DeepEP/zhihu-reading.md)
+- [DeepEP：年度总结中的计算通信重叠摘记](Projects/03_Distributed_Training_and_MoE/DeepEP/overview.md)
 
 ### GPU 编译与性能
 
@@ -114,6 +126,7 @@
 - [虚拟内存](Projects/06_Computing_Foundations/Xv6-Rust/vm.md)
 - [xv6 文件系统手册和代码阅读笔记](Projects/06_Computing_Foundations/Xv6-Rust/xv6%20%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F.md)
 - [xv6 rust design](Projects/06_Computing_Foundations/Xv6-Rust/xv6-rust-design.md)
+- [ArceOS：从 feature 配置到 unikernel 启动](Projects/06_Computing_Foundations/ArceOS/unikernel-build.md)
 
 ## 基础
 
@@ -126,6 +139,10 @@
 - [Sparse Attention](Foundations/01_Attention/SparseAttention.md)
 - [Attention Sink、Learnable Sink 与 dsink：从输出含义到反向梯度](Foundations/01_Attention/Attention-Sinks/attention-sink-and-dsink.md)
 - [[译] 用 60 幅图从零构建 FlashAttention-4](Foundations/01_Attention/B200-Attention/index.md)
+
+### 分布式训练与 MoE
+- [MoE 数学与 SonicMoE：知乎原文归档](Foundations/03_Distributed_Training_and_MoE/MoE/zhihu-reading.md)
+- [MoE：路由、Grouped GEMM、梯度与计算成本](Foundations/03_Distributed_Training_and_MoE/MoE/moe-math-and-cost.md)
 
 ### GPU 编译与性能
 
@@ -147,6 +164,7 @@
 - [LLM Training, Inference & Algorithms — Recommended Reading Path](Foundations/05_Model_Architecture_and_Reasoning/Learning-Paths/llm.md)
 - [神经网络](Foundations/05_Model_Architecture_and_Reasoning/neural-network.md)
 - [Adam 论文前置学习路线](Foundations/05_Model_Architecture_and_Reasoning/Optimization/adam-prerequisites.md)
+- [2025 年度 LLM 研究总结：知乎原文归档](Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)
 
 ### 计算基础
 
@@ -174,6 +192,7 @@
 - [Virtualizing Memory](Foundations/06_Computing_Foundations/Systems/Virtualization/mm-virtualizing.md)
 - [QEMU/KVM](Foundations/06_Computing_Foundations/Systems/Virtualization/qemu-kvm.md)
 - [虚拟化硬件加速器调研](Foundations/06_Computing_Foundations/Systems/Virtualization/%E8%99%9A%E6%8B%9F%E5%8C%96.md)
+- [Unikernel、Unikraft 与 ArceOS：知乎原文归档](Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/zhihu-reading.md)
 
 ### 教材与技术参考
 

@@ -21,3 +21,5 @@
 - [AMOS: Enabling Automatic Mapping for Tensor Computations On Spatial Accelerators with Hardware Abstraction](AMOS/github-reading.md)
 
 [循环变换理论：未完成摘记](../../06_Computing_Foundations/Compiler/Loop-Transformation/github-reading.md)按现有清单归入计算基础。
+
+- [Tawa：用异步引用自动生成 warp specialization](Tawa/zhihu-reading.md)

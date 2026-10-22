@@ -4,4 +4,6 @@
 
 ## 阅读入口
 
-本分类暂无归档内容。
+
+- [MoE 数学与 SonicMoE：知乎原文归档](MoE/zhihu-reading.md)
+- [MoE：路由、Grouped GEMM、梯度与计算成本](MoE/moe-math-and-cost.md)
