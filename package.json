@@ -13,11 +13,13 @@
     "docs:preview": "vitepress preview . --host 0.0.0.0",
     "docs:check-links": "node scripts/check-links.mjs",
     "docs:check-anchors": "python3 scripts/check-anchors.py",
+    "docs:check-sidebar": "node scripts/check-sidebar.mjs",
     "docs:check-translations": "python3 scripts/check-imported-translations.py",
     "docs:check-translation-rendering": "node scripts/check-translation-rendering.mjs"
   },
   "devDependencies": {
     "dompurify": "^3.4.14",
+    "markdown-it": "^14.3.3",
     "markdown-it-mathjax3": "^4.3.2",
     "mermaid": "^11.17.0",
     "vitepress": "^1.6.4"

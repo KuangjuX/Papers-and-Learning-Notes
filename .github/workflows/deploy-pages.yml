@@ -54,6 +54,9 @@ jobs:
       - name: Verify local links
         run: pnpm docs:check-links
 
+      - name: Verify sidebar navigation
+        run: pnpm docs:check-sidebar
+
       - name: Verify translation code and math rendering
         run: pnpm docs:check-translation-rendering
 

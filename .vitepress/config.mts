@@ -1,164 +1,12 @@
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
-import { basename, dirname, join, relative, resolve } from 'node:path'
+import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
+import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { defineConfig, type DefaultTheme } from 'vitepress'
+import { defineConfig } from 'vitepress'
+import { buildSidebar, sectionLabels } from './sidebar.mjs'
 import redirects from './redirects'
 import { installImportedTranslations } from './imported-translations.mjs'
 
 const repositoryRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
-
-const archiveLayout = JSON.parse(readFileSync(join(repositoryRoot, 'scripts/archive-layout.json'), 'utf8')) as {
-  sections: Array<{ directory: string; title: string; description: string }>
-}
-const sectionLabels: Record<string, string> = {
-  Papers: '论文',
-  Projects: '项目',
-  Foundations: '基础',
-}
-
-const directoryLabels: Record<string, string> = {
-  ...Object.fromEntries(archiveLayout.sections.map((section) => [section.directory, section.title])),
-  'Kernel-Generation': 'Kernel 自动生成',
-  'CuTe-Layouts': 'CuTe Layouts',
-  'Operating-Systems': '操作系统论文',
-  'Dual-Chunk-Attention': 'Dual Chunk Attention',
-  'Architecture': '体系结构',
-  'Compiler': '编译器',
-  'Systems': '系统',
-  'Programming': '编程语言',
-  'Virtualization': '虚拟化',
-  'Surveys': '综述',
-  'Foundations': '基础',
-  'Optimization': '优化方法',
-  'Agents': 'Agent 系统',
-  'Tools': '工具与环境',
-  'Math': '数学基础',
-  'Books': '教材阅读',
-  'Courses': '课程',
-  'Projects': '项目',
-  'Learning-Paths': '学习路线',
-  'FractalTensor': 'FractalTensor',
-  'InfiniTensor': 'InfiniTensor',
-  'ThunderKittens': 'ThunderKittens',
-  'NNFusion': 'NNFusion',
-  'sglang': 'SGLang',
-  'SGLang': 'SGLang',
-  'Xv6-Rust': 'Xv6-Rust',
-  'Xv6-RISC-V': 'Xv6-RISC-V',
-  'QEMU': 'QEMU',
-  'ArceOS': 'ArceOS',
-  'B200-Attention': 'B200 Attention',
-  'B200-GEMM': 'B200 GEMM',
-  'Matrix-Calculus': '矩阵微积分',
-  'DeepSeek-DSA': 'DeepSeek Sparse Attention',
-  'DeepSeek-V4': 'DeepSeek V4',
-  'Event-Tensor': 'Event Tensor',
-  'HIDA': 'HIDA',
-  'Honeycomb': 'Honeycomb',
-  'IndexCache': 'IndexCache / IndexShare',
-  'Knowledge-Distillation': '知识蒸馏',
-  'MegaMoE': 'MegaMoE',
-  'MiniMax-MSA': 'MiniMax Sparse Attention',
-  'Nephele': 'Nephele',
-  'PithTrain': 'PithTrain',
-  'SkVM': 'SkVM',
-  'TIRAMISU-CGO': 'TIRAMISU',
-  'DuVisor': 'DuVisor',
-}
-
-function cleanTitle(value: string) {
-  return value
-    .replace(/\s+#+\s*$/, '')
-    .replace(/[`*_]/g, '')
-    .trim()
-}
-
-function titleForMarkdown(file: string) {
-  const source = readFileSync(file, 'utf8')
-  const heading = source.match(/^#\s+(.+)$/m)?.[1]
-
-  if (heading) return cleanTitle(heading)
-
-  return basename(file, '.md')
-    .replaceAll('-', ' ')
-    .replaceAll('_', ' ')
-}
-
-function noteLink(file: string) {
-  const pathFromRoot = relative(repositoryRoot, file)
-    .split('\\')
-    .join('/')
-    .replace(/\.md$/, '')
-
-  return `/${pathFromRoot}`
-}
-
-function pagePriority(fileName: string) {
-  if (fileName === 'learning-path.md') return 0
-  if (fileName === 'index.md') return 1
-  return 10
-}
-
-function directoryItems(
-  absoluteDirectory: string,
-): DefaultTheme.SidebarItem[] {
-  const entries = readdirSync(absoluteDirectory, { withFileTypes: true })
-    .filter((entry) => !entry.name.startsWith('.'))
-
-  const pages = entries
-    .filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
-    .sort((a, b) => {
-      const priority = pagePriority(a.name) - pagePriority(b.name)
-      return priority || a.name.localeCompare(b.name, 'zh-CN')
-    })
-    .map((entry) => {
-      const file = join(absoluteDirectory, entry.name)
-      return { text: titleForMarkdown(file), link: noteLink(file) }
-    })
-
-  const groups = entries
-    .filter((entry) => entry.isDirectory())
-    .sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'))
-    .map((entry) => {
-      const directory = join(absoluteDirectory, entry.name)
-      const items = directoryItems(directory)
-
-      if (!items.length) return undefined
-      const indexFile = join(directory, 'index.md')
-      if (/^0[1-7]_/.test(entry.name) && existsSync(indexFile)) {
-        const source = readFileSync(indexFile, 'utf8')
-        if (source.includes('本分类暂无归档内容。') || source.includes('共 0 个清单条目')) return undefined
-      }
-
-      return {
-        text: directoryLabels[entry.name] ?? entry.name.replaceAll('-', ' '),
-        collapsed: true,
-        items,
-      } satisfies DefaultTheme.SidebarItem
-    })
-    .filter((item): item is DefaultTheme.SidebarItem => Boolean(item))
-
-  return [...pages, ...groups]
-}
-
-function buildSidebar(): DefaultTheme.SidebarItem[] {
-  return [
-    {
-      text: '开始阅读',
-      items: [
-        { text: '知识地图', link: '/' },
-        { text: '全部笔记目录', link: '/CATALOG' },
-        { text: 'LLM 学习路线', link: '/Foundations/05_Model_Architecture_and_Reasoning/Learning-Paths/llm' },
-      ],
-    },
-    ...Object.entries(sectionLabels).map(([directory, text]) => ({
-      text,
-      collapsed: true,
-      link: `/${directory}/`,
-      items: directoryItems(join(repositoryRoot, directory)),
-    })),
-  ]
-}
 
 export default defineConfig({
   lang: 'zh-CN',
@@ -254,7 +102,7 @@ export default defineConfig({
       { text: '学习路线', link: '/Foundations/05_Model_Architecture_and_Reasoning/Learning-Paths/llm' },
     ],
 
-    sidebar: buildSidebar(),
+    sidebar: buildSidebar(repositoryRoot),
 
     outline: {
       level: [2, 3],
