@@ -4,8 +4,10 @@
   "type": "module",
   "packageManager": "pnpm@11.19.0",
   "scripts": {
+    "docs:sync-reading-list": "node scripts/sync-reading-list.mjs",
+    "docs:check-reading-list": "node scripts/sync-reading-list.mjs --check",
     "docs:dev": "vitepress dev . --host 0.0.0.0",
-    "docs:build": "vitepress build .",
+    "docs:build": "node scripts/sync-reading-list.mjs && vitepress build .",
     "docs:check-diagrams": "node scripts/check-mermaid-rendering.mjs",
     "docs:check-math": "node scripts/check-math-rendering.mjs",
     "docs:preview": "vitepress preview . --host 0.0.0.0",

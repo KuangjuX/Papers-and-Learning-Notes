@@ -4,7 +4,7 @@
 
 推理服务、缓存管理、投机解码、量化与 SGLang 源码实践。
 
-共 46 个清单条目；已读 6，待读 40。保留原有跨分类重复条目与阅读状态。
+共 50 个清单条目；已读 6，待读 44。保留原有跨分类重复条目与阅读状态。
 
 ## 本地笔记
 
@@ -14,16 +14,24 @@
 
 ## LLM Inference / Decoding Algorithms
 
+核心阅读顺序（8 篇）：[经典 Speculative Decoding](https://arxiv.org/abs/2211.17192) → [Medusa](https://arxiv.org/abs/2401.10774) → [2024 MTP](https://arxiv.org/abs/2404.19737) → [DeepSeek-V3（MTP 部分）](https://arxiv.org/abs/2412.19437) → [EAGLE](https://arxiv.org/abs/2401.15077) → [EAGLE-2](https://arxiv.org/abs/2406.16858) → [EAGLE-3](https://arxiv.org/abs/2503.01840) → [DFlash](https://arxiv.org/abs/2602.06036)。
+
+来源：[投机解码／MTP 阅读清单对话](https://chatgpt.com/c/6ad96e52-d094-83ea-b944-7ac3a1671536)（2026-10-22）。核心路线采用其中的 8 篇论文：复用已有 4 篇，新增 4 篇。标题与来源链接已核对；新增条目的阅读重点为对话中的 AI 建议，均标为待读。
+
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ⬜ | **The Curious Case of Neural Text Degeneration** | [ICLR'20](https://pubs.cs.uct.ac.za/1407/1/the_curious_case_of_neural_text_degeneration.pdf) | 系统比较 greedy、beam、top-k 与 nucleus sampling，理解生成质量、随机性和退化 | [Paper](https://arxiv.org/abs/1904.09751) |
-| ⬜ | **Fast Inference from Transformers via Speculative Decoding** | [ICML'23](https://proceedings.mlr.press/v202/leviathan23a.html) | draft–verify 与拒绝采样；在保持目标分布不变的前提下并行生成多个 token | [Paper](https://proceedings.mlr.press/v202/leviathan23a.html) |
+| ⬜ | **Fast Inference from Transformers via Speculative Decoding** | [ICML'23](https://proceedings.mlr.press/v202/leviathan23a.html) | draft–verify 与拒绝采样；在保持目标分布不变的前提下并行生成多个 token | [Paper](https://proceedings.mlr.press/v202/leviathan23a.html) / [Zotero](zotero://select/library/items/3D2KG559) |
 | ⬜ | **Accelerating Large Language Model Decoding with Speculative Sampling** | [arXiv'23](https://arxiv.org/abs/2302.01318) | speculative sampling 的独立推导与工程验证，适合和上一论文对照阅读 | [Paper](https://arxiv.org/abs/2302.01318) |
 | ⬜ | **SpecInfer: Accelerating Large Language Model Serving with Tree-based Speculative Inference and Verification** | [ASPLOS'24](https://hsword.github.io/publications/) | 用候选树提高并行验证宽度，连接解码算法与 serving batch | [Paper](https://arxiv.org/abs/2305.09781) |
-| ⬜ | **Medusa: Simple LLM Inference Acceleration Framework with Multiple Decoding Heads** | [ICML'24](https://proceedings.mlr.press/v235/cai24b.html) | 不依赖独立 draft model 的多头预测与 tree attention | [Paper](https://arxiv.org/abs/2401.10774) |
+| ⬜ | **Medusa: Simple LLM Inference Acceleration Framework with Multiple Decoding Heads** | [ICML'24](https://proceedings.mlr.press/v235/cai24b.html) | 不依赖独立 draft model 的多头预测与 tree attention | [Paper](https://arxiv.org/abs/2401.10774) / [Zotero](zotero://select/library/items/ZL7R492B) |
 | ⬜ | **Break the Sequential Dependency of LLM Inference Using Lookahead Decoding** | [ICML'24](https://icml.cc/virtual/2024/poster/33512) | 从 Jacobi iteration 理解无额外模型的并行候选生成 | [Paper](https://arxiv.org/abs/2402.02057) |
-| ⬜ | **EAGLE: Speculative Sampling Requires Rethinking Feature Uncertainty** | [ICML'24](https://proceedings.mlr.press/v235/li24bt.html) | 在 feature space 自回归预测，理解高接受率 drafter 的训练方法 | [Paper](https://arxiv.org/abs/2401.15077) |
-| ⬜ | **Better & Faster Large Language Models via Multi-token Prediction** | [ICML'24](https://proceedings.mlr.press/v235/gloeckle24a.html) | 训练时预测多个未来 token，将训练目标与推理解码并行性连接起来 | [Paper](https://arxiv.org/abs/2404.19737) |
+| ⬜ | **EAGLE: Speculative Sampling Requires Rethinking Feature Uncertainty** | [ICML'24](https://proceedings.mlr.press/v235/li24bt.html) | 在 feature space 自回归预测，理解高接受率 drafter 的训练方法 | [Paper](https://arxiv.org/abs/2401.15077) / [Zotero](zotero://select/library/items/E7E8IFP3) |
+| ⬜ | **Better & Faster Large Language Models via Multi-token Prediction** | [ICML'24](https://proceedings.mlr.press/v235/gloeckle24a.html) | 训练时预测多个未来 token，将训练目标与推理解码并行性连接起来 | [Paper](https://arxiv.org/abs/2404.19737) / [Zotero](zotero://select/library/items/2ZY769N5) |
+| ⬜ | **DeepSeek-V3 Technical Report** | [arXiv'24](https://arxiv.org/abs/2412.19437) | 理解实际大模型中的 MTP：顺序连接的预测模块、hidden state 与 token embedding 的组合，以及 embedding／LM Head 共享；优先读 §2.2、Figure 3、§4.5.1 | [Paper](https://arxiv.org/abs/2412.19437) / [Zotero](zotero://select/library/items/D6RIU87T) |
+| ⬜ | **EAGLE-2: Faster Inference of Language Models with Dynamic Draft Trees** | [arXiv'24](https://arxiv.org/abs/2406.16858) | 利用上下文相关的草稿置信度构造动态候选树，理解节点预算如何分配并影响接受长度 | [Paper](https://arxiv.org/abs/2406.16858) / [Zotero](zotero://select/library/items/4Q25EJIP) |
+| ⬜ | **EAGLE-3: Scaling up Inference Acceleration of Large Language Models via Training-Time Test** | [arXiv'25](https://arxiv.org/abs/2503.01840) | 融合目标模型多层特征并直接预测 token，通过 training-time test 改善草稿训练与推理的匹配 | [Paper](https://arxiv.org/abs/2503.01840) / [Zotero](zotero://select/library/items/L7EDIM2T) |
+| ⬜ | **DFlash: Block Diffusion for Flash Speculative Decoding** | [arXiv'26](https://arxiv.org/abs/2602.06036) | 用目标模型特征作为条件，通过轻量 block diffusion 草稿并行预测多个候选 token，理解如何降低起草延迟 | [Paper](https://arxiv.org/abs/2602.06036) / [Zotero](zotero://select/library/items/RVRKYUSG) |
 
 ## LLM Inference / General
 
