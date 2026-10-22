@@ -1,6 +1,6 @@
 # 本地笔记目录
 
-先按论文、项目、基础区分材料类型，再按主题查找。论文清单中未写笔记的条目见[论文归档](Papers/index.md)。
+先按论文、项目、基础区分材料类型，再按主题查找。论文清单中未写笔记的条目见[论文归档](Papers/index.md)。历史 issue 的来源与迁移情况见 [GitHub 笔记归档](Papers/github-issues.md)。
 
 ## 论文
 
@@ -16,17 +16,21 @@
 - [MiniMax Sparse Attention (MSA)](Papers/01_Attention/MiniMax-MSA/msa.md)
 - [Fast Transformer Decoding: One Write-Head is All You Need](Papers/01_Attention/MQA/fast-transformer-decoding-mqa.md)
 - [A Survey of Efficient Attention Methods: Hardware-efficient,  Sparse, Compact, and Linear Attention](Papers/01_Attention/Surveys/efficient_attention_survey.md)
+- [Attention is all you need：历史笔记](Papers/01_Attention/Transformer/github-reading.md)
+- [FLASHATTENTION: Fast and Memory-Efficient Exact Attention with IO-Awareness：历史笔记](Papers/01_Attention/FlashAttention/github-reading.md)
 
 ### 推理与 KV Cache
 
 - [Dual Chunk Attention](Papers/02_Inference_and_KV_Cache/Dual-Chunk-Attention/DCA.md)
 - [HiSparse：稀疏注意力的分层 KV Cache 管理](Papers/02_Inference_and_KV_Cache/HiSparse/hisparse.md)
 - [A Survey of LLM Inference Systems](Papers/02_Inference_and_KV_Cache/Surveys/llm_inference_survey.md)
+- [Microsecond-scale Preemption for Concurrent GPU-accelerated DNN Inferences：未完成摘记](Papers/02_Inference_and_KV_Cache/GPU-Preemption/github-reading.md)
 
 ### 分布式训练与 MoE
 
 - [MegaMoE：把 MoE 前向路径压进一个通信计算融合核](Papers/03_Distributed_Training_and_MoE/MegaMoE/megamoe.md)
 - [PithTrain: A Compact and Agent-Native MoE Training System](Papers/03_Distributed_Training_and_MoE/PithTrain/pithtrain.md)
+- [PockEngine: Sparse and Efficient Fine-tuning in a Pocket：历史笔记](Papers/03_Distributed_Training_and_MoE/PockEngine/github-reading.md)
 
 ### GPU 编译与性能
 
@@ -38,6 +42,15 @@
 - [Event Tensor：用“事件张量”编译动态 Megakernel](Papers/04_GPU_Compiler_and_Performance/Event-Tensor/event-tensor.md)
 - [CAKE: Compiler-Agent Co-Design for Frontier Kernel Evolution](Papers/04_GPU_Compiler_and_Performance/Kernel-Generation/CAKE.md)
 - [AVO: Agentic Variation Operators for Autonomous Evolutionary Search](Papers/04_GPU_Compiler_and_Performance/Kernel-Generation/avo.md)
+- [Cocktailer: Analyzing and Optimizing Dynamic Control Flow in Deep Learning：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/Cocktailer/github-reading.md)
+- [Rammer: Enabling Holistic Deep Learning Compiler Optimizations with rTasks：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/Rammer/github-reading.md)
+- [Roller: Fast and Efficient Tensor Compilation for Deep Learning：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/ROLLER/github-reading.md)
+- [Welder: Scheduling Deep Learning Memory Access via Tile-graph：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/Welder/github-reading.md)
+- [AStitch: Enabling a New Multi-dimensional Optimization Space for Memory-Intensive ML Training and Inference on Modern SIMT Architectures：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/AStitch/github-reading.md)
+- [Graphene: An IR for Optimized Tensor Computations on GPUs：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/Graphene/github-reading.md)
+- [BOLT: BRIDGING THE GAP BETWEEN AUTO-TUNERS AND HARDWARE-NATIVE PERFORMANCE：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/BOLT/github-reading.md)
+- [Chimera: An Analytical Optimizing Framework for Effective Compute-intensive Operators Fusion：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/Chimera/github-reading.md)
+- [AMOS: Enabling Automatic Mapping for Tensor Computations On Spatial Accelerators with Hardware Abstraction：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/AMOS/github-reading.md)
 
 ### 模型架构与推理能力
 
@@ -53,6 +66,8 @@
 - [Security and Performance in the Delegated User-level Virtualization](Papers/06_Computing_Foundations/Virtualization/DuVisor/duvisor.md)
 - [Honeycomb: Secure and Efficient GPU Executions via Static Validation](Papers/06_Computing_Foundations/Virtualization/Honeycomb/honeycomb.md)
 - [Nephele: Extending Virtualization Environments for Cloning Unikernel-based VMs](Papers/06_Computing_Foundations/Virtualization/Nephele/nephele.md)
+- [Unikraft: Fast, Specialized Unikernels the Easy Way：外部笔记入口](Papers/06_Computing_Foundations/Operating-Systems/Unikraft/github-reading.md)
+- [A Loop Transformation Theory and an Algorithm to Maximize Parallelism：未完成摘记](Papers/06_Computing_Foundations/Compiler/Loop-Transformation/github-reading.md)
 
 ## 项目
 

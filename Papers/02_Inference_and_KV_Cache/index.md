@@ -4,7 +4,7 @@
 
 推理服务、缓存管理、投机解码、量化与 SGLang 源码实践。
 
-共 56 个清单条目；已读 6，待读 50。保留原有跨分类重复条目与阅读状态。
+共 57 个清单条目；已读 6，待读 51。保留原有跨分类重复条目与阅读状态。
 
 - [已下载 PDF 与标签目录](../downloaded-papers.md#topic-02)
 
@@ -13,6 +13,7 @@
 - [Dual Chunk Attention](Dual-Chunk-Attention/DCA.md)
 - [HiSparse：稀疏注意力的分层 KV Cache 管理](HiSparse/hisparse.md)
 - [A Survey of LLM Inference Systems](Surveys/llm_inference_survey.md)
+- [Microsecond-scale Preemption for Concurrent GPU-accelerated DNN Inferences：未完成摘记](GPU-Preemption/github-reading.md)
 
 ## LLM Inference / Decoding Algorithms
 
@@ -83,6 +84,7 @@
 | ⬜ | <a id="pdf-ff3ujclj"></a>**Jenga: Effective Memory Management for Serving LLM with Heterogeneity** | arXiv · 2025 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2503.18292) / [PDF](zotero://open-pdf/library/items/DGM8PGQI) / [Zotero](zotero://select/library/items/FF3UJCLJ) / [归档标签](../downloaded-papers.md#pdf-ff3ujclj) |
 | ⬜ | <a id="pdf-8jjabzda"></a>**SparseEngine: Sparse-First Inference Engine** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2609.39068) / [PDF](zotero://open-pdf/library/items/I8VMS8D4) / [Zotero](zotero://select/library/items/8JJABZDA) / [归档标签](../downloaded-papers.md#pdf-8jjabzda) |
 | ⬜ | <a id="pdf-en4xe3zy"></a>**TensorCast: The Missing Tensor Management Layer in Large Language Model Infrastructure** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2608.06007) / [PDF](zotero://open-pdf/library/items/4AYH4XIP) / [Zotero](zotero://select/library/items/EN4XE3ZY) / [归档标签](../downloaded-papers.md#pdf-en4xe3zy) |
+| ⬜ 📝 | **Microsecond-scale Preemption for Concurrent GPU-accelerated DNN Inferences** | [OSDI'22](https://www.usenix.org/conference/osdi22/presentation/han) | REEF；仅有摘要摘记，抢占机制、并发调度和实验尚未整理 | [Paper](https://www.usenix.org/system/files/osdi22-han.pdf) / [Note](GPU-Preemption/github-reading.md) |
 
 ## LLM Inference / Quantization & Compression
 

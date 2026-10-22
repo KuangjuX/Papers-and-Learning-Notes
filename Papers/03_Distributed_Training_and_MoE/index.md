@@ -12,6 +12,7 @@
 
 - [MegaMoE：把 MoE 前向路径压进一个通信计算融合核](MegaMoE/megamoe.md)
 - [PithTrain: A Compact and Agent-Native MoE Training System](PithTrain/pithtrain.md)
+- [PockEngine: Sparse and Efficient Fine-tuning in a Pocket：历史笔记](PockEngine/github-reading.md)
 
 ## LLM Inference / MegaKernel
 
@@ -102,7 +103,7 @@
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ✅ | **On-Device Training Under 256KB Memory** | [NeurIPS'22](https://proceedings.neurips.cc/paper_files/paper/2022/hash/90c56c77c6df45fc8e556a096b7a2b2e-Abstract-Conference.html) | 通过量化感知梯度缩放、稀疏更新与编译期反向图裁剪，在 256KB 内存下训练模型 | [Paper](https://arxiv.org/pdf/2206.15472.pdf) |
-| ✅ | <a id="pdf-fayd7t8v"></a>**PockEngine: Sparse and Efficient Fine-tuning in a Pocket** | [MICRO'23](https://hanlab.mit.edu/projects/pockengine ; https://hanlab.mit.edu/projects/tinyml) | 把稀疏反向传播与完整训练图编译结合，降低边缘设备微调的内存和运行时开销 | [Paper](https://hanlab.mit.edu/projects/pockengine ; https://hanlab.mit.edu/projects/tinyml) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/29) / [归档标签](../downloaded-papers.md#pdf-fayd7t8v) |
+| ✅ 📝 | <a id="pdf-fayd7t8v"></a>**PockEngine: Sparse and Efficient Fine-tuning in a Pocket** | [MICRO'23](https://hanlab.mit.edu/projects/pockengine ; https://hanlab.mit.edu/projects/tinyml) | 把稀疏反向传播与完整训练图编译结合，降低边缘设备微调的内存和运行时开销 | [Paper](https://hanlab.mit.edu/projects/pockengine ; https://hanlab.mit.edu/projects/tinyml) / [Note](PockEngine/github-reading.md) / [归档标签](../downloaded-papers.md#pdf-fayd7t8v) |
 
 ## 分布式训练与 MoE / 分布式运行时
 

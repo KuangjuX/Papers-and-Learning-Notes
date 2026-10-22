@@ -16,6 +16,8 @@
 - [Security and Performance in the Delegated User-level Virtualization](Virtualization/DuVisor/duvisor.md)
 - [Honeycomb: Secure and Efficient GPU Executions via Static Validation](Virtualization/Honeycomb/honeycomb.md)
 - [Nephele: Extending Virtualization Environments for Cloning Unikernel-based VMs](Virtualization/Nephele/nephele.md)
+- [Unikraft: Fast, Specialized Unikernels the Easy Way：外部笔记入口](Operating-Systems/Unikraft/github-reading.md)
+- [A Loop Transformation Theory and an Algorithm to Maximize Parallelism：未完成摘记](Compiler/Loop-Transformation/github-reading.md)
 
 ## Compiler
 
@@ -30,7 +32,7 @@
 |:------:|-------|-------|----------------|-------|
 | ✅ | **RedLeaf: Isolation and Communication in a Safe Operating System** | [OSDI'20](https://www.usenix.org/conference/osdi20/presentation/narayanan-vikram) | 利用 Rust 类型与内存安全实现轻量隔离域、跨域零拷贝和驱动故障恢复 | [Paper](https://www.usenix.org/system/files/osdi20-narayanan_vikram.pdf) / [Note](Operating-Systems/RedLeaf.md) |
 | ✅ | **Theseus: an Experiment in Operating System Structure and State Management** | [OSDI'20](https://www.usenix.org/conference/osdi20/presentation/boos) | 减少组件间状态耦合并用 Rust 编译器约束系统语义，支持 OS 在线演化与故障恢复 | [Paper](https://www.usenix.org/system/files/osdi20-boos.pdf) |
-| ✅ | **Unikraft: Fast, Specialized Unikernels the Easy Way** | [EuroSys'21](https://unikraft.org/blog/2021-04-26-unikraft-at-eurosys) | 以可组合微型库按应用裁剪 OS，降低构建高性能 unikernel 的移植和优化成本 | [Paper](https://dl.acm.org/doi/pdf/10.1145/3447786.3456248) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/9) |
+| ✅ | **Unikraft: Fast, Specialized Unikernels the Easy Way** | [EuroSys'21](https://unikraft.org/blog/2021-04-26-unikraft-at-eurosys) | 以可组合微型库按应用裁剪 OS，降低构建高性能 unikernel 的移植和优化成本 | [Paper](https://dl.acm.org/doi/pdf/10.1145/3447786.3456248) / [Note](Operating-Systems/Unikraft/github-reading.md) |
 | ✅ | **The Demikernel Datapath OS Architecture for Microsecond-scale Datacenter Systems** | [SOSP'21](https://doi.org/10.1145/3477132.3483569) | 为 RDMA、DPDK 等异构 kernel-bypass 设备提供统一异步 API，降低微秒级数据中心 I/O 开销 | [Paper](https://irenezhang.net/papers/demikernel-sosp21.pdf) / [Note](Operating-Systems/Demikernel.md) |
 
 ## Hypervisor & Virtualization
@@ -56,7 +58,7 @@
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ⬜ | <a id="pdf-vk2mx5h8"></a>**A loop transformation theory and an algorithm to maximize parallelism** | IEEE Transactions on Parallel and Distributed Systems · 1991 | 标签：计算机系统与并行基础 / 并行计算与体系结构 | [Paper](http://ieeexplore.ieee.org/document/97902/) / [PDF](zotero://open-pdf/library/items/X5R3KCBT) / [PDF2](zotero://open-pdf/library/items/R3PQDJEZ) / [Zotero](zotero://select/library/items/VK2MX5H8) / [归档标签](../downloaded-papers.md#pdf-vk2mx5h8) |
+| ⬜ 📝 | <a id="pdf-vk2mx5h8"></a>**A loop transformation theory and an algorithm to maximize parallelism** | IEEE Transactions on Parallel and Distributed Systems · 1991 | 开篇摘记，未完成；标签：计算机系统与并行基础 / 并行计算与体系结构 | [Paper](http://ieeexplore.ieee.org/document/97902/) / [PDF](zotero://open-pdf/library/items/X5R3KCBT) / [PDF2](zotero://open-pdf/library/items/R3PQDJEZ) / [Zotero](zotero://select/library/items/VK2MX5H8) / [Note](Compiler/Loop-Transformation/github-reading.md) / [归档标签](../downloaded-papers.md#pdf-vk2mx5h8) |
 | ⬜ | <a id="pdf-g6dnrdam"></a>**Exploiting Memory Access Patterns to Improve Memory Performance in Data-Parallel Architectures** | IEEE Transactions on Parallel and Distributed Systems · 2011 | 标签：计算机系统与并行基础 / 并行计算与体系结构 | [Paper](http://ieeexplore.ieee.org/document/5473222/) / [PDF](zotero://open-pdf/library/items/G7G54FHS) / [Zotero](zotero://select/library/items/G6DNRDAM) / [归档标签](../downloaded-papers.md#pdf-g6dnrdam) |
 
 ## 计算机系统与并行基础 / 网络与 SmartNIC

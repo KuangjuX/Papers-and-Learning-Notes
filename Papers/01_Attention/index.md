@@ -24,6 +24,8 @@
 - [A Survey of Efficient Attention Methods: Hardware-efficient,  Sparse, Compact, and Linear Attention](Surveys/efficient_attention_survey.md)
 
 稀疏注意力部分包含架构、选择算法与训练方法，MSA 和 DSA 是其中的具体案例。
+- [Attention is all you need：历史笔记](Transformer/github-reading.md)
+- [FLASHATTENTION: Fast and Memory-Efficient Exact Attention with IO-Awareness：历史笔记](FlashAttention/github-reading.md)
 
 ## LLM Inference / Long Context Inference
 
@@ -39,9 +41,9 @@
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ✅ | **Attention Is All You Need** | [NeurIPS'17](https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf) | 用多头自注意力替代循环与卷积，建立可并行训练的 Transformer 架构 | [Paper](https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf) / [Note](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/32) |
+| ✅ 📝 | **Attention Is All You Need** | [NeurIPS'17](https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf) | 用多头自注意力替代循环与卷积，建立可并行训练的 Transformer 架构 | [Paper](https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf) / [Note](Transformer/github-reading.md) |
 | ✅ | <a id="pdf-fvzdyfpl"></a>**Big Bird: Transformers for Longer Sequences** | [NeurIPS'20](https://proceedings.neurips.cc/paper/2020/hash/c8512d142a2d849725f31a9a7a361ab9-Abstract.html) | 结合局部、随机与全局连接实现线性稀疏注意力，并分析其表达能力 | [Paper](https://proceedings.neurips.cc/paper/2020/hash/c8512d142a2d849725f31a9a7a361ab9-Abstract.html) / [Note](../../Foundations/01_Attention/SparseAttention.md) / [归档标签](../downloaded-papers.md#pdf-fvzdyfpl) |
-| ✅ | <a id="pdf-jua6hwcg"></a>**FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness** | [NeurIPS'22](https://proceedings.neurips.cc/paper_files/paper/2022/file/67d57c32e20fd0a7a302cb81d36e40d5-Paper-Conference.pdf) | 通过分块、算子融合与重计算减少 HBM 读写，实现不近似的高效 attention | [Paper](https://proceedings.neurips.cc/paper_files/paper/2022/file/67d57c32e20fd0a7a302cb81d36e40d5-Paper-Conference.pdf) / [Note](../../Foundations/01_Attention/FlashAttention.md) / [归档标签](../downloaded-papers.md#pdf-jua6hwcg) |
+| ✅ 📝 | <a id="pdf-jua6hwcg"></a>**FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness** | [NeurIPS'22](https://proceedings.neurips.cc/paper_files/paper/2022/file/67d57c32e20fd0a7a302cb81d36e40d5-Paper-Conference.pdf) | 通过分块、算子融合与重计算减少 HBM 读写，实现不近似的高效 attention | [Paper](https://proceedings.neurips.cc/paper_files/paper/2022/file/67d57c32e20fd0a7a302cb81d36e40d5-Paper-Conference.pdf) / [Note](../../Foundations/01_Attention/FlashAttention.md) / [历史笔记](FlashAttention/github-reading.md) / [归档标签](../downloaded-papers.md#pdf-jua6hwcg) |
 | ✅ | <a id="pdf-e269ji6y"></a>**FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning** | [ICLR'24](https://proceedings.iclr.cc/paper_files/paper/2024/hash/98ed250b203d1ac6b24bbcf263e3d4a7-Abstract-Conference.html) | 优化线程块与 warp 间工作划分，减少非矩阵计算和共享内存通信，提高 attention 吞吐 | [Paper](https://arxiv.org/pdf/2307.08691.pdf) / [Note](../../Foundations/01_Attention/FlashAttention.md) / [归档标签](../downloaded-papers.md#pdf-e269ji6y) |
 | ✅ | **Flash-Decoding for Long-Context Inference** | [Blog'23](https://crfm.stanford.edu/2023/10/12/flashdecoding.html) | 沿 KV 序列切分并合并部分 attention 结果，提高小 batch 长上下文 decode 的 GPU 利用率 | [Paper](https://crfm.stanford.edu/2023/10/12/flashdecoding.html) / [Note](../../Foundations/01_Attention/FlashDecoding.md) |
 | ✅ | <a id="pdf-ycadddv3"></a>**A Survey of Efficient Attention Methods: Hardware-efficient, Sparse, Compact, and Linear Attention** | [Tech report'25](https://github.com/attention-survey/Efficient_Attention_Survey) | 统一梳理硬件优化、稀疏、KV 压缩与线性 attention，区分计算和缓存优化的作用范围 | [Paper](https://attention-survey.github.io/files/Attention_Survey.pdf) / [归档标签](../downloaded-papers.md#pdf-ycadddv3) |
