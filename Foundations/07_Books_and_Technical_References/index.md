@@ -4,6 +4,7 @@
 
 ## 阅读入口
 
+- [AI Infra 面试基础：Notion 总结归档](Interview-AI-Infra/index.md)
 - [教材阅读](Books/index.md)
 - [课程笔记](Courses/index.md)
 - [数学基础](Math/index.md)

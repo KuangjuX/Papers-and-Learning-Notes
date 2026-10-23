@@ -33,6 +33,8 @@
 
 ## 来源与增量整理
 
+- 2026-10-23 新增 [AI Infra 面试基础归档](../Foundations/07_Books_and_Technical_References/Interview-AI-Infra/index.md)，来源为个人 Notion [《秋招面试总结》](https://app.notion.com/p/24e9da1e836d80ac828bc1fed39b3a26)。按基础主题拆为 8 篇笔记，核对并修正旧回答；LeetCode 类题目按用户要求不纳入，CUDA 算子与 Tensor 内存管理保留。
+
 - 个人文章的历史理解、当时性能数字和未记录 commit 的代码仍保留在全文归档中；独立笔记明确版本与证据范围。
 - SonicMoE 核对了原文正文和梯度、算法、评测配置附录；Kimi Linear、MPK、Tawa、Seer 通过 Zotero PDF 核对与拆分相关段落。SonicMoE 在当前 Zotero 检索中没有找到，使用公开原文补足。
 - 未将论文概述、平台评论或其他人的文章冒充个人精读记录；原有已读／待读状态沿用。

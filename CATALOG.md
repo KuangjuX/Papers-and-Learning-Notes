@@ -1,6 +1,6 @@
 # 本地笔记目录
 
-先按论文、项目、基础区分材料类型，再按主题查找。论文清单中未写笔记的条目见[论文归档](Papers/index.md)。历史 issue 的来源与迁移情况见 [GitHub 笔记归档](Papers/github-issues.md)。
+先按论文、项目、基础区分材料类型，再按主题查找。论文清单中未写笔记的条目见[论文归档](Papers/index.md)。历史 issue 的来源与迁移情况见 [GitHub 笔记归档](Papers/github-issues.md)，个人外部技术问答见 [AI Infra 面试基础归档](Foundations/07_Books_and_Technical_References/Interview-AI-Infra/index.md)。
 
 ## 论文
 
@@ -140,12 +140,23 @@
 - [Attention Sink、Learnable Sink 与 dsink：从输出含义到反向梯度](Foundations/01_Attention/Attention-Sinks/attention-sink-and-dsink.md)
 - [[译] 用 60 幅图从零构建 FlashAttention-4](Foundations/01_Attention/B200-Attention/index.md)
 
+### 推理与 KV Cache
+
+- [推理的计算、访存与复用成本](Foundations/02_Inference_and_KV_Cache/inference-costs.md)
+
 ### 分布式训练与 MoE
+
+- [FP32、FP16、BF16 与混合精度](Foundations/03_Distributed_Training_and_MoE/Numerics/floating-point.md)
+- [Ring Attention、Ulysses 与在线归一化](Foundations/03_Distributed_Training_and_MoE/Sequence-Parallelism/distributed-attention.md)
 - [MoE 数学与 SonicMoE：知乎原文归档](Foundations/03_Distributed_Training_and_MoE/MoE/zhihu-reading.md)
 - [MoE：路由、Grouped GEMM、梯度与计算成本](Foundations/03_Distributed_Training_and_MoE/MoE/moe-math-and-cost.md)
 
 ### GPU 编译与性能
 
+- [CUDA 内存与同步](Foundations/04_GPU_Compiler_and_Performance/CUDA/memory-and-streams.md)
+- [GPU 内存池：空间管理与异步生命周期](Foundations/04_GPU_Compiler_and_Performance/CUDA/memory-pool.md)
+- [GPU 执行、编译与排错](Foundations/04_GPU_Compiler_and_Performance/CUDA/execution-and-compilation.md)
+- [RMSNorm、Softmax 与在线归约](Foundations/04_GPU_Compiler_and_Performance/Ops/normalization-and-softmax.md)
 - [GEMM Pipeline 技术](Foundations/04_GPU_Compiler_and_Performance/CUDA/Pipeline.md)
 - [Tensor Core 笔记](Foundations/04_GPU_Compiler_and_Performance/CUDA/TensorCore.md)
 - [代码生成设计提案](Foundations/04_GPU_Compiler_and_Performance/CUDA/codegen_proposal.md)
@@ -177,6 +188,7 @@
 - [SBI](Foundations/06_Computing_Foundations/Architecture/RISC-V/sbi.md)
 - [TLB MMU](Foundations/06_Computing_Foundations/Architecture/TLB%20MMU.md)
 - [寄存器分配](Foundations/06_Computing_Foundations/Compiler/reg_allocation.md)
+- [C++ 对象、生命周期与并发](Foundations/06_Computing_Foundations/Programming/CPP/objects-and-lifetime.md)
 - [迭代器](Foundations/06_Computing_Foundations/Programming/Rust/iterator.md)
 - [Rust 智能指针](Foundations/06_Computing_Foundations/Programming/Rust/smart_pointer.md)
 - [Rust trait](Foundations/06_Computing_Foundations/Programming/Rust/trait.md)
@@ -196,6 +208,7 @@
 
 ### 教材与技术参考
 
+- [AI Infra 面试基础：Notion 总结归档](Foundations/07_Books_and_Technical_References/Interview-AI-Infra/index.md)
 - [超标量处理器概览](Foundations/07_Books_and_Technical_References/Books/Superscalar/Chapter1-Introduction.md)
 - [Cache](Foundations/07_Books_and_Technical_References/Books/Superscalar/Chapter2-Cache.md)
 - [Divide and Conquer](Foundations/07_Books_and_Technical_References/Courses/Algorithm/divide-and-conquer.md)
