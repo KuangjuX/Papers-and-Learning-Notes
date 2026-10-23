@@ -35,7 +35,7 @@
 
 ### 分布式训练与 MoE
 
-- [主题入口](03_Distributed_Training_and_MoE/index.md)
+- [分布式训练与 MoE](03_Distributed_Training_and_MoE/index.md)
 - [FP32、FP16、BF16 与混合精度](03_Distributed_Training_and_MoE/Numerics/floating-point.md)
 - [Ring Attention、Ulysses 与在线归一化](03_Distributed_Training_and_MoE/Sequence-Parallelism/distributed-attention.md)
 
