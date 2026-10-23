@@ -37,6 +37,7 @@
 
 - [分布式训练与 MoE](03_Distributed_Training_and_MoE/index.md)
 - [FP32、FP16、BF16 与混合精度](03_Distributed_Training_and_MoE/Numerics/floating-point.md)
+- [FP8 Current Scaling：量化、缩放与精度边界](03_Distributed_Training_and_MoE/Low-Precision-Training/fp8-current-scaling.md)
 - [Ring Attention、Ulysses 与在线归一化](03_Distributed_Training_and_MoE/Sequence-Parallelism/distributed-attention.md)
 
 ### GPU 编译与性能

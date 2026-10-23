@@ -147,6 +147,7 @@
 ### 分布式训练与 MoE
 
 - [FP32、FP16、BF16 与混合精度](Foundations/03_Distributed_Training_and_MoE/Numerics/floating-point.md)
+- [FP8 Current Scaling：量化、缩放与精度边界](Foundations/03_Distributed_Training_and_MoE/Low-Precision-Training/fp8-current-scaling.md)
 - [Ring Attention、Ulysses 与在线归一化](Foundations/03_Distributed_Training_and_MoE/Sequence-Parallelism/distributed-attention.md)
 - [MoE 数学与 SonicMoE：知乎原文归档](Foundations/03_Distributed_Training_and_MoE/MoE/zhihu-reading.md)
 - [MoE：路由、Grouped GEMM、梯度与计算成本](Foundations/03_Distributed_Training_and_MoE/MoE/moe-math-and-cost.md)
