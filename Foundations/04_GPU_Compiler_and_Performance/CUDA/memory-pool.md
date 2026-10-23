@@ -1,7 +1,5 @@
 # GPU 内存池：空间管理与异步生命周期
 
-基于[原始问答](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)的 AI 整理，代码为未经 GPU 验证的设计草稿。
-
 ## 原设计的数据流
 
 Arena 是从 CUDA 一次申请的大块内存。池在 arena 内划分 block，并维护三类状态：
@@ -30,7 +28,7 @@ $$
 
 ## 原扩容路径的自我死锁
 
-原文关键片段：
+原始设计草稿中的关键片段（未经 GPU 验证）：
 
 ```cpp
 void* alloc(size_t size) {
@@ -68,7 +66,7 @@ alloc(r):
 
 例：A stream 的 kernel 正在读地址 p，CPU 紧接着 `dealloc(p)`，B stream 又 `alloc` 得到 p 并写入。两个 Host 操作完全加锁也仍可能产生 GPU 数据竞争。
 
-可采用约定的 stream ownership、记录完成 Event 后放入 pending list，或使用 CUDA 的 stream-ordered allocator。若一个分配被多个 stream 使用，回收依赖必须覆盖**所有使用者**，不能只在任意一个 stream 上记 event。`cudaMallocAsync` / `cudaFreeAsync` 的跨 stream 使用同样需要显式依赖；“Async”不会自动发现全部别名访问。依据：[Stream-Ordered Memory Allocator](https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/stream-ordered-memory-allocation.html)（本机核对 13.3 快照）。
+可采用约定的 stream ownership、记录完成 Event 后放入 pending list，或使用 CUDA 的 stream-ordered allocator。若一个分配被多个 stream 使用，回收依赖必须覆盖**所有使用者**，不能只在任意一个 stream 上记 event。`cudaMallocAsync` / `cudaFreeAsync` 的跨 stream 使用同样需要显式依赖；“Async”不会自动发现全部别名访问。依据：[Stream-Ordered Memory Allocator](https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/stream-ordered-memory-allocation.html)（CUDA Programming Guide 13.3）。
 
 销毁池之前也必须保证 outstanding allocation 和所有 GPU 使用已经结束。析构中的 `cudaFree` 不应被当作完整的所有权协议；错误处理也要避免析构路径抛异常。
 

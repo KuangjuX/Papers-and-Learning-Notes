@@ -5,10 +5,6 @@
 - 论文：[原文](https://dl.acm.org/doi/10.1145/3503222.3507723)
 - 原记录：[Issue #26](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/26)
 
-## 阅读线索与覆盖范围
-
-先看算子级与元素级依赖，再看 hierarchical data reuse、adaptive thread mapping、dominant op 分组和 XLA 实现。实验保留设置和截图；原文中的“当前编译器”指论文发表时的版本。
-
 ## 历史阅读笔记（原 issue 评论）
 
 ### Introduction

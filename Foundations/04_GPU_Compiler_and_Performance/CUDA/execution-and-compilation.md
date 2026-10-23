@@ -1,9 +1,5 @@
 # GPU 执行、编译与排错
 
-基于[原始问答](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)的 AI 整理。
-
-CUDA 语义核对 Programming Guide 13.3，调度术语核对 Nsight Compute 2026.2.1。Triton 官方 NVIDIA backend 在 2026-10-23 核对；该入口为移动分支，不能把 pass 列表视为跨版本约定。
-
 ## 从 Host launch 到指令执行
 
 1. 编译器生成设备代码与 launch 所需元数据；CUDA C++、Triton 的前端和编译时机不同。
@@ -12,13 +8,13 @@ CUDA 语义核对 Programming Guide 13.3，调度术语核对 Nsight Compute 202
 4. block 内线程组成 warp。调度器从就绪的驻留 warp 中选择可发射指令；内存依赖、barrier 或执行管线资源会影响选择。
 5. 最终完成 kernel，并满足 stream 中后续依赖；Host 读取结果或回收相关资源前还要建立所需同步。
 
-例：grid=100、block=256，共有 25,600 个线程、每个 block 8 个 warp。100 个 block 是逻辑任务数，不代表 GPU 同时运行 100 个 block，也不保证 `blockIdx.x=0` 首先完成。具体驻留上限应查询目标架构和编译资源信息。依据：[CUDA Programming Model](https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html)。
+例：grid=100、block=256，共有 25,600 个线程、每个 block 8 个 warp。100 个 block 是逻辑任务数，不代表 GPU 同时运行 100 个 block，也不保证 `blockIdx.x=0` 首先完成。具体驻留上限应查询目标架构和编译资源信息。依据：[CUDA Programming Guide 13.3：Programming Model](https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html)。
 
 ## Active 不等于当前正在发射
 
 原文将 Active、Eligible、Stalled、Done 列为四个状态。NCU 调度分析中的 Active 指分配给调度器的活动 warp，Eligible 是其中准备好发射下一条指令的子集，Issued 是本轮被选择的 warp。没有被选中不等于依赖阻塞；“Done”也不应与前三者并列为通用性能指标状态机。
 
-例：假设某周期有 8 个 active warp，3 个 eligible，选中其中 1 个发射；另 2 个 eligible 只是没有被选中，其余 5 个可能因不同依赖未就绪。Occupancy 高也不保证 eligible 足够多。观察 stall 时应同时看 issue 是否存在空洞，避免把所有等待都当成性能损失。依据：[NCU Scheduler Statistics 与 Warp State Statistics](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html#sections-and-rules)。
+例：假设某周期有 8 个 active warp，3 个 eligible，选中其中 1 个发射；另 2 个 eligible 只是没有被选中，其余 5 个可能因不同依赖未就绪。Occupancy 高也不保证 eligible 足够多。观察 stall 时应同时看 issue 是否存在空洞，避免把所有等待都当成性能损失。依据：[Nsight Compute 2026.2.1：Scheduler Statistics 与 Warp State Statistics](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html#sections-and-rules)。
 
 ## Hopper TMA 的关键是异步搬运和完成协议
 
@@ -49,11 +45,11 @@ TMA 适合可用 tensor map 描述的块状访问、可摊销设置成本且能�
   → Runtime 加载并启动
 ```
 
-TTIR 仍是程序 IR，不应简单当成无控制流的静态图；TTGIR 的 layout 描述逻辑 tensor 元素如何分布到线程、warp 等资源。Tiling、layout conversion、流水线、shared memory 分配等 pass 的精确顺序随 backend 与版本变化。Gluon 的入口表示也不同。核对来源：[官方 `CUDABackend.add_stages`](https://github.com/triton-lang/triton/blob/main/third_party/nvidia/backend/compiler.py)。
+TTIR 仍是程序 IR，不应简单当成无控制流的静态图；TTGIR 的 layout 描述逻辑 tensor 元素如何分布到线程、warp 等资源。Tiling、layout conversion、流水线、shared memory 分配等 pass 的精确顺序随 backend 与版本变化。Gluon 的入口表示也不同。[官方 `CUDABackend.add_stages`（2026-10-23）](https://github.com/triton-lang/triton/blob/main/third_party/nvidia/backend/compiler.py)。
 
 例：同一个 1024 元素逻辑 tile 可用不同 warp 数与元素布局实现。数学表达式没有改变，但每线程元素数、寄存器需求、归约与数据交换方式可能变化。这说明语义 IR 和执行布局的区别；并不证明增加 warp 数一定更快。
 
-本机 Triton 教程源码版本为 `b575c0c38d428a609e25487db64051a5fa7bfab8`；NVIDIA backend 文件未包含在可直接读取的本地快照中，因此上述阶段单独核对官方在线文件，不伪装成该本地版本的完整调用链。已有 [FractalTensor 笔记](../../../Projects/04_GPU_Compiler_and_Performance/FractalTensor/note.md) 可以用于比较 IR 抽象，原 Notion 未记录的项目细节仍待补充。
+Triton 教程版本为 `b575c0c38d428a609e25487db64051a5fa7bfab8`；上述 backend 阶段对应另行引用的官方移动分支，不代表该教程版本的固定调用链。不同 IR 抽象可对照 [FractalTensor](../../../Projects/04_GPU_Compiler_and_Performance/FractalTensor/note.md)。
 
 ## Segmentation fault 与 Illegal Memory Access 分开定位
 

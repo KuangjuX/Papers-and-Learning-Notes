@@ -5,10 +5,6 @@
 - 论文：[原文](https://arxiv.org/abs/2310.17752)
 - 原记录：[Issue #29](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/29)
 
-## 阅读线索与覆盖范围
-
-按端侧训练约束、编译期提取完整训练图、稀疏反向传播和训练图优化阅读。稀疏方案搜索只列了小标题，评估部分尚未形成独立记录；摘要中的加速比沿用旧记录。
-
 ## 历史阅读笔记
 
 ### Abstract

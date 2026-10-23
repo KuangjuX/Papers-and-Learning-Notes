@@ -2,12 +2,12 @@
 
 来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
-原记录关注用 ThunderKittens 将模型计算组织成低延迟 Megakernel。
+用 ThunderKittens 将模型计算组织成低延迟 Megakernel。
 
 ## 整理与复习
 
 - 原始来源：[Hazy Research 博文](https://hazyresearch.stanford.edu/blog/2025-05-27-no-bubbles)。
-- 本文保留年度总结摘记；未把实验性模型实现扩写成通用编译器能力。原文与 MPK 的优先权关系需要独立证据。
+- 实验性模型实现不等于通用编译器能力；与 MPK 的优先权关系需要独立证据。
 - 旧文中的性能比较应绑定 Llama-1B、batch size 1、具体 GPU 与服务框架版本，不能跨模型直接套用。
 
 ## 原笔记相关章节

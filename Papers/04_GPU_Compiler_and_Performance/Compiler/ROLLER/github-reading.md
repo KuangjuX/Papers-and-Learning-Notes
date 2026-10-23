@@ -5,10 +5,6 @@
 - 论文：[原文](https://www.usenix.org/system/files/osdi22-zhu.pdf)
 - 原记录：[Issue #24](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/24)
 
-## 阅读线索与覆盖范围
-
-从张量循环的巨大搜索空间进入 rTile 的硬件对齐，再看 scale-up/scale-out 与性能评估。scale-out、小算子处理和 code generation 只有标题，实验没有展开。
-
 ## 历史阅读笔记（原 issue 评论）
 
 ### Introduction

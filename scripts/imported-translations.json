@@ -7,7 +7,8 @@
     "original_heading": "<h1 class=\"my-0! pb-2.5\" data-block=\"B000\">用 60 幅图从零构建 FlashAttention-4，逼近最先进性能（CUDA/PTX） </h1>",
     "replacements": {
       "../resources/": "./resources/",
-      "src=\"video-preview.png\"": "src=\"./video-preview.png\""
+      "src=\"video-preview.png\"": "src=\"./video-preview.png\"",
+      "<div class=\"translation-note\">完整中文译本｜原文作者：Iaroslav Elistratov｜基于用户提供的本地 HTML 翻译，2026-10-09。保留原文章节顺序、全部图示、代码、表格、链接与脚注。图内英文标注和代码（含注释）保留原样；PDF 中视频以预览图和链接呈现。正文中的“我”均指原作者，性能和价格是原作者的报告。</div>": "<!-- translation-process-note removed -->"
     },
     "pdf_sha256": "60fc26750dca90bb958fe59a909b923d3ea7a1e6a13896988cc7beaaf5607da5",
     "asset_roots": [
@@ -32,7 +33,8 @@
     "original_heading": "<h1 class=\"my-0! pb-2.5\" data-block=\"B000\">tcgen05 入门：从零实现 B200 GEMM</h1>",
     "replacements": {
       "../assets/": "./assets/",
-      "href=\"/bank-conflict/\"": "href=\"https://gau-nernst.github.io/bank-conflict/\""
+      "href=\"/bank-conflict/\"": "href=\"https://gau-nernst.github.io/bank-conflict/\"",
+      "<div class=\"translation-note\">完整中文译本｜原文作者：gau-nernst｜翻译与排版：2026-10-10。基于本地原稿完整翻译，保留全部图示、代码、表格与链接。图内英文与代码注释保持原样；正文中的“我”指原作者，性能数据、推测及限制均按原文保留，未进行 GPU 复测。</div>": "<!-- translation-process-note removed -->"
     },
     "pdf_sha256": "1243bf1a89f661f5093338f7c36808e59bae10b1cf0d2f96c9f40b46ad4b4bc3",
     "asset_roots": [
@@ -55,7 +57,8 @@
     "source_body_sha256": "9739bcefa5203c0ffe4da2935309eae79ee6b68e2d7ed80ca7d7be506381ec4e",
     "original_heading": "<h1 data-translation=\"B000\">深度学习所需的矩阵微积分</h1>",
     "replacements": {
-      "src=\"assets/": "src=\"./assets/"
+      "src=\"assets/": "src=\"./assets/",
+      "<div class=\"translation-note\">完整中文译本 · 原作者：Terence Parr、Jeremy Howard<br/>正文、表格文字、推导说明及附录均已翻译；公式和图内英文保留原样。本文中的“我们”指原作者。原文的符号约定与推导保持不变，未将译文改写为新的数学教材。<br/>原文：<a href=\"https://explained.ai/matrix-calculus/index.html\">The Matrix Calculus You Need For Deep Learning</a> · 翻译与排版：2026-10-10</div>": "<div class=\"translation-note\"><a href=\"https://explained.ai/matrix-calculus/index.html\">The Matrix Calculus You Need For Deep Learning</a></div>"
     },
     "pdf_sha256": "2d26c9456896f5f1a0402ed9da6a01096b46225510f9bc0cf0538bdc69d6e0bb",
     "asset_roots": [

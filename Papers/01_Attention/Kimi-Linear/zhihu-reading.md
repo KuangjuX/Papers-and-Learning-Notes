@@ -6,10 +6,9 @@
 
 ## 整理与复习
 
-- 核对：[论文](https://arxiv.org/abs/2510.26692) 的 preliminary、KDA 与 architecture 相关部分（Zotero PDF）。3:1 是 KDA 与全局注意力层的架构比例。
+- KDA 与全局注意力层的架构比例为 3:1，见[论文](https://arxiv.org/abs/2510.26692)的 KDA 与 architecture 部分。
 - 旧笔记把 softmax 权重近似写为未归一化的指数核：归一化分母不能省略，有限维特征映射也不自动等价于精确 softmax。下方作为历史表述保留。
 - 原文混用了“DeltaNet”和“Gated DeltaNet”；全局遗忘门应结合论文具体递推定义区分。
-- 来源没有完整记录训练预算与评估口径，本篇不将概述补写为完成全文精读。
 
 ## 原笔记相关章节
 

@@ -2,11 +2,11 @@
 
 来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
-将 RL 系统背景与 Seer 的三条设计路径放在一起：切分 rollout、利用长度相关性调度、利用组内模式生成草稿。
+Seer 的三条设计路径是切分 rollout、利用长度相关性调度、利用组内模式生成草稿。
 
 ## 整理与复习
 
-- 核对：[论文](https://arxiv.org/abs/2511.14617) 的系统概述（Zotero PDF）；系统围绕同步 RL 的 rollout 优化，并非声称所有异步 RL 都必然降低效果。
+- [Seer](https://arxiv.org/abs/2511.14617) 围绕同步 RL 的 rollout 优化，并非声称所有异步 RL 都必然降低效果。
 - 旧文中的 `GPRO` 应为 `GRPO`，LFS 按文中解释为 longest-first scheduling。
 - 同 prompt 的响应在长度和模式上相关，这是估计与复用的统计依据，并非每个响应都相同。
 - 文中的 74%–97% 吞吐和 75%–93% 长尾下降属于原文章节的实验记录；引用时仍需回原论文核对模型、基线和设置。

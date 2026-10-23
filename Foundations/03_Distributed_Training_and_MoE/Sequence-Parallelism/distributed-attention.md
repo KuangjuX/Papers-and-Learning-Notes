@@ -1,7 +1,5 @@
 # Ring Attention、Ulysses 与在线归一化
 
-基于[原始问答](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)的 AI 整理。
-
 ## Ring Attention：固定本地 Q，轮转 KV
 
 把序列沿 token 维切为 P 份，每卡保留本地 Q 与对应输出，逐步接收其他卡的 KV 分块。每一轮为本地 Q 计算一个 KV 块的贡献，同时可以发送/接收下一块 KV。计算与传输是否能重叠，取决于异步实现、buffer 管理及两者耗时；不能只画环就认定通信被隐藏。依据：[Ring Attention §3](https://arxiv.org/html/2310.01889v4#S3)。

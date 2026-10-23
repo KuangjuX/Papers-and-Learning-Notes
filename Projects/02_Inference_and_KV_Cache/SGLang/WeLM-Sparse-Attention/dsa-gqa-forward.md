@@ -7,7 +7,7 @@ date: 2026-09-18
 
 # DSA 前向路径：Indexer、块选择与分页 Attention
 
-本文以“共享选块的 GQA 稀疏 Attention”为讨论条件，梳理 Indexer、Selection、页表与主 Attention 之间的数据关系。符号与伪代码用于解释机制，不绑定特定模型、部署配置或 SGLang 版本的完整调用签名。
+假设同一 GQA 组内共享选块结果。下文的符号与伪代码描述机制，不对应特定 SGLang 版本的完整调用签名。
 
 配套阅读：[GQA 稀疏 Attention：共享 Selection 与计算形状](dsa-gqa-head-shapes.md)。
 

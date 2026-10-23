@@ -2,8 +2,6 @@
 
 来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
-这是一条项目阅读记录：重点是低并发实时交互的延迟目标及 UTPS 指标。
-
 ## 整理与复习
 
 - 来源：[TileRT 仓库](https://github.com/tile-ai/TileRT)，原文章节尚未展开源码调用链或记录 commit。

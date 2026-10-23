@@ -1,7 +1,5 @@
 # FP32、FP16、BF16 与混合精度
 
-基于[原始问答](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)的 AI 整理。
-
 ## 表示范围和精度是两个问题
 
 | 格式 | 符号位 | 指数位 | 显式 fraction 位 | 最大有限正数（约） | 最小正规正数（约） |

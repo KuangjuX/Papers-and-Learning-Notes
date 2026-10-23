@@ -13,7 +13,7 @@
     {
       "directory": "02_Inference_and_KV_Cache",
       "title": "推理与 KV Cache",
-      "description": "推理服务、缓存管理、投机解码、量化与 SGLang 源码实践。"
+      "description": "推理服务、缓存管理、投机解码与 SGLang 源码实践。"
     },
     {
       "directory": "03_Distributed_Training_and_MoE",
@@ -39,6 +39,11 @@
       "directory": "07_Books_and_Technical_References",
       "title": "教材与技术参考",
       "description": "课程、教材阅读、数学推导、开发工具和环境参考。"
+    },
+    {
+      "directory": "08_Quantization",
+      "title": "量化",
+      "description": "数值格式、低精度训练、权重与激活量化、KV Cache 量化及其精度与性能边界。"
     }
   ],
   "moves": {

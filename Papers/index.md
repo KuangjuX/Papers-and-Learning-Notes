@@ -10,12 +10,13 @@
 | --- | ---: | ---: | ---: |
 | [待分类](00_Inbox/index.md) | 0 | 0 | 0 |
 | [Attention](01_Attention/index.md) | 42 | 14 | 28 |
-| [推理与 KV Cache](02_Inference_and_KV_Cache/index.md) | 57 | 6 | 51 |
+| [推理与 KV Cache](02_Inference_and_KV_Cache/index.md) | 47 | 6 | 41 |
 | [分布式训练与 MoE](03_Distributed_Training_and_MoE/index.md) | 53 | 8 | 45 |
 | [GPU 编译与性能](04_GPU_Compiler_and_Performance/index.md) | 64 | 29 | 35 |
 | [模型架构与推理能力](05_Model_Architecture_and_Reasoning/index.md) | 108 | 4 | 104 |
 | [计算基础](06_Computing_Foundations/index.md) | 18 | 14 | 4 |
 | [教材与技术参考](07_Books_and_Technical_References/index.md) | 0 | 0 | 0 |
+| [量化](08_Quantization/index.md) | 10 | 0 | 10 |
 
 Venue 与来源链接、阅读价值说明沿用原记录；原清单的元数据核对日期为 2026-09-15。
 

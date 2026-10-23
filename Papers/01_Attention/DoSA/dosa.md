@@ -11,11 +11,11 @@ date: 2026-10-20
 
 # DoSA：用安全上界减少 Indexer 的完整打分
 
-> AI 解读：[DoSA: Dots Sparse Attention，v1](https://arxiv.org/abs/2610.13990v1)。
+> [DoSA: Dots Sparse Attention，v1](https://arxiv.org/abs/2610.13990v1)。
 >
 > [Zotero 原文与完整批注](zotero-reading.md) · [整体流程高亮（第 2 页）](zotero://open-pdf/library/items/Y75KTIVE?page=2&annotation=LBKERZAW) · [DSA 前置笔记](../DeepSeek-DSA/deepseek-sparse-attention-dsa.md)
 >
-> 源码对照：[dots-sparse-attention，`8c578e0`](https://github.com/KuangjuX/dots-sparse-attention/tree/8c578e0e94e392dece8394489ff957b7e27b7a02)。预算与 seed 策略取自此版本代码。本文覆盖单锚点正界与负聚合界，未展开联合残差界和数值保护的详细推导。
+> 源码对照：[dots-sparse-attention，`8c578e0`](https://github.com/KuangjuX/dots-sparse-attention/tree/8c578e0e94e392dece8394489ff957b7e27b7a02)。预算与 seed 策略取自此版本代码。
 
 ## 1. 目标：减少“为了选少量 token 而给全部 token 完整打分”的成本
 

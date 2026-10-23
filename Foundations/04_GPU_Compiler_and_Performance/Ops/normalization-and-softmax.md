@@ -1,7 +1,5 @@
 # RMSNorm、Softmax 与在线归约
 
-基于[原始问答](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)的 AI 整理；CUDA 片段未经 GPU 编译或运行。
-
 ## RMSNorm 归约什么
 
 对一行长度 H 的输入 x，本文采用 epsilon 在平方根内、只有 scale 的定义：
@@ -19,7 +17,7 @@ $$
 
 原第二级归约只让 `threadIdx.x < num_warps` 的线程进入，却使用全 warp mask；这些线程又都写 `s_sum[0]`。应让完整第一个 warp 参与、无效项填 0，并只让 lane 0 写最终结果。修改 mask 本身不能自动解决读取未参与 lane 的问题。
 
-原广播代码为：
+以下 CUDA 片段用于分析错误，未经 GPU 编译或运行。原广播代码为：
 
 ```cpp
 float rms;

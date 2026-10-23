@@ -2,8 +2,6 @@
 
 来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
-保留从 lightning indexer 到 Top-k 主注意力的初读记录，配合已有正式算法笔记复习。
-
 ## 整理与复习
 
 - 详细流程见 [DSA 算法笔记](deepseek-sparse-attention-dsa.md)。

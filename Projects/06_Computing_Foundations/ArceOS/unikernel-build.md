@@ -2,11 +2,9 @@
 
 来源：[个人文章全文归档](../../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/zhihu-reading.md)。
 
-保留 2023 年文章中的构建与启动调用链：Makefile → cargo feature → axruntime → 应用 main。
-
 ## 整理与复习
 
-- 这是 2023-04 的源码阅读记录，原文没有 commit；文件名、Rust 属性和命令均可能随版本变化，本次没有在当前 ArceOS 上重跑。
+- 版本背景为 2023-04，未记录 commit；文件名、Rust 属性和命令可能随版本变化，不能作为当前版本的运行验证。
 - 构建路径：应用的 `Cargo.toml` 声明 `libax` features；Makefile 汇总配置并调用 Cargo；QEMU 启动镜像后进入平台引导，再进入 `axruntime::rust_main` 和应用入口。
 - 最后关于 hypocaust-2 的模块复用是个人设计思考，不标为已实现。
 

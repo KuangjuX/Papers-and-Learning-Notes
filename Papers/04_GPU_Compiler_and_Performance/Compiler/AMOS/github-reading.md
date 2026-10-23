@@ -5,15 +5,9 @@
 - 论文：[原文](https://cs.stanford.edu/~anjiang/papers/ZhengETAL22AMOS.pdf)
 - 原记录：[Issue #31](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/31)
 
-## 阅读线索与覆盖范围
+## 易错概念
 
-沿 hardware-aware/ISA-aware 的区分、计算／访存抽象、映射生成与合法性验证、性能探索和实验阅读。性能模型部分仍较简略；实验比较的基线在下方校注中澄清。
-
-## 校注（AI）
-
-论文 §7.3、Figure 6(a)(b) 的基线是 **PyTorch**；113 种算子配置在 batch size 1、V100/A100 上，相对该基线的几何平均加速分别为 2.50× 和 2.80×。旧笔记“相比 C++”是误记，不能当作对某个未指明 C++ 实现的结论。本次通过 Zotero PDF 核对了该节。
-
-依据：[论文原文](https://cs.stanford.edu/~anjiang/papers/ZhengETAL22AMOS.pdf)。校注仅核对上面列出的具体问题，其余历史内容尚未逐项复核。
+论文 §7.3、Figure 6(a)(b) 的基线是 **PyTorch**；113 种算子配置在 batch size 1、V100/A100 上，相对该基线的几何平均加速分别为 2.50× 和 2.80×。旧笔记“相比 C++”是误记，不能当作对某个未指明 C++ 实现的结论。
 
 ## 历史阅读笔记
 

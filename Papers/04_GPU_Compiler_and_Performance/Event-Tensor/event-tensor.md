@@ -18,7 +18,6 @@ date: 2026-08-19
 > **作者**：Hongyi Jin、Bohan Hou、Guanjie Wang 等  
 > **链接**：[arXiv](https://arxiv.org/abs/2604.13327) / [MLSys PDF](https://proceedings.mlsys.org/paper_files/paper/2026/file/53d3f45797970d323bd8a0d379c525aa-Paper-Conference.pdf)  
 > **代码状态**：论文称 ETC 已被并入一个主要开源系统，但正文没有给出明确项目名。  
-> **图片说明**：本文图片均截自原论文，Figure/Table 编号沿用论文编号。
 
 ## 一句话总结
 

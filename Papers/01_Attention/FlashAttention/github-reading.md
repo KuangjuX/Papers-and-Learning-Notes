@@ -5,15 +5,9 @@
 - 论文：[原文](https://arxiv.org/abs/2205.14135)
 - 原记录：[Issue #33](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/33)
 
-## 阅读线索与覆盖范围
-
-原笔记主要参考其列出的知乎文章，覆盖访存动机、稳定 softmax 和 Algorithm 1 的前半段。在线归一化更新、输出更新、反向传播和实验没有写完；本次不将它补成完整论文精读。
-
-## 校注（AI）
+## 易错概念
 
 旧笔记 L9 的 `O_i K_j^T` 是变量笔误：分块分数应由 **Q_i K_j^T** 得到。可对照下方 Algorithm 1 原截图。原笔记开头的标准注意力公式省略了缩放因子，不能与完整 scaled dot-product attention 的定义混同；访存瓶颈结论也需结合其硬件与问题规模理解。
-
-依据：[论文原文](https://arxiv.org/abs/2205.14135)。校注仅核对上面列出的具体问题，其余历史内容尚未逐项复核。
 
 相关基础笔记：[FlashAttention 的 online softmax 与版本演进](../../../Foundations/01_Attention/FlashAttention.md)。
 

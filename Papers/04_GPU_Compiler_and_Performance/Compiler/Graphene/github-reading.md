@@ -5,10 +5,6 @@
 - 论文：[原文](https://mgarland.org/papers/2023/graphene/)
 - 原记录：[Issue #27](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/27)
 
-## 阅读线索与覆盖范围
-
-内容集中在 ldmatrix 的数据分布、张量 shape/stride 表示、tiling 和 logical thread groups。线程组部分只留图，完整 IR、编译流程和实验尚未整理。
-
 ## 历史阅读笔记
 
 ### 优化 GPU 数据移动

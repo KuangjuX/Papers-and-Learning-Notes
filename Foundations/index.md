@@ -4,18 +4,19 @@
 
 [已下载教材、课程与技术资料](../Papers/downloaded-papers.md) 按原分类标签关联到各主题的阅读入口。
 
-[AI Infra 面试基础归档](07_Books_and_Technical_References/Interview-AI-Infra/index.md) 将个人 Notion 技术问答按下列主题整理，包含来源、订正与数值例子。
+[AI Infra 面试基础归档](07_Books_and_Technical_References/Interview-AI-Infra/index.md)：CUDA、数值格式、分布式 Attention、推理成本与 C++。
 
 | 主题 | 内容 |
 | --- | --- |
 | [待分类](00_Inbox/index.md) | 0 篇内容笔记 |
 | [Attention](01_Attention/index.md) | 7 篇内容笔记 |
 | [推理与 KV Cache](02_Inference_and_KV_Cache/index.md) | 推理成本与缓存复用 |
-| [分布式训练与 MoE](03_Distributed_Training_and_MoE/index.md) | MoE、训练数值与序列并行 |
+| [分布式训练与 MoE](03_Distributed_Training_and_MoE/index.md) | MoE 与序列并行 |
 | [GPU 编译与性能](04_GPU_Compiler_and_Performance/index.md) | 15 篇内容笔记 |
 | [模型架构与推理能力](05_Model_Architecture_and_Reasoning/index.md) | 4 篇内容笔记 |
 | [计算基础](06_Computing_Foundations/index.md) | 25 篇内容笔记 |
 | [教材与技术参考](07_Books_and_Technical_References/index.md) | 22 篇内容笔记 |
+| [量化](08_Quantization/index.md) | 数值格式、混合精度与 FP8 缩放 |
 
 ## 按主题查找
 
@@ -36,8 +37,6 @@
 ### 分布式训练与 MoE
 
 - [分布式训练与 MoE](03_Distributed_Training_and_MoE/index.md)
-- [FP32、FP16、BF16 与混合精度](03_Distributed_Training_and_MoE/Numerics/floating-point.md)
-- [FP8 Current Scaling：量化、缩放与精度边界](03_Distributed_Training_and_MoE/Low-Precision-Training/fp8-current-scaling.md)
 - [Ring Attention、Ulysses 与在线归一化](03_Distributed_Training_and_MoE/Sequence-Parallelism/distributed-attention.md)
 
 ### GPU 编译与性能
@@ -66,3 +65,9 @@
 - [课程笔记](07_Books_and_Technical_References/Courses/index.md)
 - [数学基础](07_Books_and_Technical_References/Math/index.md)
 - [工具与环境](07_Books_and_Technical_References/Tools/index.md)
+
+### 量化
+
+- [量化](08_Quantization/index.md)
+- [FP32、FP16、BF16 与混合精度](08_Quantization/floating-point.md)
+- [FP8 Current Scaling：量化、缩放与精度边界](08_Quantization/fp8-current-scaling.md)

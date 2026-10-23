@@ -146,8 +146,6 @@
 
 ### 分布式训练与 MoE
 
-- [FP32、FP16、BF16 与混合精度](Foundations/03_Distributed_Training_and_MoE/Numerics/floating-point.md)
-- [FP8 Current Scaling：量化、缩放与精度边界](Foundations/03_Distributed_Training_and_MoE/Low-Precision-Training/fp8-current-scaling.md)
 - [Ring Attention、Ulysses 与在线归一化](Foundations/03_Distributed_Training_and_MoE/Sequence-Parallelism/distributed-attention.md)
 - [MoE 数学与 SonicMoE：知乎原文归档](Foundations/03_Distributed_Training_and_MoE/MoE/zhihu-reading.md)
 - [MoE：路由、Grouped GEMM、梯度与计算成本](Foundations/03_Distributed_Training_and_MoE/MoE/moe-math-and-cost.md)
@@ -232,3 +230,9 @@
 - [riscv-gnu-toolchain](Foundations/07_Books_and_Technical_References/Tools/riscv-gnu-toolchain.md)
 - [Verilator 学习笔记](Foundations/07_Books_and_Technical_References/Tools/verilator.md)
 - [Visual Studio Code](Foundations/07_Books_and_Technical_References/Tools/vscode.md)
+
+### 量化
+
+- [量化专题](Foundations/08_Quantization/index.md)
+- [FP32、FP16、BF16 与混合精度](Foundations/08_Quantization/floating-point.md)
+- [FP8 Current Scaling：量化、缩放与精度边界](Foundations/08_Quantization/fp8-current-scaling.md)

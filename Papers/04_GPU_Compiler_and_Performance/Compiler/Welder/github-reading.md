@@ -5,15 +5,9 @@
 - 论文：[原文](https://www.usenix.org/system/files/osdi23-shi.pdf)
 - 原记录：[Issue #25](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/25)
 
-## 阅读线索与覆盖范围
-
-沿 operator-tile/reuse-tile、tile 传播、图连接与子图 tiling、硬件映射和代码生成阅读。原笔记的评估部分只写了“略”，不能据此恢复性能结论。
-
-## 校注（AI）
+## 易错概念
 
 原记录中的 `sharded memory` 应理解为 `shared memory`（共享内存），见论文 §4.2。关于“每个 SM 有 4 个 warp”的说法先保留在历史材料中，但不能据此推导 SM 可驻留的 warp 数；该硬件解释需另行核对。
-
-依据：[论文原文](https://www.usenix.org/system/files/osdi23-shi.pdf)。校注仅核对上面列出的具体问题，其余历史内容尚未逐项复核。
 
 ## 历史阅读笔记（原 issue 评论）
 

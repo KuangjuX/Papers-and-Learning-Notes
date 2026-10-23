@@ -2,7 +2,7 @@
 
 [基础总览](../../index.md) · [外部笔记来源](../../../Papers/external-notes.md)
 
-基于个人 Notion [《秋招面试总结》](https://app.notion.com/p/24e9da1e836d80ac828bc1fed39b3a26) 的 AI 整理。
+[《秋招面试总结》](https://app.notion.com/p/24e9da1e836d80ac828bc1fed39b3a26)
 
 包括 CUDA 算子与 Tensor 内存管理，不包含 LeetCode 类算法题。
 
@@ -15,7 +15,7 @@
 | Tensor allocator、切分、合并与异步生命周期 | [GPU 内存池设计](../../04_GPU_Compiler_and_Performance/CUDA/memory-pool.md) |
 | RMSNorm、行 Softmax、Online Softmax | [归一化与在线归约](../../04_GPU_Compiler_and_Performance/Ops/normalization-and-softmax.md) |
 | Kernel 启动、warp 调度、TMA、Triton lowering、排错 | [GPU 执行与编译](../../04_GPU_Compiler_and_Performance/CUDA/execution-and-compilation.md) |
-| FP32、FP16、BF16 与混合精度 | [训练数值格式](../../03_Distributed_Training_and_MoE/Numerics/floating-point.md) |
+| FP32、FP16、BF16 与混合精度 | [训练数值格式](../../08_Quantization/floating-point.md) |
 | Ring Attention、Ulysses、归一化与通信重叠 | [分布式 Attention 基础](../../03_Distributed_Training_and_MoE/Sequence-Parallelism/distributed-attention.md) |
 | Prefill、Decode、Grouped GEMM、Prefix Caching | [推理的计算与访存成本](../../02_Inference_and_KV_Cache/inference-costs.md) |
 

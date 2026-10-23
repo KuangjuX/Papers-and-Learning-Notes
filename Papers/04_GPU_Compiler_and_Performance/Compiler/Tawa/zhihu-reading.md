@@ -6,7 +6,7 @@
 
 ## 整理与复习
 
-- 核对：[论文](https://arxiv.org/abs/2510.14719) 的设计概述（Zotero PDF）。用户无需给原 Triton 程序加入手写 warp 分区注解，是这项工作的目标。
+- [Tawa](https://arxiv.org/abs/2510.14719) 的目标是无需给原 Triton 程序加入手写 warp 分区注解。
 - `put/get/consumed` 表达生产、借用和释放的生命周期；旧记录对 mbarrier 状态的解释是概念示意，不能直接当作每种 lowering 都逐条成立的 PTX 实现。
 - 比较性能需注明 GEMM 或 attention、输入形状、H100 平台与对应基线，不能仅由“长序列更快”推出全部工作负载的结论。
 

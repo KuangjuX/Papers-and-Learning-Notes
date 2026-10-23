@@ -8,7 +8,7 @@ date: 2026-10-16
 
 # WeLM Sparse 的 HiCache：Indexer-K、Host 内存与页面恢复
 
-本文依据 PR !497 的固定提交 `f96e0205bb312894edef6ec308fd04290931dfff`。比较基点为 `daa5fb89b3441b39ed61fa1fbcede40ac9ac5551`。讨论的是 WeLM sparse 接入单体 Host L2 缓存；已有的调度、控制器和前缀树机制也会用于解释调用链，但不应被误认为本 PR 全部新写。
+[PR !497](https://git.woa.com/wxg-odyssey/sglang/-/merge_requests/497)，提交 `f96e0205bb312894edef6ec308fd04290931dfff`，比较基点 `daa5fb89b3441b39ed61fa1fbcede40ac9ac5551`。单体 Host L2 缓存适配复用了既有调度器、控制器和前缀树机制。
 
 ## 1. 为什么 Attention KV 之外还需要 Indexer-K
 

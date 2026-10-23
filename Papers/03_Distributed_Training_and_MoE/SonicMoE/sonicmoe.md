@@ -1,6 +1,6 @@
 # SonicMoE：用梯度重排、异步 IO 和 tile 感知路由优化 MoE
 
-AI 整理：[个人笔记](../../../Foundations/03_Distributed_Training_and_MoE/MoE/zhihu-reading.md)、[SonicMoE 原论文](https://arxiv.org/html/2512.14080v1)。实验数值为作者报告。
+[个人笔记](../../../Foundations/03_Distributed_Training_and_MoE/MoE/zhihu-reading.md)、[SonicMoE 原论文](https://arxiv.org/html/2512.14080v1)。
 
 先修：[MoE 路由、Grouped GEMM、梯度与成本](../../../Foundations/03_Distributed_Training_and_MoE/MoE/moe-math-and-cost.md)。
 

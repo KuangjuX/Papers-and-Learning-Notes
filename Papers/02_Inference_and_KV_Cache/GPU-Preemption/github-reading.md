@@ -5,10 +5,6 @@
 - 论文：[原文](https://www.usenix.org/system/files/osdi22-han.pdf)
 - 原记录：[Issue #17](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/17)
 
-## 阅读线索与覆盖范围
-
-原评论仅记录实时任务与尽力而为任务共用 GPU 的动机，以及微秒级抢占的目标；抢占机制、并发调度和实验尚未展开。
-
 ## 历史阅读笔记（原 issue 评论）
 
 ### Abstract

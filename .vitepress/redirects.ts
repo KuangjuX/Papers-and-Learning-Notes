@@ -1921,5 +1921,12 @@ export default {
   "foundations/07_Books_and_Technical_References/tools/riscv-gnu-toolchain.md": "Foundations/07_Books_and_Technical_References/Tools/riscv-gnu-toolchain.md",
   "foundations/07_Books_and_Technical_References/tools/verilator.md": "Foundations/07_Books_and_Technical_References/Tools/verilator.md",
   "foundations/07_Books_and_Technical_References/tools/vscode.md": "Foundations/07_Books_and_Technical_References/Tools/vscode.md",
-  "foundations/index.md": "Foundations/index.md"
+  "foundations/index.md": "Foundations/index.md",
+  "Foundations/03_Distributed_Training_and_MoE/Numerics/floating-point.md": "Foundations/08_Quantization/floating-point.md",
+  "Foundations/03_Distributed_Training_and_MoE/Numerics/index.md": "Foundations/08_Quantization/index.md",
+  "Foundations/03_Distributed_Training_and_MoE/Low-Precision-Training/fp8-current-scaling.md": "Foundations/08_Quantization/fp8-current-scaling.md",
+  "Foundations/03_Distributed_Training_and_MoE/Low-Precision-Training/images/fp8-current-scaling-all-gather.svg": "Foundations/08_Quantization/images/fp8-current-scaling-all-gather.svg",
+  "Foundations/03_Distributed_Training_and_MoE/Low-Precision-Training/images/fp8-current-scaling-two-reads.svg": "Foundations/08_Quantization/images/fp8-current-scaling-two-reads.svg",
+  "Foundations/03_Distributed_Training_and_MoE/Low-Precision-Training/images/fp8-formats.svg": "Foundations/08_Quantization/images/fp8-formats.svg",
+  "Foundations/03_Distributed_Training_and_MoE/Low-Precision-Training/images/fp8-scaling.svg": "Foundations/08_Quantization/images/fp8-scaling.svg",
 } as Record<string, string>

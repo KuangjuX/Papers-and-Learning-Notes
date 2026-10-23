@@ -6,7 +6,7 @@
 - 原文：[本地 PDF](source.pdf) · [作者页面](https://research.colfax-intl.com/categorical-foundations-for-cute-layouts/) · [配套实现](https://github.com/ColfaxResearch/layout-categories)。
 - 文库：[Zotero 条目](zotero://select/library/items/Q3PT5C24) · [Zotero PDF](zotero://open-pdf/library/items/LUQPWFX6)。
 
-AI 校注见[校对记录](Proofreading.md)，与论文原文区分。PDF 页码比原书印刷页码大 2。
+[校对记录](Proofreading.md)。PDF 页码比原书印刷页码大 2。
 
 ## 全文目录
 

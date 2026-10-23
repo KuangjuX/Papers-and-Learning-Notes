@@ -5,15 +5,9 @@
 - 论文：[原文](https://arxiv.org/abs/1706.03762)
 - 原记录：[Issue #32](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/32)
 
-## 阅读线索与覆盖范围
-
-保留 encoder–decoder、scaled dot-product attention、多头注意力和位置编码的初读记录。原 encoder/decoder 英文摘录按论文 §3.1 做了中文转述；训练设置与完整实验尚未记录。
-
-## 校注（AI）
+## 易错概念
 
 按原论文 §3.2，批量计算中的 Q、K、V、O 是矩阵或张量，单个位置的 query/key/value 才是向量；§3.2.3 的三种用法是 encoder self-attention、decoder masked self-attention、encoder–decoder attention。原笔记“比其他模型都要快”缺少评测范围，不能作为任意模型与任务上的结论。见[论文原文](https://arxiv.org/html/1706.03762v7)。
-
-依据：[论文原文](https://arxiv.org/abs/1706.03762)。校注仅核对上面列出的具体问题，其余历史内容尚未逐项复核。
 
 相关基础笔记：[Transformer](../../../Foundations/05_Model_Architecture_and_Reasoning/Transformer.md)。
 

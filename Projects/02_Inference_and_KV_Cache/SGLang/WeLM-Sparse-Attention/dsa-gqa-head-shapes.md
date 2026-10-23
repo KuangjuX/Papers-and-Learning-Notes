@@ -6,7 +6,7 @@ date: 2026-09-18
 
 # GQA 稀疏 Attention：共享 Selection 与计算形状
 
-本文讨论 GQA、共享选块和矩阵形状之间的关系，使用符号描述，不对应特定模型配置。假设每个 query 在同一 GQA 组内共享一份 Selection；其他 Selection 设计需要另行分析。
+假设同一 GQA 组内的 query 共享一份 Selection；下述形状关系以此为前提，不对应特定模型配置。
 
 前向数据流见 [DSA 前向路径：Indexer、块选择与分页 Attention](dsa-gqa-forward.md)。
 

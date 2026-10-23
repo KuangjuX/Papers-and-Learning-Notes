@@ -5,10 +5,6 @@
 - 论文：[原文](https://www.usenix.org/system/files/osdi23-zhang-chen.pdf)
 - 原记录：[Issue #21](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/21)
 
-## 阅读线索与覆盖范围
-
-按 CPU–GPU 控制流同步开销、uTask/uOperator/uProgram 抽象、循环／分支／递归的表示顺序阅读。原笔记未展开调度优化算法和实验。
-
 ## 历史阅读笔记（原 issue 评论）
 
 ### 介绍

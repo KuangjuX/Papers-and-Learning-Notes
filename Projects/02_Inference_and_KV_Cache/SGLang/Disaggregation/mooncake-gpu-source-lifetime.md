@@ -8,7 +8,7 @@ date: 2026-10-16
 
 # Mooncake：GPU-source 传输取消与资源回收
 
-本文对应 [PR !497](https://git.woa.com/wxg-odyssey/sglang/-/merge_requests/497)，源码固定为 `f96e0205bb312894edef6ec308fd04290931dfff`。它与 WeLM sparse HiCache 修改同属一个 PR，但解决的是通用 PD 分离并发问题，不是 sparse attention 算法的一部分。
+[PR !497](https://git.woa.com/wxg-odyssey/sglang/-/merge_requests/497)，源码固定为 `f96e0205bb312894edef6ec308fd04290931dfff`。它与 WeLM sparse HiCache 修改同属一个 PR，但解决的是通用 PD 分离并发问题，不是 sparse attention 算法的一部分。
 
 ## 1. 先区分数据搬运和状态通知
 

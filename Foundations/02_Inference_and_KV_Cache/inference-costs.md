@@ -1,7 +1,5 @@
 # 推理的计算、访存与复用成本
 
-基于[原始问答](../07_Books_and_Technical_References/Interview-AI-Infra/index.md)的 AI 整理。
-
 ## Prefill 与 Decode 如何影响矩阵形状
 
 Prefill 处理输入 prompt，通常有多个 query token；逐步自回归 Decode 通常每个活跃请求在每一步处理一个新 token，并复用已有 KV。Decode 不需要重新加载全部历史 token 的原始输入来计算，而是读取相应层的历史 K/V。Chunked prefill、混合调度和投机解码会改变单次执行形状，不能把所有推理都简化为两种固定 batch。

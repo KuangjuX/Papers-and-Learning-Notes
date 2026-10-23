@@ -1,7 +1,5 @@
 # CUDA 内存与同步
 
-基于[原始问答](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)的 AI 整理；CUDA 语义参考 Programming Guide 13.3。
-
 ## 先区分地址空间、缓存和共享范围
 
 | 名称 | 主要用途与范围 | 易错点 |
@@ -57,7 +55,7 @@ consume<<<grid, block, 0, stream_b>>>(x);
 
 只有 `produce → ready → wait → consume` 这条路径保证读取发生在写入后；两个 launch 在 CPU 上前后出现、但分别属于不同 stream，并不足够。
 
-Legacy default stream 会与普通 blocking stream 产生隐式同步；`cudaStreamNonBlocking` 的名字是相对 legacy default stream 的同步行为，不是“所有调用都不阻塞 CPU”的承诺。Per-thread default stream 是另一种模式。Host buffer 使用 pageable memory 时，`cudaMemcpyAsync` 的实际 Host 异步行为可能受 staging 等因素影响；要可靠争取拷贝与计算重叠，应使用 pinned memory，并确认设备与复制引擎支持、stream 依赖和 buffer 生命周期。依据：[Asynchronous Execution §2.5](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/asynchronous-execution.html)。
+Legacy default stream 会与普通 blocking stream 产生隐式同步；`cudaStreamNonBlocking` 的名字是相对 legacy default stream 的同步行为，不是“所有调用都不阻塞 CPU”的承诺。Per-thread default stream 是另一种模式。Host buffer 使用 pageable memory 时，`cudaMemcpyAsync` 的实际 Host 异步行为可能受 staging 等因素影响；要可靠争取拷贝与计算重叠，应使用 pinned memory，并确认设备与复制引擎支持、stream 依赖和 buffer 生命周期。依据：[CUDA Programming Guide 13.3：Asynchronous Execution §2.5](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/asynchronous-execution.html)。
 
 ## 三种同步不能互相替代
 

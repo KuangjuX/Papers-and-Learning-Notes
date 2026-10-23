@@ -5,15 +5,9 @@
 - 论文：[原文](https://www.usenix.org/system/files/osdi20-ma.pdf)
 - 原记录：[Issue #22](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/22)
 
-## 阅读线索与覆盖范围
+## 易错概念
 
-按两层调度的问题、rTask/rOperator、vDevice/vEU、静态执行计划和持久线程块实现阅读。实验部分保留了原有四张截图，具体设置与结论仍需结合原论文。
-
-## 校注（AI）
-
-原笔记中“GPU 仅允许一次执行一个算子”不能当作通用硬件限制。本文要解决的是如何由编译器控制更细的 rTask 调度；§4.1.2、Figure 9 描述了同一个 vDevice 中两个 vEU 并行执行不同算子的 rTask，并在依赖处同步。本次通过 Zotero PDF 核对了该段，未对整篇旧笔记逐项复核。
-
-依据：[论文原文](https://www.usenix.org/system/files/osdi20-ma.pdf)。校注仅核对上面列出的具体问题，其余历史内容尚未逐项复核。
+原笔记中“GPU 仅允许一次执行一个算子”不能当作通用硬件限制。本文要解决的是如何由编译器控制更细的 rTask 调度；§4.1.2、Figure 9 描述了同一个 vDevice 中两个 vEU 并行执行不同算子的 rTask，并在依赖处同步。
 
 ## 历史阅读笔记（原 issue 评论）
 

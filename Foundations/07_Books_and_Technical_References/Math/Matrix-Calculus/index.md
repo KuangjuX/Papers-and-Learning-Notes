@@ -13,7 +13,7 @@ outline: false
 <div class="watermark">
 <i>由以下网站提供：<a href="http://explained.ai">explained.ai</a></i><br/>
 </div>
-<!-- original-title --><div class="translation-note">完整中文译本 · 原作者：Terence Parr、Jeremy Howard<br/>正文、表格文字、推导说明及附录均已翻译；公式和图内英文保留原样。本文中的“我们”指原作者。原文的符号约定与推导保持不变，未将译文改写为新的数学教材。<br/>原文：<a href="https://explained.ai/matrix-calculus/index.html">The Matrix Calculus You Need For Deep Learning</a> · 翻译与排版：2026-10-10</div>
+<!-- original-title --><div class="translation-note"><a href="https://explained.ai/matrix-calculus/index.html">The Matrix Calculus You Need For Deep Learning</a></div>
 <p></p>
 <p data-translation="B001"><a href="https://www.linkedin.com/in/terence-parr/">Terence Parr</a> 与 <a href="http://www.fast.ai/about/#jeremy">Jeremy Howard</a></p>
 <div class="paragraph-group" style="font-size: 80%; line-height:1.1;">（以下简介沿用原文：Terence 是 Google 的技术负责人，曾任<a href="https://www.usfca.edu/arts-sciences/graduate-programs/data-science">旧金山大学数据科学硕士项目</a>的计算机／数据科学教授。你也许知道他是 ANTLR 解析器生成器的作者。更多资料可参见 Jeremy 的<a href="http://course.fast.ai">fast.ai 课程</a>，以及旧金山大学数据研究所的<a href="https://www.usfca.edu/data-institute/certificates/deep-learning-part-one">线下深度学习课程</a>.)

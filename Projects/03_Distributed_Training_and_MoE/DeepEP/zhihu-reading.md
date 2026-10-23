@@ -2,7 +2,7 @@
 
 - 来源：[NVSHMEM-Tutorial：Build a DeepEP-like GPU Buffer（一）](https://zhuanlan.zhihu.com/p/1943366512783098660)。
 
-原文标注“包含 AI 辅助创作，作者对内容负责”。其中对称地址、同步与硬件卸载的简化解释需结合 [NVSHMEM 官方文档](https://docs.nvidia.com/nvshmem/api/index.html) 理解，不作为当前所有实现的保证。
+对称地址、同步与硬件卸载的简化解释需结合 [NVSHMEM 官方文档](https://docs.nvidia.com/nvshmem/api/index.html) 理解，不作为当前所有实现的保证。
 
 最近学习了一下 NVSHMEM 以及 DeepEP，由于 Deepep 本身自己的处理逻辑和 MoE 比较强相关，同时也过于复杂，不太适合作为一个纯粹的 GPU 通信的教程去学习，因此我自己做了一个 DeepEP-like Buffer 用来实验 DeepEP 中的一些特性，仅仅实现了 Deepep 中针对 GPU 通信相关的技术而不去针对 MoE 的通信逻辑进行实现，目前已开源在 github 中：
 

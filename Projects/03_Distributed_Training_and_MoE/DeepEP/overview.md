@@ -2,8 +2,6 @@
 
 来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
-按节点内、跨节点 normal、跨节点 low-latency 三种路径复习原总结。
-
 ## 整理与复习
 
 - 入门代码与初始化见 [个人 NVSHMEM 教程](zhihu-reading.md)。

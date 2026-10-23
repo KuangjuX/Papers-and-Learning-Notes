@@ -12,7 +12,7 @@ upstream_commit: 889a408 (2026-07-22, PR #74)
 
 # PithTrain 代码解读与训练系统学习路线
 
-> 基于 [KuangjuX/pith-train](https://github.com/KuangjuX/pith-train)（fork 自 mlc-ai/pith-train，commit `889a408`，2026-07）逐文件阅读整理。
+> [KuangjuX/pith-train，`889a408`](https://github.com/KuangjuX/pith-train/tree/889a408)（fork 自 mlc-ai/pith-train，2026-07）。
 > 配套论文笔记见 [pithtrain.md](../../../Papers/03_Distributed_Training_and_MoE/PithTrain/pithtrain.md)。
 
 ## 0. 代码库总览

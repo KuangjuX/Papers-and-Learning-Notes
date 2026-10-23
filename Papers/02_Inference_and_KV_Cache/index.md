@@ -2,9 +2,9 @@
 
 [论文总览](../index.md) · [基础笔记](../../Foundations/02_Inference_and_KV_Cache/index.md)
 
-推理服务、缓存管理、投机解码、量化与 SGLang 源码实践。
+推理服务、缓存管理、投机解码与 SGLang 源码实践。
 
-共 57 个清单条目；已读 6，待读 51。保留原有跨分类重复条目与阅读状态。
+共 47 个清单条目；已读 6，待读 41。保留原有跨分类重复条目与阅读状态。
 
 - [已下载 PDF 与标签目录](../downloaded-papers.md#topic-02)
 
@@ -18,8 +18,6 @@
 ## LLM Inference / Decoding Algorithms
 
 核心阅读顺序（8 篇）：[经典 Speculative Decoding](https://arxiv.org/abs/2211.17192) → [Medusa](https://arxiv.org/abs/2401.10774) → [2024 MTP](https://arxiv.org/abs/2404.19737) → [DeepSeek-V3（MTP 部分）](https://arxiv.org/abs/2412.19437) → [EAGLE](https://arxiv.org/abs/2401.15077) → [EAGLE-2](https://arxiv.org/abs/2406.16858) → [EAGLE-3](https://arxiv.org/abs/2503.01840) → [DFlash](https://arxiv.org/abs/2602.06036)。
-
-来源：[投机解码／MTP 阅读清单对话](https://chatgpt.com/c/6ad96e52-d094-83ea-b944-7ac3a1671536)（2026-10-22）。核心路线采用其中的 8 篇论文：复用已有 4 篇，新增 4 篇。标题与来源链接已核对；新增条目的阅读重点为对话中的 AI 建议，均标为待读。
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
@@ -86,17 +84,6 @@
 | ⬜ | <a id="pdf-en4xe3zy"></a>**TensorCast: The Missing Tensor Management Layer in Large Language Model Infrastructure** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2608.06007) / [PDF](zotero://open-pdf/library/items/4AYH4XIP) / [Zotero](zotero://select/library/items/EN4XE3ZY) / [归档标签](../downloaded-papers.md#pdf-en4xe3zy) |
 | ⬜ 📝 | **Microsecond-scale Preemption for Concurrent GPU-accelerated DNN Inferences** | [OSDI'22](https://www.usenix.org/conference/osdi22/presentation/han) | REEF；仅有摘要摘记，抢占机制、并发调度和实验尚未整理 | [Paper](https://www.usenix.org/system/files/osdi22-han.pdf) / [Note](GPU-Preemption/github-reading.md) |
 
-## LLM Inference / Quantization & Compression
+<a id="llm-inference-quantization-compression"></a>
 
-| Status | Paper | Venue | Why It Matters | Links |
-|:------:|-------|-------|----------------|-------|
-| ⬜ | **LLM.int8(): 8-bit Matrix Multiplication for Transformers at Scale** | [NeurIPS'22](https://proceedings.neurips.cc/paper_files/paper/2022/file/c3ba4962c05c49636d4c6206a97e9c8a-Paper-Conference.pdf) | 混合精度分解 activation outlier，是理解 LLM INT8 的起点 | [Paper](https://arxiv.org/abs/2208.07339) |
-| ⬜ | **GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers** | [ICLR'23](https://www.research-collection.ethz.ch/items/00736213-37b2-4e99-b015-141349b71413) | 基于近似二阶信息的 one-shot weight-only PTQ | [Paper](https://arxiv.org/abs/2210.17323) |
-| ⬜ | **SmoothQuant: Accurate and Efficient Post-Training Quantization for Large Language Models** | [ICML'23](https://proceedings.mlr.press/v202/xiao23c.html) | 用等价缩放把 activation 量化难度迁移到 weight，形成 W8A8 路线 | [Paper](https://arxiv.org/abs/2211.10438) |
-| ⬜ | **AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration** | [MLSys'24](https://proceedings.mlsys.org/paper_files/paper/2024/hash/42a452cbafa9dd64e9ba4aa95cc1ef21-Abstract-Conference.html) | 用 activation 识别显著通道并保护关键权重，形成主流 W4A16 路线 | [Paper](https://arxiv.org/abs/2306.00978) |
-| ⬜ | **SpQR: A Sparse-Quantized Representation for Near-Lossless LLM Weight Compression** | [ICLR'24](https://proceedings.iclr.cc/paper_files/paper/2024/hash/1787533e171dcc8549cc2eb5a4840eec-Abstract-Conference.html) | 将少量 outlier 与低比特权重分离，理解稀疏异常值处理 | [Paper](https://arxiv.org/abs/2306.03078) |
-| ⬜ | **OmniQuant: Omnidirectionally Calibrated Quantization for Large Language Models** | [ICLR'24](https://proceedings.iclr.cc/paper_files/paper/2024/hash/c6483c8a68083af3383f91ee0dc6db95-Abstract-Conference.html) | 通过可学习的 clipping 与等价变换改善低比特 PTQ | [Paper](https://arxiv.org/abs/2308.13137) |
-| ⬜ | **AQLM: Extreme Compression of Large Language Models via Additive Quantization** | [ICML'24](https://proceedings.mlr.press/v235/egiazarian24a.html) | additive codebook 与极低 bit/weight，连接压缩算法和解码 kernel | [Paper](https://arxiv.org/abs/2401.06118) |
-| ⬜ | **KIVI: A Tuning-Free Asymmetric 2bit Quantization for KV Cache** | [ICML'24](https://github.com/jy-yuan/KIVI) | 区分 K/V 的通道与 token 统计特性，理解 KV cache 低比特化 | [Paper](https://arxiv.org/abs/2402.02750) |
-| ⬜ | **QuaRot: Outlier-Free 4-Bit Inference in Rotated LLMs** | [NeurIPS'24](https://proceedings.neurips.cc/paper_files/paper/2024/hash/b5b939436789f76f08b9d0da5e81af7c-Abstract-Conference.html) | 用 Hadamard rotation 消除 outlier，适合从算法追到融合 kernel | [Paper](https://arxiv.org/abs/2404.00456) |
-| ⬜ | **The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits** | [arXiv'24](https://arxiv.org/abs/2402.17764) | BitNet b1.58 与三值权重，理解量化感知训练的架构路线 | [Paper](https://arxiv.org/abs/2402.17764) |
+量化与压缩论文见[量化专题](../08_Quantization/index.md)。

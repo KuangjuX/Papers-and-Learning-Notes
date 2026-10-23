@@ -5,10 +5,6 @@
 - 论文：[原文](https://ieeexplore.ieee.org/document/97902/)
 - 原记录：[Issue #34](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/34)
 
-## 阅读线索与覆盖范围
-
-只记录循环变换的动机，以及 distance vector 和 direction vector 的区分；正文在 Introduction 结束，没有记录变换理论、算法与实验。
-
 ## 历史阅读笔记
 
 这篇论文试图提出一种算法在 general loop nests 中找到最大并行。
