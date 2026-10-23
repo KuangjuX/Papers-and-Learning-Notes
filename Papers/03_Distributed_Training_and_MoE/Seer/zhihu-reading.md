@@ -1,6 +1,6 @@
 # Seer：同步 RL 的 rollout 切分、调度与分组投机
 
-来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)；本文从原文章节拆出，2026-10-22 整理。
+来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
 将 RL 系统背景与 Seer 的三条设计路径放在一起：切分 rollout、利用长度相关性调度、利用组内模式生成草稿。
 

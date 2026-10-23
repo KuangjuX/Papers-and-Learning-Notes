@@ -2,9 +2,9 @@
 
 [论文总览](index.md)
 
-来源：[KuangjuX/Papers-and-Learning-Notes 的历史 issues](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues?q=is%3Aissue)。2026-10-22 通过公开 GitHub API 读取全部 open/closed 记录及评论，排除 5 条 PR，共核对 **34 个论文 issue、7 条评论**。
+来源：[KuangjuX/Papers-and-Learning-Notes 的历史 issues](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues?q=is%3Aissue)，共 34 个论文 issue。
 
-本次归档 **12 篇成段笔记、2 篇未完成摘记、1 个外部笔记入口**，保存 **87 张历史截图**。已有正文的论文直接链接现有笔记；其余 issue 保留为文献或推荐来源，不凭空补写解读。论文阅读状态沿用主题清单，issue 关闭不代表论文读完。
+包括 12 篇成段笔记、2 篇未完成摘记和 1 个外部笔记入口。论文阅读状态以主题清单为准。
 
 历史笔记里的性能结论和“当前系统”描述保留其发表时的背景；各页单列本次核对的 AI 校注与缺失部分。正文和评论仍可回到 GitHub 查看，原 issue 未修改。
 
@@ -58,10 +58,3 @@
 - [#18](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/18)：原记录为“导师推荐的文章”，仅附 Fast Segment Anything 论文链接。
 - [#19](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/19)：原记录为“导师推荐的关于 NPU 虚拟化的文章”，仅附论文链接。
 - [#20](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/20)：原记录为“一篇比较有意思的使用 AI 自动设计芯片的文章，计算所和寒武纪一起做的”，仅附论文链接。
-
-## 来源与整理边界
-
-- GitHub 的正文、个人评论、截图属于历史阅读材料；各篇页首记录来源地址及更新时间。
-- AI 的阅读线索仅概括旧笔记已有内容；少量术语、变量、基线校注有独立出处，不视为已复核整篇论文。
-- #17 与 #34 保持未完成；#23 没有可导入的个人笔记。原有已读／待读状态保持，新增 #17 标为待读。
-- 原始 API 响应仅用于本次核对，未将认证、临时抓取文件或 Zotero 同步基线写入仓库。

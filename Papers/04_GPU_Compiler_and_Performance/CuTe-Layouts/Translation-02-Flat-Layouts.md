@@ -1,6 +1,6 @@
 # 第 2.1 节：平坦布局的基本定义与运算
 [译文总目录](Layout.md) · [第 1 章：引言](Translation-01-Introduction.md) · [第 2.1 节：合并、紧致性、补布局与可处理性](Translation-03-Flat-Layout-Algebra.md)
-> 来源：Colfax Research，2025 年 9 月版。本文为中文逐段译文，保留原文顺序及定义、命题、例子、证明和公式；校对说明以“校注”明确区分于原文，详见[校对记录](Proofreading.md)。复杂数学式与图示直接使用本地原文裁片。每页末尾可展开原页核对。
+> 中文译文：[Colfax Research，2025 年 9 月版](source.pdf)。[校注](Proofreading.md)。
 
 ## PDF 第 19 页 · 原书第 17 页
 <a id="pdf-page-19"></a>

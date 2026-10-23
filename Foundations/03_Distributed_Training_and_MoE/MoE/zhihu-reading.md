@@ -1,10 +1,6 @@
 # MoE 数学与 SonicMoE：知乎原文归档
 
-- 作者：KuangjuX。
 - 来源：[MoE 笔记：从数学推导到 SonicMoE 的极致优化](https://zhuanlan.zhihu.com/p/1987208541124202922)。
-- 原文发布／编辑时间：2025-12-27 23:22（北京时间）；归档：2026-10-22。
-
-本文保存个人已发表的历史笔记；保留当时的结论、代码、截图和参考链接。正文从浏览器可读内容转为 Markdown，公式恢复为 TeX，图片存入同目录 `images/`。原文中的实现、性能数字与“当前”均按文章发表时理解；本次整理与校注写在独立笔记中。
 
 [分篇笔记与归档目录](../../../Papers/external-notes.md)
 
@@ -193,20 +189,3 @@ H100 上不同 MoE Kernels 的前向与反向的 FLOPs
 2. [^](https://zhuanlan.zhihu.com/p/1987208541124202922#ref_2_0)Tan S, Shen Y, Panda R, et al. Scattered mixture-of-experts implementation[J]. arXiv preprint arXiv:2403.08245, 2024.
 3. [^](https://zhuanlan.zhihu.com/p/1987208541124202922#ref_3_0)Bobby Costin, Timor Averbuch, Dhruv Pai, Nathan Chen, and Ben Keigwin. “MoMoE: Memory optimized Mixture of Experts”. In: Tilde Research Blog (July 2025). Blog post. URL: https://www.tilderesearch.com/blog/ momoe.
 4. [^](https://zhuanlan.zhihu.com/p/1987208541124202922#ref_4_0)Gale T, Narayanan D, Young C, et al. Megablocks: Efficient sparse training with mixture-of-experts[J]. Proceedings of Machine Learning and Systems, 20
-
-## 归档图片来源
-
-图片保存自页面实际加载的显示版本，通常为 1440w；下表保留知乎原始图片链接。
-
-| 本地图片 | 原文图片 |
-| --- | --- |
-| [moe-notes-01.jpg](images/moe-notes-01.jpg) | [知乎原图](https://pic2.zhimg.com/v2-3e138dbdf2279aff151f4854f633d765_r.jpg) |
-| [moe-notes-02.jpg](images/moe-notes-02.jpg) | [知乎原图](https://pica.zhimg.com/v2-e14a910d4f9773affd0a37ede5870114_r.jpg) |
-| [moe-notes-03.jpg](images/moe-notes-03.jpg) | [知乎原图](https://picx.zhimg.com/v2-bf360f60bba3129b6a5677098742fa2f_r.jpg) |
-| [moe-notes-04.jpg](images/moe-notes-04.jpg) | [知乎原图](https://pic1.zhimg.com/v2-5002c5affa1c3f448e21e5dda7d633ba_r.jpg) |
-| [moe-notes-05.jpg](images/moe-notes-05.jpg) | [知乎原图](https://pic3.zhimg.com/v2-e1218354bcf10713b45a6799cc6cff98_r.jpg) |
-| [moe-notes-06.jpg](images/moe-notes-06.jpg) | [知乎原图](https://pic3.zhimg.com/v2-6bc8d11a5e53456935110ff7f2c6a6a0_r.jpg) |
-| [moe-notes-07.jpg](images/moe-notes-07.jpg) | [知乎原图](https://pic1.zhimg.com/v2-164dd475480549b0c49d1f98b1ea7040_r.jpg) |
-| [moe-notes-08.jpg](images/moe-notes-08.jpg) | [知乎原图](https://pic1.zhimg.com/v2-aceeb863f8e17daa70d2cd4d8b9d9ee4_r.jpg) |
-| [moe-notes-09.jpg](images/moe-notes-09.jpg) | [知乎原图](https://pic3.zhimg.com/v2-2303838bc00401ef0eb620cf5975c216_r.jpg) |
-| [moe-notes-10.jpg](images/moe-notes-10.jpg) | [知乎原图](https://pic3.zhimg.com/v2-622c3cb1646e3adb95f249c672bb1140_r.jpg) |

@@ -1,10 +1,6 @@
 # Light-DuoAttention：CuTeDSL 与 SGLang 实践
 
-- 作者：KuangjuX。
 - 来源：[Light-DuoAttention：用 CuTeDSL 实现高效长上下文推理](https://zhuanlan.zhihu.com/p/1984978732436431358)。
-- 原文发布／编辑时间：2025-12-23 20:18（北京时间）；归档：2026-10-22。
-
-本文保存个人已发表的历史笔记；保留当时的结论、代码、截图和参考链接。正文从浏览器可读内容转为 Markdown，公式恢复为 TeX，图片存入同目录 `images/`。原文中的实现、性能数字与“当前”均按文章发表时理解；本次整理与校注写在独立笔记中。
 
 <video controls preload="metadata" src="./media/niah-demo.mp4" style="max-width: 100%"></video>
 
@@ -222,13 +218,3 @@ for i, layer in enumerate(layers):
 4. [^](https://zhuanlan.zhihu.com/p/1984978732436431358#ref_4_0)Ainslie J, Lee-Thorp J, De Jong M, et al. Gqa: Training generalized multi-query transformer models from multi-head checkpoints[J]. arXiv preprint arXiv:2305.13245, 2023.
 5. [^](https://zhuanlan.zhihu.com/p/1984978732436431358#ref_5_0)https://github.com/mit-han-lab/duo-attention
 6. [^](https://zhuanlan.zhihu.com/p/1984978732436431358#ref_6_0)https://github.com/mit-han-lab/Block-Sparse-Attention
-
-## 归档图片来源
-
-图片保存自页面实际加载的显示版本，通常为 1440w；下表保留知乎原始图片链接。
-
-| 本地图片 | 原文图片 |
-| --- | --- |
-| [duoattention-01.jpg](images/duoattention-01.jpg) | [知乎原图](https://picx.zhimg.com/v2-39e76ddb7c3bb7e6477fd0c37d6ca559_r.jpg) |
-| [duoattention-02.jpg](images/duoattention-02.jpg) | [知乎原图](https://pic4.zhimg.com/v2-433b9f14dbb172b13419c6f0972fb68b_r.jpg) |
-| [duoattention-03.jpg](images/duoattention-03.jpg) | [知乎原图](https://pic3.zhimg.com/v2-7aec1994f232e66bc5099963772d7d6e_r.jpg) |

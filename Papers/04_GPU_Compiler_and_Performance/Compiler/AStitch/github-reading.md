@@ -3,19 +3,13 @@
 [所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
 
 - 论文：[原文](https://dl.acm.org/doi/10.1145/3503222.3507723)
-- 原记录：[Issue #26](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/26) · 作者：KuangjuX
-- 来源更新时间（UTC）：2023-12-13T07:45:50Z · 归档：2026-10-22
-- 材料范围：历史笔记；沿用现有论文清单的阅读状态，不由 issue 的 open/closed 判断是否读完。
+- 原记录：[Issue #26](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/26)
 
 ## 阅读线索与覆盖范围
 
 先看算子级与元素级依赖，再看 hierarchical data reuse、adaptive thread mapping、dominant op 分组和 XLA 实现。实验保留设置和截图；原文中的“当前编译器”指论文发表时的版本。
 
-下方是个人历史阅读记录，保留原有技术细节、未完成的小标题和截图；其表述属于当时的阅读理解。本次 AI 整理了来源、章节层级、公式格式与本地图片，校注单独列出。
-
 ## 历史阅读笔记（原 issue 评论）
-
-来源：[评论](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/26#issuecomment-1736795017)；KuangjuX；最后编辑（UTC）：2023-12-13T07:45:50Z。
 
 ### Introduction
 
@@ -157,24 +151,3 @@ AStitch 采用 Nvidia V100 GPU、16GB 内存、CUDA 10.0 以及 cuDNN 7.6 来进
 ![](images/issue-26-14.png)
 
 基于 Figure 11、 Figure 12、Figure 13 的实验评估结果，可以看到 AStitch 在当前具有大量开销的密集型算子的模型上的性能具有极大的提升。在 Transformer、DIEN 等模型上的内存密集型算子开销上的作用尤其显著。
-
-## 图片来源
-
-以下图片来自上述 issue／评论中的历史截图；保留原图，不重新绘制。图号沿用旧笔记与截图，本次未为未编号截图猜配原论文图号。
-
-| 本地图片 | 原始地址 |
-| --- | --- |
-| [issue-26-01.png](images/issue-26-01.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/02299aec-b528-4db1-b4e6-057da8125c22) |
-| [issue-26-02.png](images/issue-26-02.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/37c6d8ed-8347-4eed-8e0c-ee869e8195ff) |
-| [issue-26-03.png](images/issue-26-03.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/03640942-0437-4004-9c14-c66d38b39b3c) |
-| [issue-26-04.png](images/issue-26-04.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/46a68d4a-50d6-458e-9238-e6c0c96328b8) |
-| [issue-26-05.png](images/issue-26-05.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/8012a3b7-3d79-427f-94eb-709318b2d203) |
-| [issue-26-06.png](images/issue-26-06.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/47735c11-b85a-4426-b1c7-bb86544925c5) |
-| [issue-26-07.png](images/issue-26-07.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/526b341f-0671-4e9f-8888-d07da6952540) |
-| [issue-26-08.png](images/issue-26-08.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/b463a2cd-721f-4362-a981-f7c39891dc51) |
-| [issue-26-09.png](images/issue-26-09.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/b472c155-0e3a-4934-90aa-44c84bd006f1) |
-| [issue-26-10.png](images/issue-26-10.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/9b6d4b16-666d-46a8-b727-55aeb84436b6) |
-| [issue-26-11.png](images/issue-26-11.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/ba5a6b47-fa7f-4e22-9256-99c6c8298a91) |
-| [issue-26-12.png](images/issue-26-12.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/dc3d392e-1e8d-485e-9c7b-68dabc0695c9) |
-| [issue-26-13.png](images/issue-26-13.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/6a85078b-2d0e-4679-aaad-69f3169afdc1) |
-| [issue-26-14.png](images/issue-26-14.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/446aa3bd-1a31-4d5b-8e14-f4b7525b0b97) |

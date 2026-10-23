@@ -1,6 +1,6 @@
 # 推理的计算、访存与复用成本
 
-来源：Notion 9.3 的 batch / Prefill / Decode / Grouped GEMM 与 9.16 Prefix Caching 问题，见 [归档入口](../07_Books_and_Technical_References/Interview-AI-Infra/index.md)。原文提供了前两项概览，Prefix Caching 只记录题目；以下成本模型、比较与例子为 AI 整理补充。
+基于[原始问答](../07_Books_and_Technical_References/Interview-AI-Infra/index.md)的 AI 整理。
 
 ## Prefill 与 Decode 如何影响矩阵形状
 

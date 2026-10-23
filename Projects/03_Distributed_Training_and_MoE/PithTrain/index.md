@@ -192,10 +192,12 @@ python -m tools.memory_estimator   # 具体参数见 tools/memory_estimator/__ma
 
 训练配置全在 `examples/pretrain_lm/<model>/script.py`，改完即跑，无 YAML 无 CLI flag（无隐式间接原则的贯彻）。
 
-## 4. 阅读时建议记的问题清单
+## 4. 关键实现语义
 
-- criterion 为什么返回 sum 而不是 mean？（→ token 加权全局均值）
-- lb_loss 为什么乘 `n_tokens` 再注入？（→ 绕过 token 缩放后的归一化）
-- MoE 专家为什么沿 dp×cp 分片而非 dp×cp×ep？（→ 专家在 EP 间已互异）
-- zigzag CP 需要哪三处代码协同？（→ 数据切分 / position_ids / ring attention）
-- `reshard_after_forward=False` 为什么对层成立、对 embed/norm/lm_head 不成立？（→ 层在 5-stage 中被多次进出的复用次数不同）
+| 实现细节 | 对应含义 |
+| --- | --- |
+| criterion 返回 sum 而不是 mean | 支持按 token 加权的全局均值 |
+| lb_loss 乘 `n_tokens` 后再注入 | 抵消 token 缩放后的归一化 |
+| MoE 专家沿 dp×cp 而非 dp×cp×ep 分片 | 专家在 EP 间已互异 |
+| zigzag CP | 数据切分、`position_ids`、ring attention 三处协同 |
+| `reshard_after_forward=False` 对层与 embed/norm/lm_head 的选择不同 | 层在 5-stage 中被多次进出，复用次数不同 |

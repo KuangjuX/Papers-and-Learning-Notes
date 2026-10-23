@@ -3,25 +3,19 @@
 [所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
 
 - 论文：[原文](https://www.usenix.org/system/files/osdi23-shi.pdf)
-- 原记录：[Issue #25](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/25) · 作者：KuangjuX
-- 来源更新时间（UTC）：2023-11-01T11:38:53Z · 归档：2026-10-22
-- 材料范围：历史笔记；沿用现有论文清单的阅读状态，不由 issue 的 open/closed 判断是否读完。
+- 原记录：[Issue #25](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/25)
 
 ## 阅读线索与覆盖范围
 
 沿 operator-tile/reuse-tile、tile 传播、图连接与子图 tiling、硬件映射和代码生成阅读。原笔记的评估部分只写了“略”，不能据此恢复性能结论。
 
-下方是个人历史阅读记录，保留原有技术细节、未完成的小标题和截图；其表述属于当时的阅读理解。本次 AI 整理了来源、章节层级、公式格式与本地图片，校注单独列出。
-
-## 归档校注（AI，2026-10-22）
+## 校注（AI）
 
 原记录中的 `sharded memory` 应理解为 `shared memory`（共享内存），见论文 §4.2。关于“每个 SM 有 4 个 warp”的说法先保留在历史材料中，但不能据此推导 SM 可驻留的 warp 数；该硬件解释需另行核对。
 
 依据：[论文原文](https://www.usenix.org/system/files/osdi23-shi.pdf)。校注仅核对上面列出的具体问题，其余历史内容尚未逐项复核。
 
 ## 历史阅读笔记（原 issue 评论）
-
-来源：[评论](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/25#issuecomment-1787041088)；KuangjuX；最后编辑（UTC）：2023-11-01T11:14:18Z。
 
 ### 动机
 
@@ -90,17 +84,3 @@ TVM: `compute_inline` 调度原语用来实现寄存器级别 tile 连接。对�
 ### 评估
 
 略。
-
-## 图片来源
-
-以下图片来自上述 issue／评论中的历史截图；保留原图，不重新绘制。图号沿用旧笔记与截图，本次未为未编号截图猜配原论文图号。
-
-| 本地图片 | 原始地址 |
-| --- | --- |
-| [issue-25-01.png](images/issue-25-01.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/d8ba6687-a3f0-41a7-b8b7-b4ee99dff3c6) |
-| [issue-25-02.png](images/issue-25-02.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/f4bede79-b5f0-48ec-ae29-0abca81278d2) |
-| [issue-25-03.png](images/issue-25-03.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/993b0760-a622-4ef6-8653-f991101a5f58) |
-| [issue-25-04.png](images/issue-25-04.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/a5ab7ed1-16f2-47de-b746-ef5333062d31) |
-| [issue-25-05.png](images/issue-25-05.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/eb3ce249-55d5-42de-b081-bb8eac87ae29) |
-| [issue-25-06.png](images/issue-25-06.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/afdbad43-0900-41ad-8001-2b195d5c96b6) |
-| [issue-25-07.png](images/issue-25-07.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/9e461157-4090-41c2-a4bc-3e06fee2750e) |

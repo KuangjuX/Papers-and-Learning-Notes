@@ -3,17 +3,13 @@
 [所属主题](../index.md) · [GitHub 历史笔记目录](../../github-issues.md)
 
 - 论文：[原文](https://arxiv.org/abs/2205.14135)
-- 原记录：[Issue #33](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/33) · 作者：KuangjuX
-- 来源更新时间（UTC）：2024-04-25T10:27:19Z · 归档：2026-10-22
-- 材料范围：历史笔记；沿用现有论文清单的阅读状态，不由 issue 的 open/closed 判断是否读完。
+- 原记录：[Issue #33](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/33)
 
 ## 阅读线索与覆盖范围
 
 原笔记主要参考其列出的知乎文章，覆盖访存动机、稳定 softmax 和 Algorithm 1 的前半段。在线归一化更新、输出更新、反向传播和实验没有写完；本次不将它补成完整论文精读。
 
-下方是个人历史阅读记录，保留原有技术细节、未完成的小标题和截图；其表述属于当时的阅读理解。本次 AI 整理了来源、章节层级、公式格式与本地图片，校注单独列出。
-
-## 归档校注（AI，2026-10-22）
+## 校注（AI）
 
 旧笔记 L9 的 `O_i K_j^T` 是变量笔误：分块分数应由 **Q_i K_j^T** 得到。可对照下方 Algorithm 1 原截图。原笔记开头的标准注意力公式省略了缩放因子，不能与完整 scaled dot-product attention 的定义混同；访存瓶颈结论也需结合其硬件与问题规模理解。
 
@@ -22,8 +18,6 @@
 相关基础笔记：[FlashAttention 的 online softmax 与版本演进](../../../Foundations/01_Attention/FlashAttention.md)。
 
 ## 历史阅读笔记
-
-来源：[正文](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/33)；KuangjuX；最后编辑（UTC）：2024-04-25T10:27:19Z。
 
 原笔记参考：[知乎文章](https://www.zhihu.com/question/611236756/answer/3132304304)。
 
@@ -69,15 +63,3 @@ $softmax(x_i) = \frac{e^{x_i}}{\sum_{j=1}^{B} e^{x_j}}$ (4)
 
 - L10：对于分块的 Attention Score，计算每一行的最大值，指数项，求和项
 - L11: 更新 $m_i, l_i$
-
-## 图片来源
-
-以下图片来自上述 issue／评论中的历史截图；保留原图，不重新绘制。图号沿用旧笔记与截图，本次未为未编号截图猜配原论文图号。
-
-| 本地图片 | 原始地址 |
-| --- | --- |
-| [issue-33-01.png](images/issue-33-01.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/1a94fb98-d872-43c6-85da-bf6872a8ddeb) |
-| [issue-33-02.png](images/issue-33-02.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/2520517d-bae9-49b2-8866-18012979ccf0) |
-| [issue-33-03.png](images/issue-33-03.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/01bb174c-d0f6-4c97-8374-193bbf877b58) |
-| [issue-33-04.png](images/issue-33-04.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/f9874b62-6f2e-4c3e-96d1-1487376179ef) |
-| [issue-33-05.png](images/issue-33-05.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/05b63129-d5f8-4b0a-9124-d913ad1ab67d) |

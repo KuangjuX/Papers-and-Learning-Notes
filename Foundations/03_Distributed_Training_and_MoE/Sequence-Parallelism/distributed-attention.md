@@ -1,6 +1,6 @@
 # Ring Attention、Ulysses 与在线归一化
 
-来源：Notion 8.27 Ring Attention、9.2 Ulysses 与项目讨论，见 [归档入口](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)。原文 Ring 循环保留了 KV 传递与局部结果合并的思路；Ulysses 描述有实质性错误，本文按官方材料订正。以下推导与例子为 AI 整理补充，不视作已完成论文精读。
+基于[原始问答](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)的 AI 整理。
 
 ## Ring Attention：固定本地 Q，轮转 KV
 

@@ -10,9 +10,7 @@ date: 2026-10-22
 
 # PageWeaver：在线 Query 分组与共享 KV 的稀疏 Attention
 
-> 来源：[PageWeaver: KV-Guided Query Unions for Sparse Attention](https://arxiv.org/abs/2610.11201v1)，Zhiyuan Li、Zihan Li、Zefang Yuan、Lei Wang、Hao Wang，SenseTime，2026-10-08，v1。
->
-> 本文依据论文正文及附录 A、B 整理，是对论文的 **AI 解读**。正文记录论文的方法、实现与实验；用于解释算法的数值例子明确标为教学构造，阅读疑问单列在文末。
+> AI 解读：[PageWeaver: KV-Guided Query Unions for Sparse Attention，v1](https://arxiv.org/abs/2610.11201v1)。
 >
 > [Zotero 原文与完整批注](zotero-reading.md) · [打开 PDF](zotero://open-pdf/library/items/SBISCM3P) · [Attention 论文索引](../index.md)
 

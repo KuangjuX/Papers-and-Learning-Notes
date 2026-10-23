@@ -1,6 +1,6 @@
 # 第 1 章：引言
 [译文总目录](Layout.md) · [扉页、摘要与目录](Translation-00-Front-Matter.md) · [第 2.1 节：平坦布局的基本定义与运算](Translation-02-Flat-Layouts.md)
-> 来源：Colfax Research，2025 年 9 月版。本文为中文逐段译文，保留原文顺序及定义、命题、例子、证明和公式；校对说明以“校注”明确区分于原文，详见[校对记录](Proofreading.md)。复杂数学式与图示直接使用本地原文裁片。每页末尾可展开原页核对。
+> 中文译文：[Colfax Research，2025 年 9 月版](source.pdf)。[校注](Proofreading.md)。
 
 ## PDF 第 5 页 · 原书第 3 页
 <a id="pdf-page-5"></a>

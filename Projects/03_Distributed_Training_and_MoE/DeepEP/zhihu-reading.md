@@ -1,10 +1,6 @@
 # NVSHMEM 与 DeepEP-like Buffer：初始化与内存模型
 
-- 作者：KuangjuX。
 - 来源：[NVSHMEM-Tutorial：Build a DeepEP-like GPU Buffer（一）](https://zhuanlan.zhihu.com/p/1943366512783098660)。
-- 原文发布／编辑时间：2025-08-30 22:31（北京时间）；归档：2026-10-22。
-
-本文保存个人已发表的历史笔记；保留当时的结论、代码、截图和参考链接。正文从浏览器可读内容转为 Markdown，公式恢复为 TeX，图片存入同目录 `images/`。原文中的实现、性能数字与“当前”均按文章发表时理解；本次整理与校注写在独立笔记中。
 
 原文标注“包含 AI 辅助创作，作者对内容负责”。其中对称地址、同步与硬件卸载的简化解释需结合 [NVSHMEM 官方文档](https://docs.nvidia.com/nvshmem/api/index.html) 理解，不作为当前所有实现的保证。
 

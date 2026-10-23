@@ -1,6 +1,6 @@
 # FP32、FP16、BF16 与混合精度
 
-来源：Notion 8.13 与 9.9 的数值格式问答，见 [归档入口](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)。位宽比较来自原回答；量化例子与性能边界为 AI 整理补充。
+基于[原始问答](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)的 AI 整理。
 
 ## 表示范围和精度是两个问题
 

@@ -1,6 +1,6 @@
 # Mirage Persistent Kernel：任务图与持久化运行时
 
-来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)；本文从原文章节拆出，2026-10-22 整理。
+来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
 背景是小 batch 推理的算子边界、启动与尾效应；核心是将计算和通信变为可由持久化 GPU 运行时调度的任务。
 

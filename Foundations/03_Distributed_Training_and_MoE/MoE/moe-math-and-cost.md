@@ -1,6 +1,6 @@
 # MoE：路由、Grouped GEMM、梯度与计算成本
 
-来源：[个人 MoE 笔记全文](zhihu-reading.md)及 [SonicMoE 原论文 §2、附录 C](https://arxiv.org/html/2512.14080v1)。本文为 2026-10-22 的 AI 整理：统一符号、补上算得出来的例子，并澄清旧文中的成本口径。系统优化见 [SonicMoE](../../../Papers/03_Distributed_Training_and_MoE/SonicMoE/sonicmoe.md)。
+AI 整理：[个人笔记](zhihu-reading.md)、[SonicMoE §2、附录 C](https://arxiv.org/html/2512.14080v1)。系统优化见 [SonicMoE](../../../Papers/03_Distributed_Training_and_MoE/SonicMoE/sonicmoe.md)。
 
 ## 从一个 token 到稀疏专家计算
 

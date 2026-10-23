@@ -3,25 +3,19 @@
 [所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
 
 - 论文：[原文](https://proceedings.mlsys.org/paper_files/paper/2022/file/1f8053a67ec8e0b57455713cefdd8218-Paper.pdf)
-- 原记录：[Issue #28](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/28) · 作者：KuangjuX
-- 来源更新时间（UTC）：2023-11-28T11:38:24Z · 归档：2026-10-22
-- 材料范围：历史笔记；沿用现有论文清单的阅读状态，不由 issue 的 open/closed 判断是否读完。
+- 原记录：[Issue #28](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/28)
 
 ## 阅读线索与覆盖范围
 
 从 CUTLASS 模板缩小调优空间，阅读 persistent kernel fusion 的 threadblock residence 条件、寄存器／共享内存复用和轻量 profiler。RF-resident fusion 与实验仍有未写完的部分。
 
-下方是个人历史阅读记录，保留原有技术细节、未完成的小标题和截图；其表述属于当时的阅读理解。本次 AI 整理了来源、章节层级、公式格式与本地图片，校注单独列出。
-
-## 归档校注（AI，2026-10-22）
+## 校注（AI）
 
 论文 §3.2.3 的 alignment 8 指 **8 个 FP16 元素**：8 × 16 bit = 128 bit，即 16 字节，旧笔记误写成了“8 bit 对齐”。同节关于布局和指令宽度的描述有论文版本背景，不作为所有后续 CUTLASS／GPU 版本的通用限制。历史材料中的 `sharded memory` 应为 `shared memory`。本次通过 Zotero PDF 核对了 §3.2.3。
 
 依据：[论文原文](https://proceedings.mlsys.org/paper_files/paper/2022/file/1f8053a67ec8e0b57455713cefdd8218-Paper.pdf)。校注仅核对上面列出的具体问题，其余历史内容尚未逐项复核。
 
 ## 历史阅读笔记
-
-来源：[正文](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/28)；KuangjuX；最后编辑（UTC）：2023-11-28T11:38:24Z。
 
 ### Introduction
 
@@ -113,15 +107,3 @@ Bolt 设计了一个轻量级的 performance profiler 用于搜索最好的模�
 ##### GEMM/Conv2D
 
 从 BERT 和 ResNet-50 这些模型中提取了一些内部算子做 micro benchmark，和 Ansor 的性能做对比。
-
-## 图片来源
-
-以下图片来自上述 issue／评论中的历史截图；保留原图，不重新绘制。图号沿用旧笔记与截图，本次未为未编号截图猜配原论文图号。
-
-| 本地图片 | 原始地址 |
-| --- | --- |
-| [issue-28-01.png](images/issue-28-01.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/18cd80d2-4817-4cd9-8739-e9181428e95e) |
-| [issue-28-02.png](images/issue-28-02.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/6530dcd6-70ef-4421-a84d-2aaf03d75b3e) |
-| [issue-28-03.png](images/issue-28-03.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/0ba54703-f212-44af-b923-0ba4d8e5c720) |
-| [issue-28-04.png](images/issue-28-04.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/d59effd9-8a40-4811-8294-197bcc510e51) |
-| [issue-28-05.png](images/issue-28-05.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/a03d1e2d-95f4-499c-b7e2-00b43f01d009) |

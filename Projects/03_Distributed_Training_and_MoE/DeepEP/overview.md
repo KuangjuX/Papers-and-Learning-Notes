@@ -1,6 +1,6 @@
 # DeepEP：年度总结中的计算通信重叠摘记
 
-来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)；本文从原文章节拆出，2026-10-22 整理。
+来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
 按节点内、跨节点 normal、跨节点 low-latency 三种路径复习原总结。
 

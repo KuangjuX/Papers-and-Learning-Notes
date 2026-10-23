@@ -3,25 +3,19 @@
 [所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
 
 - 论文：[原文](https://cs.stanford.edu/~anjiang/papers/ZhengETAL22AMOS.pdf)
-- 原记录：[Issue #31](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/31) · 作者：KuangjuX
-- 来源更新时间（UTC）：2024-01-15T03:30:42Z · 归档：2026-10-22
-- 材料范围：历史笔记；沿用现有论文清单的阅读状态，不由 issue 的 open/closed 判断是否读完。
+- 原记录：[Issue #31](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/31)
 
 ## 阅读线索与覆盖范围
 
 沿 hardware-aware/ISA-aware 的区分、计算／访存抽象、映射生成与合法性验证、性能探索和实验阅读。性能模型部分仍较简略；实验比较的基线在下方校注中澄清。
 
-下方是个人历史阅读记录，保留原有技术细节、未完成的小标题和截图；其表述属于当时的阅读理解。本次 AI 整理了来源、章节层级、公式格式与本地图片，校注单独列出。
-
-## 归档校注（AI，2026-10-22）
+## 校注（AI）
 
 论文 §7.3、Figure 6(a)(b) 的基线是 **PyTorch**；113 种算子配置在 batch size 1、V100/A100 上，相对该基线的几何平均加速分别为 2.50× 和 2.80×。旧笔记“相比 C++”是误记，不能当作对某个未指明 C++ 实现的结论。本次通过 Zotero PDF 核对了该节。
 
 依据：[论文原文](https://cs.stanford.edu/~anjiang/papers/ZhengETAL22AMOS.pdf)。校注仅核对上面列出的具体问题，其余历史内容尚未逐项复核。
 
 ## 历史阅读笔记
-
-来源：[正文](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/31)；KuangjuX；最后编辑（UTC）：2024-01-15T03:30:42Z。
 
 本篇文章主要讲了如何在新出现的 Tensor Core 上提出 IR 并做 codegen。
 
@@ -134,26 +128,3 @@ AMOS 新增了两个 IR Node(Compute, Memory) 在 TVM 上。
 除此之外 AMOS 还和现有的 SOTA compilers 进行了比较，从 ResNet-18 中提取了 12 种不同配置的卷积层，结果如下图(2.38× to CuDNN, 1.79× to Ansor, 1.30× to AutoTVM-Expert, 4.96× to UNIT)：
 ![](images/issue-31-15.png)
 ![](images/issue-31-16.png)
-
-## 图片来源
-
-以下图片来自上述 issue／评论中的历史截图；保留原图，不重新绘制。图号沿用旧笔记与截图，本次未为未编号截图猜配原论文图号。
-
-| 本地图片 | 原始地址 |
-| --- | --- |
-| [issue-31-01.png](images/issue-31-01.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/f2e6bdcc-b900-474f-8d2d-bdc1b5d357af) |
-| [issue-31-02.png](images/issue-31-02.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/b9baa3eb-f5bb-409c-a868-5ed64f5bee43) |
-| [issue-31-03.png](images/issue-31-03.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/8861a877-b221-49c0-a066-2b9beccae17f) |
-| [issue-31-04.png](images/issue-31-04.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/1d737248-8826-4f0d-89cc-2647eb54922a) |
-| [issue-31-05.png](images/issue-31-05.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/6d20e180-b6ab-41d4-9d56-8b551bba3240) |
-| [issue-31-06.png](images/issue-31-06.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/0e2626cf-93ef-46b8-83e7-7118d9a05c69) |
-| [issue-31-07.png](images/issue-31-07.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/a5346299-47ed-49da-bcfb-6f27dd6c1bb6) |
-| [issue-31-08.png](images/issue-31-08.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/f97978ed-7cf9-41e0-b435-742dcb27c196) |
-| [issue-31-09.png](images/issue-31-09.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/c46584d2-9ad1-422f-b1d5-5d345614fd29) |
-| [issue-31-10.png](images/issue-31-10.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/89cc637a-4551-4d81-9ffd-48f8075efc92) |
-| [issue-31-11.png](images/issue-31-11.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/7e53be73-387b-40cd-8762-579d17ad7ab6) |
-| [issue-31-12.png](images/issue-31-12.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/831bc094-62a5-4150-bc86-b91b8cf3344e) |
-| [issue-31-13.png](images/issue-31-13.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/75cfe25e-b944-4379-8c22-0e7784ea2b6a) |
-| [issue-31-14.png](images/issue-31-14.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/a18e44c1-d1a5-404d-aae1-a6e58f58a84d) |
-| [issue-31-15.png](images/issue-31-15.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/8cc36963-370e-41ec-aed3-3e4b4beef5bc) |
-| [issue-31-16.png](images/issue-31-16.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/7f12a47a-e325-4339-9304-7a645d9be41a) |

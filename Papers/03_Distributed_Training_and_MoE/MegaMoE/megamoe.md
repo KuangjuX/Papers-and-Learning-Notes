@@ -780,27 +780,23 @@ PR 描述说明 MegaMoE 当时仍在开发和优化中。后续主分支又加�
 
 ---
 
-## 代码阅读路线
+## 源码模块
 
-建议按以下顺序阅读源码：
-
-1. `tests/test_mega_moe.py`：先看基线和融合路径的等价关系，理解输入格式、默认形状和性能指标。
-
-2. `csrc/apis/mega.hpp`：看对称显存缓冲区如何切片，哪些张量视图暴露给 Python，主机端做了哪些形状和格式检查。
-
-3. `deep_gemm/include/deep_gemm/layout/mega_moe.cuh`：看工作区、专家计数器、到达掩码、源索引表和元数据的布局。
-
-4. `deep_gemm/include/deep_gemm/scheduler/mega_moe.cuh`：看两层专家计算的波次调度状态机，尤其是任务获取和遍历逻辑。
-
-5. `deep_gemm/include/deep_gemm/impls/sm100_fp8_fp4_mega_moe.cuh`：最后读主核，建议分成分发、异步加载、矩阵乘发射、第一层尾声、第二层尾声、合并六段看。
+| 文件 | 职责 |
+| --- | --- |
+| `tests/test_mega_moe.py` | 对比基线和融合路径，定义输入格式、默认形状与性能指标 |
+| `csrc/apis/mega.hpp` | 对称显存缓冲区切片、Python 张量视图，以及主机端形状和格式检查 |
+| `deep_gemm/include/deep_gemm/layout/mega_moe.cuh` | 工作区、专家计数器、到达掩码、源索引表和元数据布局 |
+| `deep_gemm/include/deep_gemm/scheduler/mega_moe.cuh` | 两层专家计算的波次调度、任务获取与遍历 |
+| `deep_gemm/include/deep_gemm/impls/sm100_fp8_fp4_mega_moe.cuh` | 主核的分发、异步加载、矩阵乘发射、两层尾声与合并 |
 
 ---
 
-## 复现和实验建议
+## 测试入口与性能指标
 
-### 最小验证
+### 正确性测试
 
-如果环境有 SM100 GPU、PyTorch 2.9、DeepEP V2 和相关第三方基线，可以运行：
+测试入口依赖 SM100 GPU、PyTorch 2.9、DeepEP V2 和相关第三方基线：
 
 ```bash
 python tests/test_mega_moe.py --num-processes 8
@@ -810,13 +806,7 @@ python tests/test_mega_moe.py --num-processes 8
 
 ### 性能剖析
 
-主分支后续提供了性能剖析脚本。它使用 Nsight Compute 分析 MegaMoE 主核，采集性能监控采样和源码计数器。由于这个核内部角色复杂，单看总耗时不够，最好结合以下问题看性能剖析结果：
-
-- 分发拉取是否成为前段瓶颈。
-- 异步加载激活和权重是否能喂饱矩阵乘单元。
-- 第一层尾声阶段的门控激活和低精度再量化是否拖慢张量核心流水线。
-- 第二层尾声阶段的远端写回是否和后续波次重叠。
-- 最终合并归约是否成为长尾。
+主分支后续提供了性能剖析脚本。它使用 Nsight Compute 分析 MegaMoE 主核，采集性能监控采样和源码计数器。主核内部包含分发拉取、异步加载、第一层尾声的门控激活与低精度再量化、第二层尾声的远端写回，以及最终合并归约；总耗时无法单独区分各阶段的瓶颈与重叠程度。
 
 ---
 

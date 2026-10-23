@@ -1,6 +1,6 @@
 # GPU 内存池：空间管理与异步生命周期
 
-来源：Notion 8.18 的 Tensor Memory Pool 代码，见 [归档入口](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)。本篇保留其 best-fit + arena 的设计思路；缺陷分析、修正流程与例子为 AI 补充。原代码没有记录编译或 GPU 验证结果。
+基于[原始问答](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)的 AI 整理，代码为未经 GPU 验证的设计草稿。
 
 ## 原设计的数据流
 

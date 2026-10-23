@@ -1,10 +1,8 @@
 # FP8 Current Scaling：量化、缩放与精度边界
 
-来源：[NVIDIA Transformer Engine：FP8 Current Scaling](https://docs.nvidia.com/deeplearning/transformer-engine/features/low_precision_training/fp8_current_scaling/fp8_current_scaling.html)，核对版本为 2.20.2，整理于 2026-10-23。本文为 AI 根据官方文档及学习讨论整理的入门笔记；“原文要点”概括文档事实，“补充解释”中的例子与推导为教学构造。
+参考：[NVIDIA Transformer Engine 2.20.2：FP8 Current Scaling](https://docs.nvidia.com/deeplearning/transformer-engine/features/low_precision_training/fp8_current_scaling/fp8_current_scaling.html)。本文为 AI 整理。
 
 [所属主题](../index.md)
-
-配图来自上述 NVIDIA 文档，保留原文图号；SVG 原图与所需官方样式已保存在同目录 `images/` 中，使用白底并内联样式以便离线显示。
 
 ## 为什么要量化
 
@@ -103,10 +101,3 @@ $$
 **补充背景 · [低精度训练 Introduction](https://docs.nvidia.com/deeplearning/transformer-engine/features/low_precision_training/introduction/introduction.html)。** FP8 训练通常是混合精度训练：部分运算用 FP8，敏感运算或状态保留 BF16 / FP32。参数存储精度、矩阵乘法输入精度、累加精度和输出精度是不同选择，不能仅凭“FP8”判断整个训练的数值行为。
 
 这份 current scaling 文档没有给出完整的 BF16 / FP32 效果对照实验。它解释了量化机制，不能单独证明任意模型都能无损训练或推理。单个元素的表示误差、训练 loss 的差异和最终任务指标的变化，也不能直接互换。
-
-下一步需要验证的问题是：在什么模型、训练长度和精度策略下，FP8 能接近高精度基线？以下仅作为后续阅读入口，尚未整理为论文笔记：
-
-- [NVIDIA：Per-Tensor and Per-Block Scaling Strategies for Effective FP8 Training，Figure 2](https://developer.nvidia.com/blog/per-tensor-and-per-block-scaling-strategies-for-effective-fp8-training/)：与 current scaling 最直接对应的效果比较。
-- [FP8 Formats for Deep Learning，§4 与 Table 4、5](https://arxiv.org/html/2209.05433v1#S4)：训练及训练后量化推理的实验。
-- [DeepSeek-V3 Technical Report，§3.3 与 Appendix B](https://arxiv.org/html/2412.19437v2#S3.SS3)：更细粒度量化与混合精度设计；应区别于本页的每张量缩放。
-- [Scaling FP8 training to trillion-token LLMs](https://arxiv.org/abs/2409.12517)：长期训练中的稳定性问题。

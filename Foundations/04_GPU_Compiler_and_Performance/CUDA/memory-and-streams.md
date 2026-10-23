@@ -1,6 +1,6 @@
 # CUDA 内存与同步
 
-来源：Notion 8.13 CUDA 八股，见 [归档入口](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)。原文列出内存题、回答了 Stream；本文的内存例子、边界条件与订正为 AI 整理补充。语义核对 CUDA Programming Guide 13.3 与 Best Practices 官方快照。
+基于[原始问答](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)的 AI 整理；CUDA 语义参考 Programming Guide 13.3。
 
 ## 先区分地址空间、缓存和共享范围
 

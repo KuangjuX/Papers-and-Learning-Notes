@@ -1,6 +1,6 @@
 # Look Ma, No Bubbles!：Llama-1B Megakernel 阅读摘记
 
-来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)；本文从原文章节拆出，2026-10-22 整理。
+来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
 原记录关注用 ThunderKittens 将模型计算组织成低延迟 Megakernel。
 

@@ -3,17 +3,13 @@
 [所属主题](../index.md) · [GitHub 历史笔记目录](../../github-issues.md)
 
 - 论文：[原文](https://arxiv.org/abs/1706.03762)
-- 原记录：[Issue #32](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/32) · 作者：KuangjuX
-- 来源更新时间（UTC）：2024-01-17T14:02:27Z · 归档：2026-10-22
-- 材料范围：历史笔记；沿用现有论文清单的阅读状态，不由 issue 的 open/closed 判断是否读完。
+- 原记录：[Issue #32](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/32)
 
 ## 阅读线索与覆盖范围
 
 保留 encoder–decoder、scaled dot-product attention、多头注意力和位置编码的初读记录。原 encoder/decoder 英文摘录按论文 §3.1 做了中文转述；训练设置与完整实验尚未记录。
 
-下方是个人历史阅读记录，保留原有技术细节、未完成的小标题和截图；其表述属于当时的阅读理解。本次 AI 整理了来源、章节层级、公式格式与本地图片，校注单独列出。
-
-## 归档校注（AI，2026-10-22）
+## 校注（AI）
 
 按原论文 §3.2，批量计算中的 Q、K、V、O 是矩阵或张量，单个位置的 query/key/value 才是向量；§3.2.3 的三种用法是 encoder self-attention、decoder masked self-attention、encoder–decoder attention。原笔记“比其他模型都要快”缺少评测范围，不能作为任意模型与任务上的结论。见[论文原文](https://arxiv.org/html/1706.03762v7)。
 
@@ -22,8 +18,6 @@
 相关基础笔记：[Transformer](../../../Foundations/05_Model_Architecture_and_Reasoning/Transformer.md)。
 
 ## 历史阅读笔记
-
-来源：[正文](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/32)；KuangjuX；最后编辑（UTC）：2024-01-17T14:02:27Z。
 
 ### Abstract
 
@@ -68,13 +62,3 @@ Transformer 有三个 Attention。
 ### Conclusion
 
 仅仅使用 self-attention 的模型 Transformer 比其他模型都要快。
-
-## 图片来源
-
-以下图片来自上述 issue／评论中的历史截图；保留原图，不重新绘制。图号沿用旧笔记与截图，本次未为未编号截图猜配原论文图号。
-
-| 本地图片 | 原始地址 |
-| --- | --- |
-| [issue-32-01.png](images/issue-32-01.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/928cabdf-ebd4-4824-b38d-876a1ef1899b) |
-| [issue-32-02.png](images/issue-32-02.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/39df9c91-ade1-4f1f-9370-f16275b55092) |
-| [issue-32-03.png](images/issue-32-03.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/1f0b528d-5e7e-48b4-b77e-01863975a99b) |

@@ -3,19 +3,13 @@
 [所属主题](../index.md) · [GitHub 历史笔记目录](../../github-issues.md)
 
 - 论文：[原文](https://arxiv.org/abs/2310.17752)
-- 原记录：[Issue #29](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/29) · 作者：KuangjuX
-- 来源更新时间（UTC）：2024-04-25T10:26:55Z · 归档：2026-10-22
-- 材料范围：历史笔记；沿用现有论文清单的阅读状态，不由 issue 的 open/closed 判断是否读完。
+- 原记录：[Issue #29](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/29)
 
 ## 阅读线索与覆盖范围
 
 按端侧训练约束、编译期提取完整训练图、稀疏反向传播和训练图优化阅读。稀疏方案搜索只列了小标题，评估部分尚未形成独立记录；摘要中的加速比沿用旧记录。
 
-下方是个人历史阅读记录，保留原有技术细节、未完成的小标题和截图；其表述属于当时的阅读理解。本次 AI 整理了来源、章节层级、公式格式与本地图片，校注单独列出。
-
 ## 历史阅读笔记
-
-来源：[正文](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/29)；KuangjuX；最后编辑（UTC）：2024-04-25T10:26:55Z。
 
 ### Abstract
 
@@ -92,17 +86,3 @@ On-device 主要有以下困难：
 - Functional-Preserving Graph Transformation. 现有的 DNN 框架通过 domain experts 或者 auto discovered by program 来做图优化，但是反向图由于在运行时生成因此不能去应用这些优化，将会造成训练时间变慢和不必要的运行时开销。PockEngine 集成了这些优化技术，并且会为不同的硬件转换数据布局。
 
 ![截屏2024-01-26 17 38 16](images/issue-29-07.png)
-
-## 图片来源
-
-以下图片来自上述 issue／评论中的历史截图；保留原图，不重新绘制。图号沿用旧笔记与截图，本次未为未编号截图猜配原论文图号。
-
-| 本地图片 | 原始地址 |
-| --- | --- |
-| [issue-29-01.png](images/issue-29-01.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/7d9c6d55-c162-4a0b-a672-3fcc6311baf8) |
-| [issue-29-02.png](images/issue-29-02.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/7868cebf-30ab-4f99-b0b4-abe7391cb39a) |
-| [issue-29-03.png](images/issue-29-03.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/5ffea7d5-966a-44ed-888c-7197124e581c) |
-| [issue-29-04.png](images/issue-29-04.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/fbcc4146-d699-46ab-ad67-0321cb7b3c30) |
-| [issue-29-05.png](images/issue-29-05.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/f5ccee7a-5d0a-47c0-90e0-264061cd79a7) |
-| [issue-29-06.png](images/issue-29-06.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/b4003402-9593-4c5f-b00b-ca5b4d984759) |
-| [issue-29-07.png](images/issue-29-07.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/bdfa7417-d280-41dc-acf4-6fb5a18b03bb) |

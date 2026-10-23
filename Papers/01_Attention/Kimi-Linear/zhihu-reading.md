@@ -1,6 +1,6 @@
 # Kimi Linear：状态更新与混合注意力
 
-来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)；本文从原文章节拆出，2026-10-22 整理。
+来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
 问题是线性状态的记忆容量与表达能力；设计同时包含 KDA 的状态更新和 KDA／全注意力混合层，不能只记住“把矩阵乘法交换顺序”。
 

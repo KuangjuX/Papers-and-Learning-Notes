@@ -13,9 +13,7 @@ date: 2026-09-15
 
 # IndexCache：跨层复用稀疏索引，以及它为什么能被训练
 
-> 论文：[IndexCache: Accelerating Sparse Attention via Cross-Layer Index Reuse](https://arxiv.org/abs/2603.12201v1)，Yushi Bai、Qian Dong 等，清华大学 / Z.ai，2026-03-12，arXiv v1。
->
-> 本笔记按阅读讨论中的疑问组织：共享什么、为什么可以共享、KL 如何训练 indexer、Top-k 如何变化，以及计算和缓存分别省在哪里。实验数字与原图均以这版 PDF 为准；GLM-5.2 的 IndexShare 命名及实现是另行核对的补充资料。
+> 论文：[IndexCache: Accelerating Sparse Attention via Cross-Layer Index Reuse，v1](https://arxiv.org/abs/2603.12201v1)。
 >
 > 关联笔记：[DSA 算法流程](../DeepSeek-DSA/deepseek-sparse-attention-dsa.md) · [MSA 与 DSA Indexer 对比](../MiniMax-MSA/msa-vs-dsa-indexer.md) · [HiSparse](../../02_Inference_and_KV_Cache/HiSparse/hisparse.md)
 
@@ -521,15 +519,7 @@ $$
 5. **实验支持有条件的近似保持质量**：1/4 的结果较好，免训练 1/8 出现退化；无误差条的小幅提升不能当成普遍增益。
 6. **加速与缓存需要分别记账**：主要省 indexer 计算，可省 S 层 indexer K，主 KV 不因共享位置而减少。
 
-### 可选练习：需要完整手推 backward 吗？
-
-为了读懂论文，不必先完成全部数学推导。实现或调试训练时，可以先手推“KL → logits → 点积 → 线性层”这个最小版本，再与 autograd 核对。编写自定义 backward kernel 时，才需要补齐实际归一化、ReLU、缩放、精度与布局等全部细节。
-
-本次阅读已覆盖核心机制、训练路径、理论边界、主要实验和推理缓存；完整 kernel backward 的独立推导可作为后续练习。
-
-## 13. 原图与来源
-
-笔记内的 10 张 PNG 均从用户提供的原论文 PDF 以 300 DPI 渲染裁切，包含全部 4 张编号 Figure、2 张未编号插图、Algorithm 1 和 Table 1–3。未重绘或修改图内数据。页码、裁切框及原 PDF SHA-256 记录在 同目录的 `images/sources.json` 来源清单。
+## 13. 参考资料
 
 - [IndexCache 原论文 v1](https://arxiv.org/abs/2603.12201v1)：机制、Proposition 1、实验与原图。
 - [DeepSeek-V3.2 原论文](https://arxiv.org/html/2512.02556v1)：Lightning Indexer 打分与两阶段训练。

@@ -1,6 +1,6 @@
 # ArceOS：从 feature 配置到 unikernel 启动
 
-来源：[个人文章全文归档](../../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/zhihu-reading.md)；本文从原文章节拆出，2026-10-22 整理。
+来源：[个人文章全文归档](../../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/zhihu-reading.md)。
 
 保留 2023 年文章中的构建与启动调用链：Makefile → cargo feature → axruntime → 应用 main。
 

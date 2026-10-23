@@ -1,6 +1,6 @@
 # Unikraft：模块化 library OS 与专用内核
 
-来源：[个人文章全文归档](../../../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/zhihu-reading.md)；本文从原文章节拆出，2026-10-22 整理。
+来源：[个人文章全文归档](../../../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/zhihu-reading.md)。
 
 从单应用的专用化需求理解 Unikraft 的 micro-libraries、构建配置与平台抽象。
 

@@ -3,19 +3,13 @@
 [所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
 
 - 论文：[原文](https://ieeexplore.ieee.org/document/97902/)
-- 原记录：[Issue #34](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/34) · 作者：KuangjuX
-- 来源更新时间（UTC）：2024-01-22T14:08:15Z · 归档：2026-10-22
-- 材料范围：开篇摘记，未完成；沿用现有论文清单的阅读状态，不由 issue 的 open/closed 判断是否读完。
+- 原记录：[Issue #34](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/34)
 
 ## 阅读线索与覆盖范围
 
 只记录循环变换的动机，以及 distance vector 和 direction vector 的区分；正文在 Introduction 结束，没有记录变换理论、算法与实验。
 
-下方是个人历史阅读记录，保留原有技术细节、未完成的小标题和截图；其表述属于当时的阅读理解。本次 AI 整理了来源、章节层级、公式格式与本地图片，校注单独列出。
-
 ## 历史阅读笔记
-
-来源：[正文](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/34)；KuangjuX；最后编辑（UTC）：2024-01-22T14:08:15Z。
 
 这篇论文试图提出一种算法在 general loop nests 中找到最大并行。
 

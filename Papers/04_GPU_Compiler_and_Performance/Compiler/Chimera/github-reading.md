@@ -3,25 +3,19 @@
 [所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
 
 - 论文：[原文](https://light-of-hers.github.io/assets/Chimera.pdf)
-- 原记录：[Issue #30](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/30) · 作者：KuangjuX
-- 来源更新时间（UTC）：2023-12-13T12:12:45Z · 归档：2026-10-22
-- 材料范围：历史笔记；沿用现有论文清单的阅读状态，不由 issue 的 open/closed 判断是否读完。
+- 原记录：[Issue #30](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/30)
 
 ## 阅读线索与覆盖范围
 
 按计算密集型算子链的融合挑战、块分解、块间重排和块内 micro-kernel 调度阅读。原记录停在减少数据移动的开篇，分析模型推导、完整实现和实验尚未展开。
 
-下方是个人历史阅读记录，保留原有技术细节、未完成的小标题和截图；其表述属于当时的阅读理解。本次 AI 整理了来源、章节层级、公式格式与本地图片，校注单独列出。
-
-## 归档校注（AI，2026-10-22）
+## 校注（AI）
 
 旧笔记后半部分把 inter-block 与 intra-block 的中文含义混用了。按论文 §III：**inter-block reordering 是块间重排**，调整计算块之间的执行顺序；**intra-block scheduling/code generation 是块内调度与代码生成**，优化一个块内的指令。下方保留历史措辞；复习时应采用这里的对应关系。本次通过 Zotero PDF 核对了该节。
 
 依据：[论文原文](https://light-of-hers.github.io/assets/Chimera.pdf)。校注仅核对上面列出的具体问题，其余历史内容尚未逐项复核。
 
 ## 历史阅读笔记
-
-来源：[正文](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/30)；KuangjuX；最后编辑（UTC）：2023-12-13T12:12:45Z。
 
 首先介绍了两种类型算子，计算密集型和内存密集型，内存密集型算子常用来连接计算密集型算子。随后介绍了一下现在专用计算核和片外内存的性能差距越来越大。因此许多计算密集型算子的性能被内存带宽限制。除此之外，计算性能和内存带宽之间的差距仍然在增长。许多计算密集型算子的实现（例如在 Transformer 中的 batched GEMM）正在变成性能瓶颈。
 
@@ -69,14 +63,3 @@ Figure 1 中展示了两个经典的例子，(a) self-attention 是一个在 Ber
 #### Minimizing Data Movement Volume via Block Reordering
 
 算子内优化的目标是去找到块执行顺序以及分块参数最终最小化数据移动。最小化数据移动和最大化数据局部性是等同的。
-
-## 图片来源
-
-以下图片来自上述 issue／评论中的历史截图；保留原图，不重新绘制。图号沿用旧笔记与截图，本次未为未编号截图猜配原论文图号。
-
-| 本地图片 | 原始地址 |
-| --- | --- |
-| [issue-30-01.png](images/issue-30-01.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/9683357b-0279-4f48-a83a-243d745a2e9e) |
-| [issue-30-02.png](images/issue-30-02.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/0f470c9d-2794-42dd-8ba8-ef817a903cc3) |
-| [issue-30-03.png](images/issue-30-03.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/887d2cfb-893f-4e6e-9ea5-ee197ae76578) |
-| [issue-30-04.png](images/issue-30-04.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/d137912f-2941-4094-b4dd-4e3135db1a3f) |

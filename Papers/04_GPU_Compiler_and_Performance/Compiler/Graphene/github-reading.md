@@ -3,19 +3,13 @@
 [所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
 
 - 论文：[原文](https://mgarland.org/papers/2023/graphene/)
-- 原记录：[Issue #27](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/27) · 作者：KuangjuX
-- 来源更新时间（UTC）：2023-11-28T11:38:48Z · 归档：2026-10-22
-- 材料范围：历史笔记；沿用现有论文清单的阅读状态，不由 issue 的 open/closed 判断是否读完。
+- 原记录：[Issue #27](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/27)
 
 ## 阅读线索与覆盖范围
 
 内容集中在 ldmatrix 的数据分布、张量 shape/stride 表示、tiling 和 logical thread groups。线程组部分只留图，完整 IR、编译流程和实验尚未整理。
 
-下方是个人历史阅读记录，保留原有技术细节、未完成的小标题和截图；其表述属于当时的阅读理解。本次 AI 整理了来源、章节层级、公式格式与本地图片，校注单独列出。
-
 ## 历史阅读笔记
-
-来源：[正文](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/27)；KuangjuX；最后编辑（UTC）：2023-11-28T11:38:48Z。
 
 ### 优化 GPU 数据移动
 
@@ -41,15 +35,3 @@ Figure 4(b) 中的 tile 解释如下：在第一个维度中两个逻辑上相�
 
 在高效的张量计算中需要在不同 kernel 点使用不同的线程排列。
 ![截屏2023-10-31 16 44 30](images/issue-27-05.png)
-
-## 图片来源
-
-以下图片来自上述 issue／评论中的历史截图；保留原图，不重新绘制。图号沿用旧笔记与截图，本次未为未编号截图猜配原论文图号。
-
-| 本地图片 | 原始地址 |
-| --- | --- |
-| [issue-27-01.png](images/issue-27-01.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/bb84c4c7-7c67-45f5-a651-3f772c68ba4d) |
-| [issue-27-02.png](images/issue-27-02.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/b5a771c8-2486-47ef-9acb-50a34c898784) |
-| [issue-27-03.png](images/issue-27-03.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/4e5d5a7f-dd87-4634-b9d3-9aef9465e813) |
-| [issue-27-04.png](images/issue-27-04.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/e5250565-5230-4a77-8d5a-1d7e603b1dd4) |
-| [issue-27-05.png](images/issue-27-05.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/b34b2a9a-e574-411c-a6dc-9fe83d58fc2a) |

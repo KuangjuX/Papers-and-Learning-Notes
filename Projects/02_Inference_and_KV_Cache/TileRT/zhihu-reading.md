@@ -1,6 +1,6 @@
 # TileRT：面向低延迟推理的 tile 运行时
 
-来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)；本文从原文章节拆出，2026-10-22 整理。
+来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
 这是一条项目阅读记录：重点是低并发实时交互的延迟目标及 UTPS 指标。
 

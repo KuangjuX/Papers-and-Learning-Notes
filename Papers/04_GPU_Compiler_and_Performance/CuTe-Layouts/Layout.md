@@ -2,20 +2,11 @@
 
 **CuTe 布局的范畴基础 · 中文全文译文**
 
-- 作者：Colfax Research。
-- 翻译底本：用户提供的 `Categories_of_Layouts_092425-rev1.pdf`，2025 年 9 月版；PDF 共 163 页，其中正文页码为 1–161。本文采用这份底本，不混入后续版本。
+- Colfax Research，2025 年 9 月 rev1 中文译文。
 - 原文：[本地 PDF](source.pdf) · [作者页面](https://research.colfax-intl.com/categorical-foundations-for-cute-layouts/) · [配套实现](https://github.com/ColfaxResearch/layout-categories)。
-- 文库：[Zotero 条目](zotero://select/library/items/Q3PT5C24) · [Zotero PDF](zotero://open-pdf/library/items/LUQPWFX6)。原 PDF 同时归档到 PapersPDF 的 `04_GPU_Compiler_and_Performance/01_DSL_and_Programming_Models/`。
+- 文库：[Zotero 条目](zotero://select/library/items/Q3PT5C24) · [Zotero PDF](zotero://open-pdf/library/items/LUQPWFX6)。
 
-## 译文说明
-
-本次整理为**中文全文译文**，包括扉页、摘要、目录、第 1–4 章、附录 A 和参考文献，保持原文顺序，保留定义、命题、定理、引理、观察、旁注、例子和证明。摘要、引言及附录由 AI 直接翻译；其余正文使用经用户授权的 Google Translate 生成初译。2026 年 10 月 22 日已由 AI 对照底本逐句校对全文，重点复核数学定义、定理和证明，并修正术语、否定、整除方向、复合顺序与下标。
-
-原文自身存在若干记号和论证疑点，均明确标作“校注”，集中列于[校对记录](Proofreading.md)；其中包括标准形式的单位边界与共同细化算法的循环末项。译文保留这些原陈述，不把校对意见冒充原文。
-
-所有公式、布局图、交换图、表格和代码均从同一底本提取。复杂符号使用原文裁片，避免上下标、分式、箭头和层级括号在转换时失真；图内的原始文字与代码保留原样。每一页同时附有可展开的完整原页图与英文正文，方便核对。PDF 页码比原书印刷页码大 2；前两页为扉页与摘要。
-
-英文原页、中文译文与 AI 校注分别标示。译文已生成不等于用户已读，阅读状态保持待读。
+AI 校注见[校对记录](Proofreading.md)，与论文原文区分。PDF 页码比原书印刷页码大 2。
 
 ## 全文目录
 

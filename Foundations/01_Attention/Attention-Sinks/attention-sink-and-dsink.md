@@ -256,17 +256,15 @@ Mimikyu 检查版本：`83c7cf172`。以下路径相对本机仓库 `/Users/kuan
 
 **数值边界：** 前向将 FP32 `sink_s` 转成输出 dtype 后相乘；反向把已有的 out/dout 转成 FP32 计算。上面的数学等价不意味着 BF16 实现与全 FP32 或融合实现逐位一致。
 
-## 10. 下一次讨论：如何接到 TileLang
+## 10. TileLang 前后向接口的边界
 
-本次仅记录已经检查出的接口条件和候选方向，尚未修改或验证 kernel。
+以下为已检查的接口条件，尚未修改或验证 kernel。
 
 当前仓库 `/Users/kuangjux/codes/welm-sparse-attention`：
 
 - `kernels/blackwell/sparse-attn/tilelang_sparse_fwd.py` 的前向输出已包含 sink，但写出的 `Lse` 是真实 token 的 LSE。backward 所需 `LseTotal` 必须通过 `logaddexp(lse_real, sink)` 得到，或修改前向接口直接提供；不能混用。
 - `tilelang_sparse_bwd.py` 已接收 FP32 `Delta` 和 `LseTotal`，现有公式可表达 sink-aware dQ/dK/dV，但当前没有 `dsink` 输出。
-- 可复用已计算的 `Delta`，按 query tile 生成 FP32 sink 梯度 partial，再归约成 `[Hq]`。这是一种候选方案，具体融合位置和接口留待下一次讨论。
-- 候选概率表达式为 `exp(sink - lse_total)`，可避免 `1 - sink_s` 在 `sink_s` 接近 1 时的相减精度损失；替换后需要检查数值差异。
+- 概率表达式 `exp(sink - lse_total)` 与 `1 - sink_s` 在数学上等价，前者避免 `sink_s` 接近 1 时的相减精度损失；数学等价不代表浮点实现逐位一致。
 - 当前 fused backward 按 KV block 的 reverse CSR 分工，同一 query 可出现在多个 block。不能在每次遇到 query 时都累加完整的 `-Delta * p_sink`，否则会重复计数。
-- 后续需明确归约所有权、参数 dtype、workspace、分布式同步与验证用例；空支持集、极端 sink 和 padding 等边界也应纳入验证。
 
 以上是源码检查和公式推导，没有 GPU 精度或性能实测结论。

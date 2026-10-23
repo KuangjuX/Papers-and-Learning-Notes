@@ -3,19 +3,13 @@
 [所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
 
 - 论文：[原文](https://www.usenix.org/system/files/osdi22-zhu.pdf)
-- 原记录：[Issue #24](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/24) · 作者：KuangjuX
-- 来源更新时间（UTC）：2023-11-28T11:38:58Z · 归档：2026-10-22
-- 材料范围：历史笔记；沿用现有论文清单的阅读状态，不由 issue 的 open/closed 判断是否读完。
+- 原记录：[Issue #24](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/24)
 
 ## 阅读线索与覆盖范围
 
 从张量循环的巨大搜索空间进入 rTile 的硬件对齐，再看 scale-up/scale-out 与性能评估。scale-out、小算子处理和 code generation 只有标题，实验没有展开。
 
-下方是个人历史阅读记录，保留原有技术细节、未完成的小标题和截图；其表述属于当时的阅读理解。本次 AI 整理了来源、章节层级、公式格式与本地图片，校注单独列出。
-
 ## 历史阅读笔记（原 issue 评论）
-
-来源：[评论](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/24#issuecomment-1680040287)；KuangjuX；最后编辑（UTC）：2023-09-20T11:35:14Z。
 
 ### Introduction
 
@@ -97,17 +91,3 @@ Roller 的实现基于 Rammer 和 TVM 两个开源项目。
 - **Code Generation.**
 - **Tensor padding.** 由于最底层内存，例如 DRAM 由机器学习框架进行分配，因此 Roller 只对上层内存进行填充，例如可以使用 TVM 的 `storage_align` 原语来添加 padding。
 - **Performance profiling.** Roller 实现了两个 profiller，分别是 micro-performance profiler 和 kernel profiler。前者通过一组微分析生成设备规格，包括内存带宽，计算吞吐量。对于每个设备类型和张量表达式类型（不管 tensor shape 是什么）进行一次离线分析。kernel profiler 从 top K 个 rProgram 中进行评估。
-
-## 图片来源
-
-以下图片来自上述 issue／评论中的历史截图；保留原图，不重新绘制。图号沿用旧笔记与截图，本次未为未编号截图猜配原论文图号。
-
-| 本地图片 | 原始地址 |
-| --- | --- |
-| [issue-24-01.png](images/issue-24-01.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/866d8a1a-2301-40c5-bced-df3d6b19be48) |
-| [issue-24-02.png](images/issue-24-02.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/9e052efa-7e39-4f49-8981-0ec2740bffa7) |
-| [issue-24-03.png](images/issue-24-03.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/5e36c887-7e54-4227-8e8d-49bf9dceb7c9) |
-| [issue-24-04.png](images/issue-24-04.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/b74292ee-832e-4051-8cee-468c758f722b) |
-| [issue-24-05.png](images/issue-24-05.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/2932bd70-6a62-4d81-a7ec-97cac98413a5) |
-| [issue-24-06.png](images/issue-24-06.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/883ca50b-e949-4c1f-8a8e-40b4443d260a) |
-| [issue-24-07.png](images/issue-24-07.png) | [GitHub 原图](https://github.com/KuangjuX/Paper-reading/assets/56680481/3f692d44-48e4-4984-849c-bed6ebf8cdf1) |

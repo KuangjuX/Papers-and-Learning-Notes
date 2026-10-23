@@ -3,19 +3,13 @@
 [所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
 
 - 论文：[原文](https://www.usenix.org/system/files/osdi23-zhang-chen.pdf)
-- 原记录：[Issue #21](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/21) · 作者：KuangjuX
-- 来源更新时间（UTC）：2023-11-28T11:39:07Z · 归档：2026-10-22
-- 材料范围：历史笔记；沿用现有论文清单的阅读状态，不由 issue 的 open/closed 判断是否读完。
+- 原记录：[Issue #21](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/21)
 
 ## 阅读线索与覆盖范围
 
 按 CPU–GPU 控制流同步开销、uTask/uOperator/uProgram 抽象、循环／分支／递归的表示顺序阅读。原笔记未展开调度优化算法和实验。
 
-下方是个人历史阅读记录，保留原有技术细节、未完成的小标题和截图；其表述属于当时的阅读理解。本次 AI 整理了来源、章节层级、公式格式与本地图片，校注单独列出。
-
 ## 历史阅读笔记（原 issue 评论）
-
-来源：[评论](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/21#issuecomment-1656721281)；KuangjuX；最后编辑（UTC）：2023-08-01T11:49:01Z。
 
 ### 介绍
 
@@ -125,11 +119,3 @@ interface uProgram {
 };
 ```
 整个 DNN 输入程序由 uProgram 表示，uProgram 包含独立的 `uTasks`，每个 `uTask` 是调度到加速器的 `unit_level` 层级。
-
-## 图片来源
-
-以下图片来自上述 issue／评论中的历史截图；保留原图，不重新绘制。图号沿用旧笔记与截图，本次未为未编号截图猜配原论文图号。
-
-| 本地图片 | 原始地址 |
-| --- | --- |
-| [issue-21-01.png](images/issue-21-01.png) | [GitHub 原图](https://github.com/KuangjuX/paper-reading/assets/56680481/5942b546-a373-4c78-86c1-5e574df100ef) |

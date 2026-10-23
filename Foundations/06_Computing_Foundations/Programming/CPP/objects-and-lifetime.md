@@ -1,6 +1,6 @@
 # C++ 对象、生命周期与并发
 
-来源：个人 Notion《秋招面试总结》的 8.13 八股与 9.9 锁题，见 [归档入口](../../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)。以下为 AI 整理与订正，代码按 C++17 语义说明。
+基于[原始问答](../../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)的 AI 整理，按 C++17 语义说明。
 
 ## 指针、引用与 sizeof：先看表达式类型
 

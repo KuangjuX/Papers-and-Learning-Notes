@@ -1,6 +1,6 @@
 # Tawa：用异步引用自动生成 warp specialization
 
-来源：[个人文章全文归档](../../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)；本文从原文章节拆出，2026-10-22 整理。
+来源：[个人文章全文归档](../../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
 从原 Triton 程序中推导生产者／消费者分区，以 aref 连接异步数据流，再生成流水线和同步。
 

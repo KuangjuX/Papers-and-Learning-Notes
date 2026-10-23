@@ -1,6 +1,6 @@
 # DeepSeek-V3.2 与 DSA：年度总结摘记
 
-来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)；本文从原文章节拆出，2026-10-22 整理。
+来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
 保留从 lightning indexer 到 Top-k 主注意力的初读记录，配合已有正式算法笔记复习。
 

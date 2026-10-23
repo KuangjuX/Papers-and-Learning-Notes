@@ -1,10 +1,6 @@
 # Unikernel、Unikraft 与 ArceOS：知乎原文归档
 
-- 作者：KuangjuX。
 - 来源：[Unikernel 学习笔记](https://zhuanlan.zhihu.com/p/622751025)。
-- 原文发布／编辑时间：2023-04-18 09:54（北京时间）；归档：2026-10-22。
-
-本文保存个人已发表的历史笔记；保留当时的结论、代码、截图和参考链接。正文从浏览器可读内容转为 Markdown，公式恢复为 TeX，图片存入同目录 `images/`。原文中的实现、性能数字与“当前”均按文章发表时理解；本次整理与校注写在独立笔记中。
 
 Unikernel 是专用的，单地址空间的，使用 library OS 构建出来的镜像。没有用户空间和内核空间之分，只有一个连续地址空间，这样允许 unikernel 可以更快地执行，但是缺乏内存保护。unikernel 是为了云环境特殊设计，在这个环境下主机必须可信任。
 
@@ -229,15 +225,3 @@ kernel/hypervisor 模块复用：
 
 - Kuenzer S, Bădoiu V A, Lefeuvre H, et al. Unikraft: fast, specialized unikernels the easy way[C]//Proceedings of the Sixteenth European Conference on Computer Systems. 2021: 376-394.
 - arceos: [https://github.com/rcore-os/arceos](https://github.com/rcore-os/arceos)
-
-## 归档图片来源
-
-图片保存自页面实际加载的显示版本，通常为 1440w；下表保留知乎原始图片链接。
-
-| 本地图片 | 原文图片 |
-| --- | --- |
-| [unikraft-01.jpg](images/unikraft-01.jpg) | [知乎原图](https://pic2.zhimg.com/v2-453e0224225e42f9ca40bc378bc41317_r.jpg) |
-| [unikraft-02.jpg](images/unikraft-02.jpg) | [知乎原图](https://pic1.zhimg.com/v2-4c71dd0835132bf91abdea973f89d2de_r.jpg) |
-| [unikraft-03.jpg](images/unikraft-03.jpg) | [知乎原图](https://pic4.zhimg.com/v2-76833d604cbcbc33540d52c9bdc23a6f_r.jpg) |
-| [unikraft-04.jpg](images/unikraft-04.jpg) | [知乎原图](https://pic1.zhimg.com/v2-b6be0d8c0a2c71538a004b4dc1d88b84_r.jpg) |
-| [unikraft-05.jpg](images/unikraft-05.jpg) | [知乎原图](https://pica.zhimg.com/v2-c7db39edc42f09db573d33dfe1473d50_r.jpg) |

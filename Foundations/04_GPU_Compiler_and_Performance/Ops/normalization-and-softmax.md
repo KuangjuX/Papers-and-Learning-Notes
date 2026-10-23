@@ -1,6 +1,6 @@
 # RMSNorm、Softmax 与在线归约
 
-来源：Notion 页首 RMSNorm、8.26 CUDA Softmax、8.28 Online Softmax 及重复题目，见 [归档入口](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)。公式重排、例子、代码缺陷说明与参考算法为本次 AI 整理补充；原 CUDA 草稿未经过本次 GPU 编译或运行。
+基于[原始问答](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)的 AI 整理；CUDA 片段未经 GPU 编译或运行。
 
 ## RMSNorm 归约什么
 

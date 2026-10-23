@@ -1,6 +1,6 @@
 # GPU 执行、编译与排错
 
-来源：Notion 的 8.27 TMA、9.9 Triton 编译、9.18 非法访问与 9.20 warp 调度问答，见 [归档入口](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)。原回答只提供概略流程；下面的层次划分、限制和调试方法由 AI 整理补充。
+基于[原始问答](../../07_Books_and_Technical_References/Interview-AI-Infra/index.md)的 AI 整理。
 
 CUDA 语义核对 Programming Guide 13.3，调度术语核对 Nsight Compute 2026.2.1。Triton 官方 NVIDIA backend 在 2026-10-23 核对；该入口为移动分支，不能把 pass 列表视为跨版本约定。
 

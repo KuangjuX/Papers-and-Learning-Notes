@@ -1,6 +1,6 @@
 # 第 3.2 节：嵌套元组态射上的运算
 [译文总目录](Layout.md) · [第 3.2 节：Nest 范畴与细化](Translation-08-Nest.md) · [第 4 章：计算](Translation-10-Computations.md)
-> 来源：Colfax Research，2025 年 9 月版。本文为中文逐段译文，保留原文顺序及定义、命题、例子、证明和公式；校对说明以“校注”明确区分于原文，详见[校对记录](Proofreading.md)。复杂数学式与图示直接使用本地原文裁片。每页末尾可展开原页核对。
+> 中文译文：[Colfax Research，2025 年 9 月版](source.pdf)。[校注](Proofreading.md)。
 
 ## PDF 第 140 页 · 原书第 138 页
 <a id="pdf-page-140"></a>
