@@ -1,15 +1,14 @@
-# Chimera: An Analytical Optimizing Framework for Effective Compute-intensive Operators Fusion：历史笔记
+# Chimera: An Analytical Optimizing Framework for Effective Compute-intensive Operators Fusion：阅读笔记
 
-[所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
+[所属主题](../../index.md)
 
 - 论文：[原文](https://light-of-hers.github.io/assets/Chimera.pdf)
-- 原记录：[Issue #30](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/30)
 
 ## 易错概念
 
 旧笔记后半部分把 inter-block 与 intra-block 的中文含义混用了。按论文 §III：**inter-block reordering 是块间重排**，调整计算块之间的执行顺序；**intra-block scheduling/code generation 是块内调度与代码生成**，优化一个块内的指令。下方保留历史措辞；复习时应采用这里的对应关系。
 
-## 历史阅读笔记
+## 论文笔记
 
 首先介绍了两种类型算子，计算密集型和内存密集型，内存密集型算子常用来连接计算密集型算子。随后介绍了一下现在专用计算核和片外内存的性能差距越来越大。因此许多计算密集型算子的性能被内存带宽限制。除此之外，计算性能和内存带宽之间的差距仍然在增长。许多计算密集型算子的实现（例如在 Transformer 中的 batched GEMM）正在变成性能瓶颈。
 

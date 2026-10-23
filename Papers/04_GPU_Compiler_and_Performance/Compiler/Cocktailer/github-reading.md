@@ -1,11 +1,10 @@
-# Cocktailer: Analyzing and Optimizing Dynamic Control Flow in Deep Learning：历史笔记
+# Cocktailer: Analyzing and Optimizing Dynamic Control Flow in Deep Learning：阅读笔记
 
-[所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
+[所属主题](../../index.md)
 
 - 论文：[原文](https://www.usenix.org/system/files/osdi23-zhang-chen.pdf)
-- 原记录：[Issue #21](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/21)
 
-## 历史阅读笔记（原 issue 评论）
+## 论文笔记
 
 ### 介绍
 

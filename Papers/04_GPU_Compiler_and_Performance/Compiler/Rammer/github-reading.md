@@ -1,15 +1,14 @@
-# Rammer: Enabling Holistic Deep Learning Compiler Optimizations with rTasks：历史笔记
+# Rammer: Enabling Holistic Deep Learning Compiler Optimizations with rTasks：阅读笔记
 
-[所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
+[所属主题](../../index.md)
 
 - 论文：[原文](https://www.usenix.org/system/files/osdi20-ma.pdf)
-- 原记录：[Issue #22](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/22)
 
 ## 易错概念
 
 原笔记中“GPU 仅允许一次执行一个算子”不能当作通用硬件限制。本文要解决的是如何由编译器控制更细的 rTask 调度；§4.1.2、Figure 9 描述了同一个 vDevice 中两个 vEU 并行执行不同算子的 rTask，并在依赖处同步。
 
-## 历史阅读笔记（原 issue 评论）
+## 论文笔记
 
 ### 动机
 

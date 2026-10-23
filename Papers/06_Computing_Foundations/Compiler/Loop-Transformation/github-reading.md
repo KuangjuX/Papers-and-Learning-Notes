@@ -1,11 +1,10 @@
 # A Loop Transformation Theory and an Algorithm to Maximize Parallelism：开篇摘记，未完成
 
-[所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
+[所属主题](../../index.md)
 
 - 论文：[原文](https://ieeexplore.ieee.org/document/97902/)
-- 原记录：[Issue #34](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/34)
 
-## 历史阅读笔记
+## 论文笔记
 
 这篇论文试图提出一种算法在 general loop nests 中找到最大并行。
 

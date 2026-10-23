@@ -1,9 +1,8 @@
-# FLASHATTENTION: Fast and Memory-Efficient Exact Attention with IO-Awareness：历史笔记
+# FLASHATTENTION: Fast and Memory-Efficient Exact Attention with IO-Awareness：阅读笔记
 
-[所属主题](../index.md) · [GitHub 历史笔记目录](../../github-issues.md)
+[所属主题](../index.md)
 
 - 论文：[原文](https://arxiv.org/abs/2205.14135)
-- 原记录：[Issue #33](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/33)
 
 ## 易错概念
 
@@ -11,7 +10,7 @@
 
 相关基础笔记：[FlashAttention 的 online softmax 与版本演进](../../../Foundations/01_Attention/FlashAttention.md)。
 
-## 历史阅读笔记
+## 论文笔记
 
 原笔记参考：[知乎文章](https://www.zhihu.com/question/611236756/answer/3132304304)。
 

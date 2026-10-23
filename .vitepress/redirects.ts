@@ -1929,4 +1929,8 @@ export default {
   "Foundations/03_Distributed_Training_and_MoE/Low-Precision-Training/images/fp8-current-scaling-two-reads.svg": "Foundations/08_Quantization/images/fp8-current-scaling-two-reads.svg",
   "Foundations/03_Distributed_Training_and_MoE/Low-Precision-Training/images/fp8-formats.svg": "Foundations/08_Quantization/images/fp8-formats.svg",
   "Foundations/03_Distributed_Training_and_MoE/Low-Precision-Training/images/fp8-scaling.svg": "Foundations/08_Quantization/images/fp8-scaling.svg",
+  "Papers/downloaded-papers.md": "Papers/index.md",
+  "Papers/external-notes.md": "Papers/index.md",
+  "Papers/github-issues.md": "Papers/index.md",
+  "Papers/06_Computing_Foundations/Operating-Systems/Unikraft/github-reading.md": "Papers/06_Computing_Foundations/Operating-Systems/Unikraft/unikraft.md",
 } as Record<string, string>

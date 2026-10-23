@@ -1,11 +1,10 @@
-# Graphene: An IR for Optimized Tensor Computations on GPUs：历史笔记
+# Graphene: An IR for Optimized Tensor Computations on GPUs：阅读笔记
 
-[所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
+[所属主题](../../index.md)
 
 - 论文：[原文](https://mgarland.org/papers/2023/graphene/)
-- 原记录：[Issue #27](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/27)
 
-## 历史阅读笔记
+## 论文笔记
 
 ### 优化 GPU 数据移动
 

@@ -4,9 +4,7 @@
 
 神经网络基础、模型架构、优化与对齐、Agent、能力与安全评测。
 
-共 108 个清单条目；已读 4，待读 104。保留原有跨分类重复条目与阅读状态。
-
-- [已下载 PDF 与标签目录](../downloaded-papers.md#topic-05)
+共 108 个清单条目；已读 4，待读 104。
 
 ## 本地笔记
 
@@ -39,8 +37,8 @@
 | ⬜ | **ORPO: Monolithic Preference Optimization without Reference Model** | [EMNLP'24](https://aclanthology.org/2024.emnlp-main.626/) | 将 SFT 与偏好约束合并，移除独立 reference model | [Paper](https://arxiv.org/abs/2403.07691) |
 | ⬜ | **SimPO: Simple Preference Optimization with a Reference-Free Reward** | [NeurIPS'24](https://arxiv.org/abs/2405.14734) | reference-free、长度归一化 reward 与 margin objective | [Paper](https://arxiv.org/abs/2405.14734) |
 | ⬜ | **DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models** | [arXiv'24](https://arxiv.org/abs/2402.03300) | GRPO、数学数据与可验证奖励，是 reasoning RL 的关键前置 | [Paper](https://arxiv.org/abs/2402.03300) |
-| ⬜ | <a id="pdf-llgxksrv"></a>**DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning** | [Nature'25](https://www.nature.com/articles/s41586-025-09422-z) | 大规模 reasoning RL、冷启动数据与蒸馏路线 | [Paper](https://arxiv.org/abs/2501.12948) / [归档标签](../downloaded-papers.md#pdf-llgxksrv) |
-| ⬜ | <a id="pdf-lgssufuy"></a>**Forking: Sudden Overfitting Under Replay** | arXiv · 2026 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2610.00394) / [PDF](zotero://open-pdf/library/items/UUKKY3ZD) / [Zotero](zotero://select/library/items/LGSSUFUY) / [归档标签](../downloaded-papers.md#pdf-lgssufuy) |
+| ⬜ | <a id="pdf-llgxksrv"></a>**DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning** | [Nature'25](https://www.nature.com/articles/s41586-025-09422-z) | 大规模 reasoning RL、冷启动数据与蒸馏路线 | [Paper](https://arxiv.org/abs/2501.12948) |
+| ⬜ | <a id="pdf-lgssufuy"></a>**Forking: Sudden Overfitting Under Replay** | arXiv · 2026 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2610.00394) / [PDF](zotero://open-pdf/library/items/UUKKY3ZD) / [Zotero](zotero://select/library/items/LGSSUFUY) |
 
 ## Deep Learning / Foundations & Optimization
 
@@ -84,7 +82,7 @@
 | ⬜ | **DeepSeekMoE: Towards Ultimate Expert Specialization in Mixture-of-Experts Language Models** | [ACL'24](https://doi.org/10.18653/v1/2024.acl-long.70) | shared expert、细粒度 expert segmentation 与稀疏计算配比 | [Paper](https://arxiv.org/abs/2401.06066) |
 | ⬜ | **Mixtral of Experts** | [arXiv'24](https://arxiv.org/abs/2401.04088) | 实用 sparse MoE LLM 的结构、路由和质量–计算权衡 | [Paper](https://arxiv.org/abs/2401.04088) |
 | ⬜ | **OLMo: Accelerating the Science of Language Models** | [ACL'24](https://aclanthology.org/2024.acl-long.841/) | 开放数据、训练代码、checkpoint、日志和评测的端到端案例 | [Paper](https://aclanthology.org/2024.acl-long.841/) |
-| ⬜ | <a id="pdf-tnx3548w"></a>**Qwen3 Technical Report** | arXiv · 2025 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2505.09388) / [PDF](zotero://open-pdf/library/items/D664IKR9) / [Zotero](zotero://select/library/items/TNX3548W) / [归档标签](../downloaded-papers.md#pdf-tnx3548w) |
+| ⬜ | <a id="pdf-tnx3548w"></a>**Qwen3 Technical Report** | arXiv · 2025 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2505.09388) / [PDF](zotero://open-pdf/library/items/D664IKR9) / [Zotero](zotero://select/library/items/TNX3548W) |
 
 ## Deep Learning / Scaling Laws, Data & Pretraining
 
@@ -119,13 +117,13 @@
 | ⬜ | **Mamba: Linear-Time Sequence Modeling with Selective State Spaces** | [COLM'24](https://dao-lab.ai/publications/) | 以输入依赖的选择性状态空间和硬件感知扫描，提高线性时间模型的内容选择能力 | [Paper](https://arxiv.org/abs/2312.00752) |
 | ⬜ | **Transformers are SSMs: Generalized Models and Efficient Algorithms Through Structured State Space Duality** | [ICML'24](https://proceedings.mlr.press/v235/dao24a.html) | 建立 attention 与结构化状态空间的对偶关系，导出 Mamba-2 及高效分块算法 | [Paper](https://arxiv.org/abs/2405.21060) |
 | ⬜ | **xLSTM: Extended Long Short-Term Memory** | [NeurIPS'24](https://proceedings.neurips.cc/paper_files/paper/2024/hash/c2ce2f2701c10a2b2f2ea0bfa43cfaa3-Abstract-Conference.html) | 通过指数门控与标量或矩阵记忆扩展 LSTM，探索可扩展的循环语言模型 | [Paper](https://arxiv.org/abs/2405.04517) |
-| ✅ | <a id="pdf-ac84rd85"></a>**DeepSeek-V3.2: Pushing the Frontier of Open Large Language Models** | [arXiv'25](https://arxiv.org/pdf/2512.02556) | 以 DSA 降低长上下文 attention 成本，并结合可扩展强化学习提升推理与工具使用能力 | [Paper](https://arxiv.org/pdf/2512.02556) / [归档标签](../downloaded-papers.md#pdf-ac84rd85) |
+| ✅ | <a id="pdf-ac84rd85"></a>**DeepSeek-V3.2: Pushing the Frontier of Open Large Language Models** | [arXiv'25](https://arxiv.org/pdf/2512.02556) | 以 DSA 降低长上下文 attention 成本，并结合可扩展强化学习提升推理与工具使用能力 | [Paper](https://arxiv.org/pdf/2512.02556) |
 | ✅ 📝 | **DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence** | [Tech report'26](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash) | 组合压缩稀疏与高度压缩 attention，降低百万 token 上下文的计算和 KV 缓存开销 | [Paper](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/blob/main/DeepSeek_V4.pdf) / [Note](DeepSeek-V4/deepseek-v4.md) |
-| ⬜ | <a id="pdf-eumymezx"></a>**DeepSeek-V4.1-Flash: Pushing the Limits of KV Cache Compression** | arXiv · 2026 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2609.19969) / [PDF](zotero://open-pdf/library/items/S7D47QU2) / [Zotero](zotero://select/library/items/EUMYMEZX) / [归档标签](../downloaded-papers.md#pdf-eumymezx) |
-| ⬜ | <a id="pdf-ndm56t2p"></a>**mHC: Manifold-Constrained Hyper-Connections** | arXiv · 2026 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2512.24880) / [PDF](zotero://open-pdf/library/items/G5UP6HY5) / [Zotero](zotero://select/library/items/NDM56T2P) / [归档标签](../downloaded-papers.md#pdf-ndm56t2p) |
-| ⬜ | <a id="pdf-d672fsr3"></a>**SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diffusion Transformer** | arXiv · 2026 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2605.15178) / [PDF](zotero://open-pdf/library/items/WPBIFRLY) / [Zotero](zotero://select/library/items/D672FSR3) / [归档标签](../downloaded-papers.md#pdf-d672fsr3) |
-| ⬜ | <a id="pdf-stmlx3iu"></a>**Scaling Latent Reasoning via Looped Language Models** | arXiv · 2026 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2510.25741) / [PDF](zotero://open-pdf/library/items/JUFCNBBH) / [Zotero](zotero://select/library/items/STMLX3IU) / [归档标签](../downloaded-papers.md#pdf-stmlx3iu) |
-| ⬜ | <a id="pdf-cen64b84"></a>**Virtual Width Networks** | arXiv · 2025 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2511.11238) / [PDF](zotero://open-pdf/library/items/V2PVED9S) / [Zotero](zotero://select/library/items/CEN64B84) / [归档标签](../downloaded-papers.md#pdf-cen64b84) |
+| ⬜ | <a id="pdf-eumymezx"></a>**DeepSeek-V4.1-Flash: Pushing the Limits of KV Cache Compression** | arXiv · 2026 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2609.19969) / [PDF](zotero://open-pdf/library/items/S7D47QU2) / [Zotero](zotero://select/library/items/EUMYMEZX) |
+| ⬜ | <a id="pdf-ndm56t2p"></a>**mHC: Manifold-Constrained Hyper-Connections** | arXiv · 2026 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2512.24880) / [PDF](zotero://open-pdf/library/items/G5UP6HY5) / [Zotero](zotero://select/library/items/NDM56T2P) |
+| ⬜ | <a id="pdf-d672fsr3"></a>**SANA-WM: Efficient Minute-Scale World Modeling with Hybrid Linear Diffusion Transformer** | arXiv · 2026 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2605.15178) / [PDF](zotero://open-pdf/library/items/WPBIFRLY) / [Zotero](zotero://select/library/items/D672FSR3) |
+| ⬜ | <a id="pdf-stmlx3iu"></a>**Scaling Latent Reasoning via Looped Language Models** | arXiv · 2026 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2510.25741) / [PDF](zotero://open-pdf/library/items/JUFCNBBH) / [Zotero](zotero://select/library/items/STMLX3IU) |
+| ⬜ | <a id="pdf-cen64b84"></a>**Virtual Width Networks** | arXiv · 2025 | 标签：模型架构与推理能力 | [Paper](http://arxiv.org/abs/2511.11238) / [PDF](zotero://open-pdf/library/items/V2PVED9S) / [Zotero](zotero://select/library/items/CEN64B84) |
 
 ## LLM Evaluation & Safety / Capability & Quality Evaluation
 

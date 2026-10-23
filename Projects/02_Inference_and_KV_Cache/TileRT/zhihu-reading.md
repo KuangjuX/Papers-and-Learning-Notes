@@ -1,14 +1,14 @@
 # TileRT：面向低延迟推理的 tile 运行时
 
-来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
+来源：[2025 年度 LLM 研究总结](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
-## 整理与复习
+## 要点与边界
 
 - 来源：[TileRT 仓库](https://github.com/tile-ai/TileRT)，原文章节尚未展开源码调用链或记录 commit。
 - “尚未发布 Technical Report”只描述 2026-01 写作时的状态，不保证之后仍成立。
 - 当前保存的是项目初读与图表，不能据此推导完整调度算法或生产部署成熟度。
 
-## 原笔记相关章节
+## 机制与实现
 
 #### TileRT[13](https://zhuanlan.zhihu.com/p/1994788371738949558#ref_13)
 

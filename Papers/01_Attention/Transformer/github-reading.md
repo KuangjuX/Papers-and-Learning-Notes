@@ -1,9 +1,8 @@
-# Attention is all you need：历史笔记
+# Attention is all you need：阅读笔记
 
-[所属主题](../index.md) · [GitHub 历史笔记目录](../../github-issues.md)
+[所属主题](../index.md)
 
 - 论文：[原文](https://arxiv.org/abs/1706.03762)
-- 原记录：[Issue #32](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/32)
 
 ## 易错概念
 
@@ -11,7 +10,7 @@
 
 相关基础笔记：[Transformer](../../../Foundations/05_Model_Architecture_and_Reasoning/Transformer.md)。
 
-## 历史阅读笔记
+## 论文笔记
 
 ### Abstract
 

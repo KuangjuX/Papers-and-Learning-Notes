@@ -1,15 +1,14 @@
-# BOLT: BRIDGING THE GAP BETWEEN AUTO-TUNERS AND HARDWARE-NATIVE PERFORMANCE：历史笔记
+# BOLT: BRIDGING THE GAP BETWEEN AUTO-TUNERS AND HARDWARE-NATIVE PERFORMANCE：阅读笔记
 
-[所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
+[所属主题](../../index.md)
 
 - 论文：[原文](https://proceedings.mlsys.org/paper_files/paper/2022/file/1f8053a67ec8e0b57455713cefdd8218-Paper.pdf)
-- 原记录：[Issue #28](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/28)
 
 ## 易错概念
 
 论文 §3.2.3 的 alignment 8 指 **8 个 FP16 元素**：8 × 16 bit = 128 bit，即 16 字节，旧笔记误写成了“8 bit 对齐”。同节关于布局和指令宽度的描述有论文版本背景，不作为所有后续 CUTLASS／GPU 版本的通用限制。历史材料中的 `sharded memory` 应为 `shared memory`。
 
-## 历史阅读笔记
+## 论文笔记
 
 ### Introduction
 

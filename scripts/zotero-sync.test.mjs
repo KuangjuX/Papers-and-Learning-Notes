@@ -47,7 +47,25 @@ test('incremental update preserves user text, adds annotation and updates unchan
   const again = syncDossier(data, options);
   assert.equal(readFileSync(file, 'utf8'), updated);
   assert.deepEqual(again.conflicts, []);
-  assert.equal(readFileSync(join(root, 'Papers/index.md'), 'utf8').match(/Test Paper/g).length, 1);
+  assert.equal(readFileSync(join(root, 'Papers/index.md'), 'utf8'), '# Reading\n');
+  assert.equal(readFileSync(join(root, 'Papers/01_Attention/index.md'), 'utf8').match(/Test Paper/g).length, 1);
+});
+
+test('sync indexes reading material by topic without adding source or progress sections to the overview', () => {
+  const root = repo();
+  const topic = join(root, 'Papers/01_Attention/index.md');
+  writeFileSync(topic, '# Attention\n\n## 阅读材料\n\n- Existing note\n\n## 论文清单\n\nKeep this table here.\n');
+  const overview = readFileSync(join(root, 'Papers/index.md'), 'utf8');
+  const options = { root, topic: '01_Attention', slug: 'test-paper' };
+  syncDossier(fixture(), options);
+  syncDossier(fixture(), options);
+  const updated = readFileSync(topic, 'utf8');
+  assert.match(updated, /## 阅读材料\n\n- Existing note\n- \[Test Paper（阅读中）\]/);
+  assert.ok(updated.indexOf('Test Paper') < updated.indexOf('## 论文清单'));
+  assert.equal(updated.match(/Test Paper/g).length, 1);
+  assert.ok(updated.endsWith('## 论文清单\n\nKeep this table here.\n'));
+  assert.doesNotMatch(updated, /Zotero 阅读材料|Zotero 阅读进度/);
+  assert.equal(readFileSync(join(root, 'Papers/index.md'), 'utf8'), overview);
 });
 
 test('manual edits inside managed blocks survive source changes and produce private conflict draft', () => {

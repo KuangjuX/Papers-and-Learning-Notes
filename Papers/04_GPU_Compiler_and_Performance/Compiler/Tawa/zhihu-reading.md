@@ -1,16 +1,16 @@
 # Tawa：用异步引用自动生成 warp specialization
 
-来源：[个人文章全文归档](../../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
+来源：[2025 年度 LLM 研究总结](../../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
 从原 Triton 程序中推导生产者／消费者分区，以 aref 连接异步数据流，再生成流水线和同步。
 
-## 整理与复习
+## 要点与边界
 
 - [Tawa](https://arxiv.org/abs/2510.14719) 的目标是无需给原 Triton 程序加入手写 warp 分区注解。
 - `put/get/consumed` 表达生产、借用和释放的生命周期；旧记录对 mbarrier 状态的解释是概念示意，不能直接当作每种 lowering 都逐条成立的 PTX 实现。
 - 比较性能需注明 GEMM 或 attention、输入形状、H100 平台与对应基线，不能仅由“长序列更快”推出全部工作负载的结论。
 
-## 原笔记相关章节
+## 机制与实现
 
 #### Tawa[15](https://zhuanlan.zhihu.com/p/1994788371738949558#ref_15)
 

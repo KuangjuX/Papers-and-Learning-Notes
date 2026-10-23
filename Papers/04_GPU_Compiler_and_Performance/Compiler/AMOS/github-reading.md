@@ -1,15 +1,14 @@
-# AMOS: Enabling Automatic Mapping for Tensor Computations On Spatial Accelerators with Hardware Abstraction：历史笔记
+# AMOS: Enabling Automatic Mapping for Tensor Computations On Spatial Accelerators with Hardware Abstraction：阅读笔记
 
-[所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
+[所属主题](../../index.md)
 
 - 论文：[原文](https://cs.stanford.edu/~anjiang/papers/ZhengETAL22AMOS.pdf)
-- 原记录：[Issue #31](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/31)
 
 ## 易错概念
 
 论文 §7.3、Figure 6(a)(b) 的基线是 **PyTorch**；113 种算子配置在 batch size 1、V100/A100 上，相对该基线的几何平均加速分别为 2.50× 和 2.80×。旧笔记“相比 C++”是误记，不能当作对某个未指明 C++ 实现的结论。
 
-## 历史阅读笔记
+## 论文笔记
 
 本篇文章主要讲了如何在新出现的 Tensor Core 上提出 IR 并做 codegen。
 

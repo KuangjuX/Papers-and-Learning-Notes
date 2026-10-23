@@ -1,6 +1,6 @@
-# AI Infra 面试基础：Notion 总结归档
+# AI Infra 面试基础
 
-[基础总览](../../index.md) · [外部笔记来源](../../../Papers/external-notes.md)
+[基础总览](../../index.md)
 
 [《秋招面试总结》](https://app.notion.com/p/24e9da1e836d80ac828bc1fed39b3a26)
 

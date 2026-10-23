@@ -1,4 +1,4 @@
-# Unikernel、Unikraft 与 ArceOS：知乎原文归档
+# Unikernel、Unikraft 与 ArceOS
 
 - 来源：[Unikernel 学习笔记](https://zhuanlan.zhihu.com/p/622751025)。
 
@@ -12,8 +12,6 @@ Unikernel 是专用的，单地址空间的，使用 library OS 构建出来的�
 - 对于基于 UDP 的性能应用中，许多 OS 网络栈是不需要的：app 可以仅仅使用驱动 API，就像 DPDK 做的一样。
 - 直接访问 NVMe 存储可以不需要文件描述符，VFS 层和文件系统。
 - 内存分配器对于应用程序性能有巨大的影响，通用分配器对于很多应用程序不是最佳的选择。如果应用程序可以选择不同的内存分配器将十分完美。
-
-[分篇笔记与归档目录](../../../../../Papers/external-notes.md)
 
 ## Unikraft
 

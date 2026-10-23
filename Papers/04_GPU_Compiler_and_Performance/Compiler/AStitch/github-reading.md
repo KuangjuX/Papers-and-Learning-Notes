@@ -1,11 +1,10 @@
-# AStitch: Enabling a New Multi-dimensional Optimization Space for Memory-Intensive ML Training and Inference on Modern SIMT Architectures：历史笔记
+# AStitch: Enabling a New Multi-dimensional Optimization Space for Memory-Intensive ML Training and Inference on Modern SIMT Architectures：阅读笔记
 
-[所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
+[所属主题](../../index.md)
 
 - 论文：[原文](https://dl.acm.org/doi/10.1145/3503222.3507723)
-- 原记录：[Issue #26](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/26)
 
-## 历史阅读笔记（原 issue 评论）
+## 论文笔记
 
 ### Introduction
 

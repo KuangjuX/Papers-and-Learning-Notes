@@ -1,6 +1,6 @@
 # 本地笔记目录
 
-先按论文、项目、基础区分材料类型，再按主题查找。论文清单中未写笔记的条目见[论文归档](Papers/index.md)。历史 issue 的来源与迁移情况见 [GitHub 笔记归档](Papers/github-issues.md)，个人外部技术问答见 [AI Infra 面试基础归档](Foundations/07_Books_and_Technical_References/Interview-AI-Infra/index.md)。
+按论文、项目和基础分类，再按知识主题查找。[论文清单](Papers/index.md)包含各主题的阅读状态。
 
 ## 论文
 
@@ -16,8 +16,8 @@
 - [MiniMax Sparse Attention (MSA)](Papers/01_Attention/MiniMax-MSA/msa.md)
 - [Fast Transformer Decoding: One Write-Head is All You Need](Papers/01_Attention/MQA/fast-transformer-decoding-mqa.md)
 - [A Survey of Efficient Attention Methods: Hardware-efficient,  Sparse, Compact, and Linear Attention](Papers/01_Attention/Surveys/efficient_attention_survey.md)
-- [Attention is all you need：历史笔记](Papers/01_Attention/Transformer/github-reading.md)
-- [FLASHATTENTION: Fast and Memory-Efficient Exact Attention with IO-Awareness：历史笔记](Papers/01_Attention/FlashAttention/github-reading.md)
+- [Attention is all you need：阅读笔记](Papers/01_Attention/Transformer/github-reading.md)
+- [FLASHATTENTION: Fast and Memory-Efficient Exact Attention with IO-Awareness：阅读笔记](Papers/01_Attention/FlashAttention/github-reading.md)
 - [Kimi Linear：状态更新与混合注意力](Papers/01_Attention/Kimi-Linear/zhihu-reading.md)
 - [DeepSeek-V3.2 与 DSA：年度总结摘记](Papers/01_Attention/DeepSeek-DSA/zhihu-reading.md)
 
@@ -32,7 +32,7 @@
 
 - [MegaMoE：把 MoE 前向路径压进一个通信计算融合核](Papers/03_Distributed_Training_and_MoE/MegaMoE/megamoe.md)
 - [PithTrain: A Compact and Agent-Native MoE Training System](Papers/03_Distributed_Training_and_MoE/PithTrain/pithtrain.md)
-- [PockEngine: Sparse and Efficient Fine-tuning in a Pocket：历史笔记](Papers/03_Distributed_Training_and_MoE/PockEngine/github-reading.md)
+- [PockEngine: Sparse and Efficient Fine-tuning in a Pocket：阅读笔记](Papers/03_Distributed_Training_and_MoE/PockEngine/github-reading.md)
 - [Seer：同步 RL 的 rollout 切分、调度与分组投机](Papers/03_Distributed_Training_and_MoE/Seer/zhihu-reading.md)
 - [SonicMoE：梯度重排、异步 IO 与 tile 感知路由](Papers/03_Distributed_Training_and_MoE/SonicMoE/sonicmoe.md)
 
@@ -46,15 +46,15 @@
 - [Event Tensor：用“事件张量”编译动态 Megakernel](Papers/04_GPU_Compiler_and_Performance/Event-Tensor/event-tensor.md)
 - [CAKE: Compiler-Agent Co-Design for Frontier Kernel Evolution](Papers/04_GPU_Compiler_and_Performance/Kernel-Generation/CAKE.md)
 - [AVO: Agentic Variation Operators for Autonomous Evolutionary Search](Papers/04_GPU_Compiler_and_Performance/Kernel-Generation/avo.md)
-- [Cocktailer: Analyzing and Optimizing Dynamic Control Flow in Deep Learning：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/Cocktailer/github-reading.md)
-- [Rammer: Enabling Holistic Deep Learning Compiler Optimizations with rTasks：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/Rammer/github-reading.md)
-- [Roller: Fast and Efficient Tensor Compilation for Deep Learning：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/ROLLER/github-reading.md)
-- [Welder: Scheduling Deep Learning Memory Access via Tile-graph：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/Welder/github-reading.md)
-- [AStitch: Enabling a New Multi-dimensional Optimization Space for Memory-Intensive ML Training and Inference on Modern SIMT Architectures：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/AStitch/github-reading.md)
-- [Graphene: An IR for Optimized Tensor Computations on GPUs：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/Graphene/github-reading.md)
-- [BOLT: BRIDGING THE GAP BETWEEN AUTO-TUNERS AND HARDWARE-NATIVE PERFORMANCE：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/BOLT/github-reading.md)
-- [Chimera: An Analytical Optimizing Framework for Effective Compute-intensive Operators Fusion：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/Chimera/github-reading.md)
-- [AMOS: Enabling Automatic Mapping for Tensor Computations On Spatial Accelerators with Hardware Abstraction：历史笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/AMOS/github-reading.md)
+- [Cocktailer: Analyzing and Optimizing Dynamic Control Flow in Deep Learning：阅读笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/Cocktailer/github-reading.md)
+- [Rammer: Enabling Holistic Deep Learning Compiler Optimizations with rTasks：阅读笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/Rammer/github-reading.md)
+- [Roller: Fast and Efficient Tensor Compilation for Deep Learning：阅读笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/ROLLER/github-reading.md)
+- [Welder: Scheduling Deep Learning Memory Access via Tile-graph：阅读笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/Welder/github-reading.md)
+- [AStitch: Enabling a New Multi-dimensional Optimization Space for Memory-Intensive ML Training and Inference on Modern SIMT Architectures：阅读笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/AStitch/github-reading.md)
+- [Graphene: An IR for Optimized Tensor Computations on GPUs：阅读笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/Graphene/github-reading.md)
+- [BOLT: BRIDGING THE GAP BETWEEN AUTO-TUNERS AND HARDWARE-NATIVE PERFORMANCE：阅读笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/BOLT/github-reading.md)
+- [Chimera: An Analytical Optimizing Framework for Effective Compute-intensive Operators Fusion：阅读笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/Chimera/github-reading.md)
+- [AMOS: Enabling Automatic Mapping for Tensor Computations On Spatial Accelerators with Hardware Abstraction：阅读笔记](Papers/04_GPU_Compiler_and_Performance/Compiler/AMOS/github-reading.md)
 - [Mirage Persistent Kernel：任务图与持久化运行时](Papers/04_GPU_Compiler_and_Performance/MPK/zhihu-reading.md)
 - [Tawa：用异步引用自动生成 warp specialization](Papers/04_GPU_Compiler_and_Performance/Compiler/Tawa/zhihu-reading.md)
 - [Look Ma, No Bubbles!：Llama-1B Megakernel 阅读摘记](Papers/04_GPU_Compiler_and_Performance/Megakernels/zhihu-reading.md)
@@ -73,7 +73,6 @@
 - [Security and Performance in the Delegated User-level Virtualization](Papers/06_Computing_Foundations/Virtualization/DuVisor/duvisor.md)
 - [Honeycomb: Secure and Efficient GPU Executions via Static Validation](Papers/06_Computing_Foundations/Virtualization/Honeycomb/honeycomb.md)
 - [Nephele: Extending Virtualization Environments for Cloning Unikernel-based VMs](Papers/06_Computing_Foundations/Virtualization/Nephele/nephele.md)
-- [Unikraft: Fast, Specialized Unikernels the Easy Way：历史来源](Papers/06_Computing_Foundations/Operating-Systems/Unikraft/github-reading.md)
 - [A Loop Transformation Theory and an Algorithm to Maximize Parallelism：未完成摘记](Papers/06_Computing_Foundations/Compiler/Loop-Transformation/github-reading.md)
 - [Unikraft：模块化 library OS 与专用内核](Papers/06_Computing_Foundations/Operating-Systems/Unikraft/unikraft.md)
 
@@ -147,7 +146,7 @@
 ### 分布式训练与 MoE
 
 - [Ring Attention、Ulysses 与在线归一化](Foundations/03_Distributed_Training_and_MoE/Sequence-Parallelism/distributed-attention.md)
-- [MoE 数学与 SonicMoE：知乎原文归档](Foundations/03_Distributed_Training_and_MoE/MoE/zhihu-reading.md)
+- [MoE 数学与 SonicMoE](Foundations/03_Distributed_Training_and_MoE/MoE/zhihu-reading.md)
 - [MoE：路由、Grouped GEMM、梯度与计算成本](Foundations/03_Distributed_Training_and_MoE/MoE/moe-math-and-cost.md)
 
 ### GPU 编译与性能
@@ -174,7 +173,7 @@
 - [LLM Training, Inference & Algorithms — Recommended Reading Path](Foundations/05_Model_Architecture_and_Reasoning/Learning-Paths/llm.md)
 - [神经网络](Foundations/05_Model_Architecture_and_Reasoning/neural-network.md)
 - [Adam 论文前置学习路线](Foundations/05_Model_Architecture_and_Reasoning/Optimization/adam-prerequisites.md)
-- [2025 年度 LLM 研究总结：知乎原文归档](Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)
+- [2025 年度 LLM 研究总结](Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)
 
 ### 计算基础
 
@@ -203,11 +202,11 @@
 - [Virtualizing Memory](Foundations/06_Computing_Foundations/Systems/Virtualization/mm-virtualizing.md)
 - [QEMU/KVM](Foundations/06_Computing_Foundations/Systems/Virtualization/qemu-kvm.md)
 - [虚拟化硬件加速器调研](Foundations/06_Computing_Foundations/Systems/Virtualization/%E8%99%9A%E6%8B%9F%E5%8C%96.md)
-- [Unikernel、Unikraft 与 ArceOS：知乎原文归档](Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/zhihu-reading.md)
+- [Unikernel、Unikraft 与 ArceOS](Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/zhihu-reading.md)
 
 ### 教材与技术参考
 
-- [AI Infra 面试基础：Notion 总结归档](Foundations/07_Books_and_Technical_References/Interview-AI-Infra/index.md)
+- [AI Infra 面试基础](Foundations/07_Books_and_Technical_References/Interview-AI-Infra/index.md)
 - [超标量处理器概览](Foundations/07_Books_and_Technical_References/Books/Superscalar/Chapter1-Introduction.md)
 - [Cache](Foundations/07_Books_and_Technical_References/Books/Superscalar/Chapter2-Cache.md)
 - [Divide and Conquer](Foundations/07_Books_and_Technical_References/Courses/Algorithm/divide-and-conquer.md)

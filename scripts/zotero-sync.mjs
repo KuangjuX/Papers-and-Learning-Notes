@@ -147,11 +147,15 @@ export function syncDossier(data, { root = ROOT, topic, slug, dryRun = false } =
   if (merged.conflicts.length) save(conflictFile, '# 待合并的 Zotero 更新\n\n' + merged.conflicts.map(c => c.incoming).join('\n\n') + '\n');
   save(stateFile, JSON.stringify({ file: relative(root, file), baseline: merged.baseline }, null, 2) + '\n');
   const title = escape(data.paper.title) + '（阅读中）';
-  for (const [index, label] of [[topicIndex, 'Zotero 阅读材料'], [resolve(root, 'Papers/index.md'), 'Zotero 阅读进度']]) {
-    within(root, index);
-    const content = readFileSync(index, 'utf8');
-    const target = linkPath(relative(dirname(index), file));
-    if (!content.includes(`](${target})`)) save(index, content.trimEnd() + (content.includes(`## ${label}`) ? '\n' : `\n\n## ${label}\n\n`) + `- [${title}](${target})\n`);
+  const content = readFileSync(topicIndex, 'utf8');
+  const target = linkPath(relative(dirname(topicIndex), file));
+  if (!content.includes(`](${target})`)) {
+    const entry = `- [${title}](${target})\n`;
+    const section = /^## 阅读材料\n[\s\S]*?(?=^## |$(?![\s\S]))/m;
+    const updated = section.test(content)
+      ? content.replace(section, body => body.trimEnd() + '\n' + entry + '\n')
+      : content.trimEnd() + '\n\n## 阅读材料\n\n' + entry;
+    save(topicIndex, updated);
   }
   return result;
 }

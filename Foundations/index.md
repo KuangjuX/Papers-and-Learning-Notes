@@ -2,9 +2,7 @@
 
 记录原理、数学推导、教程、课程、教材与开发参考。
 
-[已下载教材、课程与技术资料](../Papers/downloaded-papers.md) 按原分类标签关联到各主题的阅读入口。
-
-[AI Infra 面试基础归档](07_Books_and_Technical_References/Interview-AI-Infra/index.md)：CUDA、数值格式、分布式 Attention、推理成本与 C++。
+[AI Infra 面试基础](07_Books_and_Technical_References/Interview-AI-Infra/index.md)：CUDA、数值格式、分布式 Attention、推理成本与 C++。
 
 | 主题 | 内容 |
 | --- | --- |

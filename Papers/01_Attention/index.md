@@ -4,9 +4,7 @@
 
 注意力机制、稀疏 Attention、高效内核、线性 Attention 与记忆。
 
-共 42 个清单条目；已读 14，待读 28。保留原有跨分类重复条目与阅读状态。
-
-- [已下载 PDF 与标签目录](../downloaded-papers.md#topic-01)
+共 42 个清单条目；已读 14，待读 28。
 
 ## 本地笔记
 
@@ -24,8 +22,8 @@
 - [A Survey of Efficient Attention Methods: Hardware-efficient,  Sparse, Compact, and Linear Attention](Surveys/efficient_attention_survey.md)
 
 稀疏注意力部分包含架构、选择算法与训练方法，MSA 和 DSA 是其中的具体案例。
-- [Attention is all you need：历史笔记](Transformer/github-reading.md)
-- [FLASHATTENTION: Fast and Memory-Efficient Exact Attention with IO-Awareness：历史笔记](FlashAttention/github-reading.md)
+- [Attention is all you need：阅读笔记](Transformer/github-reading.md)
+- [FLASHATTENTION: Fast and Memory-Efficient Exact Attention with IO-Awareness：阅读笔记](FlashAttention/github-reading.md)
 
 - [Kimi Linear：状态更新与混合注意力](Kimi-Linear/zhihu-reading.md)
 - [DeepSeek-V3.2 与 DSA：年度总结摘记](DeepSeek-DSA/zhihu-reading.md)
@@ -34,22 +32,22 @@
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ✅ | <a id="pdf-gr8gnqvf"></a>**Quest: Query-Aware Sparsity for Efficient Long-Context LLM Inference** | [ICML'24](https://arxiv.org/pdf/2406.10774) | 根据当前 query 和 KV 页元数据选择重要页面，减少长上下文解码中的 KV 读取 | [Paper](https://arxiv.org/pdf/2406.10774) / [归档标签](../downloaded-papers.md#pdf-gr8gnqvf) |
+| ✅ | <a id="pdf-gr8gnqvf"></a>**Quest: Query-Aware Sparsity for Efficient Long-Context LLM Inference** | [ICML'24](https://arxiv.org/pdf/2406.10774) | 根据当前 query 和 KV 页元数据选择重要页面，减少长上下文解码中的 KV 读取 | [Paper](https://arxiv.org/pdf/2406.10774) |
 | ✅ 📝 | **DuoAttention: Efficient Long-Context LLM Inference with Retrieval and Streaming Heads** | [ICLR'25](https://arxiv.org/pdf/2410.10819v1) | 区分 retrieval heads 与 streaming heads，为不同 head 分配不同 KV 保留策略 | [Paper](https://arxiv.org/pdf/2410.10819v1) / [Note](../../Projects/02_Inference_and_KV_Cache/Light-DuoAttention/zhihu-reading.md) |
-| ✅ | <a id="pdf-hzcjag36"></a>**MiniMax Sparse Attention** | [arXiv'26](https://arxiv.org/abs/2606.13392) | 按 GQA group 选择 KV 块并协同设计稀疏 kernel，将块级稀疏转化为长上下文加速 | [Paper](https://arxiv.org/abs/2606.13392) / [Note](MiniMax-MSA/msa.md) / [归档标签](../downloaded-papers.md#pdf-hzcjag36) |
-| ✅ 📝 | <a id="pdf-xxevr2qa"></a>**IndexCache: Accelerating Sparse Attention via Cross-Layer Index Reuse** | [arXiv'26](https://arxiv.org/abs/2603.12201v1) | 跨层复用 Top-k 位置，用 LM-loss 搜索或多层 KL 蒸馏减少 indexer 计算，并区分索引缓存与主 KV 缓存 | [Paper](https://arxiv.org/abs/2603.12201v1) / [Note](IndexCache/indexcache.md) / [归档标签](../downloaded-papers.md#pdf-xxevr2qa) |
-| ⬜ | <a id="pdf-ny88ejjb"></a>**Efficient Context Scaling with LongCat ZigZag Attention** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2512.23966) / [PDF](zotero://open-pdf/library/items/2VJX3AWK) / [Zotero](zotero://select/library/items/NY88EJJB) / [归档标签](../downloaded-papers.md#pdf-ny88ejjb) |
+| ✅ | <a id="pdf-hzcjag36"></a>**MiniMax Sparse Attention** | [arXiv'26](https://arxiv.org/abs/2606.13392) | 按 GQA group 选择 KV 块并协同设计稀疏 kernel，将块级稀疏转化为长上下文加速 | [Paper](https://arxiv.org/abs/2606.13392) / [Note](MiniMax-MSA/msa.md) |
+| ✅ 📝 | <a id="pdf-xxevr2qa"></a>**IndexCache: Accelerating Sparse Attention via Cross-Layer Index Reuse** | [arXiv'26](https://arxiv.org/abs/2603.12201v1) | 跨层复用 Top-k 位置，用 LM-loss 搜索或多层 KL 蒸馏减少 indexer 计算，并区分索引缓存与主 KV 缓存 | [Paper](https://arxiv.org/abs/2603.12201v1) / [Note](IndexCache/indexcache.md) |
+| ⬜ | <a id="pdf-ny88ejjb"></a>**Efficient Context Scaling with LongCat ZigZag Attention** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2512.23966) / [PDF](zotero://open-pdf/library/items/2VJX3AWK) / [Zotero](zotero://select/library/items/NY88EJJB) |
 
 ## Deep Learning / Attention Mechanisms & Variants
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ✅ 📝 | **Attention Is All You Need** | [NeurIPS'17](https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf) | 用多头自注意力替代循环与卷积，建立可并行训练的 Transformer 架构 | [Paper](https://proceedings.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf) / [Note](Transformer/github-reading.md) |
-| ✅ | <a id="pdf-fvzdyfpl"></a>**Big Bird: Transformers for Longer Sequences** | [NeurIPS'20](https://proceedings.neurips.cc/paper/2020/hash/c8512d142a2d849725f31a9a7a361ab9-Abstract.html) | 结合局部、随机与全局连接实现线性稀疏注意力，并分析其表达能力 | [Paper](https://proceedings.neurips.cc/paper/2020/hash/c8512d142a2d849725f31a9a7a361ab9-Abstract.html) / [Note](../../Foundations/01_Attention/SparseAttention.md) / [归档标签](../downloaded-papers.md#pdf-fvzdyfpl) |
-| ✅ 📝 | <a id="pdf-jua6hwcg"></a>**FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness** | [NeurIPS'22](https://proceedings.neurips.cc/paper_files/paper/2022/file/67d57c32e20fd0a7a302cb81d36e40d5-Paper-Conference.pdf) | 通过分块、算子融合与重计算减少 HBM 读写，实现不近似的高效 attention | [Paper](https://proceedings.neurips.cc/paper_files/paper/2022/file/67d57c32e20fd0a7a302cb81d36e40d5-Paper-Conference.pdf) / [Note](../../Foundations/01_Attention/FlashAttention.md) / [历史笔记](FlashAttention/github-reading.md) / [归档标签](../downloaded-papers.md#pdf-jua6hwcg) |
-| ✅ | <a id="pdf-e269ji6y"></a>**FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning** | [ICLR'24](https://proceedings.iclr.cc/paper_files/paper/2024/hash/98ed250b203d1ac6b24bbcf263e3d4a7-Abstract-Conference.html) | 优化线程块与 warp 间工作划分，减少非矩阵计算和共享内存通信，提高 attention 吞吐 | [Paper](https://arxiv.org/pdf/2307.08691.pdf) / [Note](../../Foundations/01_Attention/FlashAttention.md) / [归档标签](../downloaded-papers.md#pdf-e269ji6y) |
+| ✅ | <a id="pdf-fvzdyfpl"></a>**Big Bird: Transformers for Longer Sequences** | [NeurIPS'20](https://proceedings.neurips.cc/paper/2020/hash/c8512d142a2d849725f31a9a7a361ab9-Abstract.html) | 结合局部、随机与全局连接实现线性稀疏注意力，并分析其表达能力 | [Paper](https://proceedings.neurips.cc/paper/2020/hash/c8512d142a2d849725f31a9a7a361ab9-Abstract.html) / [Note](../../Foundations/01_Attention/SparseAttention.md) |
+| ✅ 📝 | <a id="pdf-jua6hwcg"></a>**FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness** | [NeurIPS'22](https://proceedings.neurips.cc/paper_files/paper/2022/file/67d57c32e20fd0a7a302cb81d36e40d5-Paper-Conference.pdf) | 通过分块、算子融合与重计算减少 HBM 读写，实现不近似的高效 attention | [Paper](https://proceedings.neurips.cc/paper_files/paper/2022/file/67d57c32e20fd0a7a302cb81d36e40d5-Paper-Conference.pdf) / [Note](../../Foundations/01_Attention/FlashAttention.md) / [笔记](FlashAttention/github-reading.md) |
+| ✅ | <a id="pdf-e269ji6y"></a>**FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning** | [ICLR'24](https://proceedings.iclr.cc/paper_files/paper/2024/hash/98ed250b203d1ac6b24bbcf263e3d4a7-Abstract-Conference.html) | 优化线程块与 warp 间工作划分，减少非矩阵计算和共享内存通信，提高 attention 吞吐 | [Paper](https://arxiv.org/pdf/2307.08691.pdf) / [Note](../../Foundations/01_Attention/FlashAttention.md) |
 | ✅ | **Flash-Decoding for Long-Context Inference** | [Blog'23](https://crfm.stanford.edu/2023/10/12/flashdecoding.html) | 沿 KV 序列切分并合并部分 attention 结果，提高小 batch 长上下文 decode 的 GPU 利用率 | [Paper](https://crfm.stanford.edu/2023/10/12/flashdecoding.html) / [Note](../../Foundations/01_Attention/FlashDecoding.md) |
-| ✅ | <a id="pdf-ycadddv3"></a>**A Survey of Efficient Attention Methods: Hardware-efficient, Sparse, Compact, and Linear Attention** | [Tech report'25](https://github.com/attention-survey/Efficient_Attention_Survey) | 统一梳理硬件优化、稀疏、KV 压缩与线性 attention，区分计算和缓存优化的作用范围 | [Paper](https://attention-survey.github.io/files/Attention_Survey.pdf) / [归档标签](../downloaded-papers.md#pdf-ycadddv3) |
+| ✅ | <a id="pdf-ycadddv3"></a>**A Survey of Efficient Attention Methods: Hardware-efficient, Sparse, Compact, and Linear Attention** | [Tech report'25](https://github.com/attention-survey/Efficient_Attention_Survey) | 统一梳理硬件优化、稀疏、KV 压缩与线性 attention，区分计算和缓存优化的作用范围 | [Paper](https://attention-survey.github.io/files/Attention_Survey.pdf) |
 
 ## Deep Learning / Sparse Attention Algorithms & Training / Architecture and Modern Sparse Attention
 
@@ -59,15 +57,15 @@
 | ⬜ | **GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints** | [EMNLP'23](https://aclanthology.org/2023.emnlp-main.298/) | 建立 MHA–GQA–MQA 的连续关系；理解 MSA 为什么按 GQA group 独立选择 | [Paper](https://arxiv.org/abs/2305.13245) |
 | ⬜ | **DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model** | [arXiv'24](https://arxiv.org/abs/2405.04434) | MLA、latent KV compression、decoupled RoPE，以及 `uk_proj` / `uo_proj` 的矩阵吸收 | [Paper](https://arxiv.org/abs/2405.04434) |
 | ⬜ | **SeerAttention: Learning Intrinsic Sparse Attention in Your LLMs** | [NeurIPS'25](https://proceedings.neurips.cc/paper_files/paper/2025/hash/50e9dbc4ab68d94f15261ddc26c8ca2b-Abstract-Conference.html) | 可学习的 block gate、自蒸馏与 block-sparse kernel；最接近 MSA Indexer 的对照之一 | [Paper](https://arxiv.org/abs/2410.13276) |
-| ⬜ | <a id="pdf-kniu8he3"></a>**Native Sparse Attention: Hardware-Aligned and Natively Trainable Sparse Attention** | [ACL'25](https://aclanthology.org/2025.acl-long.1126/) | 同时研究压缩、选择、局部窗口与硬件对齐；理解 DSA 的算法–kernel 协同背景 | [Paper](https://arxiv.org/abs/2502.11089) / [归档标签](../downloaded-papers.md#pdf-kniu8he3) |
-| ⬜ | <a id="pdf-q3y9x5v3"></a>**MoBA: Mixture of Block Attention for Long-Context LLMs** | [NeurIPS'25](https://proceedings.neurips.cc/paper_files/paper/2025/hash/19eae75beed66321d62272e794a9c2ac-Abstract-Conference.html) | MoE 风格的 block routing；适合对比 MSA 的 block max-pooling 与 group-specific selection | [Paper](https://arxiv.org/abs/2502.13189) / [归档标签](../downloaded-papers.md#pdf-q3y9x5v3) |
+| ⬜ | <a id="pdf-kniu8he3"></a>**Native Sparse Attention: Hardware-Aligned and Natively Trainable Sparse Attention** | [ACL'25](https://aclanthology.org/2025.acl-long.1126/) | 同时研究压缩、选择、局部窗口与硬件对齐；理解 DSA 的算法–kernel 协同背景 | [Paper](https://arxiv.org/abs/2502.11089) |
+| ⬜ | <a id="pdf-q3y9x5v3"></a>**MoBA: Mixture of Block Attention for Long-Context LLMs** | [NeurIPS'25](https://proceedings.neurips.cc/paper_files/paper/2025/hash/19eae75beed66321d62272e794a9c2ac-Abstract-Conference.html) | MoE 风格的 block routing；适合对比 MSA 的 block max-pooling 与 group-specific selection | [Paper](https://arxiv.org/abs/2502.13189) |
 | ⬜ | **MInference 1.0: Accelerating Pre-filling for Long-Context LLMs via Dynamic Sparse Attention** | [NeurIPS'24](https://proceedings.neurips.cc/paper_files/paper/2024/hash/5dfbe6f5671e82c76841ba687a8a9ecb-Abstract-Conference.html) | 无需重新训练的动态稀疏 prefill；对比学习式 Indexer 与预设 attention pattern | [Paper](https://arxiv.org/abs/2407.02490) |
-| ⬜ | <a id="pdf-9h6z7sbe"></a>**SpargeAttn: Accurate Sparse Attention Accelerating Any Model Inference** | [ICML'25](https://proceedings.mlr.press/v267/zhang25ch.html) | 两阶段在线过滤与 softmax-aware pruning；理解推理期稀疏化的另一条路线 | [Paper](https://arxiv.org/abs/2502.18137) / [归档标签](../downloaded-papers.md#pdf-9h6z7sbe) |
+| ⬜ | <a id="pdf-9h6z7sbe"></a>**SpargeAttn: Accurate Sparse Attention Accelerating Any Model Inference** | [ICML'25](https://proceedings.mlr.press/v267/zhang25ch.html) | 两阶段在线过滤与 softmax-aware pruning；理解推理期稀疏化的另一条路线 | [Paper](https://arxiv.org/abs/2502.18137) |
 | ⬜ | **BLASST: Dynamic BLocked Attention Sparsity via Softmax Thresholding** | [MLSys'26](https://proceedings.mlsys.org/paper_files/paper/2026/hash/c6ee784cbe46d854843e4c883a3321ef-Abstract-Conference.html) | 复用 online softmax 统计量跳过低贡献 blocks；无需训练并覆盖 MHA/GQA/MQA/MLA | [Paper](https://proceedings.mlsys.org/paper_files/paper/2026/hash/c6ee784cbe46d854843e4c883a3321ef-Abstract-Conference.html) |
-| ⬜ | <a id="pdf-cmk845zm"></a>**Block Sparse Attention with Log-Linear Complexity** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2609.31093) / [PDF](zotero://open-pdf/library/items/DK2DV9UZ) / [Zotero](zotero://select/library/items/CMK845ZM) / [归档标签](../downloaded-papers.md#pdf-cmk845zm) |
-| ⬜ 📝 | <a id="pdf-l447a648"></a>**DoSA: Dots Sparse Attention** | arXiv · 2026 | 阅读中；标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2610.13990) / [PDF](zotero://open-pdf/library/items/Y75KTIVE) / [Zotero](zotero://select/library/items/L447A648) / [Note](DoSA/dosa.md) / [Annotations](DoSA/zotero-reading.md) / [归档标签](../downloaded-papers.md#pdf-l447a648) |
-| ⬜ | <a id="pdf-yugv34kq"></a>**FSA: An Alternative Efficient Implementation of Native Sparse Attention Kernel** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2508.18224) / [PDF](zotero://open-pdf/library/items/ZUQSHLJQ) / [Zotero](zotero://select/library/items/YUGV34KQ) / [归档标签](../downloaded-papers.md#pdf-yugv34kq) |
-| ✅ 📝 | <a id="pdf-ehqb8nyq"></a>**PageWeaver: KV-Guided Query Unions for Sparse Attention** | arXiv · 2026 | 根据 KV page 重叠在线重组 Query，以双 CTA Union8 共享搬运，并计入分组开销 | [Paper](http://arxiv.org/abs/2610.11201) / [PDF](zotero://open-pdf/library/items/SBISCM3P) / [Zotero](zotero://select/library/items/EHQB8NYQ) / [Note](PageWeaver/pageweaver.md) / [Annotations](PageWeaver/zotero-reading.md) / [归档标签](../downloaded-papers.md#pdf-ehqb8nyq) |
+| ⬜ | <a id="pdf-cmk845zm"></a>**Block Sparse Attention with Log-Linear Complexity** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2609.31093) / [PDF](zotero://open-pdf/library/items/DK2DV9UZ) / [Zotero](zotero://select/library/items/CMK845ZM) |
+| ⬜ 📝 | <a id="pdf-l447a648"></a>**DoSA: Dots Sparse Attention** | arXiv · 2026 | 阅读中；标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2610.13990) / [PDF](zotero://open-pdf/library/items/Y75KTIVE) / [Zotero](zotero://select/library/items/L447A648) / [Note](DoSA/dosa.md) / [Annotations](DoSA/zotero-reading.md) |
+| ⬜ | <a id="pdf-yugv34kq"></a>**FSA: An Alternative Efficient Implementation of Native Sparse Attention Kernel** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2508.18224) / [PDF](zotero://open-pdf/library/items/ZUQSHLJQ) / [Zotero](zotero://select/library/items/YUGV34KQ) |
+| ✅ 📝 | <a id="pdf-ehqb8nyq"></a>**PageWeaver: KV-Guided Query Unions for Sparse Attention** | arXiv · 2026 | 根据 KV page 重叠在线重组 Query，以双 CTA Union8 共享搬运，并计入分组开销 | [Paper](http://arxiv.org/abs/2610.11201) / [PDF](zotero://open-pdf/library/items/SBISCM3P) / [Zotero](zotero://select/library/items/EHQB8NYQ) / [Note](PageWeaver/pageweaver.md) / [Annotations](PageWeaver/zotero-reading.md) |
 
 ## Deep Learning / Sparse Attention Algorithms & Training / Algorithm and Training Foundations
 
@@ -88,20 +86,16 @@
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ✅ | <a id="pdf-qxn82qc9"></a>**Gated Linear Attention Transformers with Hardware-Efficient Training** | [ICML'24](https://proceedings.mlr.press/v235/yang24ab.html) | 用数据依赖门控增强线性 attention，并以 IO 感知实现兼顾表达能力和训练吞吐 | [Paper](https://proceedings.mlr.press/v235/yang24ab.html) / [Note](../../Foundations/01_Attention/LinearAttention.md) / [归档标签](../downloaded-papers.md#pdf-qxn82qc9) |
-| ✅ 📝 | <a id="pdf-l42twfp4"></a>**Kimi Linear: An Expressive, Efficient Attention Architecture** | [arXiv'25](https://arxiv.org/pdf/2510.26692) | 用 Kimi Delta Attention 与混合架构改善线性 attention 的表达能力、长上下文效率和缓存成本 | [Paper](https://arxiv.org/pdf/2510.26692) / [归档标签](../downloaded-papers.md#pdf-l42twfp4) / [Note](Kimi-Linear/zhihu-reading.md) |
-| ⬜ | <a id="pdf-l8sl8v37"></a>**Conditional Memory via Scalable Lookup: A New Axis of Sparsity for Large Language Models** | 来源待补全 | 标签：Attention / 线性 Attention 与记忆 | [PDF](zotero://open-pdf/library/items/2RFQ4ZTQ) / [Zotero](zotero://select/library/items/L8SL8V37) / [归档标签](../downloaded-papers.md#pdf-l8sl8v37) |
-| ⬜ | <a id="pdf-ywh3l2eu"></a>**Fast Weight Attention for Continual Learning** | arXiv · 2026 | 标签：Attention / 线性 Attention 与记忆 | [Paper](http://arxiv.org/abs/2608.27763) / [PDF](zotero://open-pdf/library/items/ZHREG8JF) / [Zotero](zotero://select/library/items/YWH3L2EU) / [归档标签](../downloaded-papers.md#pdf-ywh3l2eu) |
-| ⬜ | <a id="pdf-dgf2kzzi"></a>**Memory Attention** | arXiv · 2026 | 标签：Attention / 线性 Attention 与记忆；推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2609.28399) / [PDF](zotero://open-pdf/library/items/S4YNUDPW) / [Zotero](zotero://select/library/items/DGF2KZZI) / [归档标签](../downloaded-papers.md#pdf-dgf2kzzi) |
+| ✅ | <a id="pdf-qxn82qc9"></a>**Gated Linear Attention Transformers with Hardware-Efficient Training** | [ICML'24](https://proceedings.mlr.press/v235/yang24ab.html) | 用数据依赖门控增强线性 attention，并以 IO 感知实现兼顾表达能力和训练吞吐 | [Paper](https://proceedings.mlr.press/v235/yang24ab.html) / [Note](../../Foundations/01_Attention/LinearAttention.md) |
+| ✅ 📝 | <a id="pdf-l42twfp4"></a>**Kimi Linear: An Expressive, Efficient Attention Architecture** | [arXiv'25](https://arxiv.org/pdf/2510.26692) | 用 Kimi Delta Attention 与混合架构改善线性 attention 的表达能力、长上下文效率和缓存成本 | [Paper](https://arxiv.org/pdf/2510.26692) / [Note](Kimi-Linear/zhihu-reading.md) |
+| ⬜ | <a id="pdf-l8sl8v37"></a>**Conditional Memory via Scalable Lookup: A New Axis of Sparsity for Large Language Models** | 来源待补全 | 标签：Attention / 线性 Attention 与记忆 | [PDF](zotero://open-pdf/library/items/2RFQ4ZTQ) / [Zotero](zotero://select/library/items/L8SL8V37) |
+| ⬜ | <a id="pdf-ywh3l2eu"></a>**Fast Weight Attention for Continual Learning** | arXiv · 2026 | 标签：Attention / 线性 Attention 与记忆 | [Paper](http://arxiv.org/abs/2608.27763) / [PDF](zotero://open-pdf/library/items/ZHREG8JF) / [Zotero](zotero://select/library/items/YWH3L2EU) |
+| ⬜ | <a id="pdf-dgf2kzzi"></a>**Memory Attention** | arXiv · 2026 | 标签：Attention / 线性 Attention 与记忆；推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2609.28399) / [PDF](zotero://open-pdf/library/items/S4YNUDPW) / [Zotero](zotero://select/library/items/DGF2KZZI) |
 
 ## Attention / 高效 Attention 内核
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ⬜ | <a id="pdf-mnpehw5y"></a>**FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision** | arXiv · 2024 | 标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2407.08608) / [PDF](zotero://open-pdf/library/items/HTMXSCYS) / [Zotero](zotero://select/library/items/MNPEHW5Y) / [归档标签](../downloaded-papers.md#pdf-mnpehw5y) |
-| ⬜ | <a id="pdf-tghhgfqg"></a>**FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling** | arXiv · 2026 | 阅读中；标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2603.05451) / [PDF](zotero://open-pdf/library/items/M8IKPE3M) / [Zotero](zotero://select/library/items/TGHHGFQG) / [Annotations](FlashAttention-4/zotero-reading.md) / [归档标签](../downloaded-papers.md#pdf-tghhgfqg) |
-| ⬜ | <a id="pdf-5k4mwtrc"></a>**FlashDecoding++: Faster Large Language Model Inference on GPUs** | arXiv · 2024 | 标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2311.01282) / [PDF](zotero://open-pdf/library/items/8QQKNGYR) / [Zotero](zotero://select/library/items/5K4MWTRC) / [归档标签](../downloaded-papers.md#pdf-5k4mwtrc) |
-
-## Zotero 阅读材料
-
-- [PageWeaver：原始批注](PageWeaver/zotero-reading.md)
+| ⬜ | <a id="pdf-mnpehw5y"></a>**FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision** | arXiv · 2024 | 标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2407.08608) / [PDF](zotero://open-pdf/library/items/HTMXSCYS) / [Zotero](zotero://select/library/items/MNPEHW5Y) |
+| ⬜ | <a id="pdf-tghhgfqg"></a>**FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling** | arXiv · 2026 | 阅读中；标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2603.05451) / [PDF](zotero://open-pdf/library/items/M8IKPE3M) / [Zotero](zotero://select/library/items/TGHHGFQG) / [Annotations](FlashAttention-4/zotero-reading.md) |
+| ⬜ | <a id="pdf-5k4mwtrc"></a>**FlashDecoding++: Faster Large Language Model Inference on GPUs** | arXiv · 2024 | 标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2311.01282) / [PDF](zotero://open-pdf/library/items/8QQKNGYR) / [Zotero](zotero://select/library/items/5K4MWTRC) |

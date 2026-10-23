@@ -1,8 +1,6 @@
-# MoE 数学与 SonicMoE：知乎原文归档
+# MoE 数学与 SonicMoE
 
 - 来源：[MoE 笔记：从数学推导到 SonicMoE 的极致优化](https://zhuanlan.zhihu.com/p/1987208541124202922)。
-
-[分篇笔记与归档目录](../../../Papers/external-notes.md)
 
 ## 引言
 

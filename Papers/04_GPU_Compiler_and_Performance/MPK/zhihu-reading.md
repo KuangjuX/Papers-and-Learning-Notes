@@ -1,16 +1,16 @@
 # Mirage Persistent Kernel：任务图与持久化运行时
 
-来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
+来源：[2025 年度 LLM 研究总结](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
 背景是小 batch 推理的算子边界、启动与尾效应；核心是将计算和通信变为可由持久化 GPU 运行时调度的任务。
 
-## 整理与复习
+## 要点与边界
 
 - tGraph 的任务／事件用于表达局部依赖，不应把所有任务都理解成 CUDA grid 的完整算子。
 - 原总结的“1–1.7 倍”没有统一指定基线、硬件和模型，不能作通用加速比引用。
 - 讨论“MPK 参考了谁”的历史关系需要作者或引用证据，不能由发布时间先后直接推出。
 
-## 原笔记相关章节
+## 机制与实现
 
 #### Mirage Persistent Kernel[8](https://zhuanlan.zhihu.com/p/1994788371738949558#ref_8)
 

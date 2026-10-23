@@ -53,7 +53,7 @@ node scripts/zotero-sync.mjs --item <搜索结果中的父条目ID> --topic 01_A
 也可通过 `--input <导出的JSON文件>` 离线导入。输入格式为 `zotero_reading_export` 的结果，
 包含 `schemaVersion: 1`、`paper`、`attachments[].annotations` 和 `notes`。
 
-正文保存到 `Papers/<topic>/<slug>/zotero-reading.md`，主题和阅读索引追加入口。
+正文保存到 `Papers/<topic>/<slug>/zotero-reading.md`，只在所属知识主题索引中补充阅读入口，不在总览追加来源或导入进度专区。
 每条标注保留原文、评论、附件 key、标注 key、页码和 `zotero://open-pdf/` 链接。
 输入目前支持个人文库；群组文库需要正确的 group ID，不会用本机 library ID 猜测链接。
 区域/图片标注保留位置和评论，原图仍从 Zotero 查看；本脚本不生成或导出截图。

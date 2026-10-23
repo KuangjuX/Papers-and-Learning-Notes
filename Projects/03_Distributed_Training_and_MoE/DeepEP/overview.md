@@ -1,15 +1,15 @@
 # DeepEP：年度总结中的计算通信重叠摘记
 
-来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
+来源：[2025 年度 LLM 研究总结](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
-## 整理与复习
+## 要点与边界
 
 - 入门代码与初始化见 [个人 NVSHMEM 教程](zhihu-reading.md)。
 - 旧文的固定 SM 数、带宽值以及对 NCCL 的比较均绑定当时平台和实现，不能作当前版本的通用结论。
 - “后台传输不占 SM”需要区分 NIC 的数据搬运与 GPU 侧发起、收尾／接收逻辑，不能理解成整个通信路径没有任何 GPU 指令。
 - 未记录 DeepEP commit，本文作为历史阅读材料保存。
 
-## 原笔记相关章节
+## 机制与实现
 
 ### 计算-通信重叠
 

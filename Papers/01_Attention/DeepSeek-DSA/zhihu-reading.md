@@ -1,15 +1,15 @@
 # DeepSeek-V3.2 与 DSA：年度总结摘记
 
-来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
+来源：[2025 年度 LLM 研究总结](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
-## 整理与复习
+## 要点与边界
 
 - 详细流程见 [DSA 算法笔记](deepseek-sparse-attention-dsa.md)。
 - 主 Attention 只读入选位置，不等于永久删除未入选的 KV；后续 query 仍可能选择它们。
 - 固定预算使主 Attention 的访问量下降；不能据此断言包含全历史 indexer 打分的端到端复杂度也严格变为线性。
 - “Lighting”应为“Lightning”；旧文章的投影来源描述应以实际模型和上述独立笔记为准。
 
-## 原笔记相关章节
+## 机制与实现
 
 ### DeepSeek-V3.2
 

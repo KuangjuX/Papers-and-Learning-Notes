@@ -1,17 +1,17 @@
 # Unikraft：模块化 library OS 与专用内核
 
-来源：[个人文章全文归档](../../../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/zhihu-reading.md)。
+来源：[Unikernel、Unikraft 与 ArceOS](../../../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/zhihu-reading.md)。
 
 从单应用的专用化需求理解 Unikraft 的 micro-libraries、构建配置与平台抽象。
 
-## 整理与复习
+## 要点与边界
 
 - 论文：[Unikraft: Fast, Specialized Unikernels the Easy Way](https://dl.acm.org/doi/10.1145/3447786.3456248)。
 - 原记录聚焦设计，没有给出定量实验设置；“性能更高”“更安全”是设计动机与历史判断，不能脱离配置与威胁模型视为保证。
 - “所有 micro-libraries 实现相同 API”措辞过宽：应按各自功能和组件边界理解接口。
 - ArceOS 的构建实践已拆到 [项目笔记](../../../../Projects/06_Computing_Foundations/ArceOS/unikernel-build.md)。
 
-## 原笔记相关章节
+## 机制与实现
 
 ### Unikraft
 

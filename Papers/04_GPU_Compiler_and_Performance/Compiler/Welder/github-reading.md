@@ -1,15 +1,14 @@
-# Welder: Scheduling Deep Learning Memory Access via Tile-graph：历史笔记
+# Welder: Scheduling Deep Learning Memory Access via Tile-graph：阅读笔记
 
-[所属主题](../../index.md) · [GitHub 历史笔记目录](../../../github-issues.md)
+[所属主题](../../index.md)
 
 - 论文：[原文](https://www.usenix.org/system/files/osdi23-shi.pdf)
-- 原记录：[Issue #25](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/25)
 
 ## 易错概念
 
 原记录中的 `sharded memory` 应理解为 `shared memory`（共享内存），见论文 §4.2。关于“每个 SM 有 4 个 warp”的说法先保留在历史材料中，但不能据此推导 SM 可驻留的 warp 数；该硬件解释需另行核对。
 
-## 历史阅读笔记（原 issue 评论）
+## 论文笔记
 
 ### 动机
 

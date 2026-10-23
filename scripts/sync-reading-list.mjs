@@ -38,24 +38,18 @@ const topics = layout.sections.map(({ directory, title }) => {
   return { title, path, groups, count: rows.length, done }
 })
 
-const paperIndex = readFileSync(resolve(root, 'Papers/index.md'), 'utf8')
-const zoteroProgress = paperIndex.split('## Zotero 阅读进度\n')[1]?.split('\n## ')[0].trim()
-
 const block = [
   start,
   '## Paper 阅读清单',
   '',
-  `共 **${total} 个分类条目**：已读 ${read}，待读 ${total - read}。保留原有跨分类重复收录；下载 PDF 或存在标注不代表已读。`,
+  `共 **${total} 个分类条目**：已读 ${read}，待读 ${total - read}。`,
   '',
-  '✅ 已读 · ⬜ 待读 · 📝 有笔记。此清单由各主题索引生成；修改阅读状态后运行 `pnpm docs:sync-reading-list` 同步。',
-  '',
-  '已下载论文、教材与技术资料的分类标签、PDF 和 Zotero 入口见 [PDF 归档与标签目录](Papers/downloaded-papers.md)。',
+  '✅ 已读 · ⬜ 待读 · 📝 有笔记。',
   '',
   '| 主题 | 条目 | 已读 | 待读 |',
   '| --- | ---: | ---: | ---: |',
   ...topics.map(t => `| [${t.title}](${t.path}/index.md) | ${t.count} | ${t.done} | ${t.count - t.done} |`),
   '',
-  ...(zoteroProgress ? ['### Zotero 阅读进度', '', rootLinks(zoteroProgress, 'Papers'), ''] : []),
   ...topics.filter(t => t.count).flatMap(t => [
     '<details>',
     `<summary>${t.title}（${t.count} 篇；已读 ${t.done}，待读 ${t.count - t.done}）</summary>`,

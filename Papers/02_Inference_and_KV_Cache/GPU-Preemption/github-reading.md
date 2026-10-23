@@ -1,11 +1,10 @@
 # Microsecond-scale Preemption for Concurrent GPU-accelerated DNN Inferences：摘要摘记，未完成
 
-[所属主题](../index.md) · [GitHub 历史笔记目录](../../github-issues.md)
+[所属主题](../index.md)
 
 - 论文：[原文](https://www.usenix.org/system/files/osdi22-han.pdf)
-- 原记录：[Issue #17](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/17)
 
-## 历史阅读笔记（原 issue 评论）
+## 论文笔记
 
 ### Abstract
 

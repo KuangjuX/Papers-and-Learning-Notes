@@ -1,16 +1,16 @@
 # Kimi Linear：状态更新与混合注意力
 
-来源：[个人文章全文归档](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
+来源：[2025 年度 LLM 研究总结](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
 
 问题是线性状态的记忆容量与表达能力；设计同时包含 KDA 的状态更新和 KDA／全注意力混合层，不能只记住“把矩阵乘法交换顺序”。
 
-## 整理与复习
+## 要点与边界
 
 - KDA 与全局注意力层的架构比例为 3:1，见[论文](https://arxiv.org/abs/2510.26692)的 KDA 与 architecture 部分。
 - 旧笔记把 softmax 权重近似写为未归一化的指数核：归一化分母不能省略，有限维特征映射也不自动等价于精确 softmax。下方作为历史表述保留。
 - 原文混用了“DeltaNet”和“Gated DeltaNet”；全局遗忘门应结合论文具体递推定义区分。
 
-## 原笔记相关章节
+## 机制与实现
 
 ### Linear Attention（线性注意力）[1](https://zhuanlan.zhihu.com/p/1994788371738949558#ref_1)
 

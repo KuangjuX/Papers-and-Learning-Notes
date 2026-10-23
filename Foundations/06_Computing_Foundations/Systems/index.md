@@ -34,4 +34,4 @@
 - [QEMU/KVM](Virtualization/qemu-kvm.md)
 - [虚拟化硬件加速器调研](Virtualization/%E8%99%9A%E6%8B%9F%E5%8C%96.md)
 
-- [Unikernel、Unikraft 与 ArceOS：知乎原文归档](Virtualization/Unikernel/zhihu-reading.md)
+- [Unikernel、Unikraft 与 ArceOS](Virtualization/Unikernel/zhihu-reading.md)

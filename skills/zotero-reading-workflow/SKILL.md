@@ -20,11 +20,11 @@ node /Users/kuangjux/Paper-reading/scripts/zotero-sync.mjs --item 123 --topic 01
 node /Users/kuangjux/Paper-reading/scripts/zotero-sync.mjs --item 123 --topic 01_Attention --slug paper-name
 ```
 
-导入脚本生成 `zotero-reading.md`，包含原文与评论、公开来源和 Zotero 定位链接，并更新主题与阅读索引。再次导入复用同一 topic/slug；新增标注追加，未手改的块更新。人工编辑过的块发生冲突时保留原文，新版本写入 `.local/zotero-sync/<key>.incoming.md`；退出码 2 表示需要局部合并。Zotero 已删除的标注不会自动删去历史材料，脚本会报告 removed。
+导入脚本生成 `zotero-reading.md`，包含原文与评论、公开来源和 Zotero 定位链接，只在所属知识主题索引中补充必要的阅读入口。永远不要在总览或正式笔记中追加“Zotero 阅读进度”、导入/迁移清单、下载统计、来源台账或旧分类对照，也不要另建这类汇总页。再次导入复用同一 topic/slug；新增标注追加，未手改的块更新。人工编辑过的块发生冲突时保留原文，新版本写入 `.local/zotero-sync/<key>.incoming.md`；退出码 2 表示需要局部合并。Zotero 已删除的标注不会自动删去历史材料，脚本会报告 removed。
 
 正式笔记写在同目录的其他 Markdown 文件。先核对完整论文、已有笔记和阅读材料，再提炼 Background、Insights、Design、Evaluation；区分作者事实、AI 解读、个人推论和待验证问题。重要图片用原图并注明图号；附件与正文使用相对链接。
 
-保留已有人工内容，局部编辑并检查 diff。导入的评论可能包含 AI 输出，不能默认当作作者结论。补充正式笔记链接并按实际阅读程度更新 `Papers/index.md`。
+保留已有人工内容，局部编辑并检查 diff。导入的评论可能包含 AI 输出，不能默认当作作者结论。补充正式笔记链接，并在所属主题的论文条目中按实际阅读程度更新状态。
 运行仓库的 `docs:build`、`docs:check-links`、`docs:check-anchors`、`docs:check-math`、`docs:check-diagrams`；不自动提交或推送。
 
 目录归档后，已有的 `--topic llm --slug flashattention-4` 命令仍能定位新地址；私有同步基线中的旧路径会在下一次成功同步时更新。原始标注与基线哈希保留，不会重新判定已读。新论文请使用 `Papers/` 下的编号主题名。

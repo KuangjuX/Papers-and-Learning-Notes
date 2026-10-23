@@ -1,14 +1,14 @@
 # ArceOS：从 feature 配置到 unikernel 启动
 
-来源：[个人文章全文归档](../../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/zhihu-reading.md)。
+来源：[Unikernel、Unikraft 与 ArceOS](../../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/zhihu-reading.md)。
 
-## 整理与复习
+## 要点与边界
 
 - 版本背景为 2023-04，未记录 commit；文件名、Rust 属性和命令可能随版本变化，不能作为当前版本的运行验证。
 - 构建路径：应用的 `Cargo.toml` 声明 `libax` features；Makefile 汇总配置并调用 Cargo；QEMU 启动镜像后进入平台引导，再进入 `axruntime::rust_main` 和应用入口。
 - 最后关于 hypocaust-2 的模块复用是个人设计思考，不标为已实现。
 
-## 原笔记相关章节
+## 机制与实现
 
 ### Arceos
 

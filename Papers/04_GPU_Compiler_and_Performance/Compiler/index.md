@@ -8,7 +8,7 @@
 - [The Deep Learning Compiler: A Comprehensive Survey](Papers/The-Deep-Learning-Compiler-A-Comprehensive-Survey.md)
 - [TIRAMISU: A Polyhedral Compiler for Expressing Fast and Portable Code](TIRAMISU-CGO/tiramisu.md)
 
-## GitHub 历史论文笔记
+## 编译优化与调度
 
 - [Rammer: Enabling Holistic Deep Learning Compiler Optimizations with rTasks](Rammer/github-reading.md)
 - [Roller: Fast and Efficient Tensor Compilation for Deep Learning](ROLLER/github-reading.md)
@@ -20,6 +20,6 @@
 - [Chimera: An Analytical Optimizing Framework for Effective Compute-intensive Operators Fusion](Chimera/github-reading.md)
 - [AMOS: Enabling Automatic Mapping for Tensor Computations On Spatial Accelerators with Hardware Abstraction](AMOS/github-reading.md)
 
-[循环变换理论：未完成摘记](../../06_Computing_Foundations/Compiler/Loop-Transformation/github-reading.md)按现有清单归入计算基础。
+[循环变换理论：未完成摘记](../../06_Computing_Foundations/Compiler/Loop-Transformation/github-reading.md)。
 
 - [Tawa：用异步引用自动生成 warp specialization](Tawa/zhihu-reading.md)
