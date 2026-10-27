@@ -65,6 +65,7 @@
     "notes/llm/surveys/Inference": "Papers/02_Inference_and_KV_Cache/Surveys",
     "notes/compiler/fundamentals": "Foundations/06_Computing_Foundations/Compiler",
     "notes/llm/flashattention-4": "Papers/01_Attention/FlashAttention-4",
+    "notes/llm/dosa": "Papers/01_Attention/DoSA",
     "notes/llm/attention-sinks": "Foundations/01_Attention/Attention-Sinks",
     "notes/gpu/b200-attention": "Foundations/01_Attention/B200-Attention",
     "notes/gpu/llm-for-kernel": "Papers/04_GPU_Compiler_and_Performance/Kernel-Generation",
@@ -212,6 +213,7 @@
     "foundations/06_Computing_Foundations/compiler": "Foundations/06_Computing_Foundations/Compiler"
   },
   "directoryNames": {
+    "dosa": "DoSA",
     "papers": "Papers",
     "projects": "Projects",
     "foundations": "Foundations",
