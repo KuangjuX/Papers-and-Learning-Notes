@@ -4,7 +4,7 @@
 整理 Zotero 论文、标注或阅读讨论时，先读
 `skills/zotero-reading-workflow/SKILL.md`，使用 `zotero_reading` MCP。
 
-先按材料类型归档：`Papers/` 保存论文与标注，`Projects/` 保存源码实践，
+先按材料类型归档：`Papers/` 保存论文清单与正式阅读笔记，`Projects/` 保存源码实践，
 `Foundations/` 保存原理、课程、教材与参考。各类型下再按
 `scripts/archive-layout.json` 中的编号主题归档，与 PapersPDF 的主题名称对应。
 `Papers/index.md` 及其主题索引管理论文入口与阅读状态。
@@ -12,6 +12,9 @@
 新增笔记更新所属主题的 `index.md`。图片跟随笔记并使用相对路径。
 原文、AI 解读和个人推论应标明来源；保留用户手工编辑和不相关内容。
 
-由 `scripts/zotero-sync.mjs` 管理的 `zotero-reading.md` 是原始阅读材料。
-正式解读写在同目录单独的 Markdown 文件中，读取现有内容后局部修改。
-不要将“.local”里的同步基线、冲突草稿或认证信息提交到仓库。
+Zotero 保存 PDF、高亮、逐句翻译与随手批注；仓库笔记按问题和机制组织，
+不默认导出完整标注到正式目录。需要本地材料时，`scripts/zotero-sync.mjs`
+将完整标注与同步基线保存到 `.local/zotero-sync/`，不修改公开索引或阅读状态。
+正式笔记写在 `Papers/<topic>/<paper>/`，读取现有内容后局部修改；
+可先写已理解的问题，再随阅读补充，引用在相关段落附章节、页码或 Zotero 定位链接。
+不要将 `.local` 里的原始材料缓存、同步基线、冲突草稿或认证信息提交到仓库。

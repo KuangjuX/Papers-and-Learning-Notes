@@ -16,7 +16,7 @@ export default defineConfig({
   description: '原理、论文、源码、课程与实验的技术笔记库',
   base: '/',
   lastUpdated: true,
-  srcExclude: ['skills/**', 'tmp/**', 'node_modules/**'],
+  srcExclude: ['skills/**', 'tmp/**', '.local/**', 'node_modules/**'],
   ignoreDeadLinks: false,
 
   buildEnd(site) {

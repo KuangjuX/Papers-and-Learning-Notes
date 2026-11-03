@@ -12,7 +12,7 @@ date: 2026-10-22
 
 > [PageWeaver: KV-Guided Query Unions for Sparse Attention，v1](https://arxiv.org/abs/2610.11201v1)。
 >
-> [Zotero 原文与完整批注](zotero-reading.md) · [打开 PDF](zotero://open-pdf/library/items/SBISCM3P) · [Attention 论文索引](../index.md)
+> [Zotero](zotero://select/library/items/EHQB8NYQ) · [打开 PDF](zotero://open-pdf/library/items/SBISCM3P) · [Attention 论文索引](../index.md)
 
 ## 1. 背景与核心洞察：稀疏集合相同，执行成本可以不同
 

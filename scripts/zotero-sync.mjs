@@ -25,7 +25,6 @@ const escape = text => String(text ?? '').replaceAll('&', '&amp;').replaceAll('<
 const literalComment = text => '<pre v-pre style="white-space: pre-wrap; overflow-wrap: anywhere;">\n'
   + String(text).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
   + '\n</pre>';
-const linkPath = path => path.split('/').map(encodeURIComponent).join('/');
 
 function within(root, path) {
   const rel = relative(root, path);
@@ -83,7 +82,7 @@ export function renderDossier(data) {
     '## 论文来源', `- 作者：${escape(creators)}`, `- 日期：${escape(p.date)}`,
     `- Zotero 条目：\`${p.key}\`（本机 ID ${Number(p.itemId)}）`,
     `- 来源：${[source, doi, `[Zotero](zotero://select/${uriBase}/items/${p.key})`].filter(Boolean).join(' · ')}`,
-    '- 阅读状态：进行中。下面为原始标注材料，正式解读需核对论文后另行整理。',
+    '- 本地原始材料缓存；阅读状态以主题索引为准。',
   ].join('\n') };
   for (const attachment of data.attachments) {
     if (!/^[A-Z0-9]{8}$/.test(attachment.key)) throw new Error('Invalid attachment key');
@@ -125,13 +124,23 @@ export function syncDossier(data, { root = ROOT, topic, slug, dryRun = false } =
   const topicIndex = within(root, resolve(root, 'Papers', canonicalTopic, 'index.md'));
   if (!existsSync(topicIndex)) throw new Error('Choose an existing numbered topic in Papers/');
   const desired = renderDossier(data);
-  const file = within(root, resolve(root, requested));
+  const legacyFile = within(root, resolve(root, requested));
+  const file = within(root, resolve(root, '.local/zotero-sync', data.paper.key + '.md'));
   const stateFile = within(root, resolve(root, '.local/zotero-sync', data.paper.key + '.json'));
   const state = existsSync(stateFile) ? JSON.parse(readFileSync(stateFile, 'utf8')) : { baseline: {} };
-  if (state.file && archivePath(state.file) !== relative(root, file)) throw new Error('This paper was synced elsewhere; reuse its original topic/slug');
-  const existing = existsSync(file) ? readFileSync(file, 'utf8') : '';
+  const noteDirectory = dirname(requested);
+  if (state.file && (state.file === relative(root, file)
+    ? state.noteDirectory !== noteDirectory
+    : archivePath(state.file) !== requested)) {
+    throw new Error('This paper was synced elsewhere; reuse its original topic/slug');
+  }
+  // Read legacy exports once, retaining their manual text and original hashes.
+  // Public links and legacy files are retired separately after content review.
+  const inputFile = existsSync(file) ? file : legacyFile;
+  const existing = existsSync(inputFile) ? readFileSync(inputFile, 'utf8') : '';
   if (existing && !state.file) throw new Error('Existing note has no sync history; choose another slug');
-  const initial = `# ${escape(data.paper.title)}：阅读材料\n\n## 我的理解\n\n在此记录个人理解、待验证问题和补充推导。此区域由你维护。\n`;
+  if (state.file && !existsSync(inputFile)) throw new Error('Sync cache is missing; restore it before updating');
+  const initial = `# ${escape(data.paper.title)}：原始标注缓存\n`;
   const merged = mergeBlocks(existing || initial, desired, state.baseline);
   const removed = Object.keys(state.baseline).filter(id => !Object.hasOwn(desired, id));
   const result = { file: relative(root, file), conflicts: merged.conflicts.map(c => c.id), removed, dryRun };
@@ -145,18 +154,8 @@ export function syncDossier(data, { root = ROOT, topic, slug, dryRun = false } =
   // Keep conflict drafts private: they should not enter the public notes website.
   const conflictFile = within(root, resolve(root, '.local/zotero-sync', data.paper.key + '.incoming.md'));
   if (merged.conflicts.length) save(conflictFile, '# 待合并的 Zotero 更新\n\n' + merged.conflicts.map(c => c.incoming).join('\n\n') + '\n');
-  save(stateFile, JSON.stringify({ file: relative(root, file), baseline: merged.baseline }, null, 2) + '\n');
-  const title = escape(data.paper.title) + '（阅读中）';
-  const content = readFileSync(topicIndex, 'utf8');
-  const target = linkPath(relative(dirname(topicIndex), file));
-  if (!content.includes(`](${target})`)) {
-    const entry = `- [${title}](${target})\n`;
-    const section = /^## 阅读材料\n[\s\S]*?(?=^## |$(?![\s\S]))/m;
-    const updated = section.test(content)
-      ? content.replace(section, body => body.trimEnd() + '\n' + entry + '\n')
-      : content.trimEnd() + '\n\n## 阅读材料\n\n' + entry;
-    save(topicIndex, updated);
-  }
+  save(stateFile, JSON.stringify({ file: relative(root, file), noteDirectory, baseline: merged.baseline }, null, 2) + '\n');
+  save(within(root, resolve(root, '.local/zotero-sync', data.paper.key + '.export.json')), JSON.stringify(data, null, 2) + '\n');
   return result;
 }
 

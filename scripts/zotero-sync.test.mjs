@@ -34,9 +34,9 @@ test('incremental update preserves user text, adds annotation and updates unchan
   const root = repo(), data = fixture();
   const options = { root, topic: '01_Attention', slug: 'test-paper' };
   const first = syncDossier(data, options);
-  assert.equal(first.file, 'Papers/01_Attention/Test-Paper/zotero-reading.md');
+  assert.equal(first.file, '.local/zotero-sync/PAPER123.md');
   const file = join(root, first.file);
-  writeFileSync(file, readFileSync(file, 'utf8').replace('在此记录个人理解', '手写的重要理解\n\n在此记录个人理解'));
+  writeFileSync(file, readFileSync(file, 'utf8') + '\n手写的重要理解\n');
   data.attachments[0].annotations[0].comment = '新解释';
   data.attachments[0].annotations.push({ key: 'ANNOT456', text: 'New quote', type: 'highlight', position: { pageIndex: 5 } });
   assert.deepEqual(syncDossier(data, options).conflicts, []);
@@ -48,24 +48,22 @@ test('incremental update preserves user text, adds annotation and updates unchan
   assert.equal(readFileSync(file, 'utf8'), updated);
   assert.deepEqual(again.conflicts, []);
   assert.equal(readFileSync(join(root, 'Papers/index.md'), 'utf8'), '# Reading\n');
-  assert.equal(readFileSync(join(root, 'Papers/01_Attention/index.md'), 'utf8').match(/Test Paper/g).length, 1);
+  assert.equal(readFileSync(join(root, 'Papers/01_Attention/index.md'), 'utf8'), '# LLM\n');
 });
 
-test('sync indexes reading material by topic without adding source or progress sections to the overview', () => {
+test('sync only writes private caches and leaves public notes and indexes untouched', () => {
   const root = repo();
   const topic = join(root, 'Papers/01_Attention/index.md');
-  writeFileSync(topic, '# Attention\n\n## 阅读材料\n\n- Existing note\n\n## 论文清单\n\nKeep this table here.\n');
-  const overview = readFileSync(join(root, 'Papers/index.md'), 'utf8');
+  const content = '# Attention\n\n## 本地笔记\n\n- Existing note\n';
+  writeFileSync(topic, content);
   const options = { root, topic: '01_Attention', slug: 'test-paper' };
   syncDossier(fixture(), options);
   syncDossier(fixture(), options);
-  const updated = readFileSync(topic, 'utf8');
-  assert.match(updated, /## 阅读材料\n\n- Existing note\n- \[Test Paper（阅读中）\]/);
-  assert.ok(updated.indexOf('Test Paper') < updated.indexOf('## 论文清单'));
-  assert.equal(updated.match(/Test Paper/g).length, 1);
-  assert.ok(updated.endsWith('## 论文清单\n\nKeep this table here.\n'));
-  assert.doesNotMatch(updated, /Zotero 阅读材料|Zotero 阅读进度/);
-  assert.equal(readFileSync(join(root, 'Papers/index.md'), 'utf8'), overview);
+  assert.equal(readFileSync(topic, 'utf8'), content);
+  assert.equal(existsSync(join(root, 'Papers/01_Attention/Test-Paper')), false);
+  assert.equal(readFileSync(join(root, 'Papers/index.md'), 'utf8'), '# Reading\n');
+  assert.deepEqual(JSON.parse(readFileSync(join(root, '.local/zotero-sync/PAPER123.export.json'), 'utf8')), fixture());
+  assert.doesNotMatch(readFileSync(join(root, '.local/zotero-sync/PAPER123.md'), 'utf8'), /我的理解|阅读状态：进行中/);
 });
 
 test('manual edits inside managed blocks survive source changes and produce private conflict draft', () => {
@@ -93,6 +91,7 @@ test('dry run and path validation do not write outside the intended topic', () =
   const root = repo();
   syncDossier(fixture(), { root, topic: '01_Attention', slug: 'test-paper', dryRun: true });
   assert.equal(existsSync(join(root, 'Papers/01_Attention/Test-Paper')), false);
+  assert.equal(existsSync(join(root, '.local')), false);
   assert.throws(() => syncDossier(fixture(), { root, topic: '../outside', slug: 'x' }));
   assert.throws(() => syncDossier(fixture(), { root, topic: '01_Attention', slug: '../outside' }));
   const outside = mkdtempSync(join(tmpdir(), 'zotero-outside-'));
@@ -178,31 +177,46 @@ test('export rehydrates detached upstream annotation snapshots without losing ge
 });
 
 
-test('archive migration preserves private baselines, manual text and legacy import commands', () => {
-  const root = repo(), data = fixture();
-  const first = syncDossier(data, { root, topic: '01_Attention', slug: 'flashattention-4' });
-  const file = join(root, first.file);
-  writeFileSync(file, readFileSync(file, 'utf8').replace('在此记录个人理解', '归档前的个人笔记\n\n在此记录个人理解'));
-  const stateFile = join(root, '.local/zotero-sync/PAPER123.json');
-  const state = JSON.parse(readFileSync(stateFile, 'utf8'));
-  state.file = 'notes/llm/flashattention-4/zotero-reading.md';
-  writeFileSync(stateFile, JSON.stringify(state));
-  data.attachments[0].annotations[0].comment = '归档后的新增解读';
-  const options = { root, topic: 'llm', slug: 'flashattention-4' };
-  const before = readFileSync(stateFile, 'utf8');
-  assert.equal(syncDossier(data, { ...options, dryRun: true }).file, first.file);
-  assert.equal(readFileSync(stateFile, 'utf8'), before);
-  const result = syncDossier(data, options);
-  assert.deepEqual(result.conflicts, []);
-  assert.equal(result.file, first.file);
-  assert.ok(readFileSync(file, 'utf8').includes('归档前的个人笔记'));
-  assert.ok(readFileSync(file, 'utf8').includes('归档后的新增解读'));
-  assert.equal(JSON.parse(readFileSync(stateFile, 'utf8')).file, first.file);
-  const lowercaseState = JSON.parse(readFileSync(stateFile, 'utf8'));
-  lowercaseState.file = 'papers/01_Attention/flashattention-4/zotero-reading.md';
-  writeFileSync(stateFile, JSON.stringify(lowercaseState));
-  assert.equal(syncDossier(data, { root, topic: '01_Attention', slug: 'flashattention-4' }).file, first.file);
-  assert.equal(JSON.parse(readFileSync(stateFile, 'utf8')).file, first.file);
-  assert.equal(existsSync(join(root, 'notes')), false);
-  assert.throws(() => syncDossier(data, { root, topic: 'llm', slug: 'unmapped-paper' }), /numbered topic/);
+test('legacy export migration preserves manual text, hashes and old topic aliases', () => {
+  for (const oldPath of [
+    'notes/llm/flashattention-4/zotero-reading.md',
+    'papers/01_Attention/flashattention-4/zotero-reading.md',
+    'Papers/01_Attention/FlashAttention-4/zotero-reading.md',
+  ]) {
+    const root = repo(), data = fixture();
+    const old = mergeBlocks('# Original\n\n归档前的个人笔记\n', renderDossier(data));
+    const legacy = join(root, 'Papers/01_Attention/FlashAttention-4/zotero-reading.md');
+    mkdirSync(join(root, 'Papers/01_Attention/FlashAttention-4'), { recursive: true });
+    writeFileSync(legacy, old.text.replace('解释', '我的手写分析'));
+    mkdirSync(join(root, '.local/zotero-sync'), { recursive: true });
+    const stateFile = join(root, '.local/zotero-sync/PAPER123.json');
+    const state = JSON.stringify({ file: oldPath, baseline: old.baseline });
+    writeFileSync(stateFile, state);
+    data.attachments[0].annotations[0].comment = '上游更新';
+    const options = { root, topic: 'llm', slug: 'flashattention-4' };
+    const preview = syncDossier(data, { ...options, dryRun: true });
+    assert.equal(readFileSync(stateFile, 'utf8'), state);
+    assert.equal(existsSync(join(root, preview.file)), false);
+    const result = syncDossier(data, options);
+    assert.deepEqual(result.conflicts, ['annotation-ANNOT123']);
+    const cached = readFileSync(join(root, result.file), 'utf8');
+    assert.ok(cached.includes('归档前的个人笔记'));
+    assert.ok(cached.includes('我的手写分析'));
+    assert.equal(readFileSync(legacy, 'utf8'), cached);
+    const migrated = JSON.parse(readFileSync(stateFile, 'utf8'));
+    assert.equal(migrated.file, '.local/zotero-sync/PAPER123.md');
+    assert.equal(migrated.noteDirectory, 'Papers/01_Attention/FlashAttention-4');
+    assert.deepEqual(migrated.baseline, old.baseline);
+    assert.equal(syncDossier(data, { root, topic: '01_Attention', slug: 'flashattention-4' }).file, result.file);
+    assert.throws(() => syncDossier(data, { root, topic: '01_Attention', slug: 'different-paper' }), /reuse/);
+    assert.throws(() => syncDossier(data, { root, topic: 'llm', slug: 'unmapped-paper' }), /numbered topic/);
+    assert.equal(existsSync(join(root, 'notes')), false);
+  }
+});
+
+test('private cache paths reject symlink escapes', () => {
+  const root = repo();
+  const outside = mkdtempSync(join(tmpdir(), 'zotero-private-outside-'));
+  symlinkSync(outside, join(root, '.local'));
+  assert.throws(() => syncDossier(fixture(), { root, topic: '01_Attention', slug: 'test-paper' }), /Symlink/);
 });

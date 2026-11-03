@@ -11,7 +11,6 @@
 - [PageWeaver：在线 Query 分组与共享 KV 的稀疏 Attention](PageWeaver/pageweaver.md)
 - [DeepSeek Sparse Attention (DSA) 算法流程](DeepSeek-DSA/deepseek-sparse-attention-dsa.md)
 - [DoSA：用安全上界减少 Indexer 的完整打分](DoSA/dosa.md)
-- [FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling：阅读材料](FlashAttention-4/zotero-reading.md)
 - [IndexCache：跨层复用稀疏索引，以及它为什么能被训练](IndexCache/indexcache.md)
 - [MiniMax Sparse Attention：论文算法与代码实现精确对应](MiniMax-MSA/MiniMax%20Sparse%20Attention%EF%BC%9A%E8%AE%BA%E6%96%87%E7%AE%97%E6%B3%95%E4%B8%8E%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%E7%B2%BE%E7%A1%AE%E5%AF%B9%E5%BA%94.md)
 - [MSA 中的 KL 对齐与局部知识蒸馏](MiniMax-MSA/msa-kl-distillation.md)
@@ -63,9 +62,9 @@
 | ⬜ | <a id="pdf-9h6z7sbe"></a>**SpargeAttn: Accurate Sparse Attention Accelerating Any Model Inference** | [ICML'25](https://proceedings.mlr.press/v267/zhang25ch.html) | 两阶段在线过滤与 softmax-aware pruning；理解推理期稀疏化的另一条路线 | [Paper](https://arxiv.org/abs/2502.18137) |
 | ⬜ | **BLASST: Dynamic BLocked Attention Sparsity via Softmax Thresholding** | [MLSys'26](https://proceedings.mlsys.org/paper_files/paper/2026/hash/c6ee784cbe46d854843e4c883a3321ef-Abstract-Conference.html) | 复用 online softmax 统计量跳过低贡献 blocks；无需训练并覆盖 MHA/GQA/MQA/MLA | [Paper](https://proceedings.mlsys.org/paper_files/paper/2026/hash/c6ee784cbe46d854843e4c883a3321ef-Abstract-Conference.html) |
 | ⬜ | <a id="pdf-cmk845zm"></a>**Block Sparse Attention with Log-Linear Complexity** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2609.31093) / [PDF](zotero://open-pdf/library/items/DK2DV9UZ) / [Zotero](zotero://select/library/items/CMK845ZM) |
-| ⬜ 📝 | <a id="pdf-l447a648"></a>**DoSA: Dots Sparse Attention** | arXiv · 2026 | 主体已读，附录细节待深入；用安全上界减少 indexer 完整打分，结合候选共享与稀疏写回保持精确 Top-K | [Paper](http://arxiv.org/abs/2610.13990) / [PDF](zotero://open-pdf/library/items/Y75KTIVE) / [Zotero](zotero://select/library/items/L447A648) / [Note](DoSA/dosa.md) / [Annotations](DoSA/zotero-reading.md) |
+| ⬜ 📝 | <a id="pdf-l447a648"></a>**DoSA: Dots Sparse Attention** | arXiv · 2026 | 主体已读，附录细节待深入；用安全上界减少 indexer 完整打分，结合候选共享与稀疏写回保持精确 Top-K | [Paper](http://arxiv.org/abs/2610.13990) / [PDF](zotero://open-pdf/library/items/Y75KTIVE) / [Zotero](zotero://select/library/items/L447A648) / [Note](DoSA/dosa.md) |
 | ⬜ | <a id="pdf-yugv34kq"></a>**FSA: An Alternative Efficient Implementation of Native Sparse Attention Kernel** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2508.18224) / [PDF](zotero://open-pdf/library/items/ZUQSHLJQ) / [Zotero](zotero://select/library/items/YUGV34KQ) |
-| ✅ 📝 | <a id="pdf-ehqb8nyq"></a>**PageWeaver: KV-Guided Query Unions for Sparse Attention** | arXiv · 2026 | 根据 KV page 重叠在线重组 Query，以双 CTA Union8 共享搬运，并计入分组开销 | [Paper](http://arxiv.org/abs/2610.11201) / [PDF](zotero://open-pdf/library/items/SBISCM3P) / [Zotero](zotero://select/library/items/EHQB8NYQ) / [Note](PageWeaver/pageweaver.md) / [Annotations](PageWeaver/zotero-reading.md) |
+| ✅ 📝 | <a id="pdf-ehqb8nyq"></a>**PageWeaver: KV-Guided Query Unions for Sparse Attention** | arXiv · 2026 | 根据 KV page 重叠在线重组 Query，以双 CTA Union8 共享搬运，并计入分组开销 | [Paper](http://arxiv.org/abs/2610.11201) / [PDF](zotero://open-pdf/library/items/SBISCM3P) / [Zotero](zotero://select/library/items/EHQB8NYQ) / [Note](PageWeaver/pageweaver.md) |
 
 ## Deep Learning / Sparse Attention Algorithms & Training / Algorithm and Training Foundations
 
@@ -97,5 +96,5 @@
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ⬜ | <a id="pdf-mnpehw5y"></a>**FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision** | arXiv · 2024 | 标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2407.08608) / [PDF](zotero://open-pdf/library/items/HTMXSCYS) / [Zotero](zotero://select/library/items/MNPEHW5Y) |
-| ⬜ | <a id="pdf-tghhgfqg"></a>**FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling** | arXiv · 2026 | 阅读中；标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2603.05451) / [PDF](zotero://open-pdf/library/items/M8IKPE3M) / [Zotero](zotero://select/library/items/TGHHGFQG) / [Annotations](FlashAttention-4/zotero-reading.md) |
+| ⬜ | <a id="pdf-tghhgfqg"></a>**FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling** | arXiv · 2026 | 阅读中；标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2603.05451) / [PDF](zotero://open-pdf/library/items/M8IKPE3M) / [Zotero](zotero://select/library/items/TGHHGFQG) |
 | ⬜ | <a id="pdf-5k4mwtrc"></a>**FlashDecoding++: Faster Large Language Model Inference on GPUs** | arXiv · 2024 | 标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2311.01282) / [PDF](zotero://open-pdf/library/items/8QQKNGYR) / [Zotero](zotero://select/library/items/5K4MWTRC) |

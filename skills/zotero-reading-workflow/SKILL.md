@@ -5,14 +5,14 @@ description: 在整理 Zotero 论文、完整标注或阅读讨论到 KuangjuX �
 
 # Zotero 阅读工作流
 
-本机仓库：`/Users/kuangjux/Paper-reading`。Zotero 管理 PDF、位置和原始标注；正式笔记进入仓库。
+本机仓库：`/Users/kuangjux/Paper-reading`。Zotero 管理 PDF、高亮、逐句翻译与随手批注；仓库保存按问题和机制组织的正式笔记，不默认展示完整标注导出。
 
 阅读时通过 `library_search` 找论文，通过 `paper_read` 读取原文，按选区翻译或解释，保留术语、公式定义和页码。图片、公式布局不清楚时查看原图，不凭文本提取猜测。
 保存 AI 批注时在评论中写明“AI 翻译”或“AI 解读”，个人评论独立保留；通过 `annotate_pdf` 精确匹配原文。已有批注先读取，不覆盖个人评论。
 
 整理笔记前读取仓库的 `skills/write-learning-notes/SKILL.md`，以及目标主题的 `index.md` 和相邻笔记。正文按现有编号主题放入 `Papers/<topic>/<paper>/`；不因为有标注就将论文标记为已读。
 
-外部 Codex 使用 `zotero_reading_export` 获取完整文本、条目 key、附件 key、标注 key 和页码。上游 `library_read` 会截断长标注，不能将它当完整导出。侧栏内优先通过 shell 运行仓库导入脚本。若使用只读 `zotero_script`，`pdf.getAnnotations()` 返回的是脱离原对象的快照；需以 `snapshot.id ?? snapshot._id` 调用只读 `Zotero.Items.get()` 再访问标注字段，不能直接假定快照包含 getter。
+需要完整标注时，外部 Codex 使用 `zotero_reading_export` 获取完整文本、条目 key、附件 key、标注 key 和页码。上游 `library_read` 会截断长标注，不能将它当完整导出。只有需要本地材料或增量比较时才运行缓存脚本，不把导出当成每次阅读的必需步骤。若使用只读 `zotero_script`，`pdf.getAnnotations()` 返回的是脱离原对象的快照；需以 `snapshot.id ?? snapshot._id` 调用只读 `Zotero.Items.get()` 再访问标注字段，不能直接假定快照包含 getter。
 
 ```sh
 node /Users/kuangjux/Paper-reading/scripts/zotero-sync.mjs --search '论文标题'
@@ -20,9 +20,11 @@ node /Users/kuangjux/Paper-reading/scripts/zotero-sync.mjs --item 123 --topic 01
 node /Users/kuangjux/Paper-reading/scripts/zotero-sync.mjs --item 123 --topic 01_Attention --slug paper-name
 ```
 
-导入脚本生成 `zotero-reading.md`，包含原文与评论、公开来源和 Zotero 定位链接，只在所属知识主题索引中补充必要的阅读入口。永远不要在总览或正式笔记中追加“Zotero 阅读进度”、导入/迁移清单、下载统计、来源台账或旧分类对照，也不要另建这类汇总页。再次导入复用同一 topic/slug；新增标注追加，未手改的块更新。人工编辑过的块发生冲突时保留原文，新版本写入 `.local/zotero-sync/<key>.incoming.md`；退出码 2 表示需要局部合并。Zotero 已删除的标注不会自动删去历史材料，脚本会报告 removed。
+脚本只写入 `.local/zotero-sync/`：`<key>.md` 保存可增量合并的原文与评论，`<key>.export.json` 保存本次完整导出，`<key>.json` 保存同步基线和正式笔记目录定位。缓存不提交、不进入网站、侧栏或索引。脚本不创建公开论文笔记，不修改阅读状态。永远不要在总览或正式笔记中追加“Zotero 阅读进度”、导入/迁移清单、下载统计、来源台账或旧分类对照，也不要另建这类汇总页。
 
-正式笔记写在同目录的其他 Markdown 文件。先核对完整论文、已有笔记和阅读材料，再提炼 Background、Insights、Design、Evaluation；区分作者事实、AI 解读、个人推论和待验证问题。重要图片用原图并注明图号；附件与正文使用相对链接。
+再次缓存复用同一 topic/slug；新增标注追加，未手改的块更新。人工编辑过的块发生冲突时保留原文，新版本写入 `.local/zotero-sync/<key>.incoming.md`；退出码 2 表示需要局部合并。Zotero 已删除的标注不会自动删去历史材料，脚本会报告 removed。已有公开导出会先复制到缓存并保留手改内容与基线；核对其中独有内容后，再移除旧公开文件、修正入口和旧链接重定向。
+
+正式笔记写在 `Papers/<topic>/<paper>/` 的 Markdown 文件中。先核对论文、已有笔记和相关阅读材料，再解释问题、核心洞察、设计和实验依据；区分作者事实、AI 解读、个人推论和证据不足的部分。不要求读完整篇才写笔记，可以先写清已理解的问题，随阅读局部补充；不要为未读部分制造结论或空模板。每次讨论更新对应段落，不按标注顺序追加聊天记录或逐句翻译。重要图片用原图并注明图号；附件与正文使用相对链接。来源在相关段落附章节、页码或 Zotero 定位链接，不链接本地缓存。
 
 保留已有人工内容，局部编辑并检查 diff。导入的评论可能包含 AI 输出，不能默认当作作者结论。补充正式笔记链接，并在所属主题的论文条目中按实际阅读程度更新状态。
 运行仓库的 `docs:build`、`docs:check-links`、`docs:check-anchors`、`docs:check-math`、`docs:check-diagrams`；不自动提交或推送。
