@@ -123,7 +123,7 @@ Papers/ | Projects/ | Foundations/
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ⬜ | <a id="pdf-mnpehw5y"></a>**FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision** | arXiv · 2024 | 标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2407.08608) / [PDF](zotero://open-pdf/library/items/HTMXSCYS) / [Zotero](zotero://select/library/items/MNPEHW5Y) |
+| ⬜ 📝 | <a id="pdf-mnpehw5y"></a>**FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision** | arXiv · 2024 | FP8 部分已整理：WGMMA 布局转换、分块量化与 incoherent processing；区分矩阵坐标与线程内槽位 | [Paper](http://arxiv.org/abs/2407.08608) / [PDF](zotero://open-pdf/library/items/HTMXSCYS) / [Zotero](zotero://select/library/items/MNPEHW5Y) / [Note](Papers/01_Attention/FlashAttention-3/fp8.md) |
 | ⬜ | <a id="pdf-tghhgfqg"></a>**FlashAttention-4: Algorithm and Kernel Pipelining Co-Design for Asymmetric Hardware Scaling** | arXiv · 2026 | 阅读中；标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2603.05451) / [PDF](zotero://open-pdf/library/items/M8IKPE3M) / [Zotero](zotero://select/library/items/TGHHGFQG) |
 | ⬜ | <a id="pdf-5k4mwtrc"></a>**FlashDecoding++: Faster Large Language Model Inference on GPUs** | arXiv · 2024 | 标签：Attention / 高效 Attention 内核 | [Paper](http://arxiv.org/abs/2311.01282) / [PDF](zotero://open-pdf/library/items/8QQKNGYR) / [Zotero](zotero://select/library/items/5K4MWTRC) |
 
