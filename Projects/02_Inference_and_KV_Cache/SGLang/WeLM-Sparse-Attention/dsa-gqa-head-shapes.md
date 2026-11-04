@@ -121,4 +121,4 @@ Weighted-ReLU indexer 先对各 index heads 做点积和非线性，再按权重
 - [DSA 前向路径与分页 Attention](dsa-gqa-forward.md)
 - [GQA 论文](https://arxiv.org/abs/2305.13245)
 - [FlashAttention 论文](https://arxiv.org/abs/2205.14135)
-- [MSA / DSA indexer 对照](../../../../Papers/01_Attention/MiniMax-MSA/msa-vs-dsa-indexer.md)
+- [MSA / DSA indexer 对照](../../../../Papers/01_Attention/MiniMax-MSA/msa.md#msa-vs-dsa)

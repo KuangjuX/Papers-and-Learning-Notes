@@ -13,10 +13,6 @@
 - [DeepSeek Sparse Attention (DSA) 算法流程](DeepSeek-DSA/deepseek-sparse-attention-dsa.md)
 - [DoSA：用安全上界减少 Indexer 的完整打分](DoSA/dosa.md)
 - [IndexCache：跨层复用稀疏索引，以及它为什么能被训练](IndexCache/indexcache.md)
-- [MiniMax Sparse Attention：论文算法与代码实现精确对应](MiniMax-MSA/MiniMax%20Sparse%20Attention%EF%BC%9A%E8%AE%BA%E6%96%87%E7%AE%97%E6%B3%95%E4%B8%8E%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%E7%B2%BE%E7%A1%AE%E5%AF%B9%E5%BA%94.md)
-- [MSA 中的 KL 对齐与局部知识蒸馏](MiniMax-MSA/msa-kl-distillation.md)
-- [MSA 为什么采用 KV-outer Sparse Attention Forward](MiniMax-MSA/msa-kv-outer-forward.md)
-- [MSA Indexer 与 DSA Lightning Indexer 的差别](MiniMax-MSA/msa-vs-dsa-indexer.md)
 - [MiniMax Sparse Attention (MSA)](MiniMax-MSA/msa.md)
 - [Fast Transformer Decoding: One Write-Head is All You Need](MQA/fast-transformer-decoding-mqa.md)
 - [A Survey of Efficient Attention Methods: Hardware-efficient,  Sparse, Compact, and Linear Attention](Surveys/efficient_attention_survey.md)
@@ -26,7 +22,6 @@
 - [FLASHATTENTION: Fast and Memory-Efficient Exact Attention with IO-Awareness：阅读笔记](FlashAttention/github-reading.md)
 
 - [Kimi Linear：状态更新与混合注意力](Kimi-Linear/zhihu-reading.md)
-- [DeepSeek-V3.2 与 DSA：年度总结摘记](DeepSeek-DSA/zhihu-reading.md)
 
 ## LLM Inference / Long Context Inference
 

@@ -8,17 +8,12 @@
 
 - [DeepSeek Sparse Attention (DSA) 算法流程](Papers/01_Attention/DeepSeek-DSA/deepseek-sparse-attention-dsa.md)
 - [IndexCache：跨层复用稀疏索引，以及它为什么能被训练](Papers/01_Attention/IndexCache/indexcache.md)
-- [MiniMax Sparse Attention：论文算法与代码实现精确对应](Papers/01_Attention/MiniMax-MSA/MiniMax%20Sparse%20Attention%EF%BC%9A%E8%AE%BA%E6%96%87%E7%AE%97%E6%B3%95%E4%B8%8E%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%E7%B2%BE%E7%A1%AE%E5%AF%B9%E5%BA%94.md)
-- [MSA 中的 KL 对齐与局部知识蒸馏](Papers/01_Attention/MiniMax-MSA/msa-kl-distillation.md)
-- [MSA 为什么采用 KV-outer Sparse Attention Forward](Papers/01_Attention/MiniMax-MSA/msa-kv-outer-forward.md)
-- [MSA Indexer 与 DSA Lightning Indexer 的差别](Papers/01_Attention/MiniMax-MSA/msa-vs-dsa-indexer.md)
 - [MiniMax Sparse Attention (MSA)](Papers/01_Attention/MiniMax-MSA/msa.md)
 - [Fast Transformer Decoding: One Write-Head is All You Need](Papers/01_Attention/MQA/fast-transformer-decoding-mqa.md)
 - [A Survey of Efficient Attention Methods: Hardware-efficient,  Sparse, Compact, and Linear Attention](Papers/01_Attention/Surveys/efficient_attention_survey.md)
 - [Attention is all you need：阅读笔记](Papers/01_Attention/Transformer/github-reading.md)
 - [FLASHATTENTION: Fast and Memory-Efficient Exact Attention with IO-Awareness：阅读笔记](Papers/01_Attention/FlashAttention/github-reading.md)
 - [Kimi Linear：状态更新与混合注意力](Papers/01_Attention/Kimi-Linear/zhihu-reading.md)
-- [DeepSeek-V3.2 与 DSA：年度总结摘记](Papers/01_Attention/DeepSeek-DSA/zhihu-reading.md)
 
 ### 推理与 KV Cache
 
@@ -60,7 +55,7 @@
 
 ### 模型架构与推理能力
 
-- [SkVM: Revisiting Language VM for Skills across Heterogenous LLMs and Harnesses](Papers/05_Model_Architecture_and_Reasoning/Agents/SkVM/skvm.md)
+- [SkillRT（SkVM）：让技能适配不同模型与执行框架](Papers/05_Model_Architecture_and_Reasoning/Agents/SkVM/skvm.md)
 - [DeepSeek-V4: 迈向高效百万级上下文智能](Papers/05_Model_Architecture_and_Reasoning/DeepSeek-V4/deepseek-v4.md)
 - [Distilling the Knowledge in a Neural Network](Papers/05_Model_Architecture_and_Reasoning/Knowledge-Distillation/distilling-the-knowledge-in-a-neural-network.md)
 
@@ -93,7 +88,6 @@
 
 ### 分布式训练与 MoE
 
-- [PithTrain 代码解读与训练系统学习路线](Projects/03_Distributed_Training_and_MoE/PithTrain/index.md)
 - [NVSHMEM 与 DeepEP-like Buffer：初始化与内存模型](Projects/03_Distributed_Training_and_MoE/DeepEP/zhihu-reading.md)
 - [DeepEP：年度总结中的计算通信重叠摘记](Projects/03_Distributed_Training_and_MoE/DeepEP/overview.md)
 

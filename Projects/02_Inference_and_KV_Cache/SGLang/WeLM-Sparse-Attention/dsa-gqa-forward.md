@@ -134,5 +134,5 @@ FlashAttention 的 KV-cache 接口支持分页 KV 与 GQA/MQA；具体参数名�
 
 - [GQA 稀疏 Attention 的共享关系与计算形状](dsa-gqa-head-shapes.md)
 - [DeepSeek Sparse Attention 算法流程](../../../../Papers/01_Attention/DeepSeek-DSA/deepseek-sparse-attention-dsa.md)
-- [MSA Indexer 与 DSA Lightning Indexer 的差别](../../../../Papers/01_Attention/MiniMax-MSA/msa-vs-dsa-indexer.md)
+- [MSA Indexer 与 DSA Lightning Indexer 的差别](../../../../Papers/01_Attention/MiniMax-MSA/msa.md#msa-vs-dsa)
 - [SGLang FlashAttention backend 笔记](../Layers/flashattention_backend.md)

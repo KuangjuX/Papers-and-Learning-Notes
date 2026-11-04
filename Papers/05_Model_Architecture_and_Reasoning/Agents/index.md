@@ -2,4 +2,4 @@
 
 记录 Agent 的技能表示、运行时和系统实现。
 
-- [SkVM: Revisiting Language VM for Skills across Heterogenous LLMs and Harnesses](SkVM/skvm.md)
+- [SkillRT（SkVM）：让技能适配不同模型与执行框架](SkVM/skvm.md)

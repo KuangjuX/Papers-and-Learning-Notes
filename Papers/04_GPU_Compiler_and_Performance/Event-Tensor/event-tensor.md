@@ -19,13 +19,9 @@ date: 2026-08-19
 > **链接**：[arXiv](https://arxiv.org/abs/2604.13327) / [MLSys PDF](https://proceedings.mlsys.org/paper_files/paper/2026/file/53d3f45797970d323bd8a0d379c525aa-Paper-Conference.pdf)  
 > **代码状态**：论文称 ETC 已被并入一个主要开源系统，但正文没有给出明确项目名。  
 
-## 一句话总结
+一个 megakernel 内可以同时存在许多 tile task。关键问题是：某个 task 需要的数据已经由哪些生产者写好，又该通知哪些消费者？Event Tensor 用具有 shape 和索引映射的事件数组表达这些依赖，再由编译器选择静态或动态调度。
 
-Event Tensor 把 megakernel 中的细粒度同步事件提升为编译器 IR 的一等张量对象：事件有 shape，task 坐标可以映射到 event 坐标，shape 还可以包含符号变量，映射也可以读取 `topk`、`indptr` 等运行时张量。编译器据此把多个 tiled operators 降低成一个静态或动态调度的 persistent megakernel，在不显式物化完整 task graph 的情况下支持动态 batch、MoE 路由、跨算子流水和计算通信重叠。
-
-![Figure 2：Event Tensor 抽象总览](images/fig02-event-tensor-overview.png)
-
-## 论文试图解决的问题
+## 先看 kernel 边界怎样限制任务并行
 
 ### Kernel launch 已经成为低 batch 推理的显著成本
 
@@ -46,9 +42,13 @@ Megakernel 把多个 operator 放入同一个 persistent kernel，再把 operato
 
 此外，手写 megakernel 需要同时处理 task 分解、跨 SM 依赖、信号量、执行队列、负载均衡、shared memory 和寄存器资源，工程复杂度很高。
 
-## Event Tensor 抽象
+## 用两阶段 reduction 建立 Event Tensor 模型
 
-### 三个核心语言对象
+![Figure 2：Event Tensor 抽象总览](images/fig02-event-tensor-overview.png)
+
+Figure 2 将 task、事件与坐标映射放在同一视图中；下面用一个两阶段 reduction 具体解释这些对象。
+
+### 用 Device Function、Event Tensor 与 Graph Function 描述依赖
 
 #### Device Function
 
@@ -81,6 +81,24 @@ E[i]                 --"i->i" --> consumer task i
 
 它可以被读成：所有具有相同 `i` 的 producer tiles 共同更新 `E[i]`，当其计数器归零后，第 `i` 个 consumer tile 可以执行。
 
+### Split-K reduction 示例
+
+论文用两阶段 reduction 展示细粒度依赖。输入 `A` 的 shape 为 `(n×32, 128)`，第一阶段沿 K 轴切成 4 份：
+
+$$
+B[i,j] = \sum_{k=32j}^{32j+31} A[i,k], \qquad j\in[0,4)
+$$
+
+第二阶段汇总 4 个 partial sums：
+
+$$
+C[i] = \sum_{j=0}^{3} B[i,j]
+$$
+
+传统 kernel-by-kernel 模式等待整个 B 完成后才启动 C。Event Tensor 为每 32 行建立一个 `E[i]`，初始计数为 4。四个 `B[i,j]` tasks 分别通知 `E[i]`；某个 `E[i]` 归零后，对应 `C[i]` 可以立即执行，不必等待其他行。
+
+![Figure 3：Event Tensor 程序示例](images/fig03-program-example.png)
+
 ### Event Tensor 的本质：参数化的 Task DAG
 
 语义上，Event Tensor 仍然表示一个 DAG：
@@ -101,25 +119,7 @@ consumer mapping = "i->i"
 
 > Event Tensor 是 task DAG 的 tensorized、symbolic、parametric representation。
 
-### Split-K reduction 示例
-
-论文用两阶段 reduction 展示细粒度依赖。输入 `A` 的 shape 为 `(n×32, 128)`，第一阶段沿 K 轴切成 4 份：
-
-$$
-B[i,j] = \sum_{k=32j}^{32j+31} A[i,k], \qquad j\in[0,4)
-$$
-
-第二阶段汇总 4 个 partial sums：
-
-$$
-C[i] = \sum_{j=0}^{3} B[i,j]
-$$
-
-传统 kernel-by-kernel 模式等待整个 B 完成后才启动 C。Event Tensor 为每 32 行建立一个 `E[i]`，初始计数为 4。四个 `B[i,j]` tasks 分别通知 `E[i]`；某个 `E[i]` 归零后，对应 `C[i]` 可以立即执行，不必等待其他行。
-
-![Figure 3：Event Tensor 程序示例](images/fig03-program-example.png)
-
-## 两类动态性如何进入依赖表示
+## 把符号 shape 和运行时路由放入同一表示
 
 ![Figure 4/5：Shape dynamism 与 data-dependent dynamism](images/fig04-05-dynamism.png)
 
@@ -169,7 +169,7 @@ Attention output
 
 动态性只改变后半段的依赖边和 tile 数量，不引入循环依赖。
 
-## ETC 编译流程
+## 从依赖表示到持久化 kernel
 
 ETC 实现为 Apache TVM 上的一组 compiler passes。输入计算图中：
 
@@ -190,7 +190,7 @@ ETC 实现为 Apache TVM 上的一组 compiler passes。输入计算图中：
 
 Event Tensor 论文的重点是第 3 步：同一份 dependency IR 可以被降低成不同的执行策略。
 
-## 静态调度
+## 规则任务：预先确定每个 SM 的执行队列
 
 静态调度在 kernel 启动前为每个 SM 计算固定任务队列。编译器将多个 device functions 融合为一个 persistent main loop，并在 producer 末尾插入 `notify()`、在 consumer 开头插入 `wait()`。
 
@@ -214,7 +214,7 @@ Event Tensor 论文的重点是第 3 步：同一份 dependency IR 可以被降�
 - 动态 shape 使用代表 shape 采样，未采样 shape 复用下一个更大的队列；
 - 数据依赖动态性只能保守地退化为较粗同步，因此不规则 MoE 更适合动态调度。
 
-## 动态调度
+## 不规则任务：运行时分派已经就绪的工作
 
 动态调度在 GPU 上维护 ready-task queue。任意 SM 空闲后 `pop` 一个 task；producer 完成并使 event counter 归零时，关联的 consumers 被 `push` 进队列。
 
@@ -234,7 +234,7 @@ Event Tensor 论文的重点是第 3 步：同一份 dependency IR 可以被降�
 
 当前实现使用所有 SM 共享的 global-memory centralized queue，优点是简单，缺点是原子 push/pop 可能在规模扩大时产生争用。附录还使用 **early push** 隐藏调度开销：producer tasks 全部被派发后便提前入队 consumer，真正执行 consumer 前再等待 event；这样 push 操作可与 producer 计算重叠。
 
-## Minimal runtime：把控制流编译进 Megakernel
+## 运行时怎样执行编译后的控制流
 
 ![Figure 10：传统 task runtime 与 ETC compiled-in control flow](images/fig10-compiled-control-flow.png)
 
@@ -247,7 +247,7 @@ Event Tensor 论文的重点是第 3 步：同一份 dependency IR 可以被降�
 
 因此 Event Tensor 是 IR 中的一等抽象，但不要求运行时存在重量级 `Event` 对象。它在 lowering 后复用普通 tensor 存储。
 
-## 实验设计与结果
+## 实验：依赖表达是否转化为端到端收益
 
 ### 实验环境
 
@@ -334,7 +334,7 @@ Qwen3-32B 从 engine launch 到首个请求：
 
 ETC 的 symbolic Event Tensor 允许离线生成一个 shape-generic binary，因此 serving 启动阶段不做 JIT 或多 shape CUDA Graph capture。论文同时披露 Qwen3-32B 的离线编译需要 107 s。准确理解应是：ETC 把一次性编译成本移出了 serving warmup 关键路径，而不是让编译成本消失。
 
-## 静态与动态调度的消融
+## 消融：什么情况下动态调度值得付出代价
 
 ![Table 2/3：静态与动态调度的 workload-dependent trade-off](images/table2-3-scheduler-tradeoff.png)
 
@@ -355,7 +355,7 @@ Qwen3-32B、TP=4 中，static 相对 unfused 为 1.06×-1.09×，dynamic 只有 
 MoE、通信抖动、不规则执行时间 -> dynamic schedule
 ```
 
-## 与相关抽象的层级关系
+## 与 task DSL、DAG 和 MPK 的分工
 
 ### 与 TileLang、CuTeDSL 的区别
 
@@ -408,15 +408,7 @@ MPK：自动构造显式 tGraph，再将它压缩并交给 in-kernel runtime
 
 版本上需注意：Event Tensor v2 发布于 2026-04-21；当前 MPK v2 更新于 2026-06-10，已经加入 continuous batching、MoE 和 multi-GPU dynamic workload 支持。因此 Event Tensor related-work 中“现有 megakernel 仅支持 single-batch dense model”的描述不应直接套用于当前 MPK v2。
 
-## 论文的主要贡献
-
-1. **把同步事件 tensorize**：创新不在 atomic counter 本身，而在于让事件具有 shape、索引和坐标映射，进入 compiler IR。
-2. **统一两类动态性**：symbolic shape 描述 task graph 模板，runtime tensors 描述 data-dependent update 和 triggering。
-3. **让调度成为 compiler transformation**：同一 dependency IR 可以系统化生成 static 或 dynamic persistent kernel。
-4. **把 task graph 控制流编译进代码**：不依赖完整 graph materialization 和 generic executor。
-5. **在真实 LLM serving 中验证**：不仅测试 microbenchmark，还覆盖通信融合、完整 MoE layer、完整 decoding pipeline 和 warmup。
-
-## 局限与批判性阅读
+## 适用边界与尚未自动化的部分
 
 ### Event Tensor graph 仍需人工或上游 compiler 提供
 
@@ -442,9 +434,9 @@ ETC 在单 GPU、低 batch 和 MoE 场景最强；Qwen3-32B TP=4 主要是与 vL
 
 Warmup 从 123/583 s 降到 35 s 很有部署价值，但 107 s 离线编译仍需发生。收益取决于 binary 是否能跨请求、实例和部署长期复用。
 
-## 我的理解
+## 个人理解：数据流与就绪条件的分离
 
-这篇论文最重要的不是 1.23× 或 1.40× 的具体数字，而是提出了一个适合 tensor compiler 的依赖表示：
+**个人理解。** Event Tensor 给 tensor compiler 提供了一种可以变换的依赖表示：
 
 ```text
 数据张量回答：task 计算什么
@@ -466,4 +458,3 @@ Persistent GPU kernel
 ```
 
 Event Tensor 已经较好地解决了中间两层之间的接口，但“从普通模型图自动生成高质量 Event Tensor graph”仍是决定它能否成为通用后端的关键下一步。
-

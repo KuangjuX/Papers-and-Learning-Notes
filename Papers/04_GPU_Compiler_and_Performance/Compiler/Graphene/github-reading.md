@@ -4,9 +4,9 @@
 
 - 论文：[原文](https://mgarland.org/papers/2023/graphene/)
 
-## 论文笔记
+GPU 张量指令约束的不只是矩阵形状，还有数据怎样分布在线程与寄存器之间。Graphene 用可分层切块的张量同时表示数据与线程，从而表达这些映射。
 
-### 优化 GPU 数据移动
+## 先看一次矩阵加载的数据到线程映射
 
 Nvidia Ampere GPU 能够通过单指令移动两维张量。`ldmatrix` 使用 warp(32 个线程)将一个 8x8 的矩阵从共享内存移动到 warp 线程的寄存器。`ldmatrix` 指令描述了严格的数据到线程映射。
 ![截屏2023-10-26 10 05 26](images/issue-27-01.png)
@@ -14,7 +14,7 @@ Figure 1a 表示没个线程在共享内存中必须访问的值，Figure 1b 表
 
 ![](images/issue-27-02.png) Figure 1c 和 1d 展示了 CUDA PTX 的实现和 IR 的实现。
 
-### The Shape Of Tensors To Come
+## 用 shape 与 stride 表达布局和 tiling
 
 在这节里讲了如何使用新设计的 IR 去表示不同 memory layouts 的布局。
 ![](images/issue-27-03.png)
@@ -26,7 +26,7 @@ Figure 3(a) 和 Figure 3(b) 表示了列主序和行主序的矩阵表示方法�
 
 Figure 4(b) 中的 tile 解释如下：在第一个维度中两个逻辑上相邻构成一个 tile，步长为 1，在第二个维度中两个维度构成一个 tile，维度为 2。
 
-### Logical Thread Groups
+## 用逻辑线程组表达执行映射
 
 在高效的张量计算中需要在不同 kernel 点使用不同的线程排列。
 ![截屏2023-10-31 16 44 30](images/issue-27-05.png)

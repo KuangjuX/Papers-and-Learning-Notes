@@ -17,7 +17,7 @@ date: 2026
 >
 > MLA 来源：[DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model](https://arxiv.org/abs/2405.04434)
 >
-> 对比笔记：[MSA Indexer 与 DSA Lightning Indexer 的差别](../MiniMax-MSA/msa-vs-dsa-indexer.md)
+> 对比笔记：[MSA Indexer 与 DSA Lightning Indexer 的差别](../MiniMax-MSA/msa.md#msa-vs-dsa)
 
 ## 一句话结论
 
@@ -68,6 +68,10 @@ $$
 ---
 
 ## 3. 总体数据流
+
+![DeepSeek Sparse Attention 架构](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/images/work-summary-02.jpg)
+
+DSA 架构图，引用自 [2025 年度 LLM 研究总结](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。主注意力只读入选位置，不代表从 KV cache 永久删除其他位置；后续 query 仍可能选中它们。
 
 ```mermaid
 flowchart TD
@@ -749,6 +753,6 @@ KL：
 
 ## 相关笔记
 
-- [MSA Indexer 与 DSA Lightning Indexer 的差别](../MiniMax-MSA/msa-vs-dsa-indexer.md)
+- [MSA Indexer 与 DSA Lightning Indexer 的差别](../MiniMax-MSA/msa.md#msa-vs-dsa)
 - [MiniMax Sparse Attention (MSA)](../MiniMax-MSA/msa.md)
-- [MSA 中的 KL 对齐与局部知识蒸馏](../MiniMax-MSA/msa-kl-distillation.md)
+- [MSA 中的 KL 对齐与局部知识蒸馏](../MiniMax-MSA/msa.md#msa-kl)

@@ -15,7 +15,7 @@ date: 2026-09-15
 
 > 论文：[IndexCache: Accelerating Sparse Attention via Cross-Layer Index Reuse，v1](https://arxiv.org/abs/2603.12201v1)。
 >
-> 关联笔记：[DSA 算法流程](../DeepSeek-DSA/deepseek-sparse-attention-dsa.md) · [MSA 与 DSA Indexer 对比](../MiniMax-MSA/msa-vs-dsa-indexer.md) · [HiSparse](../../02_Inference_and_KV_Cache/HiSparse/hisparse.md)
+> 关联笔记：[DSA 算法流程](../DeepSeek-DSA/deepseek-sparse-attention-dsa.md) · [MSA 与 DSA Indexer 对比](../MiniMax-MSA/msa.md#msa-vs-dsa) · [HiSparse](../../02_Inference_and_KV_Cache/HiSparse/hisparse.md)
 
 ## 1. 一句话结论
 

@@ -12,6 +12,8 @@ description: 在整理 Zotero 论文、完整标注或阅读讨论到 KuangjuX �
 
 整理笔记前读取仓库的 `skills/write-learning-notes/SKILL.md`，以及目标主题的 `index.md` 和相邻笔记。正文按现有编号主题放入 `Papers/<topic>/<paper>/`；不因为有标注就将论文标记为已读。
 
+同一篇论文只有一篇正式主文章。每次保存先按标题、别名、arXiv/DOI 与 Zotero key 查找已有入口，复用其目录和 Markdown 文件；不同 talk、会话、附件版本或讨论主题不新建另一篇。将新的解释、推导、源码对应和实验分析合入主文章的相关章节，保留独有人工内容、证据与代码版本，去除重复。已有多份笔记时合并内容，并更新主题索引、交叉链接及内部重定向；仅用户明确要求独立文档时另存。
+
 需要完整标注时，外部 Codex 使用 `zotero_reading_export` 获取完整文本、条目 key、附件 key、标注 key 和页码。上游 `library_read` 会截断长标注，不能将它当完整导出。只有需要本地材料或增量比较时才运行缓存脚本，不把导出当成每次阅读的必需步骤。若使用只读 `zotero_script`，`pdf.getAnnotations()` 返回的是脱离原对象的快照；需以 `snapshot.id ?? snapshot._id` 调用只读 `Zotero.Items.get()` 再访问标注字段，不能直接假定快照包含 getter。
 
 ```sh

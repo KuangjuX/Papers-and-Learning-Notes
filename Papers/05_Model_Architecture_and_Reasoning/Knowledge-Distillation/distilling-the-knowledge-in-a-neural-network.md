@@ -213,4 +213,4 @@ $$
 =P_j^{index}-P_j^{main}.
 $$
 
-因此 Main Attention 认为重要而 Indexer 低估的位置会被抬高，反之会被压低。差别在于经典蒸馏通常是离线的大模型 → 小模型；MSA 是同一注意力层里的位置级蒸馏，用 soft distribution 绕过 hard Top-k 的不可导选择，而且推理时 Main Attention 仍负责正式计算。具体梯度边界见 [MSA KL 对齐笔记](../../01_Attention/MiniMax-MSA/msa-kl-distillation.md)。
+因此 Main Attention 认为重要而 Indexer 低估的位置会被抬高，反之会被压低。差别在于经典蒸馏通常是离线的大模型 → 小模型；MSA 是同一注意力层里的位置级蒸馏，用 soft distribution 绕过 hard Top-k 的不可导选择，而且推理时 Main Attention 仍负责正式计算。具体梯度边界见 [MSA KL 对齐笔记](../../01_Attention/MiniMax-MSA/msa.md#msa-kl)。

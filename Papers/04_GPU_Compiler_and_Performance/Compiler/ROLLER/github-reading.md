@@ -4,9 +4,7 @@
 
 - 论文：[原文](https://www.usenix.org/system/files/osdi22-zhu.pdf)
 
-## 论文笔记
-
-### Introduction
+## 从搜索循环变换转向构造数据流水线
 
 张量编译器用来优化算子并生成可以在特定加速器执行的代码。然而优化算子涉及到嵌套循环拆分/融合/重排序，实际上是一个组合优化问题，搜索空间巨大。目前先进的编译器像 TVM，Ansor，Flextensor 等通过机器学习算法搜索解决方案，然而这非常耗费时间。在本篇文章中提出了 Roller。
 
@@ -16,7 +14,7 @@
 
 因此 Roller 提出了 **rTile** 抽象用于管理 data tile shapes 和加速器关键特性和输入的张量大小对齐。一系列流水线处理过程可以被描述为 rTile-based program。有 Load，Stroe，Compute 三个接口。它使用先扩展然后后扩展的方法。
 
-### Motivation
+## tile 大小与布局为何决定成本
 
 - **Excessive compilation time**： 在 Ansor 上编译一组算子非常慢，在编译 NASNet 的时候花费了 41.8 个小时，这主要是由于搜索空间巨大造成的。
 - **Observation and insights**： 以矩阵乘法为例，$C_{m,n} = A_{m,k} * B_{k,n}$，在存在的编译器中将这个视为三重循环。但是本文可以将其视为：1. Load 子矩阵（i.e. a tile）从 A 矩阵和 B 矩阵中。2. Compute 两个矩阵。3. 存储 C 的 tile 到内存中。因此计算结果的速度依赖于数据 tiles 可以在 Load-Compute-Store 流水线中有多快。
@@ -25,13 +23,13 @@
 
 影响性能的关键因素在于 tile 的 shape 以及内存布局。图 1(a)(b)(c) 分别展示了不同的 tile 针对内存布局带来的性能的影响。
 
-### System Design
+## 用 rTile 构建并评估 rProgram
 
 ![截屏2023-08-18 10 10 06](images/issue-24-02.png)
 
 Roller 从张量表达式中提取张量 shape 并基于硬件特性构建 rTiles，随后基于递归算法生成有效率的张量程序(rProgram)，构建后通过 micro-performance 模型评估性能。rTile 抽象层仅有 Load, Compute 和 Store 三个接口。
 
-#### Tensor Expression and rTile
+### Tensor Expression and rTile
 
 Raller 将 tensor 表达式计算作为一个基于索引的匿名表达式：`C = compute((M, N), lambda i,j: sum(A[i,k] * B[k,j]))`，可以覆盖大部分 DNN 模型中的算子。
 
@@ -48,7 +46,7 @@ Raller 将 tensor 表达式计算作为一个基于索引的匿名表达式：`C
 - **Deriving all rTiles.**：基于以上要求，Roller 通过一个 `vector<int> GetNextAlignedAxisSize(rTile T, Dev d)` 的接口通过给定的 rTile 以及设备用来生成 rTile 下一个对齐的 shape 的每一个 axis 大小，这是通过不断增长 dim 来查看是否满足对齐要求。
 - **Calculating data reuse score.**：通过不断增加 rTile 可以带来更多的数据重用机会，但同时也会占用更多的内存。
 
-#### Tensor Program Construction
+### Tensor Program Construction
 
 **rTile program**
 给定一个 rTile 以及一个现代加速器的内存层级，一个 tensor 的计算可以自然地被定义为一个数据流处理流水线。
@@ -73,13 +71,13 @@ Figure 8 展示了构建 rTile 的算法，输入张量表达式和设备，通�
 **Scaling out an rProgram.**
 **Small operator and irregular tensor shape.**
 
-#### Efficient Evaluation of an rProgram
+### Efficient Evaluation of an rProgram
 
 Roller 也引入了一个 efficient evaluation 用来评估性能，在 Figure 8 中提到了。这些 evaluation 可以通过一次 offline profile 并将其缓存。
 
 ![](images/issue-24-07.png)
 
-### Implementation
+## 代码生成、padding 与性能测量
 
 Roller 的实现基于 Rammer 和 TVM 两个开源项目。
 

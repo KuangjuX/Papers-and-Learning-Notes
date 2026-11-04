@@ -4,9 +4,7 @@
 
 - 论文：[原文](https://www.usenix.org/system/files/osdi23-zhang-chen.pdf)
 
-## 论文笔记
-
-### 介绍
+## CPU 控制流与 GPU 数据流分离的成本
 
 传统的 DNN 通常是 CPU 来执行控制流，加速器（例如 GPU）来执行数据流，但这样会影响程序执行效率：
 
@@ -41,15 +39,15 @@
 
 因此，本篇文章有一个动机，就是将控制流和数据流放在同一个调度空间内执行，也就是放在加速器端运行。并且幸运的事，调研发现在加速器端执行控制流是可行的。
 
-### 设计
+## 用 uTask 统一表示数据、分支与循环
 
 ![](images/issue-21-01.png)
 
 上图展示了 Cocktailer 的设计，首先将一个 DNN 程序（包含控制流和数据流）输入，每个数据流的一个算子叫作一个 **uOperator**，每个 uOperator 包含多个 **uTasks**，控制流则不在 CPU 端执行，而是生成并行的 **uProgram**，uProgram 包含多个 uTasks 并并行执行。
 
-Cocktailer 把并行加速器抽象成三个层级，以 Nvidia GPU 举例，分别为：（1）core（thread)（2）SM(thread block)（3）GPU device(kernel)。
+Cocktailer 把并行加速器抽象成三个层级，以 Nvidia GPU 举例，其执行抽象分别对应线程、线程块和 kernel 级别；线程块在 SM 上驻留执行，并不与 SM 一一等同。
 
-#### 基于 DNN 程序的 uTask 设计
+### 基于 DNN 程序的 uTask 设计
 
 **uTask**:
 ```cpp

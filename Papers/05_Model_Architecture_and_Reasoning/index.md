@@ -9,7 +9,7 @@
 ## 本地笔记
 
 - [Agent 系统](Agents/index.md)
-- [SkVM: Revisiting Language VM for Skills across Heterogenous LLMs and Harnesses](Agents/SkVM/skvm.md)
+- [SkillRT（SkVM）：让技能适配不同模型与执行框架](Agents/SkVM/skvm.md)
 - [DeepSeek-V4: 迈向高效百万级上下文智能](DeepSeek-V4/deepseek-v4.md)
 - [Distilling the Knowledge in a Neural Network](Knowledge-Distillation/distilling-the-knowledge-in-a-neural-network.md)
 
@@ -164,4 +164,4 @@
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ✅ 📝 | **SkVM: Revisiting Language VM for Skills across Heterogenous LLMs and Harnesses** | [arXiv'26](https://arxiv.org/abs/2604.03088) | 按模型与 harness 能力编译 skills，并用运行时代码固化和自适应重编译提高可移植性与执行效率 | [Paper](https://arxiv.org/abs/2604.03088) / [Note](Agents/SkVM/skvm.md) |
+| ✅ 📝 | **SkillRT（SkVM）：让技能适配不同模型与执行框架** | [arXiv'26](https://arxiv.org/abs/2604.03088) | 按模型与 harness 能力编译 skills，并用运行时代码固化和自适应重编译提高可移植性与执行效率 | [Paper](https://arxiv.org/abs/2604.03088) / [Note](Agents/SkVM/skvm.md) |

@@ -4,13 +4,7 @@
 
 - 论文：[原文](https://www.usenix.org/system/files/osdi20-ma.pdf)
 
-## 易错概念
-
-原笔记中“GPU 仅允许一次执行一个算子”不能当作通用硬件限制。本文要解决的是如何由编译器控制更细的 rTask 调度；§4.1.2、Figure 9 描述了同一个 vDevice 中两个 vEU 并行执行不同算子的 rTask，并在依赖处同步。
-
-## 论文笔记
-
-### 动机
+## 两层独立调度遗漏了哪些并行性
 
 当前深度学习框架都将神经网络计算抽象成算子数据流图，然后将其拓扑排序后交给硬件执行。而在此之下又存在另一层调度器（block dispatcher, warp scheduler）负责充分发掘单个算子中的并行性（intra operator parallelism）并将计算任务映射给更小粒度的处理单元（SMs, CUDA Cores）。
 
@@ -20,7 +14,7 @@
 
 为了解决两层调度带来的开销，本篇文章提出新的抽象，分别是 **rOperator** 和 **rTask**，这样可以将算子内的操作细化为更细粒度的 **rTask** 从而将调度空间扩大以便进行更好的优化。
 
-### RAMMER 设计
+## 用 rTask 与 vEU 表达统一执行计划
 
 RAMMER 是一个能够同时管理算子内和算子外调度的 DNN 编译器，下图展示了 RAMMER 和其他深度学习框架的不同：
 
@@ -28,7 +22,7 @@ RAMMER 是一个能够同时管理算子内和算子外调度的 DNN 编译器�
 
 RAMMER 将生成一个静态的 execution plan 供运行执行，由于在单个加速器设备上进行计算不够有效率，因此会生成多个 **rPrograms**。除此之外还在编译时引入了 **vDevice** 和 **vEU** 并在运行时将其映射到对应的物理设备。
 
-#### rOperator
+### rOperator
 
 rOperator 是一组 rTasks 的集合，rTask 是能够在加速器设备上进行并行执行的最小任务。rOperator 依赖于外部工具将其分成 rTasks（例如，TVM）。
 
@@ -38,11 +32,11 @@ rOperator 是一组 rTasks 的集合，rTask 是能够在加速器设备上进�
 
 传统的 Operator 只有 `compute()` 一个方法，在 rOpertaor 中通过 `rTask_id` 来索引 rTask 并执行。rOperator 抽象允许 RAMMER 暴露算子内和算子外的并行，打开了新的 DNN 计算的优化空间。
 
-#### Virtualized Parallel Device
+### Virtualized Parallel Device
 
-现代加速器不提供直接把对应的 rTask 映射到执行单元执行的功能。GPU 仅允许一次执行一个算子（也叫做 kernel）。为了解决这个挑战，RAMMER 设计了一个叫做 vDevice（virtualized parallel device）的概念。一个 vDevice 中含有多个 vEUs(virtual execution units)。因此 RAMMER 可以将 rProgram 组织成一个二维数组，`prog[vEU_id][order]`，order 表示在一个 vEU 中的任务的执行顺序。为了确保互相有依赖的任务正确进行执行，RAMMER 添加了一个 **barrier-rTask**。barrier-rTask 接受一系列 `<vEU_id, order>` 的任务。barrier-rTask 会等待每一个 rTask 完成后才会继续执行。
+现代加速器不提供直接把对应的 rTask 映射到执行单元执行的功能。普通 kernel launch 不直接暴露逐个 rTask 到执行单元的映射；这不意味着 GPU 不能并发执行多个 kernel。为了解决这个挑战，RAMMER 设计了一个叫做 vDevice（virtualized parallel device）的概念。一个 vDevice 中含有多个 vEUs(virtual execution units)。因此 RAMMER 可以将 rProgram 组织成一个二维数组，`prog[vEU_id][order]`，order 表示在一个 vEU 中的任务的执行顺序。为了确保互相有依赖的任务正确进行执行，RAMMER 添加了一个 **barrier-rTask**。barrier-rTask 接受一系列 `<vEU_id, order>` 的任务。barrier-rTask 会等待每一个 rTask 完成后才会继续执行。
 
-#### rTask-aware DFG Compiler
+### rTask-aware DFG Compiler
 
 ![截屏2023-08-11 12 47 55](images/issue-22-04.png)
 
@@ -52,7 +46,7 @@ rOperator 是一组 rTasks 的集合，rTask 是能够在加速器设备上进�
 
 ![](images/issue-22-05.png)
 
-### 实现
+## 用持久线程块执行计划并同步依赖
 
 ![截屏2023-08-11 22 09 42](images/issue-22-06.png)
 
@@ -60,7 +54,7 @@ rOperator 是一组 rTasks 的集合，rTask 是能够在加速器设备上进�
 
 ![截屏2023-08-11 22 27 25](images/issue-22-07.png)
 
-由于 GPU 在外部算子会自己进行调度，为了绕过 GPU 调度，RAMMER 使用 PTB（持久线程块）在 vDevice 实现 vEU，这样 RAMMER 可以将 PTB 固定在期望的 SM 上面。除此之外本篇文章也给了一个在多个 vEU 上执行的例子，假设一个 vDevice 有两个 vEU，一个 rProgram 需要去执行 MatMul, ReLU 和 Conv2d 等几个算子，vEU0 去执行 MatMul，vEU1 去执行 ReLU，随后两遍进行等待直到全部执行完两个 vEU 再同时执行 Conv2D。
+由于 GPU 在外部算子会自己进行调度，为了绕过 GPU 调度，RAMMER 使用 PTB（持久线程块）在 vDevice 实现 vEU，每个驻留的 PTB 执行对应 vEU 的任务序列，细粒度次序由生成的 rProgram 控制。除此之外本篇文章也给了一个在多个 vEU 上执行的例子，假设一个 vDevice 有两个 vEU，一个 rProgram 需要去执行 MatMul, ReLU 和 Conv2d 等几个算子，vEU0 去执行 MatMul，vEU1 去执行 ReLU，随后两遍进行等待直到全部执行完两个 vEU 再同时执行 Conv2D。
 
 ![截屏2023-08-11 22 45 30](images/issue-22-08.png)
 
@@ -70,7 +64,7 @@ rOperator 是一组 rTasks 的集合，rTask 是能够在加速器设备上进�
 
 ![截屏2023-08-13 22 09 12](images/issue-22-09.png)
 
-### Evaluation
+## 分别评估执行时间、利用率与调度开销
 
 这里分别对于执行时间、GPU 资源利用率以及调度开销与其他机器学习框架以及张量编译器进行对比并进行了评估：
 

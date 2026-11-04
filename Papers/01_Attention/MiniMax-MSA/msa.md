@@ -4,92 +4,22 @@ tags:
 aliases:
   - "MSA"
   - "MiniMax Sparse Attention"
+  - "MSA KL"
+  - "MSA Knowledge Distillation"
+  - "MSA KV-outer Forward"
+  - "MSA vs DSA Indexer"
 date: 2026
 ---
 
 # MiniMax Sparse Attention (MSA)
 
-## 核心信息
+长上下文注意力需要同时处理两个成本：在完整历史中找到有用位置，以及在这些位置上计算主注意力。MSA 保留 GQA 的主计算形式，增加轻量索引分支，为每个 query 的每个 GQA 组选择少量连续 KV 块；训练和 GPU kernel 围绕这一选择粒度设计。
 
-- **标题**: MiniMax Sparse Attention
-- **作者**: Xunhao Lai, Weiqi Xu, Yufeng Yang 等
-- **机构**: MiniMax（合作方包括北京大学、NVIDIA、浙江大学等）
-- **发表时间**: 2026
-- **arXiv**: [2606.13392v2](https://arxiv.org/abs/2606.13392)
-- **推理内核**: [MiniMax-AI/MSA](https://github.com/MiniMax-AI/MSA)
-- **模型下载**: [MiniMax-M3](https://huggingface.co/MiniMaxAI/MiniMax-M3)
-- **领域**: 大语言模型 / 稀疏注意力 / 长上下文推理 / GPU 内核协同设计
+[Xunhao Lai 等，MiniMax Sparse Attention，v2](https://arxiv.org/abs/2606.13392v2)；[推理内核](https://github.com/MiniMax-AI/MSA)；[模型](https://huggingface.co/MiniMaxAI/MiniMax-M3)。
 
----
+## 从 GQA 出发，确定稀疏选择的粒度
 
-## 这篇论文在讲什么？（给初学者的概述）
-
-### 背景：为什么长上下文这么贵
-
-大模型正在从"聊几句"转向长周期的 agent 工作流——读整个代码仓库、跨几百步推理和调用工具、维持持久记忆。这些任务动辄需要几十万到一百万 token 的上下文。
-
-但传统 Transformer 的注意力有个致命问题：**每个 token 都要去"看"前面所有 token**，计算量随序列长度**平方增长**。上下文拉到 1M，注意力就成了部署时最卡脖子的开销。
-
-### 一个类比
-
-把长上下文想象成一本 1000 页的书。
-
-- **传统注意力**：每回答一个问题，都把前面所有页重新翻一遍。
-- **MSA**：先用一个很快的"目录检索器"找出最相关的 16 个段落块，然后只认真读这些块。
-
-关键在于 **不要乱省，要学会省**。MSA 的索引器不是固定只看附近内容，而是根据当前 token 的**内容**动态选择远处有用的信息。
-
-### 解法：两个分支
-
-1. **Index Branch（索引分支）**：极轻量，只负责打分和选择。把上下文切成固定大小的块（$B_k = 128$），为每个 query token 选出 top-$k$ 个最重要的块（$k = 16$）。
-2. **Main Branch（主分支）**：还是**标准的** softmax attention，但只在被选中的块上计算。
-
-每个 query 实际只看 $k B_k = 16 \times 128 = 2048$ 个 token，**这个数字不随上下文长度变化**。
-
----
-
-## 一句话总结
-
-MSA 通过给标准 GQA 挂载一个"只做选择、不做计算"的轻量索引分支，让每个 GQA 组独立地从上下文中挑出少量 KV 块做精确注意力，在 109B 多模态模型上基本保持能力的同时，把 1M 上下文的单 token 注意力算力降低 **28.4×**，实测 prefill 加速 **14.2×**、decode 加速 **7.6×**。
-
----
-
-## 主实验配置速览
-
-| 配置项 | 取值 |
-|--------|------|
-| 模型规模 | 109B 总参数 / 6B 激活参数（MoE） |
-| 层数 | 41 层（前 3 层 dense，其余 38 层 MoE） |
-| 隐藏维度 $d_\text{model}$ | 3072 |
-| Query 头数 $H_q$ | 64 |
-| KV 头数 $H_{kv}$ | 4 |
-| GQA 组大小 $G = H_q / H_{kv}$ | **16** |
-| 头维度 $d_h$ | 128（RoPE 维度 64） |
-| KV 块大小 $B_k$ | **128** |
-| 每组选中块数 $k$ | **16** |
-| 每 query 注意力预算 $k B_k$ | **2048 tokens** |
-| 训练预算 | 3T tokens |
-| 训练路线 | MSA-PT（从头训） / MSA-CPT（从 full-attention checkpoint 转换） |
-
----
-
-## 关键效率数据
-
-| 指标 | 结果 |
-|------|------|
-| 1M 上下文单 token 注意力 FLOPs | 相比 GQA 降低 **28.4×** |
-| 1M 上下文 prefill 实测加速（H800） | **14.2×** |
-| 1M 上下文 decode 实测加速（H800） | **7.6×** |
-| Top-k 内核 vs `torch.topk` | 最高 **5.1×** |
-| HELMET-128K / RULER-128K | 与 full attention 差距 **-0.60 / +0.12** |
-
-实测加速小于理论 FLOPs 缩减，因为稀疏注意力额外引入了索引构建、top-k 选择、反向索引物化、query gather、负载均衡等开销，且访存模式不如 dense 规整。
-
----
-
-## 第 2 章：预备知识
-
-### 2.1 因果注意力与 GQA
+### 因果注意力与 GQA
 
 标准因果注意力对第 $t$ 个位置的 query，要和前面所有位置 $i \le t$ 的 key 做内积、算 softmax、再加权求和 value：
 
@@ -99,13 +29,13 @@ $$\boldsymbol{o}_t^{(h)} = \sum_{i \le t} \alpha_{t,i}^{(h)} \boldsymbol{v}_i^{(
 
 **GQA（Grouped-Query Attention）**：用 $H_q$ 个 query 头，但把 KV 头数减少到 $H_{kv}$，相邻的 $G = H_q / H_{kv}$ 个 query 头**共享同一个 KV 头**。每个 KV 头定义一个 **GQA 组**。主实验中 $H_q = 64$、$H_{kv} = 4$，所以 $G = 16$。
 
-> 平方增长的根源只有一句话：**每个 query 必须看完前面所有 key**。想省钱就只有一条路——让 query 只看一部分 key。问题随之而来：**看哪一部分？谁来决定？**
+> 平方增长的根源只有一句话：**每个 query 必须看完前面所有 key**。MSA 选择的降本路径是让 query 只看一部分 key。问题随之而来：**看哪一部分？谁来决定？**
 
 ---
 
-### 2.2 稀疏注意力的两阶段抽象
+### 先选择，再在选中位置上计算
 
-这一节**没有提出任何新方法**，它的作用是给"稀疏注意力"建立一个统一的数学框架，后面 MSA 的所有设计都是往这个框架里填空。
+先把稀疏注意力拆成位置选择和主注意力计算，便于分别分析二者的成本。
 
 #### 核心公式
 
@@ -116,7 +46,7 @@ $$\mathcal{I}_i = \text{Index}_\phi\left(\boldsymbol{q}_i,\ \boldsymbol{K}_{\le 
 - **第一步「选」（Index Branch）**：给定当前 query $\boldsymbol{q}_i$ 和它能看到的所有 key $\boldsymbol{K}_{\le i}$，通过函数 $\text{Index}_\phi$ 输出一个**下标集合** $\mathcal{I}_i$，表示"我决定只看这些位置"。
 - **第二步「算」（Main Branch）**：在 $\mathcal{I}_i$ 对应的 key/value 上做**完全标准的** softmax 注意力。
 
-> **容易忽略的重点**：第二步**没有任何近似**。它不是线性注意力那种替代品，也不是对 softmax 做数学简化，就是原封不动的 scaled dot-product attention，只是参与运算的 KV 变少了。这正是论文说的"最大化复用已有软硬件基础设施"——主分支还是 FlashAttention 那套骨架。
+> **容易忽略的重点**：第二步在选定支持集上计算标准 softmax attention；选择支持集本身已经改变了 full attention 的结果。它不是线性注意力那种替代品，也不是对 softmax 做数学简化，就是原封不动的 scaled dot-product attention，只是参与运算的 KV 变少了。这正是论文说的"最大化复用已有软硬件基础设施"——主分支还是 FlashAttention 那套骨架。
 
 #### 符号逐个解释
 
@@ -171,7 +101,7 @@ $$F_\text{MSA}(N) = \underbrace{H_{kv} d_\text{idx} N^2}_{\text{索引分支，�
 
 ---
 
-### 补充讨论：$\mathcal{I}_i$ 到底在选哪个维度？
+### 选择张量的三个轴：query、GQA 组与 KV 块
 
 这是个很容易混淆的点，单独记一下。
 
@@ -224,9 +154,9 @@ $$M^\text{idx} \in \mathbb{R}^{N \times H_{kv} \times B}$$
 
 ---
 
-### 2.3 基于 GQA 的块稀疏注意力
+### 组内共享与按块选择的两项取舍
 
-2.2 给了框架，2.3 就是往框架里加**两条工程约束**。这一节只有两个想法，但它们是 MSA 与前人方法的分水岭。
+在选择—计算框架上，MSA 加入两条工程约束：组内共享索引，以及按连续 KV 块选择。
 
 #### 出发点：理想粒度跑不快
 
@@ -280,7 +210,7 @@ $\min(b B_k, N)$ 处理最后一块不满的边界情况。选择集合从 token
 | RULER-8K | 72.5 | 72.8 | **73.8** |
 | RULER-32K | **66.1** | 65.3 | 64.6 |
 
-所以论文选了 $B_k = 128$：内核效率的收益远大于这点质量损失。
+论文据此采用 $B_k = 128$。这些质量结果来自对应消融设置，不能推导成所有任务上都没有损失。
 
 #### 小结：两次变粗的定位
 
@@ -291,27 +221,25 @@ $\min(b B_k, N)$ 处理最后一块不满的边界情况。选择集合从 token
 
 两条约束合起来定义了 MSA 的搜索空间：**在 $(N, H_{kv}, B)$ 这个三维张量上，为每个 (query 位置, GQA 组) 挑 $k$ 个块**。第 3 章要回答的就是剩下的问题——这个选择具体怎么算、怎么训。
 
----
+## 索引如何产生、如何训练，以及节省多少计算
 
-## 第 3 章：MSA 架构与训练
+### 索引分支需要满足的设计约束
 
-### 第 3 章导言：三句话承诺
-
-第 3 章开头那段话很短，但它把整章的内容压缩成了对 Index Branch 的**三条承诺**。后面所有设计都是在兑现它们：
+论文 §3 为索引分支规定了三项设计约束：
 
 > The Index Branch **adds only two projection matrices** to standard GQA, **operates at block granularity**, and **makes selections independently for each GQA group**.
 
-| 承诺 | 兑现在哪 | 可量化的结果 |
+| 设计约束 | 对应机制 | 可量化的结果 |
 |------|---------|-------------|
 | 只加两个投影矩阵 | 公式 (5) | 每层 1.97M 参数，占注意力参数 **3.7%**，占全模型 **0.07%** |
 | 块粒度运作 | 公式 (6)(7) | top-k 候选从 $N$ 降到 $N/128$；KV 读取连续 |
 | 每个 GQA 组独立选择 | $Q^\text{idx}$ 有 $H_{kv}$ 个头 | 每位置 4 份清单而非 1 份或 64 份 |
 
-同时导言也划清了两个分支的职责边界：**Index Branch 只输出下标，Main Branch 只做标准 attention**。第 2 章定下了"在 $(N, H_{kv}, B)$ 张量上为每个「query 位置 + GQA 组」挑 $k$ 个块"这个形状，3.1 讲怎么算出这些下标，3.2 讲这些下标怎么训得准。
+同时导言也划清了两个分支的职责边界：**Index Branch 只输出下标，Main Branch 只做标准 attention**。论文 §2 定义了"在 $(N, H_{kv}, B)$ 张量上为每个「query 位置 + GQA 组」挑 $k$ 个块"这个形状，论文 §3.1 描述下标的计算，§3.2 描述索引分支的训练。
 
 ---
 
-### 3.1 架构
+### 从投影到块选择与主注意力
 
 #### 整体数据流
 
@@ -422,7 +350,7 @@ $$O \in \mathbb{R}^{8192 \times 64 \times 128} \xrightarrow{\text{view}} (8192,\
 
 $N = 8192$ 时只快 **1.8×**——因为 $k B_k / N = 2048/8192 = 25\%$，稀疏度才 4 倍。**MSA 的收益完全来自长上下文**，短序列上几乎没有意义。
 
-#### 初学者容易踩的五个坑
+#### 形状与共享范围的五项检查
 
 1. **$S^\text{idx}$ 的第 3 轴是"被检索位置 $j$"，不是特征维**。特征维在内积里被消掉了。
 2. **`reshape` 不搬数据**，只是重新解释同一块内存的下标方式。
@@ -430,7 +358,7 @@ $N = 8192$ 时只快 **1.8×**——因为 $k B_k / N = 2048/8192 = 25\%$，稀�
 4. **2048 是上界不是精确值**。local 块通常残缺（图 3 的例子里实际是 1929）。
 5. **稀疏性在 gather 之后就消失了**。主分支拿到的是稠密的 $(16, 2048)$ 小矩阵——所有"不规则"都被压在了 gather 那一步，这正是第 4 章内核优化的着力点。
 
-#### 承诺一有多轻：把参数量算出来
+#### 两个投影矩阵的参数成本
 
 论文说"只加两个投影矩阵"，代入主实验配置（$d_\text{model} = 3072$，$H_{kv} = 4$，$d_\text{idx} = 128$）：
 
@@ -450,7 +378,7 @@ $$|W^\text{idx}_q| = 3072 \times (4 \times 128) = 1{,}572{,}864, \qquad |W^\text
 
 > 但**参数便宜不等于计算便宜**。索引分支的 FLOPs 是 $H_{kv} d_\text{idx} N^2$，在 1M 上下文下占 MSA 注意力总算力的约 **88%**（见 3.3）。这个反差是理解第 4 章内核设计动机的钥匙：0.07% 的参数吃掉了 88% 的算力。
 
-#### 承诺二的关键：为什么块内取 max 而不是 mean
+#### 块内取 max 与 mean 的区别
 
 ![图 2 max-pool 与 mean-pool 的具体对比](images/fig02_max_vs_mean.svg)
 
@@ -480,7 +408,7 @@ $$\boldsymbol{q}_i \cdot \left(\frac{1}{B_k}\sum_{j \in \mathcal{B}_b} \boldsymb
 
 max 不能提前折叠，这就是 MSA 的索引器比 MoBA 贵 $B_k = 128$ 倍的根源，也是**为什么 $d_\text{idx}$ 和 $H_{kv}$ 必须被压到极小**——省下来的预算全花在了"不肯做近似"上。
 
-#### 承诺三与因果性：看一次真实的选择
+#### 按组独立选择时如何满足因果性
 
 ![图 3 一次具体的选择过程](images/fig03_one_query_selection.svg)
 
@@ -510,7 +438,7 @@ max 不能提前折叠，这就是 MSA 的索引器比 MoBA 贵 $B_k = 128$ 倍�
 
 共享 key 头还有推理期的实惠：索引器的 KV cache 每 token 只需存**一个** 128 维向量，而不是 4 个，索引 cache 直接省 4 倍。
 
-#### Main Branch：一行都没改
+#### Main Branch：在选中集合上计算注意力
 
 ![图 6 单个 query 位置的完整计算](images/fig06_gather_and_output.svg)
 
@@ -522,7 +450,7 @@ $$O^{(h)}_i = \operatorname{softmax}\left(\frac{Q^{(h)}_i \left(K^{(r)}[\mathcal
 
 ---
 
-### 3.2 训练
+### 用主注意力监督索引分支 {#msa-kl}
 
 3.1 解决了"怎么选"，但留下一个致命问题：**这个选法根本没法用普通的语言建模损失训练**。3.2 的四个机制全是为了补上这个洞。
 
@@ -538,7 +466,6 @@ $$O^{(h)}_i = \operatorname{softmax}\left(\frac{Q^{(h)}_i \left(K^{(r)}[\mathcal
 
 ![图 8 KL 损失的师生分布怎么构造](images/fig08_kl_teacher_student.svg)
 
-> 专题延伸：[MSA 中的 KL 对齐与局部知识蒸馏](msa-kl-distillation.md)——包括 soft-label 视角、$P^\text{idx}-P$ 梯度、支撑集盲区、LSE kernel 优化和训练指标解读。
 
 思路：既然 LM 损失给不了信号，就**直接告诉索引器"主分支实际最关注哪些 token"**，让它去模仿。
 
@@ -556,7 +483,7 @@ $$\mathcal{L}_\text{KL} = \frac{1}{N H_{kv}} \sum_{i=1}^{N} \sum_{r=1}^{H_{kv}} 
 
 **① 老师是组内 $G$ 个头的概率级平均，不是 logits 平均。**
 
-先各自 softmax 再算术平均，得到的是一个**混合分布**。它的好处是：只要 16 个头里**有任何一个**重视 token $j$，混合结果就为它保留至少 $1/G$ 的质量。若改成先平均 logits，不同头的 logit 尺度差异会让强势头淹没其他头。
+先各自 softmax 再算术平均，得到的是一个**混合分布**。它的好处是：某个头在 token $j$ 上的概率会以 $1/G$ 的权重贡献给混合分布。例如该头给出 0.8、$G=16$ 时，它贡献 0.05；不能将其误读为每个被关注位置都至少得到 $1/G$ 的概率。若改成先平均 logits，不同头的 logit 尺度差异会让强势头淹没其他头。
 
 这也呼应了 2.3 的约束——一份清单要同时服务 $G$ 个头，它该对齐的就是这些头的**并集口味**而非某一个头。
 
@@ -634,6 +561,20 @@ $$\text{索引器近乎随机} \rightarrow \text{主分支被路由到无信息 
 
 对 CPT 尤其关键：新加的两个索引投影是随机初始化的，必须先对齐好，再让它去接管一个已经训好的主干的路由权。
 
+#### 稀疏阶段的支撑集盲区
+
+打开 Top-k 后，Main Branch 和 KL 都只计算已选 token。如果 Indexer 漏掉一个真正重要的 block，当前 step 的 teacher 没有计算那个 block，KL 因而不能直接告诉 Indexer“你漏了它”。
+
+所以 sparse 阶段的 KL 更擅长：
+
+- 维持 warmup 已建立的对齐；
+- 调整已选 support 内的相对重要性；
+- 跟踪训练过程中 Main attention 的变化。
+
+这也是为什么不能只看 KL loss，还要同时看 block recall、score recall 和长上下文任务表现。
+
+这是对监督支撑集的推论：KL 只约束已经选中的位置，不能直接校正未进入当前支撑集的 block。
+
 #### 机制四：强制 Local Block（以及被砍掉的先验）
 
 早期版本强制选中两类块：序列首块（attention sink）+ 固定大小的局部窗口。附录 C.2 的消融发现**这些先验不需要硬编码**——去掉后模型自己照样学出来，指标几乎不变（RULER-32K 从 65.8 降到 61.5 是唯一较明显的差距）。
@@ -678,9 +619,9 @@ Require: hidden states X (N, d_model); block size B_k, number of selected blocks
 
 ##### 五个从措辞里读出来的信息
 
-**① 第 3 行的函数签名本身就是"禁止物化"的声明。**
+**① 第 3 行的接口允许融合打分与块内归约。**
 
-`BlockMaxPool(Q_idx, K_idx, B_k)` 直接吃 $Q^\text{idx}, K^\text{idx}$ 吐出 $(N, H_{kv}, B)$，中间那个 $(N, H_{kv}, N)$ 的 $S^\text{idx}$ **在接口层面就不存在**。作者用 API 形状把"必须融合"这条约束写进了算法描述里——1M 上下文下它是 8 TB，根本不可能落地。第 5 行的 `TopKAttn` 同理，把 gather 藏进了算子内部。
+`BlockMaxPool(Q_idx, K_idx, B_k)` 直接吃 $Q^\text{idx}, K^\text{idx}$ 吐出 $(N, H_{kv}, B)$，中间那个 $(N, H_{kv}, N)$ 的 $S^\text{idx}$ **在接口层面就不存在**。接口本身不能证明内部没有物化；但按 FP16/BF16、4 个 index heads 估算，1M 上下文的中间分数约为 8 TB，融合计算与块内归约才是可行的实现方式。第 5 行的 `TopKAttn` 同理，把 gather 藏进了算子内部。
 
 **② 第 7 行没有传 V。**
 
@@ -694,9 +635,9 @@ Require: hidden states X (N, d_model); block size B_k, number of selected blocks
 
 Algorithm 1 描述的是 warmup **之后**的稳态。Warmup 期间第 5 行是全注意力、第 7 行在整条序列上算 KL——那是训练循环级别的日程，不是层级别的逻辑，所以被排除在外。同理，`λ` 和跨层求和也交给了训练循环（见标题：*assembled by the training loop*）。
 
-**⑤ 推理时第 2、7 行直接消失。**
+**⑤ 推理保留索引投影，去掉 KL 与梯度管理。**
 
-`sg` 在推理期无意义，KL 更是不需要。所以推理只剩 1、3、4、5、6 五行，且第 3 行连 softmax 都不用算（4.1 节的 exp-free 选择）。
+第 2 行的索引投影仍需产生 $Q^\text{idx},K^\text{idx}$，只是 `sg` 不再影响推理计算；第 7 行的 KL 则不需要。推理保留第 1–6 行，第 3–4 行直接用 raw score 做 exp-free 选择（论文 §4.1）。
 
 ##### 最关键的结构性质：两个损失训练两组不相交的参数
 
@@ -736,7 +677,46 @@ Algorithm 1 没有提及 RoPE。主分支的 $Q, K$ 显然要加（模型 RoPE �
 
 ---
 
-### 3.3 计算复杂度
+#### 与传统知识蒸馏的区别
+
+| 维度 | 传统知识蒸馏 | MSA 的 KL 对齐 |
+|---|---|---|
+| 教师 | 通常是独立大模型 | 同一层的 Main Branch |
+| 学生 | 通常是较小模型 | 轻量 Index Branch |
+| 对齐对象 | 词表输出概率 | 上下文位置概率 |
+| 目的 | 压缩整个模型 | 训练不可导的 Top-k 路由器 |
+| 教师状态 | 常被冻结 | 持续被 LM loss 更新，但对 KL detach |
+| 推理时教师 | 通常移除 | Main Branch 仍负责正式 attention |
+| 推理时 KL | 不需要 | 不需要 |
+
+因此 MSA 不需要在部署时额外运行一个 teacher LLM。
+
+#### 如何联合解释 KL 与召回指标
+
+`msa_kl_loss` 低，只表示**在当前 KL 支撑集上**，Indexer distribution 接近 Main attention distribution。它不等价于：
+
+- Top-k 只错了某个百分比；
+- block recall 很高；
+- 模型输出误差很小；
+- 没有漏掉支撑集外的重要 block。
+
+更可靠的联合判断是：
+
+```text
+KL loss
++ block recall
++ score recall
++ long-context retrieval evaluation
++ LM loss / gradient norm
+```
+
+其中：
+
+- **Block recall**：Main Branch 理想 Top-k blocks 中，有多少被 Indexer 找到；
+- **Score recall**：找到的 blocks 覆盖了多少 Main attention probability mass；
+- score recall 高于 block recall 并不矛盾：可能漏了若干低质量 block，但保住了最重要的 attention mass。
+
+### 固定选择预算以后，成本还剩什么
 
 $$F_\text{GQA}(N) = 2 H_q d_h N^2, \qquad F_\text{MSA}(N) = \underbrace{H_{kv} d_\text{idx} N^2}_{\text{索引分支}} + \underbrace{4 H_q d_h N k B_k}_{\text{主分支}} \tag{12}$$
 
@@ -773,15 +753,14 @@ $$N^* = \frac{4 H_q d_h k B_k}{H_{kv} d_\text{idx}} = \frac{4 \times 64 \times 1
 
 > 想再往上走，就得动索引分支本身（更小的 $d_\text{idx}$、分层索引、或者让索引器也稀疏化）。论文的 Outlook 提到"更丰富的索引器打分函数"是未来方向，但那是往质量方向走，不是往这个复杂度天花板方向走。
 
----
+## 把稀疏集合映射到高效 GPU 执行
 
-## 第 4 章：Kernel Design
+<a id="411-equations-13-16q-outer-与-kv-outer"></a>
 
-### 4.2 为什么 Sparse Attention Forward 采用 KV-outer
+### 让共享 KV 的 queries 一起计算：KV-outer forward {#msa-kv-outer}
 
 > 论文中的术语是 **KV-outer**，不是 KV-owner。`outer` 表示把 `(KV block, KV head)` 放在 kernel 的外层遍历维度。
 >
-> 独立专题笔记：[MSA 为什么采用 KV-outer Sparse Attention Forward](msa-kv-outer-forward.md)。该笔记进一步记录了完整 I/O 推导、reverse-index 数据结构、two-phase combine 证明、负载均衡和适用边界。
 
 KV-outer 不改变 MSA 的数学语义，只改变稀疏 attention 在 GPU 上的**循环顺序和工作分配方式**：
 
@@ -1060,13 +1039,1023 @@ Scheduler 还会预先给每个 `(query, chunk)` 分配 $O_{buf}$ slot，使 K1 
 
 这个分析针对论文第 4.2 节的 **sparse prefill（query length 与 KV length 相等）**，不能直接假设 decoding 阶段采用完全相同的调度方式。
 
-更详细的论文—实现对应见：[Equations (13)–(16)：Q-outer 与 KV-outer](MiniMax%20Sparse%20Attention%EF%BC%9A%E8%AE%BA%E6%96%87%E7%AE%97%E6%B3%95%E4%B8%8E%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%E7%B2%BE%E7%A1%AE%E5%AF%B9%E5%BA%94.md#411-equations-13-16q-outer-与-kv-outer)。
 
----
+### 这项设计的适用边界
 
-## 延伸笔记
+#### 论文推导针对 sparse prefill
 
-- [MSA Indexer 与 DSA Lightning Indexer 的差别](msa-vs-dsa-indexer.md)：从选择粒度、head 共享、KV 表示、KL 教师和 kernel 复用五个维度对比两者。
-- [DeepSeek Sparse Attention (DSA) 算法流程](../DeepSeek-DSA/deepseek-sparse-attention-dsa.md)：Lightning Indexer、Top-2048、MLA MQA-mode、`uo_proj` 与两阶段训练的完整链路。
-- [MSA 中的 KL 对齐与局部知识蒸馏](msa-kl-distillation.md)：MSA 的局部教师—学生关系与梯度公式。
-- [MSA 为什么采用 KV-outer Sparse Attention Forward](msa-kv-outer-forward.md)：稀疏主分支的内核执行顺序与 two-phase exact combine。
+第 4.2 节明确讨论 query length 与 KV length 相等的 sparse prefill。Decode 时通常只有一个或少量新 query token：
+
+- 可供拼接的 query positions 很少；
+- reverse-index 形态和复用模式不同；
+- latency 而非大规模 throughput 可能成为主要目标。
+
+因此不能从论文这段推导直接断言 decode 也应使用完全相同的 KV-outer scheduler。
+
+#### KV-outer 不是永远更优
+
+如果出现以下情况，额外成本可能抵消复用收益：
+
+- $B_k$ 很小，使 $\frac23B_k$ 不再明显大于 $G$；
+- query 数很少，无法形成 query concatenation；
+- selection 几乎没有 block reuse；
+- reverse-index/scheduler 开销占比过高；
+- partial buffer 的 HBM 流量成为瓶颈。
+
+MSA 的选择与参数是协同设计的：
+
+$$
+B_k=128,
+\qquad
+k=16,
+\qquad
+G=16.
+$$
+
+较大的 $B_k$ 提供 K/V 数据复用和较高算术强度；较小的 $k$ 控制 partial-buffer 与 combine 开销；$G=16$ 则使 8 个 query positions 正好拼成 128-row MMA。
+
+### 从 LSE 重建 KL 梯度
+
+softmax probability 可以写为：
+
+$$
+P_j^{\mathrm{main}}=\exp(S_j^{\mathrm{main}}-\mathrm{LSE}_{\mathrm{main}}),
+$$
+
+$$
+P_j^{\mathrm{idx}}=\exp(S_j^{\mathrm{idx}}-\mathrm{LSE}_{\mathrm{idx}}).
+$$
+
+论文的优化是：
+
+1. Main sparse-attention forward 顺便输出最终 $\mathrm{LSE}_{\mathrm{main}}$；
+2. Index forward 保存 per-block LSE，再对 Top-k blocks 归约得到 $\mathrm{LSE}_{\mathrm{idx}}$；
+3. KL backward 根据 logits 和两个 LSE 重建概率；
+4. 直接形成 $dS^{\mathrm{idx}}\propto P^{\mathrm{idx}}-P^{\mathrm{main}}$。
+
+因此可以跳过一个独立、重复计算 softmax 的 KL-forward kernel。这里省掉的是**专门的 KL forward 计算阶段**；训练系统仍通过自定义 backward 注入相应的辅助梯度。
+
+由于不同 KV tiles 对应的 query 数量高度不均匀，KL backward 使用 persistent grid 和全局 atomic work counter 做动态负载均衡。
+
+对应论文 §4.3；上面的概率重建需对组内主注意力 heads 求平均，才得到该组的教师分布。
+
+## 源码实现：张量、接口与论文边界 {#msa-code}
+
+代码版本：[KuangjuX/MSA-SM90，`80434d7`](https://github.com/KuangjuX/MSA-SM90/tree/80434d7f67877c6570ca19cac444b84bc9855dac)。仓库名称含 SM90，但此版本下面分析的执行路径面向 SM100；不能与论文的 H800 实验直接等同。
+
+当前仓库不是完整的可训练 MSA layer，而是面向 NVIDIA SM100 的 forward/inference kernel 包。它完整覆盖的核心链路是：
+
+```text
+index/proxy QK score
+→ block max score
+→ Top-k block index
+→ q2k 转 k2q CSR
+→ sparse scheduler
+→ K1：每个 KV block/chunk 的 partial attention
+→ K2：利用 LSE 精确合并 partial outputs
+```
+
+以下论文组件不在仓库中：
+
+- `X → Q/K/V/O` 和 `X → Qidx/Kidx` 的模型投影；
+- Index Branch 输入的 `stopgrad(X)`；
+- KL loss、teacher distribution 和 backward；
+- indexer warmup、训练循环和模型 loss 组装；
+- 论文使用的完整 H800 训练/推理 kernel；
+- 论文 109B 模型、数据和权重。
+
+因此，最准确的定位是：
+
+> 当前仓库实现了 MSA 的 SM100 稀疏 forward/inference 执行底座及量化扩展，但没有实现论文 Algorithm 1 所描述的完整训练层。
+
+### 论文符号和代码张量
+
+设：
+
+- $T_q=\sum\texttt{qo\_segment\_lens}$：batch 内 packed query token 总数；
+- $T_k=\sum\texttt{kv\_segment\_lens}$：batch 内 packed KV token 总数；
+- $H_q$：query head 数；
+- $H_{kv}$：KV head 数；
+- $G=H_q/H_{kv}$：每个 GQA group 的 query head 数；
+- $D=128$：当前 production sparse kernel 支持的 head dimension；
+- $B_k=\texttt{blk\_kv}=128$：论文和 production CSR builder 的 KV block size；
+- $k=\texttt{topK}$：每个 query、每个 GQA group 选中的 KV block 数。
+
+| 论文符号 | 代码名称与形状 | 说明 |
+|---|---|---|
+| $\mathbf Q$ | `q [Tq, Hq, 128]` | packed query |
+| $\mathbf K,\mathbf V$ | `[Tk,Hkv,128]` 或 `[pages,Hkv,128,128]` | dense 或 paged KV |
+| $\mathbf Q^{\mathrm{idx}}$ | proxy/index Q，由调用方生成 | 仓库不包含 $W_q^{\mathrm{idx}}$ |
+| $\mathbf K^{\mathrm{idx}}$ | proxy/index K，由调用方生成 | 仓库不包含 $W_k^{\mathrm{idx}}$ |
+| $\mathbf M^{\mathrm{idx}}$ | `max_score [Hidx,max_k_tiles,Tq]`, FP32 | 每个 query 对每个 KV tile 的最大 score |
+| $\mathcal I$ | `kv_block_indexes [Tq,H*,topK]` | query 到 KV block 的选择结果 |
+| q2k | `[Hkv,Tq,topK]` | group-shared、batch-local block index |
+| reverse $\mathcal I$ | `k2q_row_ptr [Hkv,total_rows+1]` | CSR row pointer |
+| reverse $\mathcal I$ | `k2q_q_indices [Hkv,Tq*topK]` | 每个 KV block 对应的 query indices |
+| $\mathbf O_{\mathrm{buf}}$ | `O_partial [topK,Tq,Hq,D]` | K1 输出的局部归一化结果 |
+| $\operatorname{LSE}_{\mathrm{buf}}$ | `LSE_partial [topK,Tq,Hq]` | K1 输出的局部 log-sum-exp |
+| $\mathbf O$ | `O_out [Tq,Hq,D]`, BF16 | K2 合并后的输出 |
+| $\operatorname{LSE}$ | `LSE_out [Tq,Hq]`, FP32 | K2 合并后的全局 LSE |
+
+公开 sparse forward 的输入输出约束见 [`cute/interface.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/interface.py#L600-L704)，partial buffer 的实际分配见 [`cute/interface.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/interface.py#L1470-L1484)。
+
+### Algorithm 1 的实现覆盖范围
+
+论文 Algorithm 1 描述的是“一层 MSA 的训练 forward 与辅助 KL loss”。下面的“状态”严格区分完整实现、部分实现和仓库外。
+
+| 行 | 论文动作 | 代码对应 | 状态 |
+|---|---|---|---|
+| 1 | `X → Q,K,V` | public API 直接接收 `q,k,v` | **仓库外**：没有模型 projection |
+| 2 | `stopgrad(X) → Qidx,Kidx` | dense proxy/FP4 indexer 接收已生成的 index Q/K | **仓库外**：没有 projection 和 detach |
+| 3 | `BlockMaxPool(Qidx,Kidx,Bk)` | dense FMHA `output_maxscore`；或 `fp4_indexer_block_scores` | **已实现/工程重命名** |
+| 4 | `TopK(Midx,k)`，强制 local block | `sparse_topk_select` | **Top-k 已实现；逐 query local 不完整** |
+| 5 | `TopKAttn(Q,K,V,I)` | adapter → CSR → scheduler → K1 → K2 | **已实现，forward-only** |
+| 6 | `O Wo` | 无 | **仓库外** |
+| 7 | `KLdiv(...)` | 只有可选 LSE 输出，没有 KL kernel/backward | **未实现** |
+| 8 | 返回 `output, LKL` | 返回 `O` 和可选 LSE | **部分实现** |
+
+实际 sparse Main Branch 入口为 [`sparse_atten_func`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/interface.py#L600-L625)，高层 API adapter 为 [`sparse_fmha`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/sparse_fmha_adapter.py#L271-L406)。
+
+## 模型与 kernel 的接口契约
+
+### Head shape、缩放与 causal mask
+
+代码对应：
+
+- 默认 softmax scale 是 `1 / sqrt(head_dim_qk)`：[`api.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/api.py#L841-L850)；
+- sparse forward 默认同样使用 `q.shape[-1] ** -0.5`：[`cute/interface.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/interface.py#L706-L717)；
+- `G = Hq/Hkv` 必须属于 `{1,2,4,8,16}`：[`cute/interface.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/interface.py#L701-L704)；
+- 当前 SM100 sparse main kernel 只支持 `D=128`：[`fwd/atten_fwd.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/fwd/atten_fwd.py#L56-L86)；
+- causal mask 使用实际 query 位置和 KV 有效长度，不会因为选中了一个 block 就允许访问未来 token：[`common/mask.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/common/mask.py#L93-L120)。
+
+实现不会显式构造 `N×N` attention matrix，而是 tiled online softmax。
+
+
+### Adapter 如何表达组内共享
+
+论文规定同一 GQA group 的所有 query heads 共享选择结果：
+
+$$
+\mathcal I_i^{(r)}
+=
+\mathcal I_i^{(h)}
+=
+\mathcal I_i^{(h')},
+\qquad
+h,h'\in\mathcal H_r.
+$$
+
+代码用 q2k 的 `Hkv` 轴表达这一语义：
+
+```text
+q2k [Hkv, Tq, topK]
+```
+
+adapter 接受两种输入：
+
+- `[Tq,Hkv,topK]`：直接 transpose；
+- `[Tq,Hq,topK]`：每隔 `qhead_per_kv` 抽一个代表 head。
+
+实现见 [`_convert_kv_block_indexes_to_q2k`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/sparse_fmha_adapter.py#L205-L222)。
+
+重要边界：adapter **不会验证**同一 group 里其余 query heads 的 indices 是否相同。如果调用方传入 Hq 级 indices，组内共享契约由调用方负责。
+
+### Block size 与 Top-k 的支持范围
+
+代码中对应 `page_size/blk_kv`。production CSR builder 硬限制：
+
+```text
+blk_kv == 128
+topK ∈ {4,8,16,32}
+```
+
+见 [`prepare_k2q_csr.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/prepare_k2q_csr.py#L4-L22) 和输入校验 [`prepare_k2q_csr.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/prepare_k2q_csr.py#L68-L94)。
+
+这不是论文一般公式的完整参数化版本，而是对论文部署配置 `Bk=128` 的硬件特化。
+
+### 索引投影由调用方提供
+
+仓库没有：
+
+- hidden states `X`；
+- `Wq_idx/Wk_idx`；
+- projection layer；
+- RoPE/normalization 的模型级实现；
+- `stopgrad(X)`。
+
+仓库只消费调用方准备好的 proxy/index Q、K。若要严格匹配论文，上游应该生成：
+
+```text
+Qidx: [Tq,Hkv,didx]
+Kidx: [Tk,1,didx]
+```
+
+FP4 indexer 接口允许更一般的 head ratio，因此“API 接受”不等于“严格符合论文模型结构”。
+
+### 两条 block score 生成路径
+
+$$
+M_{i,b}^{\mathrm{idx},(r)}
+=
+\max_{\substack{j\in\mathcal B_b\\j\le i}}
+S_{i,j}^{\mathrm{idx},(r)}.
+$$
+
+仓库有两条实现路径。
+
+#### 路径 A：Dense proxy FMHA
+
+`fmha_sm100(..., output_maxscore=True)` 在 dense QK mainloop 中对每个 KV tile 取最大值：
+
+- Python 输出张量分配为 `[Hidx,max_k_tiles,Tq]`，无效位置初始化为 `-inf`：[`api.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/api.py#L852-L862)；
+- `output_maxscore` 会选择 max-score kernel variant：[`api.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/api.py#L874-L893)；
+- CUDA mainloop 对 tile score 做归约并可只输出 score：[`sm100_fmha_fwd_mainloop_tma_warpspecialized.hpp`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/csrc/include/sm100_fmha_fwd_mainloop_tma_warpspecialized.hpp#L912-L957)。
+
+这等价于 block max 的结果语义，但工程上复用了 dense FMHA mainloop，并不是独立命名的 `BlockMaxPool` operator。
+
+#### 路径 B：FP4 Indexer
+
+`fp4_indexer_block_scores` 使用 block-scaled FP4 MMA，直接得到每个 128-token page 的 FP32 max score。入口在 [`fp4_indexer_interface.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/fp4_indexer_interface.py#L745-L810)。
+
+FP4 是仓库的工程扩展。其输出可近似论文的实数 index score，但量化以后不保证 bit-exact 的 Top-k 排序。
+
+### Top-k 接口与强制 local block
+
+并规定 local block 永远包含在 `I` 中。
+
+公开实现为 [`sparse_topk_select`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/api.py#L1179-L1290)：
+
+```python
+kv_block_indexes = sparse_topk_select(
+max_score,
+topk=16,
+num_valid_pages=num_pages,
+)
+```
+
+契约：
+
+- 输入 `max_score [Hidx,max_k_tiles,Tq]`, FP32、contiguous；
+- wrapper 当前只允许 `topk == 16`；
+- 输出 `[Tq,Hidx,16]`, INT32；
+- block indices 按数值升序，而不是按 score 排序；
+- 无效或越界 block 输出为尾部 `-1`；
+- `max_k_tiles < 12288`。
+
+#### 论文 Top-k 微算法与当前代码不同
+
+论文 §4.1 描述的是：
+
+```text
+每个 warp lane 分片扫描
+→ lane-local k-element min-heap
+→ register 缓存 heap root
+→ k-round shuffle merge
+```
+
+当前代码使用：
+
+```text
+[H,K,Q] transpose 为 [H,Q,K]
+→ 多级 bit histogram 定位 threshold bin
+→ threshold candidates insertion sort
+→ warp bitonic 按 block index 升序排序
+```
+
+设计说明见 [`sparse_topk_select.cuh`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/csrc/include/sparse_topk_select.cuh#L58-L89)，histogram threshold 见 [`sparse_topk_select.cuh`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/csrc/include/sparse_topk_select.cuh#L187-L295)，最终排序见 [`sparse_topk_select.cuh`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/csrc/include/sparse_topk_select.cuh#L711-L768)。
+
+结论：两者的 Top-k 集合语义相同，但当前仓库不是论文 H800 heap kernel 的逐行实现。
+
+#### Forced local block 的语义差异
+
+论文要求对每个 query 强制加入它所在的 block：
+
+$$
+b_{\mathrm{local}}(i)
+=
+\left\lfloor\frac{i}{B_k}\right\rfloor.
+$$
+
+公开 selector 默认：
+
+```python
+force_begin_blocks = 0
+force_end_blocks = 0
+```
+
+它能强制：
+
+- 全局开头的若干 blocks，适合 sink；
+- 当前有效序列全局末尾的若干 blocks，适合 decode tail/local window。
+
+但在长 prefill 中，不同 query 的 local block 不同，因此全局 `force_end_blocks` 不等价于论文的 per-query local block。严格复现论文时，调用方必须逐 query 显式保证 local block 位于 `kv_block_indexes` 中。
+
+### 选中支撑集上的主注意力
+
+代码对应 `SparseAttentionForwardSm100` K1 加 `combine` K2：
+
+- K1 kernel 定义：[`fwd/atten_fwd.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/fwd/atten_fwd.py#L56-L113)；
+- K1 使用 k2q CSR/worklist 读取某个 KV block 对应的 queries；
+- QK 和 PV 使用 FP32 accumulator；
+- online softmax 在每个 block/chunk 内生成 `O_partial/LSE_partial`；
+- K2 使用 LSE identity 恢复全部 selected blocks 上的精确 softmax；
+- K2 调用：[`cute/interface.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/interface.py#L1530-L1549)。
+
+“精确”只针对已经选中的 token 集合。与 dense full attention 的近似误差来自 block selection，而不是 K1/K2 的 softmax 计算。
+
+### KL 训练仍需由模型侧实现
+
+当前仓库没有：
+
+- `Pidx/P` 构造；
+- group-average teacher；
+- KL forward/backward；
+- `stopgrad`；
+- KL coefficient 和模型 loss 组装。
+
+仓库能够返回普通 LSE 或 temperature LSE：[`cute/interface.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/interface.py#L614-L676)。这些是实现 KL 可能需要的中间量，但仅有 LSE 不能视为已经实现论文的 KL 训练。
+
+### kernel 成本与整模型 FLOPs 的边界
+
+代码结构确实对应两项：
+
+```text
+dense/lightweight index score
++
+固定 topK × blk_kv 的 sparse main attention
+```
+
+但仓库本身没有 `didx` projection 或完整模型，无法单独复现论文的 end-to-end FLOPs 数值。
+
+
+### 最终模型为何不需要 Index Value Head
+
+论文附录讨论过额外的 Index Branch value/output head，最终设计将其移除。
+
+仓库没有 `Vidx/Oidx/Wo_idx`。当前 indexer 只生成 block score，这与论文最终部署设计一致，但不包含论文消融实验所使用的 value-head 训练实现。
+
+## 从 public API 到 GPU kernel 的完整调用链
+
+### Plan 分派
+
+高层入口是 `fmha_sm100_plan`。当：
+
+```text
+kv_block_num > 0
+且 sparse_kernel_mode == "prefill"
+或 auto 模式下 max_q_len > 32
+```
+
+会进入 CuTe sparse prefill adapter：[`api.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/api.py#L510-L542)。
+
+否则继续使用 csrc JIT 路径。短 Q sparse 会在 csrc planner 内展开成 per-token segments：[`api.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/api.py#L562-L568)。
+
+### Max-score 生成
+
+典型 proxy 路径：
+
+```python
+proxy_plan = fmha_sm100_plan(..., output_maxscore=True)
+_, max_score = fmha_sm100(
+proxy_q, proxy_k_pages, proxy_v_pages, proxy_plan,
+output_o=False,
+output_maxscore=True,
+)
+```
+
+这一步是轻量 index/proxy QK 的全上下文扫描，而不是 Main Branch 的 full-attention output。
+
+### Top-k
+
+```python
+kv_block_indexes = sparse_topk_select(
+max_score.contiguous(),
+16,
+num_valid_pages=num_pages,
+)
+```
+
+`num_valid_pages` 应显式传入，否则 padding tiles 可能产生不安全的 page index。wrapper 文档也将它标为 strongly recommended：[`api.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/api.py#L1195-L1209)。
+
+### Hq/Hkv indices 转为 q2k
+
+adapter 将：
+
+```text
+kv_block_indexes [Tq,H*,topK]
+```
+
+转换为：
+
+```text
+q2k [Hkv,Tq,topK]
+```
+
+见 [`sparse_fmha_adapter.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/sparse_fmha_adapter.py#L205-L222)。
+
+### q2k 转 k2q CSR
+
+公共格式定义：[`sparse_index_utils.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/sparse_index_utils.py#L4-L25)。
+
+```text
+q2k [Hkv,Tq,topK]
+↓
+k2q_row_ptr [Hkv,total_rows+1]
+k2q_q_indices [Hkv,Tq*topK]
+```
+
+生产 builder 的入口与校验见 [`build_k2q_csr`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/sparse_index_utils.py#L331-L411)。
+
+底层五阶段 CUDA pipeline：
+
+```text
+build_row_map
+→ hist
+→ row_prefix
+→ tile_prefix_smem
+→ scatter
+```
+
+见 [`prepare_k2q_csr.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/prepare_k2q_csr.py#L29-L37)。
+
+### CSR 到底是什么
+
+CSR 是 **Compressed Sparse Row，压缩稀疏行**。它不是一种新的 attention 算法，而是一种把稀疏关系存进连续数组的数据结构。
+
+MSA 的 Top-k 最自然地产生 q2k 关系：
+
+```text
+query q0 → KV blocks [0, 1]
+query q1 → KV blocks [0, 2]
+query q2 → KV blocks [1, 2]
+query q3 → KV blocks [2, 3]
+```
+
+这适合回答：
+
+> 对于 query `q`，它选择了哪些 KV blocks？
+
+但 KV-outer kernel 需要反过来回答：
+
+> 对于 KV block `b`，有哪些 queries 选择了它？
+
+因此代码把 q2k 反转为 k2q：
+
+```text
+KV block 0 → queries [0, 1]
+KV block 1 → queries [0, 2]
+KV block 2 → queries [1, 2, 3]
+KV block 3 → queries [3]
+```
+
+#### 把选择关系看成稀疏矩阵
+
+对于一个 KV head，可以定义二值矩阵：
+
+$$
+A_{b,q}
+=
+\begin{cases}
+1, & \text{query }q\text{ 选择了 KV block }b,\\
+0, & \text{否则}.
+\end{cases}
+$$
+
+上面的例子对应：
+
+$$
+A=
+\begin{bmatrix}
+1&1&0&0\\
+1&0&1&0\\
+0&1&1&1\\
+0&0&0&1
+\end{bmatrix}.
+$$
+
+行是 KV block，列是 query。矩阵绝大多数位置为零，因此不值得显式存储整个 $B\times T_q$ 矩阵。
+
+#### CSR 的两个核心数组
+
+CSR 只保存非零元素的位置：
+
+```text
+k2q_row_ptr = [0, 2, 4, 7, 8]
+k2q_q_indices = [0, 1, 0, 2, 1, 2, 3, 3]
+```
+
+其中：
+
+- `k2q_row_ptr[b]` 是 block `b` 的 query 列表在 `k2q_q_indices` 中的起点；
+- `k2q_row_ptr[b+1]` 是终点；
+- block `b` 的 query 数量为 `row_ptr[b+1] - row_ptr[b]`；
+- block `b` 的 query 列表是半开区间
+`q_indices[row_ptr[b]:row_ptr[b+1]]`。
+
+逐行展开：
+
+| KV block `b` | CSR 切片 | 得到的 queries |
+|---:|---|---|
+| 0 | `q_indices[0:2]` | `[0,1]` |
+| 1 | `q_indices[2:4]` | `[0,2]` |
+| 2 | `q_indices[4:7]` | `[1,2,3]` |
+| 3 | `q_indices[7:8]` | `[3]` |
+
+所以 `row_ptr` 的长度永远是“行数加一”。最后一个元素同时等于非零关系总数 `nnz`。
+
+#### 为什么 MSA 必须做这次反转
+
+如果直接按 q2k 执行 Q-outer attention：
+
+```text
+取 query 0 → 加载 blocks 0、1
+取 query 1 → 再次加载 blocks 0、2
+取 query 2 → 再次加载 blocks 1、2
+```
+
+热门 K/V block 会被重复读取，而且不同 query 的选择很不规则。
+
+转换成 k2q CSR 后可以执行 KV-outer：
+
+```text
+加载 KV block 0 一次
+→ gather queries 0、1
+→ 一起做 QK/PV
+
+加载 KV block 2 一次
+→ gather queries 1、2、3
+→ 一起做 QK/PV
+```
+
+这样做的主要收益是：
+
+1. 同一个 K/V block 可以被多个 queries 复用；
+2. gathered queries 可以拼成更饱满的 tensor-core MMA tile；
+3. CSR 只存 Top-k 产生的有效边，空间约为 $O(T_qk)$，而不是 $O(BT_q)$；
+4. `row_ptr[b+1]-row_ptr[b]` 直接给出 block 热度，scheduler 可以据此切分热门 row。
+
+#### 代码中的实际形状
+
+概念上，每个 KV head 都有一个独立的稀疏矩阵。代码将这些 CSR 并排存放：
+
+```text
+q2k_indices: [Hkv, Tq, topK]
+k2q_row_ptr: [Hkv, total_rows + 1]
+k2q_q_indices: [Hkv, Tq * topK]
+```
+
+其中 `q2k_indices` 中的 block id 和 `k2q_q_indices` 中的 query id 都是 batch-local 编号；`cu_seqlens_q/k` 和内部 row map 负责把 varlen batch 映射到 packed tensors。
+
+在没有 `-1` padding 时，每个 query 恰好选择 `topK` 个 blocks，因此：
+
+$$
+\operatorname{nnz}=T_q\times k.
+$$
+
+有 `-1` padding 或无效选择时，实际有效 `nnz` 可以更少。
+
+#### CSR builder 的五个阶段
+
+production builder 不是在 CPU 上建立 Python list，而是在 GPU 上执行：
+
+1. `build_row_map`：建立 packed row 与 `(batch,block)` 的映射；
+2. `hist`：统计每个 KV block 被多少 queries 选择；
+3. `row_prefix`：对计数做 prefix sum，生成 `row_ptr`；
+4. `tile_prefix_smem`：计算并行 scatter 的写入起点；
+5. `scatter`：把 query id 写入对应 CSR row，并可同时生成调度信息。
+
+因此，文档中的“CSR 流程”完整含义是：
+
+```text
+Top-k 给出的 query→block 邻接表
+→ GPU histogram/prefix/scatter
+→ block→query 的压缩邻接表
+→ KV-outer sparse attention scheduler
+```
+
+### Scheduler
+
+一个 k2q row 的 query 数可能差异很大。scheduler 会：
+
+- 选择 `target_q_per_cta`；
+- 把热门 row 切成多个 query chunks；
+- 给每个 `(query,kv_head)` partial 分配 split slot；
+- 生成六元组 work item：
+
+```text
+[kv_head, row, q_begin, q_count, batch, kv_block]
+```
+
+相关实现位于 [`prepare_scheduler.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/prepare_scheduler.py)。当 `return_schedule=True` 时，CSR builder 可以融合生成 `scheduler_metadata`、`qsplit_indices` 和 `split_counts`：[`prepare_k2q_csr.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/prepare_k2q_csr.py#L139-L179)。
+
+### K1：KV-outer Partial Attention
+
+K1 的一个 CTA 固定处理：
+
+```text
+(batch, kv_head, kv_block, query chunk)
+```
+
+执行过程：
+
+```text
+加载一次 K/V block
+→ 从 CSR gather queries
+→ 将 query positions × GQA heads 拼成 MMA rows
+→ QK
+→ causal mask
+→ online softmax
+→ PV
+→ 写入预分配的 O_partial/LSE_partial slot
+```
+
+K1 主类：[`fwd/atten_fwd.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/fwd/atten_fwd.py#L56-L113)。
+
+### Query Concatenation
+
+同一个 KV head 对应 `G` 个 query heads。内核将：
+
+$$
+\left\lceil\frac{128}{G}\right\rceil
+$$
+
+个 query positions 与每个 position 的 `G` 个 heads 拼成 128 个 MMA rows。
+
+例如论文配置 `Hq=64,Hkv=4,G=16`：
+
+```text
+8 query positions × 16 query heads = 128 MMA rows
+```
+
+这既保持 group-shared selection，又能提高 tensor-core 利用率。
+
+### K2：利用 LSE 精确合并
+
+对 query 的各个 partial split，设 K1 输出为 `(Os,LSEs)`。K2 计算：
+
+$$
+\begin{aligned}
+a
+&=\max_s\operatorname{LSE}_s, \\
+\operatorname{LSE}
+&=a+\log\sum_s\exp\!\left(\operatorname{LSE}_s-a\right), \\
+\mathbf O
+&=\sum_s
+\exp\!\left(\operatorname{LSE}_s-\operatorname{LSE}\right)
+\mathbf O_s.
+\end{aligned}
+$$
+
+对应代码：
+
+- stable LSE reduction：[`fwd/combine.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/fwd/combine.py#L767-L820)；
+- weighted partial O accumulation：[`fwd/combine.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/src/sm100/fwd/combine.py#L903-L948)；
+- Python 调用：[`cute/interface.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/cute/interface.py#L1532-L1542)。
+
+该合并在实数运算下是 softmax 的分块恒等式；实际浮点执行仍会受精度和归约顺序影响。
+
+## Prefill、Decode 与 C++/CuTe 两条执行栈
+
+### csrc JIT 栈
+
+主要提供：
+
+- dense FMHA；
+- paged FMHA；
+- max-score 输出；
+- `sparse_topk_select`；
+- 短 Q/per-token sparse variant。
+
+variant 分派依据 `kv_block_indexes/max_score/out` 是否存在：[`api.py`](https://github.com/KuangjuX/MSA-SM90/blob/80434d7f67877c6570ca19cac444b84bc9855dac/python/fmha_sm100/api.py#L874-L893)。
+
+### CuTe-DSL 栈
+
+主要提供：
+
+- block-sparse prefill；
+- q2k→k2q CSR 和 scheduler；
+- K1/K2；
+- BF16/FP8/NVFP4/FP4 路径；
+- paged FP8 decode wrapper。
+
+### Decode 边界
+
+必须区分：
+
+1. csrc 短 Q 路径可以依据 `kv_block_indexes` 使用 sparse variant；
+2. CuTe paged FP8 decode 当前是 dense split-KV，非空 q2k 并未完整实现。
+
+因此不能笼统地说“CuTe decode 已经实现论文 sparse decode”。
+
+## 量化路径与论文关系
+
+### BF16/FP8 Main Branch
+
+CuTe sparse forward 支持 BF16、FP8 E4M3，以及部分 BF16 Q + FP8 K/V staging 组合。QK/PV 的 MMA dtype 可以分别选择，最终输出为 BF16。
+
+### FP4 Indexer
+
+仓库提供 FP4 block score indexer：
+
+- MXFP4：E2M1 value + E8M0 group scale；
+- NVFP4：E2M1 value + E4M3 group scale；
+- block score 输出仍为 FP32。
+
+这是论文公式之外的工程扩展，用更低精度近似 index score。
+
+### NVFP4 K/V Main Branch
+
+仓库还能消费 packed NVFP4 K/V 和 block/global scales。该路径属于 SM100 部署扩展，不应反向解释为论文 Algorithm 1 中定义的训练数值格式。
+
+## 模型接入时必须满足的语义约束
+
+模型侧调用此版本 kernel 时，论文语义与实现接口共同要求：
+
+1. `Qidx` 形状是 `[Tq,Hkv,didx]`；
+2. `Kidx` 使用一个跨 group 共享的 index key head；
+3. Index Branch 输入执行 `stop_gradient(X)`；
+4. index Q/K 使用与模型位置一致的 normalization/RoPE；
+5. score 使用正确的 `1/sqrt(didx)` scaling；
+6. 每 128 个 KV tokens 做 causal block max；
+7. 每个 GQA group 独立选择，group 内 heads 共享 indices；
+8. 每个 query 的 local block 必须显式加入并占用一个 slot；
+9. indices 必须去重、batch-local、升序，`-1` 只能位于尾部；
+10. `num_valid_pages` 必须正确，避免 padding/OOB blocks；
+11. `cu_seqlens_q/k`、page table、`seqused_k` 和 causal offset 必须一致；
+12. 训练时在仓库外实现 KL teacher、detach、warmup 和 backward；
+13. 不应把 FP4 indexer 的结果视为论文实数 index score 的 bit-exact 实现；
+14. 不应把 SM100 benchmark 直接与论文 H800 数字混用。
+
+## 实验配置与效率结果
+
+| 配置项 | 取值 |
+|--------|------|
+| 模型规模 | 109B 总参数 / 6B 激活参数（MoE） |
+| 层数 | 41 层（前 3 层 dense，其余 38 层 MoE） |
+| 隐藏维度 $d_\text{model}$ | 3072 |
+| Query 头数 $H_q$ | 64 |
+| KV 头数 $H_{kv}$ | 4 |
+| GQA 组大小 $G = H_q / H_{kv}$ | **16** |
+| 头维度 $d_h$ | 128（RoPE 维度 64） |
+| KV 块大小 $B_k$ | **128** |
+| 每组选中块数 $k$ | **16** |
+| 每 query 注意力预算 $k B_k$ | **2048 tokens** |
+| 训练预算 | 3T tokens |
+| 训练路线 | MSA-PT（从头训） / MSA-CPT（从 full-attention checkpoint 转换） |
+
+| 指标 | 结果 |
+|------|------|
+| 1M 上下文单 token 注意力 FLOPs | 相比 GQA 降低 **28.4×** |
+| 1M 上下文 prefill 实测加速（H800） | **14.2×** |
+| 1M 上下文 decode 实测加速（H800） | **7.6×** |
+| Top-k 内核 vs `torch.topk` | 最高 **5.1×** |
+| HELMET-128K / RULER-128K | 与 full attention 差距 **-0.60 / +0.12** |
+
+实测加速小于理论 FLOPs 缩减，因为稀疏注意力额外引入了索引构建、top-k 选择、反向索引物化、query gather、负载均衡等开销，且访存模式不如 dense 规整。
+
+配置与结果对应论文 §5、Table 1 及附录消融。注意力 FLOPs 缩减、attention 路径加速和整模型吞吐是不同口径；索引器仍需扫描候选历史，不能仅凭固定选择预算声称整体变为线性复杂度。
+
+## 与 DSA 的比较：选择粒度与共享范围 {#msa-vs-dsa}
+
+两者都是“轻量 Indexer 先选候选，主注意力再做精确 softmax”，但它们把选择能力放在了不同维度：
+
+- **DSA 在序列轴更细**：逐 token 选择 2048 个 latent KV entries，但所有主注意力 Query heads 共用同一份 token 清单；
+- **MSA 在 head/group 轴更细**：每个 GQA group 独立选择，但一次选择整个 128-token KV block。
+
+因此，“DSA 比 MSA 更细粒度”只是在说 **token vs block**，不是说 DSA 在所有维度上都更精细。
+
+### DSA Lightning Indexer：所有 Query heads 共选 tokens
+
+#### 打分函数
+
+对 query token $h_t$，Lightning Indexer 产生 $H_I$ 个 index-query 向量和对应权重；对历史 token $h_s$ 产生一个 index-key 向量：
+
+$$
+q_{t,j}^{I}\in\mathbb R^{d_I},
+\qquad
+w_{t,j}^{I}\in\mathbb R,
+\qquad
+k_s^{I}\in\mathbb R^{d_I}.
+$$
+
+一个 token pair 最终只有一个标量 index score：
+
+$$
+I_{t,s}
+=
+\sum_{j=1}^{H_I}
+w_{t,j}^{I}\,
+\operatorname{ReLU}
+\left(q_{t,j}^{I}\cdot k_s^{I}\right).
+$$
+
+ReLU 是吞吐导向的选择；论文还强调 Indexer head 数较少，并可以用 FP8 实现。
+
+#### 直接做 token-level Top-k
+
+DSA 不做 block pooling，而是直接选择分数最高的 $k=2048$ 个历史 token：
+
+$$
+\mathcal S_t
+=
+\operatorname{TopK}_s(I_{t,s},2048).
+$$
+
+然后读取这些 token 对应的 MLA latent KV entries，再运行主注意力。
+
+#### 选择结果如何共享
+
+$H_I$ 个 Indexer heads 会先经过加权、ReLU 和求和，坍缩成一个 $I_{t,s}$。因此每个 query token 最终只有一份 $\mathcal S_t$：
+
+- 所有 MLA Query heads 共用同一份 2048-token 清单；
+- 每个主 Query head 仍计算自己不同的 attention logits 和 softmax；
+- 共享的是 selected token set，不是主注意力概率。
+
+官方 DeepSeek-V3.2 将 DSA 实例化在 MLA 的 MQA-mode 下，使同一份 latent KV entry 能被所有 Query heads 共同读取和复用。
+
+### 核心差别总表
+
+| 维度 | MSA Indexer | DSA Lightning Indexer |
+|---|---|---|
+| 主注意力基础 | 标准 GQA | MLA 的 MQA-mode |
+| Indexer 输入 | stop-gradient hidden states | 从 hidden states 派生；稀疏训练时输入 detach |
+| Query 侧 Indexer | $H_{kv}$ 个头，一 GQA group 一个 | $H_I$ 个轻量 scorer heads |
+| Key 侧 Indexer | 1 个共享 $K^{idx}$ head | 1 个共享 $k_s^I$ 表示 |
+| token pair 打分 | scaled dot product | weighted sum of ReLU(dot product) |
+| Indexer heads 如何汇总 | 不汇总，保留 $H_{kv}$ 份 group scores | 汇总成一个标量 $I_{t,s}$ |
+| Top-k 对象 | KV blocks | 单个 tokens / latent KV entries |
+| 主配置预算 | $16\times128=2048$ tokens/group | 2048 tokens/query |
+| 选择清单数量 | 每个 query 有 $H_{kv}$ 份 | 每个 query 只有 1 份 |
+| 主 heads 如何共享 | 每个 GQA group 内共享 | 所有 Query heads 共享 |
+| 被读取的 KV | 对应 GQA group 的普通 K/V blocks | MLA latent KV entry，加 decoupled RoPE key 部分 |
+| 局部先验 | 强制 local incomplete block | 正文公式未描述类似的强制块规则 |
+| 稀疏阶段主 attention | 每个组在所选块内精确 SDPA | 所有 heads 在同一所选 token set 上精确 MLA attention |
+| Indexer 渐近复杂度 | 仍含 $O(N^2)$ token 打分 | 仍含 $O(N^2)$ token 打分 |
+
+### 为什么说 DSA 更“细粒度”
+
+设需要从一个 128-token 块中读取一个真正重要的 token。
+
+#### DSA
+
+DSA 可以只选择那一个 token：
+
+```text
+block = [无关, 无关, 重要, 无关, ...]
+                       ↑
+                 只读取这个 entry
+```
+
+它的 2048 个预算单位对应 2048 个独立位置，可以散落在整个长上下文中。
+
+#### MSA
+
+MSA 的 max-pool 也能发现那个重要 token，但一旦该块入选，就要读取整个因果可见块：
+
+```text
+block = [无关, 无关, 重要, 无关, ...]
+         └──────── 整块进入主注意力 ────────┘
+```
+
+因此在相同 2048-token 上限下：
+
+- DSA 最多可以覆盖 2048 个互不相邻的 token；
+- MSA 只能覆盖约 16 个不同区域，但每个区域有连续 128-token 上下文。
+
+DSA 在**序列位置轴**更精细，也更少把预算浪费在同块无关 token 上；MSA 的连续块则更利于规整访存、批量加载和 Tensor Core 计算。
+
+### 但 MSA 在 head/group 轴更精细
+
+假设一个 query 的不同语义子空间需要不同资料：
+
+```text
+GQA group 0 → 代码定义
+GQA group 1 → 最近对话
+GQA group 2 → 文档开头的约束
+GQA group 3 → 远处的报错日志
+```
+
+MSA 可以给四个 group 四份不同 block 清单。DSA 的 Lightning Indexer 虽然内部有多个 scorer heads，但它们最终被求和成单一 $I_{t,s}$，所有 MLA Query heads 使用同一份 Top-k token set。
+
+所以应使用二维描述：
+
+| 选择轴 | 更精细的一方 | 原因 |
+|---|---|---|
+| 序列位置轴 | DSA | 单 token 选择，而不是 128-token block |
+| head/group 轴 | MSA | 每个 GQA group 独立选择，而不是所有 heads 共用一份清单 |
+
+这能避免一句“DSA 更细”造成的误解。
+
+### DSA 是否数学上必须使用 MQA
+
+**不是。**“先计算一个相关性分数，再选择 token”这个 DSA 原型，本身并不要求 MQA；完全可以构造 per-head 或 per-group 的 DSA 变体。
+
+但是 DeepSeek-V3.2 的官方实现选择 MLA MQA-mode，原因是 kernel 级效率：
+
+1. DSA 的 token 选择非常离散；
+2. 如果不同 Query head 选择不同 token，会产生大量不同 gather 列表；
+3. 同一 latent entry 被多个 Query heads 共享，才能摊薄不规则 KV 读取成本；
+4. MLA 可以通过矩阵吸收，在不展开 per-head K/V cache 的情况下保留 per-head 行为。
+
+这里也不能把 MLA MQA-mode 等同于 vanilla MQA：
+
+- vanilla MQA 直接让所有 Query heads 共用同一组普通 K/V heads；
+- MLA MQA-mode 共享的是压缩 latent $c_s^{KV}$，每个 Query head 仍有自己的 absorbed query 与输出映射。
+
+因此更准确的说法是：
+
+> DSA 原型不被 MQA 数学约束；DeepSeek-V3.2 为了让 token-level 稀疏读取具有足够的跨 head 复用，将它实现为 MLA MQA-mode。
+
+### KL 监督也体现了不同的共享粒度
+
+#### MSA：per-GQA-group 教师
+
+对第 $r$ 个 GQA group，MSA 将组内 $G$ 个主 attention heads 的概率分布平均，得到该组的教师分布：
+
+$$
+P_{i,j}^{(r)}
+=
+\frac{1}{G}
+\sum_{\ell\in\mathcal H_r}
+P_{i,j}^{(\ell)}.
+$$
+
+第 $r$ 个 Indexer Query head 只需要拟合第 $r$ 组的教师，因此能够学出 group-specific selection。
+
+#### DSA：跨全部 heads 的共享教师
+
+DSA 将主注意力量跨所有 attention heads 求和，再沿序列轴做 L1 normalization，得到一份共享目标 $p_{t,:}$：
+
+$$
+\mathcal L_I
+=
+\sum_t
+D_{KL}
+\left(
+p_{t,:}
+\,\|\,
+\operatorname{Softmax}(I_{t,:})
+\right).
+$$
+
+这与它最终只有一份 Top-k token list 是一致的：Indexer 必须学习所有 heads 的综合需求。
+
+#### Warm-up 的一个重要差别
+
+- **MSA**：warm-up 时主分支保持 dense，Indexer 在全序列上追踪主分支；MSA-PT/CPT 的主实验 warm-up 为 40B tokens。
+- **DSA**：dense warm-up 只训练 Indexer，冻结其余全部模型参数；仅 1000 steps、约 2.1B tokens，随后进入 2048-token sparse training。
+
+### 对 kernel 的含义
+
+#### MSA 的硬件取舍
+
+块选择带来连续 K/V 数据：
+
+- 一个入选 block 可用连续加载；
+- 同组 16 个 Query heads 共用该 block；
+- KV-outer 调度还能跨 query positions 复用热门 K/V blocks；
+- 代价是一个重要 token 会把同块其余 token 一起带进来。
+
+#### DSA 的硬件取舍
+
+token 选择提高了信息密度，但地址更离散：
+
+- 2048 个 entry 可能分散在整条上下文；
+- 需要 gather 非连续 latent entries；
+- 所有 Query heads 共享相同 entry，提供了关键的跨 head 复用；
+- MLA latent cache 比展开后的 per-head K/V 小，降低了 gather 流量。
+
+两者可以看成两种硬件友好策略：
+
+> MSA 用“连续 block + group 内复用”换规整性；DSA 用“压缩 latent + 所有 heads 复用”支撑 token-level 稀疏性。
+
+### 一个统一例子
+
+假设上下文有 128K tokens，目标预算约为 2048 tokens。
+
+#### MSA
+
+```text
+query token t
+  ├─ GQA group 0 → 16 blocks → 最多 2048 tokens
+  ├─ GQA group 1 → 16 blocks → 最多 2048 tokens
+  ├─ GQA group 2 → 16 blocks → 最多 2048 tokens
+  └─ GQA group 3 → 16 blocks → 最多 2048 tokens
+```
+
+四份列表可能重叠，也可能覆盖不同区域。这里的“2048”是每组上限，不代表四组合计一定读取 8192 个不同 token。
+
+#### DSA
+
+```text
+query token t
+  └─ one Top-2048 token list
+       ├─ MLA query head 0 使用
+       ├─ MLA query head 1 使用
+       ├─ ...
+       └─ 所有 query heads 使用
+```
+
+一份列表服务所有 heads，但每个 head 在列表内部仍计算不同的主 attention logits。
+
+DSA 的投影与训练配置见 [DeepSeek-V3.2](https://arxiv.org/abs/2512.02556) 与 [DSA 主笔记](../DeepSeek-DSA/deepseek-sparse-attention-dsa.md)。

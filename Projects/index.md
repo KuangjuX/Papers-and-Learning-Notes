@@ -18,7 +18,6 @@
 
 ### 分布式训练与 MoE
 
-- [PithTrain 代码解读与训练系统学习路线](03_Distributed_Training_and_MoE/PithTrain/index.md)
 
 ### GPU 编译与性能
 
