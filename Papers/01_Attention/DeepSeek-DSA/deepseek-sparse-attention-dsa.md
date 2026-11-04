@@ -19,17 +19,7 @@ date: 2026
 >
 > 对比笔记：[MSA Indexer 与 DSA Lightning Indexer 的差别](../MiniMax-MSA/msa.md#msa-vs-dsa)
 
-## 一句话结论
-
-DSA 用一个低成本 Lightning Indexer 为每个 query token 从全部历史 token 中选出 2048 个位置，然后在这些位置对应的 MLA latent KV entries 上执行真正的多头注意力。Indexer 由 KL loss 单独训练，主模型由 language modeling loss 训练，离散 Top-k 使两条反向路径天然分离。
-
-最重要的边界是：
-
-> **Indexer score 只决定“选谁”；MLA attention score 决定“选中后给多少权重”；`uo_proj` 只生成最终输出，不恢复任何 score。**
-
----
-
-## 1. DSA 解决什么问题
+## DSA 解决什么问题 {#_1-dsa-解决什么问题}
 
 设序列长度为 $L$。普通 dense attention 的主注意力需要处理所有因果 token pairs，复杂度为：
 
@@ -43,11 +33,11 @@ $$
 O(Lk),\qquad k=2048\ll L.
 $$
 
-为此，它额外运行一个计算更便宜的 Indexer。Indexer 本身仍然要给 token pairs 打分，因此仍含 $O(L^2)$ 项，但其 head 数、特征维度和精度都远小于主 MLA attention。DSA 并没有从渐近意义上消灭平方项，而是把昂贵的平方计算替换成系数很小的检索计算。
+为此，它额外运行一个计算更便宜的 Indexer。Indexer 本身仍然要给 token pairs 打分，因此仍含 $O(L^2)$ 项，但它使用较少的检索 heads、较小的打分表示，并可采用 FP8。DSA 并没有从渐近意义上消灭平方项，而是把昂贵的平方计算替换成系数很小的检索计算。
 
 ---
 
-## 2. 符号表
+## 符号表 {#_2-符号表}
 
 | 符号 | 含义 |
 |---|---|
@@ -67,7 +57,7 @@ $$
 
 ---
 
-## 3. 总体数据流
+## 总体数据流 {#_3-总体数据流}
 
 ![DeepSeek Sparse Attention 架构](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/images/work-summary-02.jpg)
 
@@ -92,13 +82,13 @@ flowchart TD
     UO --> O["Output hidden u_t"]
 ```
 
-前半段可以理解为检索器，后半段才是真正改变 residual stream 的主注意力。
+选择阶段只交出地址，主分支仍需在这些地址上计算每个 head 的注意力。这一分工让主分支节省计算，也引入了索引扫描和离散 gather 的成本。[DeepSeek-V3.2 §2.1](https://arxiv.org/abs/2512.02556)。
 
 ---
 
-## 4. Forward：Lightning Indexer 如何选择 token
+## Forward：Lightning Indexer 如何选择 token {#_4-forward-lightning-indexer-如何选择-token}
 
-### 4.1 产生多头 index-query 和共享 index-key
+### 产生多头 index-query 和共享 index-key {#_4-1-产生多头-index-query-和共享-index-key}
 
 对 query token $h_t$，Indexer 产生：
 
@@ -116,7 +106,7 @@ $$
 
 可以把 $q_{t,j}^{I}$ 看成不同的低成本检索视角，把 $w_{t,j}^{I}$ 看成 query 根据当前内容动态决定每个视角的重要程度。
 
-### 4.2 计算 token-pair index score
+### 计算 token-pair index score {#_4-2-计算-token-pair-index-score}
 
 论文公式 (1)：
 
@@ -140,7 +130,7 @@ $$
 
 因果 attention 只允许 $s\le t$；未来位置必须在 Top-k 前被 mask 掉。
 
-### 4.3 Top-k token selection
+### Top-k token selection {#_4-3-top-k-token-selection}
 
 $$
 \mathcal S_t
@@ -155,7 +145,7 @@ $$
 
 Top-k 只需要比较 index scores，不需要先对整条序列做 softmax。它的输出是整数 token indices，因此对普通反向传播不可微。
 
-### 4.4 Gather latent KV entries
+### Gather latent KV entries {#_4-4-gather-latent-kv-entries}
 
 论文把被选中的主分支数据写作：
 
@@ -169,9 +159,9 @@ $$
 
 ---
 
-## 5. 什么是 latent KV entry
+## 什么是 latent KV entry {#_5-什么是-latent-kv-entry}
 
-### 5.1 MLA 先联合压缩 K 与 V
+### MLA 先联合压缩 K 与 V {#_5-1-mla-先联合压缩-k-与-v}
 
 MLA 不直接为每个 token 缓存所有 heads 的普通 K/V，而是先下投影：
 
@@ -196,7 +186,7 @@ $c_s^{KV}$ 是同一 token 的 Key/Value 信息的联合低维编码。概念上
 - 普通意义上的单个 Value vector；
 - DSA Indexer 自己使用的 $k_s^I$。
 
-### 5.2 MHA-mode 可以把 latent 展开成 per-head K/V
+### MHA-mode 可以把 latent 展开成 per-head K/V {#_5-2-mha-mode-可以把-latent-展开成-per-head-k-v}
 
 第 $i$ 个主注意力 head 可以从 latent 恢复 content Key 和 Value：
 
@@ -208,7 +198,7 @@ $$
 
 如果真的先执行这两次上投影，再运行普通 multi-head attention，就是 MLA 的 MHA-mode 表达。
 
-### 5.3 实际 cache 还包含 decoupled RoPE key
+### 实际 cache 还包含 decoupled RoPE key {#_5-3-实际-cache-还包含-decoupled-rope-key}
 
 为了让低秩压缩与 RoPE 兼容，MLA 将位置相关部分分离出来。可以把每个 token 的逻辑 KV entry 理解为：
 
@@ -223,11 +213,11 @@ DSA 选中 token $s$ 后，主注意力需要读取这两部分。
 
 ---
 
-## 6. MLA 的 MQA-mode 如何避免展开 K/V
+## MLA 的 MQA-mode 如何避免展开 K/V {#_6-mla-的-mqa-mode-如何避免展开-k-v}
 
-DeepSeek-V3.2 的 DSA 并不是“先把 latent KV 全部恢复成普通 K/V，再做注意力”。它利用线性代数把上投影吸收到 Query 和输出两侧。
+选中 token 后，如果先展开所有 heads 的 K/V，就会重新引入大张量的读取与存储。MLA 的 MQA-mode 利用线性代数把上投影吸收到 Query 和输出两侧，让多个 heads 直接读取同一 latent entry；这是稀疏 gather 能够摊销的前提之一。[DeepSeek-V3.2 §2.1、Figure 2](https://arxiv.org/abs/2512.02556)。
 
-### 6.1 `uk_proj` 吸收到 Query 侧
+### `uk_proj` 吸收到 Query 侧 {#_6-1-uk-proj-吸收到-query-侧}
 
 普通 content score 为：
 
@@ -255,7 +245,7 @@ $$
 
 于是无需显式构造 $k_{s,i}^{C}$，第 $i$ 个 Query head 可以直接与所有 heads 共享的 $c_s^{KV}$ 做 dot product。
 
-### 6.2 加上 decoupled RoPE 后的真实 attention logit
+### 加上 decoupled RoPE 后的真实 attention logit {#_6-2-加上-decoupled-rope-后的真实-attention-logit}
 
 对选中位置 $s\in\mathcal S_t$，第 $i$ 个主 Query head 的真实 attention logit 可写成：
 
@@ -281,7 +271,7 @@ $$
 
 这里才是主模型真正使用的 attention score / probability。它与 Indexer score $I_{t,s}$ 是两个不同量。
 
-### 6.3 `uv_proj` 与 `o_proj` 吸收到输出侧
+### `uv_proj` 与 `o_proj` 吸收到输出侧 {#_6-3-uv-proj-与-o-proj-吸收到输出侧}
 
 如果显式恢复每个 head 的 Value，输出是：
 
@@ -333,7 +323,7 @@ $$
 
 `uo_proj` 不会恢复 Indexer score，也不会恢复 attention logits。
 
-### 6.4 为什么它不是 vanilla MQA
+### 为什么它不是 vanilla MQA {#_6-4-为什么它不是-vanilla-mqa}
 
 vanilla MQA 让所有 Query heads 直接共用一组普通 K/V。MLA MQA-mode 共享的是 latent memory $[c_s^{KV};k_s^R]$，但每个 Query head 仍然拥有：
 
@@ -346,45 +336,7 @@ vanilla MQA 让所有 Query heads 直接共用一组普通 K/V。MLA MQA-mode �
 
 ---
 
-## 7. DSA 主注意力的完整 Forward
-
-论文公式 (2) 的抽象写法是：
-
-$$
-u_t
-=
-\operatorname{Attn}
-\left(
-h_t,
-\left\{
-c_s\mid I_{t,s}\in\operatorname{TopK}(I_{t,:})
-\right\}
-\right).
-$$
-
-把它展开后，一个 query token 的推理流程是：
-
-```text
-输入 h_t 与历史 cache
-
-1. 计算 Indexer queries q_t,j^I 和动态权重 w_t,j^I
-2. 与所有可见 index keys k_s^I 计算 I_t,s
-3. 对 I_t,: 做 causal Top-2048，得到 S_t
-4. 按 S_t gather [c_s^KV; k_s^R]
-5. 对每个 MLA Query head i：
-   a. 计算 absorbed query q_t,i^A 与 RoPE query q_t,i^R
-   b. 在 S_t 上计算真实 logits a_t,s,i
-   c. 对 2048 个 logits 做 softmax，得到 p_t,s,i
-   d. 在 latent 空间求 z_t,i = Σ_s p_t,s,i c_s^KV
-6. 使用各 head 的 fused uo_proj，把 z_t,i 映射并汇总成 u_t
-7. u_t 进入 residual stream
-```
-
-注意：第 3 步得到的一份 $\mathcal S_t$ 会被第 5 步的所有 Query heads 共享，但第 5b、5c、5d 步仍然逐 head 不同。
-
----
-
-## 8. 三种“分数/表示”不能混为一谈
+## 三种“分数/表示”不能混为一谈 {#_8-三种-分数-表示-不能混为一谈}
 
 | 名称 | 公式或表示 | 作用 | 是否进入 `uo_proj` |
 |---|---|---|---|
@@ -394,26 +346,38 @@ $$
 | Weighted latent output | $z_{t,i}=\sum_s p_{t,s,i}c_s^{KV}$ | `uo_proj` 的直接输入 | 是 |
 | Final output | $u_t=\sum_iW_i^{UO}z_{t,i}$ | 写回 hidden/residual space | 已是结果 |
 
-最容易出现的错误表述是：
+### 一次推理如何连接选择与主分支
 
-```text
-DSA 算 score → uo_proj 恢复 score
+```python
+def dsa_forward(h_t, t, index_cache, mla_cache, k=2048):
+    # Lightning Indexer
+    q_idx, w_idx = index_query_proj(h_t)          # [H_I, d_I], [H_I]
+    k_idx = index_cache.visible_keys(t)           # [t, d_I]
+
+    pair_scores = relu(q_idx @ k_idx.T)           # [H_I, t]
+    index_scores = (w_idx[:, None] * pair_scores).sum(dim=0)
+    selected = causal_topk(index_scores, k)        # integer token positions
+
+    # Gather MLA latent entries selected by DSA
+    c_kv, k_rope = mla_cache.gather(selected)
+
+    # Exact main attention, one distribution per MLA Query head
+    q_absorbed, q_rope = mla_query_proj(h_t)
+    logits = (q_absorbed @ c_kv.T + q_rope @ k_rope.T) * attn_scale
+    probs = softmax(logits, dim=-1)
+
+    # Aggregate in latent space, then recover final hidden output
+    latent_outputs = probs @ c_kv
+    u_t = uo_proj(latent_outputs)
+    return u_t
 ```
 
-正确表述应是：
+这段伪代码只表达数据依赖；`attn_scale` 对应前述主分支缩放，省略投影内部细节和短前缀有效长度处理，不代表官方 kernel 的布局或融合边界。
 
-```text
-DSA Indexer 算近似检索分数并选 token
-→ MLA 在 selected latent entries 上重算真实 attention scores
-→ softmax 后加权 latent values
-→ uo_proj 生成最终 output
-```
 
----
+## Backward：为什么需要单独训练 Indexer {#_9-backward-为什么需要单独训练-indexer}
 
-## 9. Backward：为什么需要单独训练 Indexer
-
-### 9.1 Top-k 切断 LM gradient
+### Top-k 切断 LM gradient {#_9-1-top-k-切断-lm-gradient}
 
 主前向依赖：
 
@@ -423,7 +387,7 @@ I_t,: → integer Top-k indices S_t → gather latent KV → main output → LM 
 
 Top-k 输出离散整数下标。只要排名不变，小幅修改 $I_{t,s}$ 不改变 $\mathcal S_t$；跨越排名边界时结果又跳变。因此 language modeling loss 无法通过普通链式法则训练 Lightning Indexer。
 
-### 9.2 用主注意力构造教师分布
+### 用主注意力构造教师分布 {#_9-2-用主注意力构造教师分布}
 
 DSA 将主 attention 信息跨所有 attention heads 聚合，再沿历史序列轴做 L1 normalization，得到一份共享教师分布：
 
@@ -441,7 +405,7 @@ $$
 p_{t,:}.
 $$
 
-### 9.3 两个损失训练两条路径
+### 两个损失训练两条路径 {#_9-3-两个损失训练两条路径}
 
 ```mermaid
 flowchart LR
@@ -468,18 +432,36 @@ flowchart LR
 
 ---
 
-## 10. 训练阶段一：Dense Warm-up
+### 训练循环中的两条梯度路径
+
+```python
+main_output, main_attention = dsa_or_dense_attention(...)
+lm_loss = language_modeling_loss(main_output, labels)
+
+teacher = aggregate_heads_and_normalize(main_attention).detach()
+student = softmax(index_scores_on_current_support)
+indexer_loss = kl_divergence(teacher, student)
+
+# 梯度边界：
+# lm_loss      -> main model only
+# indexer_loss -> indexer only, because indexer input / teacher are detached
+```
+
+---
+
+
+## 训练阶段一：Dense Warm-up {#_10-训练阶段一-dense-warm-up}
 
 DeepSeek-V3.2 从已经扩展到 128K context 的 DeepSeek-V3.1-Terminus checkpoint 继续训练。新加入的 Lightning Indexer 还没有选择能力，因此先执行短暂 dense warm-up。
 
-### 10.1 前向方式
+### 前向方式 {#_10-1-前向方式}
 
 - 主分支继续运行 dense attention，不让随机 Indexer 控制路由；
 - 冻结除 Lightning Indexer 之外的全部模型参数；
 - 对第 $t$ 个 query，将主注意力量跨所有 heads 求和；
 - 沿序列维做 L1 normalization，得到 $p_{t,:}$。
 
-### 10.2 训练目标
+### 训练目标 {#_10-2-训练目标}
 
 论文公式 (3)：
 
@@ -497,7 +479,7 @@ $$
 
 教师在前，Indexer 分布在后。直观上，主注意力认为重要但 Indexer 低估的 token 会受到更强惩罚。
 
-### 10.3 配置
+### 配置 {#_10-3-配置}
 
 | 项目 | 取值 |
 |---|---|
@@ -512,11 +494,11 @@ $$
 
 ---
 
-## 11. 训练阶段二：Sparse Training
+## 训练阶段二：Sparse Training {#_11-训练阶段二-sparse-training}
 
 Warm-up 后正式启用 Top-2048 token selection，并让主模型适应稀疏 support。
 
-### 11.1 前向方式
+### 前向方式 {#_11-1-前向方式}
 
 对每个 query token：
 
@@ -530,7 +512,7 @@ $$
 
 主 MLA attention 只读取 $\mathcal S_t$ 对应的 latent KV entries。教师与学生也只在 selected support 上比较。
 
-### 11.2 Indexer loss
+### Indexer loss {#_11-2-indexer-loss}
 
 论文公式 (4)：
 
@@ -548,16 +530,11 @@ $$
 
 这里 $p_{t,\mathcal S_t}$ 表示主注意力在 selected support 上形成的教师目标。
 
-### 11.3 梯度隔离
+### 支撑集缩小后的监督代价 {#_11-3-支撑集缩小后的监督代价}
 
-论文明确说明：
+主模型与 Indexer 沿前述两条梯度路径分别更新，但教师也缩到了已选集合。因此当前 KL 只能对齐集合内的分布，不能直接指出未被主分支读取的重要 token。这是由监督支撑集推得的限制；warm-up 提供初始选择能力，之后的质量仍需由稀疏训练和任务评估判断。
 
-- detach Indexer input；
-- Indexer 只接收 $\mathcal L_I$ 的训练信号；
-- 主模型只按 language modeling loss 优化；
-- 不尝试让 LM loss 穿过 Top-k。
-
-### 11.4 配置
+### 配置 {#_11-4-配置}
 
 | 项目 | 取值 |
 |---|---|
@@ -571,59 +548,13 @@ $$
 
 ---
 
-## 12. Dense Warm-up 与 Sparse Training 对比
+## 从训练切换到推理 {#_13-从训练切换到推理}
 
-| 维度 | Dense Warm-up | Sparse Training |
-|---|---|---|
-| Main attention support | 全部因果历史 | Top-2048 tokens |
-| Indexer 是否控制路由 | 否 | 是 |
-| KL support | 全部因果历史 | selected set $\mathcal S_t$ |
-| 主模型是否更新 | 否，冻结 | 是，只用 LM loss |
-| Indexer 是否更新 | 是，只用 KL | 是，只用 KL |
-| 主要目的 | 初始化可靠检索器 | 让模型与 Indexer 共同适应稀疏模式 |
+推理执行前述 forward，移除教师分布构造、KL 和 backward；主 attention 本身仍然存在。线上新增成本来自 Indexer 扫描、Top-k 和 gather，而非蒸馏损失。
 
-这个日程解决了冷启动闭环：如果第 0 步就让随机 Indexer 决定主模型能看到什么，主模型会基于错误 support 产生教师信号，Indexer 又用这个受污染的教师学习。
+## 复杂度与效率边界 {#_14-复杂度与效率边界}
 
----
-
-## 13. 推理阶段保留和删除什么
-
-训练完成后，推理不需要 KL teacher：
-
-```text
-保留：Indexer projection
-保留：token-pair index score
-保留：causal Top-2048
-保留：latent KV gather
-保留：selected MLA attention
-保留：uo_proj
-
-删除：teacher distribution 构造
-删除：KL loss
-删除：所有 backward / detach 语义
-```
-
-所以线上额外成本来自 Indexer 与 Top-k，而不是蒸馏。
-
----
-
-## 14. 复杂度与效率边界
-
-### 14.1 Main attention
-
-Dense MLA 主注意力：
-
-$$
-O(L^2).
-$$
-
-DSA 主注意力：
-
-$$
-O(Lk),\qquad k=2048.
-$$
-
-### 14.2 Lightning Indexer
+### Lightning Indexer {#_14-2-lightning-indexer}
 
 Indexer 仍对 token pairs 评分：
 
@@ -639,117 +570,13 @@ $$
 - 打分函数由 dot product、ReLU、标量加权和组成；
 - 相比完整 MLA，不需要执行大规模 per-head softmax 与 Value aggregation。
 
-### 14.3 token-level selection 的硬件代价
+### token-level selection 的硬件代价 {#_14-3-token-level-selection-的硬件代价}
 
-DSA 的 2048 个位置可能高度离散。为了让 gather 值得做，官方实现依赖：
+DSA 的 2048 个位置可能高度离散，所选位置越分散，地址处理与 gather 越难摊薄。MLA 的紧凑 latent cache 和所有主 Query heads 共享一份选择，让一次取回的 entry 可供多个 heads 使用；跨 query 的复用则取决于选择重合和 kernel 调度，不能由 DSA 定义保证。
 
-- MLA 的小型 latent KV cache；
-- 所有 Query heads 共享同一批 selected entries；
-- 一个 latent entry 被多个 queries/heads 复用；
-- 针对 MQA-mode 的专用 sparse kernel。
-
-这也是为什么官方实例化使用 MLA MQA-mode，但 DSA 的抽象算法本身并不被 MQA 数学限制。
+因此 MQA-mode 提供了有利的存储与复用条件，但实际收益仍需包含 Indexer、Top-k、gather 和主 attention 的完整测量。抽象的稀疏选择算法并不要求所有模型采用 MLA。
 
 ---
-
-## 15. 伪代码
-
-### 15.1 推理 Forward
-
-```python
-def dsa_forward(h_t, index_cache, mla_cache, k=2048):
-    # Lightning Indexer
-    q_idx, w_idx = index_query_proj(h_t)          # [H_I, d_I], [H_I]
-    k_idx = index_cache.visible_keys(t)           # [t, d_I]
-
-    pair_scores = relu(q_idx @ k_idx.T)           # [H_I, t]
-    index_scores = (w_idx[:, None] * pair_scores).sum(dim=0)
-    selected = causal_topk(index_scores, k)        # integer token positions
-
-    # Gather MLA latent entries selected by DSA
-    c_kv, k_rope = mla_cache.gather(selected)
-
-    # Exact main attention, one distribution per MLA Query head
-    q_absorbed, q_rope = mla_query_proj(h_t)
-    logits = q_absorbed @ c_kv.T + q_rope @ k_rope.T
-    probs = softmax(logits, dim=-1)
-
-    # Aggregate in latent space, then recover final hidden output
-    latent_outputs = probs @ c_kv
-    u_t = uo_proj(latent_outputs)
-    return u_t
-```
-
-这段伪代码只表达数据依赖，不代表官方 kernel 的具体布局、融合边界或矩阵方向。
-
-### 15.2 训练损失
-
-```python
-main_output, main_attention = dsa_or_dense_attention(...)
-lm_loss = language_modeling_loss(main_output, labels)
-
-teacher = aggregate_heads_and_normalize(main_attention).detach()
-student = softmax(index_scores_on_current_support)
-indexer_loss = kl_divergence(teacher, student)
-
-# 梯度边界：
-# lm_loss      -> main model only
-# indexer_loss -> indexer only, because indexer input / teacher are detached
-```
-
----
-
-## 16. 容易混淆的六个问题
-
-### 16.1 DSA 的 $H_I$ 个 Indexer heads 等于主 attention heads 吗
-
-不等于。它们是轻量检索器内部的多个打分视角，最后会求和成一个 $I_{t,s}$；主 MLA Query heads 是另一组头。
-
-### 16.2 DSA 是每个主 Query head 独立 Top-k 吗
-
-不是。官方 DeepSeek-V3.2 实例化中，每个 query token 只有一份 Top-k token list，所有主 Query heads 共享。
-
-### 16.3 selected latent entry 是否包含多个 token
-
-不包含。一个 latent KV entry 对应一个原始 token，只是该 token 的 K/V 信息被联合压缩。
-
-### 16.4 Indexer score 是否就是 attention score
-
-不是。$I_{t,s}$ 是近似检索分数；入选后，每个主 Query head 会重新计算 $a_{t,s,i}$。
-
-### 16.5 `uo_proj` 是否恢复 attention score
-
-不是。它把 softmax 加权后的 latent output $z_{t,i}$ 映射回 hidden space。score 在它之前已经完成使命。
-
-### 16.6 DSA 是否必须是 MQA
-
-原型不必须。DeepSeek-V3.2 的官方实现选择 MLA MQA-mode，是为了让每个不规则 latent KV entry 被所有 Query heads 共享，提高 kernel 复用和吞吐。
-
----
-
-## 最终记忆模型
-
-```text
-Lightning Indexer：
-“我便宜地估计哪些历史 token 值得看。”
-
-Top-k：
-“只把排名最高的 2048 个 token 地址交给主分支。”
-
-MLA MQA-mode：
-“所有 Query heads 共享这些 token 的 latent KV entry，
- 但每个 head 仍计算自己的真实 attention 分布。”
-
-uo_proj：
-“把加权后的 latent 表示恢复成注意力层输出，不恢复 score。”
-
-KL：
-“因为 Top-k 不可微，用主注意力分布单独教会 Indexer。”
-```
-
-完整链路：
-
-> **Indexer score → Top-2048 token indices → gather latent KV entries → per-head exact MLA logits → softmax → weighted latent sums → `uo_proj` → output。**
 
 ## 相关笔记
 

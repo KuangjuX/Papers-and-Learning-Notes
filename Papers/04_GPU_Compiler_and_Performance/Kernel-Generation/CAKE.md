@@ -79,7 +79,7 @@ Harness 向智能体暴露以下分析能力：
 | Performance analysis | 报告 | 估算成本并归因主要瓶颈 |
 | Optimization guidance | 提示 | 建议可能有效、但不阻塞编译的修改 |
 
-静态检查和成本模型只负责提前过滤、排序和解释候选；最终正确性与性能仍以真实 GPU 执行、外部 oracle 和 CUPTI 计时为准。
+静态检查将一部分失败提前到编译前，但只覆盖已建模语义，可能误报或漏报；成本模型用于排序与解释。最终仍需真实 GPU 执行、外部 oracle 和 CUPTI 计时，因此多一层分析并没有取消测试成本。
 
 ## 一个失败怎样反馈到 kernel 与编译器
 
@@ -129,7 +129,6 @@ CAKE 将单 shape 优化与通用 library 构建视为两个目标不同的阶�
 5. 用包含 dispatcher 开销的固定 workload 进行整体评分。
 
 
-
 单 shape 的最优程序只回答一个点上的性能问题；组成 library 后还需要证明 dispatcher、边界 shape 和 fallback 的整体行为。
 
 ## 实验契约：固定什么，允许智能体看到什么
@@ -145,7 +144,7 @@ CAKE 将单 shape 优化与通用 library 构建视为两个目标不同的阶�
 
 ## 实验：搜索效率、kernel 时间与 serving 收益
 
-### 1. Flash-KMeans Clean Start
+### Flash-KMeans Clean Start {#_1-flash-kmeans-clean-start}
 
 目标是 Flash-KMeans 的 `assign` kernel：`B=32, N=65,536, K=1,024, D=128`，BF16 输入、FP32 累加。调优后的 FlashML Triton 基线为 0.938 ms。
 
@@ -160,7 +159,7 @@ CAKE 将单 shape 优化与通用 library 构建视为两个目标不同的阶�
 
 Cake IR 三次运行的平均性能约在 5500 万 token 时越过基线，之后继续提升；CUDA/PTX 组的平均值在 8000 万 token 截止时仍低于基线。结果表明，结构化表示与局部诊断可以减少无效搜索，但实验规模只有一个 workload、一个 shape 和每组三次运行。
 
-### 2. Kimi Delta Attention
+### Kimi Delta Attention {#_2-kimi-delta-attention}
 
 智能体不能查看 FlashKDA 的低层实现，只能将其作为黑盒性能基线：
 
@@ -171,7 +170,7 @@ Cake IR 三次运行的平均性能约在 5500 万 token 时越过基线，之�
 
 KDA 包含需要跨 chunk 保持的 recurrent state，比普通 GEMM + epilogue 更能检验 IR 对复杂状态与调度的表达能力。
 
-### 3. TinyGEMM
+### TinyGEMM {#_3-tinygemm}
 
 从 FlashInfer 中 TensorRT-LLM 派生的小 M BF16 kernel 出发，智能体构建了浅/深 pipeline、PDL 变体和 batch size 小于 8 的专门路径：
 
@@ -180,7 +179,7 @@ KDA 包含需要跨 chunk 保持的 recurrent state，比普通 GEMM + epilogue 
 - SGLang GPT-OSS-120B、concurrency 128、TP1 下最高报告 **7.6% output throughput 提升**；
 - TP4 下差异位于测量噪声范围。
 
-### 4. Alpha-MoE Blackwell Rewrite
+### Alpha-MoE Blackwell Rewrite {#_4-alpha-moe-blackwell-rewrite}
 
 智能体把原本面向 Hopper 的 Alpha-MoE W8A8 megakernel 重写到 Blackwell，将 routed gather、两个 projection、activation、requantization 和 route-weighted output accumulation 融入一个设备程序。
 
@@ -191,7 +190,7 @@ KDA 包含需要跨 chunk 保持的 recurrent state，比普通 GEMM + epilogue 
 
 API 与 GPU-span 数字的差距说明，大幅端到端提升还来自减少 GPU activity、调度间隙和 workspace 管理，而不只是 kernel 算术本身更快。
 
-### 5. 已知专家 Kernel 复现
+### 已知专家 Kernel 复现 {#_5-已知专家-kernel-复现}
 
 论文对比 TensorRT-LLM、CUTLASS、DeepGEMM、FlashAttention-4 和 FlashInfer 的 11 个 LLM 关键 kernel：
 
@@ -227,27 +226,14 @@ API 与 GPU-span 数字的差距说明，大幅端到端提升还来自减少 GP
 
 编译器要求 exact target match，不会静默降级到其他架构。性能模型只对 B200 和 H100 做了证据支持的校准，其他平台明确报告 coverage limitation。
 
-1. **主要证据集中在 B200**：跨 Ampere–Blackwell 的语言与 lowering 覆盖不等于跨平台性能证据；非 NVIDIA 后端尚未测量，移植需要重建 backend。
-2. **静态分析不是正确性证明**：只覆盖已建模的语义，可能有 false positive/negative，也无法捕获全部微架构行为，GPU 执行仍是最终依据。
-3. **Clean-start 对照规模较小**：只有一个 workload、一个固定 shape、每组三次运行，不能据此证明所有 kernel 上都有同等优势。
-4. **“Clean start”不等于环境没有先验**：智能体看不到目标低层实现，但 Cake IR/harness 已从生产 kernel corpus 中演化出来；优势来自表示与环境中累积的领域知识，而不只是语法更简洁。
-5. **演化成本高**：Flash-KMeans 每次使用 8000 万 token，KDA 轨迹达到十亿级累计 token；论文较少讨论推理成本和维护 compiler harness 的人力如何摊销。
-6. **不同案例的 speedup 不可直接横向比较**：硬件、shape、baseline、API/GPU-span 口径和协议不同，尤其不能把 Alpha-MoE 的 API 级 6.204× 当作 kernel 执行本身的加速。
-7. **仍有人工门控**：compiler evolution 并非完全自主，IR 和分析更新仍需 corpus test 与 human merge gate。
+- **主要证据集中在 B200**：跨 Ampere–Blackwell 的语言与 lowering 覆盖不等于跨平台性能证据；非 NVIDIA 后端尚未测量，移植需要重建 backend。
+- **“Clean start”不等于环境没有先验**：智能体看不到目标低层实现，但 Cake IR/harness 已从生产 kernel corpus 中演化出来；优势来自表示与环境中累积的领域知识，而不只是语法更简洁。
+- **演化成本高**：Flash-KMeans 每次使用 8000 万 token，KDA 轨迹达到十亿级累计 token；论文较少讨论推理成本和维护 compiler harness 的人力如何摊销。
+- **不同案例的 speedup 不可直接横向比较**：硬件、shape、baseline、API/GPU-span 口径和协议不同，尤其不能把 Alpha-MoE 的 API 级 6.204× 当作 kernel 执行本身的加速。
 
-## 个人理解：哪些经验值得进入编译器
+## 个人理解：可复用的诊断也有维护成本
 
-### 1. 将隐性 GPU 专家知识转化为可执行知识
-
-传统专家经验通常存在于人的直觉、代码习惯或调试过程里。CAKE 将这些经验编码为 IR primitive、类型规则、verifier、lowering、成本模型和可复用 tactic，使其能够被自动检查并跨任务复用。
-
-### 2. 优化智能体所处的环境，而不只是智能体本身
-
-相关工作通常优化模型、搜索算法、变异策略或历史记忆。CAKE 固定基础模型与 agent scaffold，将重点放在“被搜索的表示”和“环境返回的证据”上。它的长期价值来自环境持续吸收任务经验。
-
-### 3. 生成便宜后，验证和理解成为新瓶颈
-
-当智能体可以大量生成候选程序时，关键问题不再只是生成能力，而是能否快速判断合法性、定位失败原因、理解性能，并把经验沉淀下来。CAKE 本质上是在构建这样一个验证与知识吸收层。
+**个人理解。** 把一次失败编码为 verifier 或 lowering 规则，才可能让后续任务免于重复排查；仅保存成功 kernel 不会自动得到这种收益。但新规则也要避免误拒合法调度，并随目标硬件和 IR 扩展维护。论文的 corpus 回归与人工合并门禁正是这项代价的一部分，不能只用最终 kernel 时间衡量整个演化过程的效率。
 
 ## 相关笔记
 

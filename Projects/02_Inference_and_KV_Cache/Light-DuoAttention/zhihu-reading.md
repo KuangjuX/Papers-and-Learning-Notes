@@ -6,25 +6,19 @@
 
 在 SGLang 中支持 DuoAttention 运行 NIAH 测试（原文章的 9 秒演示）。
 
-## 引言：长上下文的挑战
+## 长上下文的成本来自哪些头
 
-想象一下，你正在使用一个大语言模型处理一份 100 页的技术文档，然后在文档的某个角落问它一个具体问题——这就是著名的”大海捞针”（Needle in a Haystack, NIAH）测试。对于现代 LLM 来说，处理这种长上下文场景既是机会也是挑战。
+Dense attention 的 prefill 对长度 N 的序列处理二次量级的 Q–K 配对；有 KV cache 时，decode 每步只有新 query，对历史的扫描则随 N 线性增长。减少 prefill 计算、decode 读取量和持久 KV 容量，是三个相关但不同的目标。
 
-标准的 Attention 机制有一个众所周知的问题：它的计算复杂度是 **O(n²)**。当序列长度从 2k tokens 增长到 128k tokens 时，计算量会呈平方级增长，这对推理性能造成了巨大压力。
+StreamingLLM 只保留初始 attention sink 与最近窗口，可用固定缓存持续处理流式输入，代价是窗口外的旧内容无法被重新检索。“持续处理长流”不等于保留无限历史记忆。Quest 则保留历史 KV，用每页 Key 的统计信息估计 query 相关性，挑选页面参与 attention；它主要减少每步读取和计算，而不是自动缩小全部历史 KV 的存储容量。
 
-为了解决这个问题，MIT-Han-Lab 提出了一种名为 DuoAttention [1](https://zhuanlan.zhihu.com/p/1984978732436431358#ref_1)的方法，其实在 DuoAttention 提出之前，MIT-Han-Lab 已经提出了一系列方法用于解决 Long Context Inference 推理的问题。
-
-例如 StreamingLLM[2](https://zhuanlan.zhihu.com/p/1984978732436431358#ref_2)发现了一种注意力汇聚（Attention Sink）的现象，少数初始词元无论其语义如何，都会持续获得相当一部分注意力分数。窗口注意力的失效正是由于移除了这些关键的注意力汇聚词元所致。StreamingLLM 通过在维护最新词元（recent tokens）的同时保留了注意力汇聚的 key-value 状态，从而可以在 training-free 的情况下在无限长度的序列上保持稳定的性能，同时将每个词元的计算复杂度降低到 $O(L)$ 。
-
-另一个方案是 Quest[3](https://zhuanlan.zhihu.com/p/1984978732436431358#ref_3)，与 StreamingLLM 不同，Quest 是一个动态的稀疏注意力方案，这意味着在运行时基于一些输入相关的函数自适应计算稀疏注意力掩码 $M$ 。同样，Quest 也是一种 training-free 的 key-value 选择方案。具体来说，Quest 将 KV Cache 分割成固定大小的页面，并追踪注意力的上下界，利用这些上下界来近似估计页面中可能的最高的注意力分数。在运行时仅加载估计注意力得分最高的 Top-K 个页面来执行稀疏注意力操作，从而显著降低内存消耗并加速注意力操作。由于页面得分与查询相关，因此如果新的查询重视某些词元，则之前不重要的词元也可以被重新召回，这使得 Quest 在注意力召回率方面超越了以往与查询无关的算法。
-
-DuoAttention 是 StreamingLLM 的一个延续性工作，DuoAttention 认为 StreamingLLM 尽管性能很好，但是在长上下文的应用中通常会丢失准确性。同时也无法和 GQA[4](https://zhuanlan.zhihu.com/p/1984978732436431358#ref_4)这些优化方法相配合。
+DuoAttention 的选择落在 head 维度：部分头需要检索远处内容，保留完整历史；其余头只使用 sink 与近期窗口。收益因此受检索头比例约束，质量则取决于哪些头被分到流式分支。[论文 §2](https://arxiv.org/html/2410.10819v1#S2) 的头划分与 Light-DuoAttention 的 kernel、SGLang 接线是不同层次的工作。
 
 ![](images/duoattention-01.jpg)
 
 不同稀疏注意力方法在大海捞针测试中的准确率
 
-上图展示了 Full Attention，DuoAttention 与 StreamingLLM 等其他不同稀疏注意力方法在 Needle-in-a-Haystack 上的准确率测试。不过，与 StreamingLLM 不同，DuoAttention 是需要通过**部分训练**来获取参数。
+上图展示了 Full Attention，DuoAttention 与 StreamingLLM 等其他不同稀疏注意力方法在 Needle-in-a-Haystack 上的准确率测试。这张论文图支持头划分能够改善检索质量的判断；它不是下文 H800 kernel 的性能测量。
 
 ## DuoAttention：混合注意力机制
 
@@ -39,7 +33,9 @@ DuoAttention 针对 Decode 和 Chunked Prefill 的处理流程
 DuoAttention 针对 Prefill 阶段和 Decode 阶段有不同的处理：
 
 - Decode：在 Decode 阶段，DuoAttention 为 LLM 的每一层分配两个 KV Cache，一个用于检索头，存储所有历史 KV；一个用于流式头，仅存储注意力汇聚和最近的词元，并保持大小恒定，当处理一个新词元的时候，Query，Key，Value 会沿着 Head 维度进行切分，分别计算检索头的完整注意力和流式头的流式注意力。最终按照 Head 维度连接起来得到输出投影。
-- Prefill：在 Prefill 阶段通过 Chunked Prefill 技术来降低内存峰值使用量，通过将一个长 prompt 使用一个固定大小的 chunks 来预填充 KV Cache。当 Chunked Prefill 计算出 Key-Value Pairs 的时候，流式头的 KV Cache 会立刻被修剪。在 Prefill 阶段，下一个传入词元块只会关注固定数量的上下文词元。设 $L$ 为序列长度， $K$ 表示分块大小，流式头的预填充复杂度从 $O(L^2)$ 优化到了 $O(LK)$ ，内存复杂度从 $O(L)$ 降低到 $O(K)$ 。
+- Prefill：按 chunk 处理 prompt，流式头在块间保留 sink 与窗口。设序列长 L、chunk 大小 C、保留窗口总长 W，则直接按块计算的流式分支处理量为 O(L(C+W))，工作集为 O(C+W)；当 C 与 W 同阶为 K 时，才简写为 O(LK) 和 O(K)。检索头仍访问完整历史，因此整个模型不会随流式分支一起变为固定缓存。
+
+例如保留 128 个 sink、256 个近期 token，某层一半 KV heads 为检索头，在历史长 N 且 N 远大于 384 时，该层持久 KV 元素量约为全缓存的 `0.5 + 0.5 × 384/N`。这只是相同 dtype/head_dim 下的容量估算，不包括 chunk 临时状态和分配器开销，也不是本项目 prefill 集成的实测收益。
 
 除此之外，DuoAttention 需要通过训练来获得流式头和检索头的信息。DuoAttention 通过知识蒸馏进行训练，定义全注意力模型 $H_{full}$ ，定义使用 DuoAttention 的模型 $H_{mixed}$ ，通过 L2 范数来衡量两个模型输出的隐藏状态，两个模型差异越小，说明“学生”越像“老师”。DuoAttention 通过定义 $L_{distill}$ 来表示该误差。
 
@@ -49,25 +45,11 @@ DuoAttention 针对 Prefill 阶段和 Decode 阶段有不同的处理：
 
 ## Light-DuoAttention：用 CuTeDSL 实现
 
-DuoAttention 本身 MIT-Han-Lab 官方有一个实现[5](https://zhuanlan.zhihu.com/p/1984978732436431358#ref_5)，在这个实现中通过引入 Block-Sparse-Attention[6](https://zhuanlan.zhihu.com/p/1984978732436431358#ref_6)中的 kernel 来实现 DuoAttention 的训练以及推理。然而当前的实现是在安培架构去实现的，因此我写了一个新仓库名为 Light-DuoAttention：
+[Light-DuoAttention `e1d9e4d2`](https://github.com/KuangjuX/Light-DuoAttention/tree/e1d9e4d21de7a46ecec17fa33d84006a34f70d15) 基于 Hopper 的 CuTeDSL attention 实现 streaming mask，并提供 SGLang prefill 接入示例。原实验在 H800 上使用 Llama-3-8B 和 DuoAttention 官方头划分参数。这里的实现证据是 streaming kernel 与 prefill 路径；论文的 decode 双缓存、流式 KV 驱逐及完整端到端内存收益，不能由这条接线推得。
 
-用来在 SM90 架构上实现了 **Streaming Attention** 和 DuoAttention，并在 H800 上进行了验证。最终将 light-duoattention 在 SGLang 中进行了支持，并使用 DuoAttention 官方为 LLama-3-8B 模型训练的参数进行验证，最终通过了一些测试验证了该算法的有效性。
+### 先定义可见集合，再决定哪些块可以跳过
 
-首先说明，当前的 Light-DuoAttention 并不算一个**极度优化**的实现（当然我后续可能也会慢慢优化），所以可能并不适合在**生产环境**中使用。它更多地是帮助我从 Kernel 端到模型端去了解整个 SGLang 的流程，因此更多像一个实验性的项目。当前的 Light-DuoAttention 基于 FlashAttention 在 Hopper 中使用 CuTeDSL 的实现进行修改，接下来我将介绍整个 Light-DuoAttention 的项目以及它是如何在 SGLang 中运行的。
-
-首先，在正式实现 Kernel 之前我们需要使用 Pytorch 来创建一个引用实现，我们首先回顾一下 Streaming Attention，它包含两个关键组件：
-
-1. **Sink Tokens（锚定 token）**：
-
-- 保留序列开头的 K 个 token（例如：前 32 或 128 个）
-- 这些 token 通常包含系统提示、指令等重要信息
-- 所有位置都能关注这些 sink tokens
-
-2. **Recent Window（最近窗口）**：
-
-- 保留最近的 W 个 token（例如：最近 256 或 512 个）
-- 捕获局部上下文信息
-- 对于因果推理，使用滑动窗口
+PyTorch reference 用掩码明确语义：query 只能看到因果范围内的初始 `sink_size` 个位置，以及包含自身的最近 `local_size` 个位置。Sink 的作用是保留注意力归一化所需的初始位置，不要求这些 token 在语义上重要；序列开头的 query 也不能看到尚未出现的 sink token。
 
 因此在 PyTorch 最重要的部分就是构建**掩码**，并将掩码应用到 Attention Score 中：
 
@@ -84,38 +66,19 @@ mask = torch.logical_or(beyond_causal, outside_window)
 - 块内掩码：针对块内掩码，我们需要修改 `mask.py` 找到当前线程所持有的寄存器在整个 Attention Score 中的绝对位置，并根据位置进行原地的掩码应用。
 - 块间掩码：针对块间掩码，我们需要修改 `block_info.py` 来获取能够应用 Attention Sink 和 Recent Tokens 的块。
 
-一个简单的 `apply_streaming_mask` 实现如下：
+块间跳过只减少遍历范围，块内 mask 仍要精确处理窗口交界、因果边界和尾块。下面是等价条件的机制伪代码，`window_size_left` 不包含当前 query 本身；实际 CuTeDSL 实现还需要线程坐标映射与编译期条件。
 
+```python
+is_in_sink = k_pos < sink_size
+is_in_window = window_size_left is None or k_pos >= q_pos - window_size_left
+allowed = k_pos <= q_pos and (is_in_sink or is_in_window)
+if mask_seqlen:
+    allowed = allowed and k_pos < seqlen_k
+if not allowed:
+    acc_S[i] = -inf
 ```
-# Step 3: Apply masking rules using direct, absolute positions
-should_mask = True
 
-# Rule A: Is the key within the sink?
-is_in_sink = k_pos < self.sink_size
-
-# Rule B: Is the key within the sliding window?
-is_in_window = True  # Default to true if no window size is specified
-if cutlass.const_expr(self.window_size_left is not None):
-    is_in_window = k_pos >= q_pos - self.window_size_left
-    # Rule C: Is the connection causal?
-    is_causal = k_pos <= q_pos
-    # An element is NOT masked if it's causal AND (it's in the sink OR it's in the window)
-    if is_causal:
-        if is_in_sink or is_in_window:
-            should_mask = False
-
-    # Rule D: Padding mask (optional, based on sequence lengths)
-    if cutlass.const_expr(mask_seqlen):
-        # Note: self.seqlen_q is the length of the current Q chunk, not total length
-        # The q_pos check is implicitly handled by the launch grid.
-        # We only need to check k_pos against the total key length.
-        if k_pos >= self.seqlen_k:
-            should_mask = True
-
-        # Step 4: Apply the mask if needed
-        if should_mask:
-            acc_S[i] = -cutlass.Float32.inf
-```
+例如 query 的绝对位置为 1000，sink_size=128、local_size=256，则可见区间是 `[0,127]` 与 `[745,1000]`。两段之间的完整块可以跳过；跨越 127 或 745 的块仍需逐元素 mask。短序列时两段可能重合，块遍历不能重复累计同一 KV。
 
 ### 支持 Chunked Prefill
 
@@ -125,9 +88,7 @@ if cutlass.const_expr(self.window_size_left is not None):
 
 最后，我们需要在 SGLang 中支持 DuoAttention 并运行 LLama-3-8B 模型，当前我们使用 DuoAttention 代替了原生 SGLang 的 Prefill 阶段，原生 SGLang 的 Prefill 实现在 `FlashAttentionBackend` 中的 `forward_extend` 中，我们需要定义一个新的参数 `enable_duo_attn`，当开启这个参数的时候，我们执行 DuoAttention。我们需要从 Query，Key，Value 中对多头进行检索头和流式头的切片，并在最终进行连接（Concat）结果并获得最终结果。
 
-这里值得注意的一点是，在原文中有提到：
-
-> Before deployment, we preprocess the model by reordering the output channels of the Query, Key, and Value projection weights according to the attention head assignments. This reordering groups retrieval heads and streaming heads into two distinct, consecutive clusters, allowing for efficient slicing and concatenation operations when managing the KV cache for these two types of heads within a layer, rather than relying on scattering and gathering operations.
+头划分会引出访存组织问题：若两类 heads 交错排列，每次调用都需 gather/scatter。DuoAttention 部署时预先重排投影通道，将同类 heads 放在连续区间，用一次性的权重变换换取推理中的切片访问；输出投影必须应用匹配的列置换，才能保持 head 输出的对应关系。
 
 为了方便且高效地进行切片和连接操作，我们需要预先对 Query，Key，Value 以及 Output 进行重新排列，将流式头和检索头放到两个不同的连续簇中，这样就不需要进行 Scatter 以及 Gather 操作了。在 SGLang 中，我们将这个阶段放到 `ModelRunner` 中进行处理:
 
@@ -135,10 +96,9 @@ if cutlass.const_expr(self.window_size_left is not None):
 for i, layer in enumerate(layers):
     attn = layer.self_attn
 
-            # --- 1. Define Head Patterns and Indices ---
-            # kv_pattern defines which KV head group is full (1) or streaming (0)
+    # kv_pattern defines which KV head group is full (1) or streaming (0)
     kv_pattern = torch.tensor(full_attention_heads[i], device=device, dtype=torch.int)
-    assert len(kv_pattern) == num_kv_heads, \
+    assert len(kv_pattern) == num_kv_heads
 
     # Get the indices for full and streaming KV heads
     kv_full_indices = torch.where(kv_pattern == 1)[0]
@@ -196,17 +156,19 @@ for i, layer in enumerate(layers):
         attn.o_proj.weight.data = o_weight_reordered
 ```
 
+GQA 中同一 KV head 对应的 Q heads 通过 `repeat_interleave` 一起重排，因此 KV 组是这里的分配单位。片段假定投影矩阵可按完整 head reshape；TP 分片和量化权重需要另行满足相应布局，不能直接原样套用。
+
 ### 实验与性能评估
 
 在 **Kernel 层面**我们验证了 Streaming Attention 在各种情况下的正确性，包括 Chunked Prefill，Paged Attention 以及在 GQA 情况下的正确性。
 
-在**端到端模型推理**层面，我们在 LLama-3-8B 上应用了 DuoAttention 训练出的参数并执行了 NIAH 测试，执行效果DEMO 如最上所示。除此之外，我还在知识问答，英文翻译，创业写作等方式对 DuoAttention 进行测试，均取得了不错的效果。
+原实验记录还包含 Llama-3-8B 的 NIAH 演示，以及知识问答、英文翻译和创业写作的人工尝试。演示说明接入后能完成这些样例，不提供全面质量回归的统计结论。
 
 除此之外，我们还将 Streaming Attention 与 FlashAttention 做了一个简单的性能评估，评估结果如下：
 
 ![](images/duoattention-03.jpg)
 
-当前的实验配置为单卡 H800，`sink_size=128`,`recent_token=256`。
+原图配置为单卡 H800，`sink_size=128`、`recent_token=256`，比较 streaming kernel 与 FlashAttention。它度量的是局部 attention 实现；没有在这里给出头划分、两分支调用、拼接及整个模型的分项消融，因而不能把 kernel 曲线直接换算成 SGLang 请求加速比。本次整理未重新运行这些 GPU 实验。
 
 ## 参考
 

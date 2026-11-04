@@ -1,107 +1,33 @@
 # NVSHMEM 与 DeepEP-like Buffer：初始化与内存模型
 
-- 来源：[NVSHMEM-Tutorial：Build a DeepEP-like GPU Buffer（一）](https://zhuanlan.zhihu.com/p/1943366512783098660)。
+GPU kernel 要把数据写到其他 GPU，除了远端地址，还需要知道通信参与者、内存分配关系以及何时可以复用缓冲区。[NVSHMEM-Tutorial](https://github.com/KuangjuX/NVSHMEM-Tutorial/tree/e6c64f4f148ccb20ae5ec428420ef25ba4788715) 用 DeepEP-like Buffer 实验这些通信基础，不包含 MoE 路由和专家计算；原文见[初始化教程](https://zhuanlan.zhihu.com/p/1943366512783098660)。
 
-对称地址、同步与硬件卸载的简化解释需结合 [NVSHMEM 官方文档](https://docs.nvidia.com/nvshmem/api/index.html) 理解，不作为当前所有实现的保证。
+## 用本地对称地址与 PE 编号定位远端对象
 
-最近学习了一下 NVSHMEM 以及 DeepEP，由于 Deepep 本身自己的处理逻辑和 MoE 比较强相关，同时也过于复杂，不太适合作为一个纯粹的 GPU 通信的教程去学习，因此我自己做了一个 DeepEP-like Buffer 用来实验 DeepEP 中的一些特性，仅仅实现了 Deepep 中针对 GPU 通信相关的技术而不去针对 MoE 的通信逻辑进行实现，目前已开源在 github 中：
+NVSHMEM 使用 PGAS（分区全局地址空间）模型。每个 PE（Processing Element）持有本地内存，远端对象通过“本地对称地址 + 目标 PE”定位。对称堆由 NVSHMEM 管理，`nvshmem_malloc` 等集合分配接口在参与 PE 上建立相应对象；对称性要求匹配的分配关系，**不要求各 PE 返回的指针数值相同**，也不能把一个 PE 的普通指针值直接交给另一个 PE 解引用。
 
-[https://github.com/KuangjuX/NVSHMEM-Tutorialgithub.com/KuangjuX/NVSHMEM-Tutorial](https://github.com/KuangjuX/NVSHMEM-Tutorial)
+例如 PE 0 与 PE 1 都为数组 `buf` 进行了匹配的对称分配。PE 0 调用 `nvshmem_putmem(buf + 16, src, 32, 1)`，其中 `buf + 16` 是 PE 0 本地的对称地址，运行时将其映射到 PE 1 对应对象的相同偏移。这里 `buf` 若为 `char*`，偏移为 16 B，载荷为 32 B；若元素类型不同，指针算术的偏移也随之改变。见 [NVSHMEM 地址与内存模型](https://docs.nvidia.com/nvshmem/api/latest/using.html)。
 
-后续会持续更新。
+PGAS 简化了远端寻址，却没有把分布式显存变成普通缓存一致的共享内存。程序仍须遵守集合分配、访问有效期和同步约束。
 
-在本系列的第一篇文章中会介绍 NVSHMEM 相关的概念以及初始化流程，在后续的文章中将基于 DeepEp-like Buffer 介绍节点内与节点间混合通信以及一些通信原语的实现。
+## 单边传输省去匹配 receive，数据就绪仍需要协议
 
-### NVSHMEM 介绍
-
-NVSHMEM (NVIDIA SHared MEMory) 是一个基于 OpenSHMEM 标准的并行编程库。它的核心思想是实现一个**分区全局地址空间 (Partitioned Global Address Space, PGAS)** 模型。
-
-理解 PGAS 是理解 NVSHMEM 的关键。想象一下，在一个多 GPU 系统中，所有参与计算的 GPU 共享一个**逻辑上**的全局地址空间，但这个空间在**物理上**是分布在各个 GPU 各自的显存中的。
-
-这意味着什么呢？这意味着任何一个 GPU 都可以通过简单的内存操作（我们稍后会讲到的 `put` 和 `get`）直接、单边地访问另一个 GPU 上的数据，而**无需目标 GPU 的显式参与**。这正是 NVSHMEM 强大能力的源泉。
-
-相比于我们熟知的 MPI，NVSHMEM 有几个显著的特性，让它在 GPU 通信领域独树一帜：
-
-1. **单边通信 (One-sided Communication)**：这是与传统 MPI 双边通信最本质的区别。在 NVSHMEM 中，一个 GPU 可以直接对另一个 GPU 的内存进行读写，无需目标 GPU 进行任何匹配操作（如 `MPI_Recv`）。这极大地减少了通信中的同步开销和延迟。
-2. **GPU 原生通信 (GPU-native Communication)**：通信操作可以直接在 CUDA kernel 内部发起。这消除了传统通信中频繁的 CPU-GPU 上下文切换，使得计算与通信可以更紧密地重叠（Overlap），从而提升整体性能。
-3. **硬件卸载 (Hardware Offload)**：NVSHMEM 的操作可以被直接卸载到硬件执行。通过 **NVLink/NVSwitch**（节点内）和 **RDMA**（节点间），数据传输可以绕过 CPU 和操作系统内核，直接在 GPU、网络接口和内存控制器之间进行，实现极致的低延迟和高带宽。
-
-### NVSHMEM 内存模型
-
-NVSHMEM 的 PGAS 模型依赖于两个核心概念：**对称堆 (Symmetric Heap)** 和我们已经提到的**分区全局地址空间 (PGAS)**。
-
-**对称堆**是 NVSHMEM 在每个 PE（Processing Element，在这里就是每个 GPU）的显存中划分出来的一块特殊内存区域。这块区域由 NVSHMEM 库管理，并且必须通过专门的 API（如 `nvshmem_malloc`）进行分配。
-
-对称堆最神奇的特性在于：如果你在对称堆上分配了一个对象，那么这个对象的指针变量 `ptr`，在**所有 PE 上都具有相同的逻辑地址值**。然而，它在每个 PE 上指向的物理地址是不同的，是位于各自 PE 的本地显存中的。
-
-当所有 PE 的对称堆集合在一起时，它们就共同构成了一个分区的全局地址空间 (PGAS)：
-
-- **全局 (Global)**: 从任何一个 PE 的角度来看，它都可以访问这个地址空间中的任何位置，就好像在访问一个巨大的、统一的内存池一样。
-- **分区 (Partitioned)**: 这个全局地址空间在物理上是分散的（分区的），每个 PE “拥有”并管理其中的一部分（即它自己的对称堆）。
-
-### 核心通信原语
-
-`put` 和 `get` 是 NVSHMEM 中最基本、最核心的单边操作原语。
-
-### `nvshmem_putmem`：把我的数据“放”到你那里
-
-```
+```cpp
 void nvshmem_putmem(void *dest, const void *source, size_t nelems, int pe);
-```
-
-这个函数将本地内存 (`source`) 中的数据，直接写入到目标 PE (`pe`) 的对称堆上的指定地址 (`dest`)。
-
-**工作流程:**
-
-1. 源 PE (例如 PE 0) 准备好要发送的数据。这些数据可以位于其本地的任何地方（包括对称堆或普通的 `cudaMalloc` 内存）。
-2. 源 PE 指定目标地址。这个目标地址**必须**是位于目标 PE (例如 PE 1) 的对称堆中的一个有效地址。由于对称性，源 PE “知道”这个地址。
-3. 源 PE 调用 `nvshmem_putmem`。
-4. NVSHMEM 运行时库和硬件接管一切：它将 `dest` 解释为 PE 1 上的逻辑地址，并通过 NVLink/RDMA 等高速互连，直接将 `source` 指向的数据传输到 PE 1 的物理显存中。
-5. **整个过程，PE 1 的 CPU 或 GPU 内核完全不参与**。它甚至不知道这次写入的发生。这就是“单边”的含义。
-
-### `nvshmem_getmem`：把你那的数据“拿”到我这里
-
-```
 void nvshmem_getmem(void *dest, const void *source, size_t nelems, int pe);
 ```
 
-这个函数从目标 PE (`pe`) 的对称堆上的指定地址 (`source`)，直接读取数据到本地内存 (`dest`) 中。
+`put` 将本地 `source` 的字节写入目标 PE 的对称对象，`dest` 用调用方的对应对称地址表示；`get` 则从目标 PE 的对称 `source` 读取到本地 `dest`。`nelems` 在这两个 `mem` 接口中是字节数。远端一侧不需要发布匹配的 receive，但生产者仍须保证源数据已就绪，消费者仍须知道写入何时完成。
 
-**工作流程:**
+通信可从 CUDA kernel 内发起，并依传输后端利用 NVLink 或 GPUDirect RDMA。由此能减少 CPU 参与，不意味着所有配置都完全硬件卸载，也不意味着接收端可以不做任何同步。与 MPI 双边收发相比，差别是无需匹配 receive；MPI 本身也提供单边通信接口。
 
-1. 源 PE (例如 PE 0) 在自己的本地内存中准备好一块缓冲区，用于存放即将读取的数据。
-2. 源 PE 指定要从哪个目标 PE (例如 PE 1) 的哪个对称堆地址 (`source`) 读取数据。
-3. 源 PE 调用 `nvshmem_getmem`。
-4. 硬件将数据从 PE 1 的对称堆中抓取，并通过互连网络传输回 PE 0，存入本地缓冲区。
-5. 同样，这个过程对 PE 1 来说是完全透明和无感的。
+`nvshmem_quiet()` 等待相关执行域中本 PE 先前发起的远端操作完成；`nvshmem_barrier_all()` 还要求参与 PE 到达全局屏障。Host 与 device 发起操作的排序域不能混用：CPU 上调用 quiet 不能被当作等待所有 GPU 发起通信的通用办法。CUDA stream 中的通信与计算还需使用相应 stream API 或显式依赖，见 [API ordering](https://docs.nvidia.com/nvshmem/api/latest/api/overview.html) 与 [CUDA interactions](https://docs.nvidia.com/nvshmem/api/latest/cuda-interactions.html)。
 
-### 同步与内存一致性
+因此一次 `put` 之后的典型问题有两个：发送方何时能复用 source，接收方何时能消费 dest。全局 barrier 容易建立共同边界，却使无关 PE 也参与等待；更细粒度的信号与等待可缩小同步范围，但必须由协议正确维护数据先于信号可见的顺序。
 
-既然通信是单边的，那么一个至关重要的问题就出现了：PE 0 向 PE 1 `put` 了一个数据后，PE 1 什么时候才能安全地读取这个新数据呢？
+## 初始化：先建立参与者，再分配对称内存
 
-网络传输需要时间，直接的内存操作不是瞬间完成的。因此，NVSHMEM 提供了一套同步原语来保证内存一致性。
-
-- `nvshmem_quiet()`: 这是一个关键的函数。当一个 PE 调用它时，会暂停执行，直到**由该 PE 发起的所有远程内存操作**（put, get, 原子操作等）都已经在目标 PE 上**全部完成**。
-- `nvshmem_barrier_all()`: 这是一个更强的全局同步。它会阻塞所有 PE，直到**所有 PE 发起的所有远程操作都已完成**，并且**所有 PE 都到达了这个屏障点**。它隐含了 `quiet` 的功能。
-
-### 集合通信
-
-除了单边的 `put`/`get`，NVSHMEM 也提供了类似 MPI 的集合通信 API，例如：
-
-- `nvshmem_broadcastmem`: 将数据从一个指定的根 PE 广播到同一个通信组（Team）的其他所有 PE。
-- `nvshmem_alltoallmem`: 每个 PE 将自己的数据块分割成 N 份，第 i 份发送给第 i 个 PE。最终，每个 PE 都从其他所有 PE（包括自己）那里接收到一小份数据，组成一个新的数据块。
-
-### 万事开头难：NVSHMEM 初始化
-
-NVSHMEM 的初始化过程非常关键，它负责建立起所有 PE 之间的联系。这里我们介绍一种常用且灵活的方式：**基于 Unique ID 的初始化**。
-
-核心思想如下：
-
-1. 由一个指定的“根”进程（通常是 rank 0）创建一个全局唯一的标识符 (Unique ID)。
-2. 根进程通过某种外部机制（例如 MPI、PyTorch `dist` 等）将这个 Unique ID 分发给所有其他参与的进程。
-3. 所有进程使用这个**相同的 Unique ID** 以及各自的 rank 信息来初始化自己的 NVSHMEM 环境。
-
-下面我们来看一下关键代码：
+Unique ID 负责让各进程加入同一通信实例，不负责为应用广播数据。根进程生成 ID，借助 PyTorch distributed 等已有通道分发；各进程再用相同 ID、各自 rank 和总 rank 数初始化 NVSHMEM。教程 [`csrc/nvshmem.hpp`](https://github.com/KuangjuX/NVSHMEM-Tutorial/blob/e6c64f4f148ccb20ae5ec428420ef25ba4788715/csrc/nvshmem.hpp) 中的两个关键步骤如下。
 
 **1. Rank 0 生成 Unique ID**
 
@@ -144,27 +70,13 @@ int init(const std::vector<uint8_t> &root_unique_id_val, int rank, int num_ranks
 }
 ```
 
-### 团队协作：NVSHMEM Team
+## Team：同步范围与物理通信路径是两件事
 
-在初始化代码中，我们经常会看到 `nvshmem_team_split_strided` 这样的函数，它引出了 NVSHMEM 的另一个重要概念：**Team**。
+Team 是 PE 的有序子集，成员在 Team 内具有本地 rank。例如将 16 个 PE 分成两个 8-PE Team 后，集合操作可以只覆盖所需的 8 个参与者。`nvshmem_broadcastmem` 从组内根节点广播，`nvshmem_alltoallmem` 让每个 PE 与其他成员交换相应的数据块。缩小参与集合可以避免不相关 PE 等待，但是否更快仍取决于拓扑、数据量和算法，创建 Team 不会自动选择全局最优路径。
 
-一个 Team 是 PE（处理单元）的一个有序子集。想象一下整个程序有 16 个 GPU，它们的全局 Rank 是 0 到 15，这是一个大的、默认的通信组，被称为 `NVSHMEM_TEAM_WORLD`。我们可以根据需要，将这 16 个 GPU 划分成多个更小的 Team。在每个 Team 内部，成员们都有一个新的、从 0 开始的本地 Rank。
+DeepEP 的两种模式体现了“通信实例”和“子组”之间的差别。在 [`309785a9` 的 Buffer 初始化](https://github.com/deepseek-ai/DeepEP/blob/309785a94dedeb9ca3cb01091048584a31bfc799/deep_ep/buffer.py) 中：
 
-为什么要使用 Team？
+- Normal 模式由 `rdma_rank == 0` 的各 GPU 生成 ID，不同节点相同 `nvl_rank` 的 GPU 使用对应 ID，构成跨节点的同号 GPU 通信实例；节点内再用 NVLink 转发。
+- Low-latency 模式由全局 rank 0 生成 ID，所有 GPU 加入同一 NVSHMEM 实例。跨多个节点时，[`internode::init`](https://github.com/deepseek-ai/DeepEP/blob/309785a94dedeb9ca3cb01091048584a31bfc799/csrc/kernels/runtime.cu) 用 `start=rank % NUM_MAX_NVL_PEERS`、`stride=NUM_MAX_NVL_PEERS` 创建跨节点同号 GPU 的子 Team，而不是把每个节点切成一个 Team。
 
-- **匹配硬件拓扑**：在多节点集群中，节点内的 GPU 通过 NVLink 连接，速度极快；节点间的 GPU 通过 RDMA 连接，速度相对较慢。我们可以为每个节点内的 GPU 创建一个 Team，在 Team 内部使用为 NVLink 优化的通信算法，在 Team 之间使用为 RDMA 优化的算法，从而实现全局最优性能。
-- **实现算法分区**：例如，在模型并行中，模型的不同层可以分布在不同的 GPU 组上，每一组可以是一个 Team。层内的 GPU 协同计算，层间的 GPU 完成数据传递。
-- **减少同步开销**：在 `NVSHMEM_TEAM_WORLD` 上执行 `nvshmem_barrier_all` 需要所有 PE 参与，开销很大。如果逻辑上只需要一小部分 PE 同步，那么在一个只包含这些 PE 的 Team 上执行同步会快得多。
-
-### DeepEP 中的初始化策略
-
-回到我们最初提到的 DeepEP，它在高吞吐和低延迟模式下就采用了不同的初始化和 Team 创建策略：
-
-- **高吞吐模式**：为 `rdma_rank == 0` 的每个 GPU 生成一个 unique_id，并广播到其他 `rdma_rank`  GPU。这样。此时 node 间相同 `nvl_rank` 具有相同的 `unique_id`，因此 node 间可以通过同号 rank 进行发送，到了同号 rank 后再通过 nvlink 转发到目的 rank。
-- **低延迟模式**：仅由全局 rank 0 生成一个 `unique_id` 并广播给所有 GPU。初始化后，立刻调用 `nvshmem_team_split_strided`，根据物理拓扑（例如节点）将 `NVSHMEM_TEAM_WORLD` 分割成多个子 Team。在 low latency 的模式下所有通信均适用 IBGDA，即使在节点内也不使用 nvlink，因此可以不占用 SM，做到计算与通信 overlap。
-
-### 总结
-
-在本文中，我们介绍了 NVSHMEM 的核心概念，以及其底层的对称堆内存模型。我们还学习了 `put`/`get` 这两个核心通信原语，并了解了如何通过 `quiet` 和 `barrier` 来保证同步。最后，我们详细拆解了基于 Unique ID 的初始化流程，并引出了强大的 Team 概念。
-
-在下一篇文章中，我们将深入 `DeepEP-like Buffer` 的代码，实践如何利用我们今天学到的知识，实现节点内与节点间的混合通信以及一些关键的通信模式。
+例如每节点 8 卡、总共 16 卡时，start=2、stride=8 的组为 `{2,10}`。这组参与者的构成说明同步对象，不能单独证明载荷走 RDMA 还是 NVLink。该版本允许 low-latency 使用 NVLink；传输和接收 hook 的重叠代价见 [DeepEP 通信设计](overview.md)。
