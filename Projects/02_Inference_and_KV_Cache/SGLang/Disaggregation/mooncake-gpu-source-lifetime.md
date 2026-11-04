@@ -146,4 +146,4 @@ socket 背压导致不能立即发送时，`zmq.Again` 分支记录失败、更�
 
 这些是测试代码提供的覆盖范围描述。本次笔记整理未运行它们，也没有进行真实跨机 DMA 故障注入。
 
-与缓存恢复链路的关联是“异步 IO 必须尊重数据和资源的生命周期”，而不是二者使用完全相同的控制器或同步原语。WeLM sparse 的 Host L2 集成见 [HiCache 笔记](../WeLM-Sparse-Attention/hicache-indexer-k.md)。
+与缓存恢复链路的关联是“异步 IO 必须尊重数据和资源的生命周期”，而不是二者使用完全相同的控制器或同步原语。WeLM sparse 的 Host L2 集成见 [HiCache 笔记](../WeLM-Sparse-Attention/index.md#hicache)。

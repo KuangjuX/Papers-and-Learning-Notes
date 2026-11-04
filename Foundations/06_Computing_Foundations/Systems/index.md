@@ -28,9 +28,7 @@
 - [Virtualizing Memory](Virtualization/mm-virtualizing.md)
 - [Nephele: Extending Virtualization Environments for Cloning Unikernel-based VMs](../../../Papers/06_Computing_Foundations/Virtualization/Nephele/nephele.md)
 - [HyperBench: A Benchmark Suite for Virtualization Capabilities](../../../Papers/06_Computing_Foundations/Virtualization/Benchmarks/Hyperbench-A-Benchmark-Suite-for-Virtualization-Capabilities.md)
-- [boot_linux](../../../Projects/06_Computing_Foundations/QEMU/boot_linux.md)
-- [QEMU](../../../Projects/06_Computing_Foundations/QEMU/config.md)
-- [Virtio](../../../Projects/06_Computing_Foundations/QEMU/virtio.md)
+- [QEMU：RISC-V 构建配置](../../../Projects/06_Computing_Foundations/QEMU/index.md)
 - [QEMU/KVM](Virtualization/qemu-kvm.md)
 - [虚拟化硬件加速器调研](Virtualization/%E8%99%9A%E6%8B%9F%E5%8C%96.md)
 

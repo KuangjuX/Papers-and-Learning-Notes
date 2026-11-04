@@ -552,14 +552,12 @@ pub struct Frame {
 请见该目录下其他文档，除此之外，我们也在代码中提供了详细的注释。由于时间原因，文档内容有空缺或者未更新，请见谅！
 
 - [环境搭建](env.md)
-- [gdb调试](gdb.md)
+- [gdb调试](env.md#gdb)
 - [启动](boot.md)
 - [锁](lock.md)
 - [中断](interrupt.md)
 - [物理内存分配](alloc.md)
 - [虚拟内存](vm.md)
-- [进程与线程](process.md)
-- [调度](scheduler.md)
 - [xv6 文件系统](xv6%20%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F.md)
 
 ### 四、遇到的问题及解决办法

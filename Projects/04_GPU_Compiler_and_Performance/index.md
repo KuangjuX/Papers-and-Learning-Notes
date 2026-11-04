@@ -4,7 +4,7 @@
 
 ## 阅读入口
 
-- [FractalTensor](FractalTensor/index.md)
-- [InfiniTensor](InfiniTensor/index.md)
+- [FractalTensor 笔记](FractalTensor/index.md)
+- [Infinitensor 源码阅读](InfiniTensor/index.md)
 - [nnfusion 源码阅读](NNFusion/index.md)
-- [ThunderKittens](ThunderKittens/index.md)
+- [ThunderKittens：Register Tile](ThunderKittens/index.md)

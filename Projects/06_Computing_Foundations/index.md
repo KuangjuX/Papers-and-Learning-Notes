@@ -5,7 +5,7 @@
 ## 阅读入口
 
 - [arceos](ArceOS/index.md)
-- [qemu](QEMU/index.md)
+- [QEMU：RISC-V 构建配置](QEMU/index.md)
 - [xv6-riscv](Xv6-RISC-V/index.md)
 - [xv6-rust](Xv6-Rust/index.md)
 

@@ -34,7 +34,7 @@
 
 ## 相关主题
 
-- FractalTensor 如何表示 BigBird、IR 如何映射到底层 codegen：衔接 [FractalTensor 原有笔记](../../../Projects/04_GPU_Compiler_and_Performance/FractalTensor/note.md)。
+- FractalTensor 如何表示 BigBird、IR 如何映射到底层 codegen：衔接 [FractalTensor 原有笔记](../../../Projects/04_GPU_Compiler_and_Performance/FractalTensor/index.md)。
 - TileFusion 与 Triton / TK / CUTLASS / TileLang 的定位、跨架构同步：先从 [GPU 执行与编译](../../04_GPU_Compiler_and_Performance/CUDA/execution-and-compilation.md) 复习通用层次。
 - DeepEP 为什么分离计算与通信、是否应该融合：衔接 [DeepEP 重叠摘记](../../../Projects/03_Distributed_Training_and_MoE/DeepEP/overview.md) 与 [NVSHMEM Buffer 学习](../../../Projects/03_Distributed_Training_and_MoE/DeepEP/zhihu-reading.md)。具体取舍需要工作负载、通信路径与版本证据，不能仅凭题目归因。
 - FlashAttention 推导、MHA、CUDA Histogram：已有 [FlashAttention](../../01_Attention/FlashAttention.md)、[Transformer](../../05_Model_Architecture_and_Reasoning/Transformer.md) 可复习。
