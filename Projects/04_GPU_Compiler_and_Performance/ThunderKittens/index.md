@@ -1,8 +1,12 @@
 # ThunderKittens：Register Tile
 
-## Register
+矩阵运算需要把逻辑 tile 映射到 warp 内各线程的寄存器。ThunderKittens 用布局类型封装这一映射，让 load、逐元素操作与 MMA 消费相容的数据分布；代价是 tile 变大时，每个线程持有的状态和寄存器压力也增加。
 
-TK 将 Tile 切分的寄存器分两个结构，一个是最小单元的 subtile，由 subtile compose 成的 RegTile 是一个 warp 处理的 tile 单元，subtile 结构定义如下：
+## 从标量元素数算到寄存器占用
+
+下面保留早期 `T2` 向量类型接口的代码，讨论范围是 FP16/BF16/FP32 的 16×16 subtile。较新版本 [`67845f5f`](https://github.com/HazyResearch/ThunderKittens/blob/67845f5fa48d05343dbbc1ba1403f11061f08d2d/include/types/register/rt_base.cuh) 已改为接收标量类型并在内部推导 packed type，还支持其他 tile 类型；旧别名不应直接当作新版 API 使用。
+
+`rt_base` 定义一个 warp 共同持有的 subtile：
 
 ```cpp
 template<typename T2, ducks::rt_layout::all _layout> struct rt_base {
@@ -31,9 +35,11 @@ template<typename T2, ducks::rt_layout::all _layout> struct rt_base {
 };
 ```
 
-这里的数据类型是一个向量化记载的元素，可能是为了优化定义的。`tile_size` 恒定为 16，也就是一个 subtile 的大小，同时也是一个 warp 处理的最小大小。这里的 `rows` 和 `cols` 大小和 `tile_size` 相同，每个 warp 最少处理 256 个元素，每线程处理的寄存器为 256 / 32 = 8 个。
+16×16 tile 有 256 个标量，分给 32 个线程后，每线程持有 **8 个标量**。`T2` 将两个标量打包，所以 `data` 有 4 个 packed 元素：BF16/FP16 的 packed 元素为 4 B，占 4 个 32-bit 寄存器；FP32 的 `float2` 为 8 B，占 8 个。元素数、packed 元素数和寄存器数不能混用。
 
-RegTile 是基于 subtile compose 出来的数据结构：
+## 组合更大的 tile，同时增加线程私有状态
+
+RegTile 通过二维 subtile 数组扩展宽高：
 
 ```cpp
 template<typename T2, int _height, int _width, ducks::rt_layout::all _layout=ducks::rt_layout::row>
@@ -92,7 +98,11 @@ template<ducks::rt_layout::all layout=ducks::rt_layout::row> using rt_fl_4x2 = r
 template<ducks::rt_layout::all layout=ducks::rt_layout::row> using rt_fl_8x1 = rt_fl<8, 1, layout>;
 ```
 
-接下来查看协作式地从全局内存加载到共享内存：
+例如 `rt_fl_1x8` 表示 16×128 的 FP32 tile，每线程的数据占用为 `8 × 8 = 64` 个 32-bit 寄存器。地址、循环状态和中间结果还会增加寄存器需求，实际分配与 spill 要看编译结果；不能仅由这个类型推断 occupancy 或速度。
+
+## Load 如何把全局坐标映射到线程寄存器
+
+这段 row-major `load` 将全局内存读入 **register tile**，没有共享内存中转：
 
 ```cpp
 /**
@@ -129,4 +139,8 @@ __device__ inline static void load(RT &dst, const U *src, const int row_stride) 
 }
 ```
 
-首先获取到当前 warp 的 `lane_id`，然后计算 `row_offset`，这里 `row_offset` 基于 `warp_id` 进行计算。随后对于 compose 出来的 RegTile 的高和宽进行遍历，需要注意的是这里遍历出来的是 16*16 的 subtile。在一个 warp 中每 4 个线程分为一组，处理一行。处理列的时候在四个线程一组内切分，一组处理两个元素，因此每个线程可以处理 `2 * 4 * sizeof(T2) = 16` 个寄存器，也就是一个 subtile 一行的大小。之后基于行列数从全局内存中加载到寄存器中，不过目前依然是寄存器私有的值，没有经过 warp shuffle 进行协同。
+令 lane 为 `l`，在一个 subtile 内的基准行是 `l // 4`，基准列是 `2 * (l % 4)`；warp 编号和 subtile 的 `(i,j)` 再添加大 tile 的行列偏移。四次 packed load 覆盖 `(row,col)`、`(row+8,col)`、`(row,col+8)`、`(row+8,col+8)`，每次读取相邻两个标量。
+
+例如 lane 0 持有第 0、8 行的第 0、1、8、9 列，lane 1 持有同两行的第 2、3、10、11 列。前四个 lane 合起来覆盖这两行，32 个 lane 覆盖完整 16×16 tile。这里的协作来自各线程读取互补位置，并不要求在 load 后额外做一次 shuffle 才算协作。
+
+上述地址计算解释了 tile 布局怎样落到实际访存。它也要求调用方提供正确的行跨度和有效地址范围；代码片段没有边界 mask，不能直接用来处理任意未填充的尾块。布局是否适合具体算子的访存与 MMA，需要连同消费它的算子检查，本文没有对应的 kernel 性能测量。

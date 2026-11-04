@@ -16,7 +16,7 @@ date: 2026-09-14
 >
 > 关联笔记：[DSA](../../01_Attention/DeepSeek-DSA/deepseek-sparse-attention-dsa.md) · [MiniMax MSA](../../01_Attention/MiniMax-MSA/msa.md) · [MSA 与 DSA Indexer 对比](../../01_Attention/MiniMax-MSA/msa.md#msa-vs-dsa) · [IndexCache / IndexShare：跨层复用位置及 indexer K cache](../../01_Attention/IndexCache/indexcache.md)
 
-## 1. 核心结论：少读 KV，不等于可以少存历史 KV
+## 核心结论：少读 KV，不等于可以少存历史 KV {#_1-核心结论-少读-kv-不等于可以少存历史-kv}
 
 **DSA/MSA 的稀疏选择减少每步主注意力的计算和 KV 读取量；HiSparse 利用这种访问模式，减少主 KV 在 GPU 显存中的驻留量。**
 
@@ -27,11 +27,11 @@ date: 2026-09-14
 | 逻辑可用性 | 未来选中任何历史位置时，都能取得对应 KV |
 | GPU 驻留 | 当前计算实际需要的 KV，必须在 attention 执行前到达 GPU |
 
-全量 HBM 驻留把两者绑定在一起。HiSparse 则让完整历史保存在 CPU 内存，GPU 只缓存热点。它不永久删除未选中的 KV，也不改变原来的选择规则。[HiSparse §2–3](https://arxiv.org/html/2608.07009v1)
+全量 HBM 驻留把两者绑定在一起，长请求的历史 KV 会限制可容纳的 decode batch。HiSparse 让完整历史保存在 CPU 内存，GPU 只缓存热点，用按需搬运换取并发容量。它不永久删除未选中的 KV，也不改变原来的选择规则。[HiSparse §2–3](https://arxiv.org/html/2608.07009v1)
 
-## 2. 单看算法，MSA 和 DSA 会减少 KV Cache 吗？
+## 单看算法，MSA 和 DSA 会减少 KV Cache 吗？ {#_2-单看算法-msa-和-dsa-会减少-kv-cache-吗}
 
-### 2.1 MSA：相对相同配置的 dense GQA，主 KV Cache 不减少
+### MSA：相对相同配置的 dense GQA，主 KV Cache 不减少 {#_2-1-msa-相对相同配置的-dense-gqa-主-kv-cache-不减少}
 
 MSA 当前未选中的 block 仍可能在未来被选中，因此需要保存完整历史的主 K/V。
 
@@ -45,7 +45,7 @@ $$
 
 算法规定需要保留哪些状态；它们放在 CPU 还是 GPU 属于系统实现选择。不要把 attention 中间张量、工作空间的节省混同为持久 KV Cache 的节省。[MSA §2.3–3.1](https://arxiv.org/html/2606.13392v2)
 
-### 2.2 DSA：稀疏选择不减少主缓存，MLA 压缩才减少每 token 的表示大小
+### DSA：稀疏选择不减少主缓存，MLA 压缩才减少每 token 的表示大小 {#_2-2-dsa-稀疏选择不减少主缓存-mla-压缩才减少每-token-的表示大小}
 
 DSA 同样需要保留可能在未来被选中的完整历史。相对使用相同 MLA 表示的 dense attention，DSA 的 Top-k 不缩小主 KV Cache，还需要额外的 Lightning Indexer keys。
 
@@ -57,15 +57,7 @@ DSA 同样需要保留可能在未来被选中的完整历史。相对使用相�
 
 因此，将 DSA+MLA 与普通 MHA/GQA 比较时，不能把 MLA 带来的缓存压缩归因于 DSA 的稀疏选择。[DeepSeek-V3.2 §2.1](https://arxiv.org/abs/2512.02556)；[DeepSeek-V2：MLA](https://arxiv.org/abs/2405.04434)
 
-## 3. HiSparse 解决的是显存容量瓶颈
-
-对于长上下文请求，attention 每步只读取少量 KV，完整历史却持续占据 HBM。请求数增加后，显存先满，系统无法继续扩大 decode batch，即使计算资源仍有余量。
-
-HiSparse 的目标是让每个请求的主 KV 显存占用主要由热点缓存容量决定，从而提高可容纳的并发。
-
-这不是说 sparse attention 必须使用分层缓存才能运行。全量 KV 放得下时，普通驻留方式完全可行。HiSparse 解决的是容量受限时的扩展问题。
-
-## 4. 为什么可以先选位置，再搬 KV？
+## 为什么可以先选位置，再搬 KV？ {#_4-为什么可以先选位置-再搬-kv}
 
 关键是区分两份数据：
 
@@ -92,7 +84,7 @@ Sparse Attention 读取这些槽位中的 KV
 
 HiSparse 不减少 Indexer 自身的扫描，也不卸载其状态。Indexer state 与部分元数据仍随上下文增长，不能把总显存占用都称为常数。[HiSparse §2.1、§3.2](https://arxiv.org/html/2608.07009v1)
 
-## 5. 热点缓存为什么通常比 Top-k 更大？
+## 热点缓存为什么通常比 Top-k 更大？ {#_5-热点缓存为什么通常比-top-k-更大}
 
 设每步选 $k=3$ 个位置：
 
@@ -115,7 +107,16 @@ HiSparse 因而为每个请求、每层保留容量为 $B$ 的 GPU cache，要�
 
 论文中的实用范围通常为 $B\approx2k\text{–}4k$，具体选择取决于平台与访问模式，不能只追求最高命中率。[HiSparse §3.2、§4.3–4.5](https://arxiv.org/html/2608.07009v1)
 
-## 6. 缓存容量与显存公式
+### 相同选择轨迹下，额外缓存是否减少搬运
+
+**问题与设置：** 固定 GLM-5.1 的一个 LongBenchV2 请求选择轨迹，prompt 为 100,384 tokens，比较缓存策略；报告前 1000 个 decode steps、跨层统计。
+
+**结果：** $k=2048$ 时，只保留当前 Top-k 的方案平均缺失率约 30%；$B=4096$ 的 LRU 缺失率为 13.4%，FIFO 为 17.2%，随机替换为 16.1%；LRU 增至 $B=8192$ 时为 6.7%。
+
+**解释与边界：** 额外热点空间和替换策略确实减少了该轨迹上的搬运，但约 87% 的命中率不是所有模型、所有请求的保证。[HiSparse §4.3，图 6](https://arxiv.org/html/2608.07009v1)
+
+
+## 缓存容量与显存公式 {#_6-缓存容量与显存公式}
 
 设并发请求数为 $R$，稀疏层数为 $L$，每层每条 KV 记录包含 $W$ 个元素，每元素 $s$ 字节。在均匀层布局、忽略其他状态的简化下：
 
@@ -131,9 +132,9 @@ $$
 
 对于 block 或压缩 KV，必须统一计数单位：MSA 的 Top-k blocks 不等于 k 个 tokens；论文 DeepSeek-V4-Flash 的 top-512 压缩记录覆盖 2048 个 tokens。缓存大小应与实际管理的记录粒度对应。
 
-## 7. 缺失处理与跨层预取
+## 缺失处理与跨层预取 {#_7-缺失处理与跨层预取}
 
-### 7.1 融合缺失处理
+### 融合缺失处理 {#_7-1-融合缺失处理}
 
 每个稀疏层在 attention 前必须完成命中检查、选择替换槽位、搬入缺失 KV、更新映射与 LRU。HiSparse 将这些步骤融合进一个 CUDA resolve kernel，并纳入 decode CUDA Graph。
 
@@ -141,7 +142,7 @@ $$
 
 Prefill 产生的完整 KV 写入主机池；新生成 token 的 KV 也会异步写回主机，并以同步事件保证后续读取正确。[HiSparse §3.3–3.4，图 2–3](https://arxiv.org/html/2608.07009v1)
 
-### 7.2 精确预取需要提前知道后续层的选择
+### 精确预取需要提前知道后续层的选择 {#_7-2-精确预取需要提前知道后续层的选择}
 
 如果模型本来就让第 1～4 层共享选择名单，第 1 层选出 `{1, 5, 8}` 后，就可以在计算前面层的同时，提前搬入后面层对应位置的缺失 KV。
 
@@ -155,7 +156,16 @@ Prefill 产生的完整 KV 写入主机池；新生成 token 的 KV 也会异步
 
 没有共享选择时，拿前一层的名单预测后一层只能算推测性预取。论文中这种方案没有可测的端到端收益；错误提示会浪费带宽，实际计算仍须按真实名单补齐 KV。精确预取只是把 IO 提前并与计算重叠，没有消除 IO；anchor 自己的缺失也不能靠这条路径提前获知。[HiSparse §3.5、§4.6](https://arxiv.org/html/2608.07009v1)
 
-## 8. DSA、NSA、Quest 与 MSA 的适用性
+### 精确预取能隐藏多少主机 IO
+
+**问题与设置：** GLM-5.2-FP8，8×H200，32K 输入、8K 输出，$k=2048$、$B=4096$；比较同步取回、精确预取和跳过 host IO 的 oracle。
+
+**结果：** 并发 8 时，相对 no-IO oracle，同步路径暴露约 7.7 ms/token 的 IO 开销；精确预取降至约 3.0 ms/token。跨并发扫描，精确预取使 TPOT 相对同步方案降低约 13%～15%。
+
+**边界：** no-IO oracle 在缺失时使用陈旧 KV，输出无效，只是固定输出长度下的性能上限对照。“管理开销没有可测影响”是这组实验的观察，不等于内核成本在所有配置下严格为零。[HiSparse §4.6，图 8](https://arxiv.org/html/2608.07009v1)
+
+
+## DSA、NSA、Quest 与 MSA 的适用性 {#_8-dsa、nsa、quest-与-msa-的适用性}
 
 | 类型 | 论文证据与适用边界 |
 |---|---|
@@ -183,17 +193,7 @@ MSA 为不同 GQA groups 独立选择 blocks。同一 group 的 query heads 共�
 
 两者都可能保持正确性，差别在搬运量和管理成本。还需处理强制 local block、因果边界及最新 KV 写回。这是适配方向，不是已实现或已测得的性能结论。
 
-## 9. 实验说明了什么？
-
-### 9.1 缓存局部性能否减少搬运？
-
-**问题与设置：** 固定 GLM-5.1 的一个 LongBenchV2 请求选择轨迹，prompt 为 100,384 tokens，比较缓存策略；报告前 1000 个 decode steps、跨层统计。
-
-**结果：** $k=2048$ 时，只保留当前 Top-k 的方案平均缺失率约 30%；$B=4096$ 的 LRU 缺失率为 13.4%，FIFO 为 17.2%，随机替换为 16.1%；LRU 增至 $B=8192$ 时为 6.7%。
-
-**解释与边界：** 额外热点空间和替换策略确实减少了该轨迹上的搬运，但约 87% 的命中率不是所有模型、所有请求的保证。[HiSparse §4.3，图 6](https://arxiv.org/html/2608.07009v1)
-
-### 9.2 吞吐提高来自哪里？
+## 容量收益是否转化为服务吞吐 {#_9-容量收益是否转化为服务吞吐}
 
 **问题与设置：** 与全量 KV 驻留 HBM 的 SGLang 基线比较；DeepSeek-V4-Flash，2×B200，32K 输入、8K 输出，并发 64，prefill/decode 共置。
 
@@ -206,15 +206,7 @@ MSA 为不同 GQA groups 独立选择 blocks。同一 group 的 query heads 共�
 
 另一个配置中，Qwen3+Quest 在 GH200、200K 输入下，峰值生成吞吐由 111 增至 520 tokens/s，约 4.7 倍。该最高收益对应特定平台与负载，不应泛化为固定加速比。[HiSparse §4.2，图 4–5](https://arxiv.org/html/2608.07009v1)
 
-### 9.3 搬运不是免费的，预取也不能完全隐藏它
-
-**问题与设置：** GLM-5.2-FP8，8×H200，32K 输入、8K 输出，$k=2048$、$B=4096$；比较同步取回、精确预取和跳过 host IO 的 oracle。
-
-**结果：** 并发 8 时，相对 no-IO oracle，同步路径暴露约 7.7 ms/token 的 IO 开销；精确预取降至约 3.0 ms/token。跨并发扫描，精确预取使 TPOT 相对同步方案降低约 13%～15%。
-
-**边界：** no-IO oracle 在缺失时使用陈旧 KV，输出无效，只是固定输出长度下的性能上限对照。“管理开销没有可测影响”是这组实验的观察，不等于内核成本在所有配置下严格为零。[HiSparse §4.6，图 8](https://arxiv.org/html/2608.07009v1)
-
-## 10. 什么时候使用，什么时候不使用？
+## 什么时候使用，什么时候不使用？ {#_10-什么时候使用-什么时候不使用}
 
 | 部署情况 | 判断 |
 |---|---|
@@ -225,7 +217,7 @@ MSA 为不同 GQA groups 独立选择 blocks。同一 group 的 query heads 共�
 
 论文的极长单请求可行性来自缓存容量设计的推导，没有单独实验验证；完整系统还受 prefill、索引状态、模型上下文限制及主机容量等约束。论文也没有运行物理分离的 prefill/decode 部署，而以 decode-only 吞吐作代理；主要基线是全量 HBM 驻留，并非其他卸载系统。[HiSparse §4.1–4.2、§5](https://arxiv.org/html/2608.07009v1)
 
-## 11. 与其他缓存技术的区别及阅读结论
+## 与其他缓存技术的区别及阅读结论 {#_11-与其他缓存技术的区别及阅读结论}
 
 | 技术 | 核心作用 |
 |---|---|
@@ -236,5 +228,3 @@ MSA 为不同 GQA groups 独立选择 blocks。同一 group 的 query heads 共�
 | HiSparse | 管理活跃请求 decode 的稀疏工作集，保留完整历史并按需取回 |
 
 HiSparse 的 exact 指相对原有稀疏规则保持选择集合和结果，不是在宣称稀疏 attention 与原始 dense attention 等价。对 Quest 而言，它不增加额外近似，但也不消除 Quest 自身的近似。[HiSparse §3.1、§6、附录 A](https://arxiv.org/html/2608.07009v1)
-
-本次讨论最重要的区别是：**读取量、完整历史保存量、GPU 驻留量是三个不同的量。DSA/MSA 主要减少第一个，MLA 压缩每条记录，HiSparse 在保留完整历史的同时减少第三个。**

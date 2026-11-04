@@ -86,16 +86,16 @@ E[i]                 --"i->i" --> consumer task i
 论文用两阶段 reduction 展示细粒度依赖。输入 `A` 的 shape 为 `(n×32, 128)`，第一阶段沿 K 轴切成 4 份：
 
 $$
-B[i,j] = \sum_{k=32j}^{32j+31} A[i,k], \qquad j\in[0,4)
+B[r,j] = \sum_{k=32j}^{32j+31} A[r,k], \qquad j\in[0,4)
 $$
 
 第二阶段汇总 4 个 partial sums：
 
 $$
-C[i] = \sum_{j=0}^{3} B[i,j]
+C[r] = \sum_{j=0}^{3} B[r,j]
 $$
 
-传统 kernel-by-kernel 模式等待整个 B 完成后才启动 C。Event Tensor 为每 32 行建立一个 `E[i]`，初始计数为 4。四个 `B[i,j]` tasks 分别通知 `E[i]`；某个 `E[i]` 归零后，对应 `C[i]` 可以立即执行，不必等待其他行。
+这里 r 是元素行号；每 32 行组成一个 task tile，下面的 i 则是 tile 编号。传统 kernel-by-kernel 模式等待整个 B 完成后才启动 C。Event Tensor 为每 32 行建立一个 `E[i]`，初始计数为 4。四个 `B[i,j]` tasks 分别通知 `E[i]`；某个 `E[i]` 归零后，对应 `C[i]` 可以立即执行，不必等待其他行。
 
 ![Figure 3：Event Tensor 程序示例](images/fig03-program-example.png)
 
@@ -232,7 +232,29 @@ Event Tensor 论文的重点是第 3 步：同一份 dependency IR 可以被降�
 
 动态调度在运行时已经获得 symbolic shape 和 routing tensors 的具体值，因此自然支持 shape 和 data-dependent dynamism，也能缓解 expert routing、通信抖动等造成的负载不均。
 
-当前实现使用所有 SM 共享的 global-memory centralized queue，优点是简单，缺点是原子 push/pop 可能在规模扩大时产生争用。附录还使用 **early push** 隐藏调度开销：producer tasks 全部被派发后便提前入队 consumer，真正执行 consumer 前再等待 event；这样 push 操作可与 producer 计算重叠。
+当前实现使用所有 SM 共享的 global-memory centralized queue，优点是简单，缺点是原子 push/pop 可能在规模扩大时产生争用，多 GPU 远程入队还会放大这项成本。附录还使用 **early push** 隐藏调度开销：producer tasks 全部被派发后便提前入队 consumer，真正执行 consumer 前再等待 event；这样 push 操作可与 producer 计算重叠。
+
+## B200 消融：什么情况下动态调度值得付出代价
+
+![Table 2/3：静态与动态调度的 workload-dependent trade-off](images/table2-3-scheduler-tradeoff.png)
+
+论文构造一个 unfused megakernel 基线：所有 operator code 与 ETC 相同，但 operator 之间只使用单个 event 形成全局 barrier。因而表中的增益主要来自细粒度 inter-operator parallelism，而不是不同的单算子实现。
+
+### MoE：动态调度随 token 数增加更有价值
+
+在 1 token 时，dynamic 为 0.95×，队列开销大于负载均衡收益；在 1024 tokens 时，dynamic 达到 1.08×，比 static 的 1.04× 更好。expert workload 不均衡时，静态 per-SM queue 容易产生 straggler。
+
+### 规则 dense workload：静态调度明显更好
+
+Qwen3-32B、TP=4 中，static 相对 unfused 为 1.06×-1.09×，dynamic 只有 0.82×-0.89×。规则任务不需要动态均衡，而多 GPU push/pop 尤其昂贵。
+
+因此不能将动态调度简单理解为静态调度的升级版：
+
+```text
+规则、低延迟、可预测任务       -> static schedule
+MoE、通信抖动、不规则执行时间 -> dynamic schedule
+```
+
 
 ## 运行时怎样执行编译后的控制流
 
@@ -332,28 +354,7 @@ Qwen3-32B 从 engine launch 到首个请求：
 | vLLM | 123 s | 67 |
 | ETC | 35 s | 0 |
 
-ETC 的 symbolic Event Tensor 允许离线生成一个 shape-generic binary，因此 serving 启动阶段不做 JIT 或多 shape CUDA Graph capture。论文同时披露 Qwen3-32B 的离线编译需要 107 s。准确理解应是：ETC 把一次性编译成本移出了 serving warmup 关键路径，而不是让编译成本消失。
-
-## 消融：什么情况下动态调度值得付出代价
-
-![Table 2/3：静态与动态调度的 workload-dependent trade-off](images/table2-3-scheduler-tradeoff.png)
-
-论文构造一个 unfused megakernel 基线：所有 operator code 与 ETC 相同，但 operator 之间只使用单个 event 形成全局 barrier。因而表中的增益主要来自细粒度 inter-operator parallelism，而不是不同的单算子实现。
-
-### MoE：动态调度随 token 数增加更有价值
-
-在 1 token 时，dynamic 为 0.95×，队列开销大于负载均衡收益；在 1024 tokens 时，dynamic 达到 1.08×，比 static 的 1.04× 更好。expert workload 不均衡时，静态 per-SM queue 容易产生 straggler。
-
-### 规则 dense workload：静态调度明显更好
-
-Qwen3-32B、TP=4 中，static 相对 unfused 为 1.06×-1.09×，dynamic 只有 0.82×-0.89×。规则任务不需要动态均衡，而多 GPU push/pop 尤其昂贵。
-
-因此不能将动态调度简单理解为静态调度的升级版：
-
-```text
-规则、低延迟、可预测任务       -> static schedule
-MoE、通信抖动、不规则执行时间 -> dynamic schedule
-```
+ETC 的 symbolic Event Tensor 允许离线生成 shape-generic binary，将编译移出 serving 启动路径。Qwen3-32B 的离线编译仍需 107 s；35 s warmup 的价值取决于该 binary 能否跨请求和部署复用，不能解释为没有编译成本。
 
 ## 与 task DSL、DAG 和 MPK 的分工
 
@@ -369,19 +370,6 @@ MoE、通信抖动、不规则执行时间 -> dynamic schedule
 | 关系 | 可作为 tile implementation DSL | 可组织由这些 DSL 实现的 tasks |
 
 TileLang 中的 tile 是一块数据及其计算；Event Tensor 的元素是一组 producer tasks 已经完成这一事实。二者不竞争同一个抽象层。即使 CuTeDSL 当前已有实验性 Task Scheduling，其 task 通常也是绑定到连续 warp range 的 TMA/MMA/store 角色，依赖围绕 SMEM/TMEM pipeline；Event Tensor 则组织跨 operator、跨 SM 的 tiled tasks。
-
-### 与传统 DAG 的区别
-
-传统 operator DAG 的节点是 MatMul、Attention、MoE 等算子，edge 通常意味着整个 tensor producer 完成，因此过于粗粒度。显式 task DAG 可以表达细粒度关系，但需要实例化大量节点和边。
-
-Event Tensor 使用 tensor shape 与 index mapping 描述同一类依赖：
-
-```text
-显式 DAG：枚举 A[0,0]、A[0,1]、...、E[0]、B[0] 以及每条边
-Event Tensor：A[i,j] -> E[i] -> B[i]
-```
-
-动态 shape 使它表示一族 DAG；`topk`、`indptr` 等运行时索引使边的目标和 fan-out 也可以动态变化。
 
 ### 与 Mirage Persistent Kernel（MPK）的区别
 
@@ -414,25 +402,9 @@ MPK：自动构造显式 tGraph，再将它压缩并交给 in-kernel runtime
 
 当前 pipeline 从“已经 tile 化并显式标注 Event Tensor 的图”开始。如何从普通 PyTorch/Relax graph 自动选择 tile granularity、推导最小依赖、合并 events 并生成 annotations，仍被留作未来工作。这也是 MPK 当前自动化更强的部分。
 
-### 动态调度器扩展性有限
-
-centralized global-memory queue 会产生原子争用；多 GPU 远程 push 更昂贵。消融中 dynamic scheduler 在规则 TP=4 workload 上下降到 0.82×-0.89×，说明动态调度成本不是可以忽略的常数。
-
-### 静态调度对动态性的支持带有保守性
-
-未采样 shape 复用更大 shape 的执行队列，可能执行冗余调度；data-dependent dependencies 在 static lowering 中采用 worst-case coarse synchronization，可能失去 Event Tensor 原本表达出的并行性。
-
 ### 实验硬件和统计报告有限
 
 主要实验只使用 B200；图表没有明显给出误差条、运行次数或方差。Triton Distributed 的 B200 支持尚不成熟，也会影响部分基线比较的解释。
-
-### “SOTA serving latency”不是所有配置都全面领先
-
-ETC 在单 GPU、低 batch 和 MoE 场景最强；Qwen3-32B TP=4 主要是与 vLLM 持平，并受 CPU scheduler 和 GEMM 调优质量影响。论文证明的是 Event Tensor 能在若干重要动态 workload 上达到或超过强基线，而不是所有 serving 配置都占优。
-
-### AOT 只改变成本发生的位置
-
-Warmup 从 123/583 s 降到 35 s 很有部署价值，但 107 s 离线编译仍需发生。收益取决于 binary 是否能跨请求、实例和部署长期复用。
 
 ## 个人理解：数据流与就绪条件的分离
 

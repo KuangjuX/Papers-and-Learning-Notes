@@ -10,7 +10,7 @@ date: 2026-10-16
 
 [PR !497](https://git.woa.com/wxg-odyssey/sglang/-/merge_requests/497)，源码固定为 `f96e0205bb312894edef6ec308fd04290931dfff`。它与 WeLM sparse HiCache 修改同属一个 PR，但解决的是通用 PD 分离并发问题，不是 sparse attention 算法的一部分。
 
-## 1. 先区分数据搬运和状态通知
+## 先区分数据搬运和状态通知 {#_1-先区分数据搬运和状态通知}
 
 PD 分离中，Prefill 实例计算前缀并产生 KV，Decode 实例接收后继续生成 token。
 
@@ -23,7 +23,7 @@ Prefill 状态     ── ZMQ 成功/失败通知 ──→ Decode 控制流程
 
 本 PR 在 GPU-source 路径上修复两类时序：失败后过早结束传输函数，以及取消与成功通知交错。非阻塞状态发送则避免新增的锁因 socket 背压长期阻塞。
 
-## 2. send_kvcache_slice：为什么失败后还要 wait
+## send_kvcache_slice：为什么失败后还要 wait {#_2-send-kvcache-slice-为什么失败后还要-wait}
 
 入口：[conn.py：send_kvcache_slice](https://git.woa.com/wxg-odyssey/sglang/blob/f96e0205bb312894edef6ec308fd04290931dfff/python/sglang/srt/disaggregation/mooncake/conn.py#L928)。这个函数支持 Prefill 和 Decode 使用不同 TP 数量时的 KV head 切片传输；TP 表示同一层的计算/数据分布到多个设备。前半段计算每层、每个 token 槽的源目标地址，末尾在线程池分别提交各层 K、V 的任务。
 
@@ -57,7 +57,9 @@ finally:
 
 这项改动保证函数不会仅因为某个任务先失败，就在其他任务仍访问源页时提前退出。它本身没有提供底层传输超时；若底层任务永不返回，等待也不会凭空终止，这是另一层活性问题。
 
-## 3. lease 如何保护资源
+## lease 如何把传输完成接到资源回收 {#_3-lease-如何把传输完成接到资源回收}
+
+`finally: wait()` 只约束一次发送函数的退出；同一请求可能还有其他批次传输。上层必须继续跟踪所有仍访问源页的工作，才知道何时可以真正归还缓存。
 
 源码：[GPUTransferLease / GPUTransferManager](https://git.woa.com/wxg-odyssey/sglang/blob/f96e0205bb312894edef6ec308fd04290931dfff/python/sglang/srt/disaggregation/mooncake/gpu_source.py#L6)。
 
@@ -82,7 +84,9 @@ manager 的主要流程是：
 
 `threading.Event` 是这里的 CPU 线程协调对象，不是 CUDA stream event；两者都叫 event，但语义和等待对象不同。
 
-## 4. publication_lock 保护的是一组操作
+## 资源仍被保护时，成功状态也可能发布错误 {#_4-资源仍被保护时-成功状态也可能发布错误}
+
+Lease 延长了资源寿命，却没有自动解决业务取消与成功通知的先后关系。
 
 只在通知前检查一次 `cancelled` 仍然存在窗口：
 
@@ -125,7 +129,7 @@ with gpu_source.publication_lock:
 
 这里的锁是单个 lease 的互斥锁，不是跨进程、跨 rank 或跨多个通知 socket 的分布式事务。多个 endpoint 的通知也不能被理解成网络层原子广播。
 
-## 5. 为什么锁内发送必须非阻塞
+## 为什么锁内发送必须非阻塞 {#_5-为什么锁内发送必须非阻塞}
 
 如果线程持有 publication_lock 后阻塞在 socket 发送，取消线程就无法获取锁。PR 给 GPU-source 状态发送增加 `nonblocking=True`，最终传入 `zmq.DONTWAIT`。
 
@@ -133,9 +137,7 @@ socket 背压导致不能立即发送时，`zmq.Again` 分支记录失败、更�
 
 失败通知也有资源顺序约束：worker 不能因为某一批失败，就立即让对端认为全部写入已结束。负责收尾的一侧要先确认相关 TP 发送者的写入已经退休，再发布 Failed。最后的失败通知若也遇到背压，代码记录告警，并允许 Decode 使用已有等待超时路径。
 
-因此“业务取消”“本地传输结束”“成功/失败通知”“源页释放”是不同事件，不能用一个 boolean 概括整个生命周期。
-
-## 6. 已有验证与阅读边界
+## 已有验证与阅读边界 {#_6-已有验证与阅读边界}
 
 [test_mooncake_gpu_source_lifetime.py](https://git.woa.com/wxg-odyssey/sglang/blob/f96e0205bb312894edef6ec308fd04290931dfff/test/registered/unit/disaggregation/test_mooncake_gpu_source_lifetime.py) 中已经覆盖以下情况：
 
@@ -144,6 +146,6 @@ socket 背压导致不能立即发送时，`zmq.Again` 分支记录失败、更�
 - 取消先于发布，以及成功发布先于取消。
 - dummy 路径、状态 socket 背压、其他 lease 尚未完成时不提前释放。
 
-这些是测试代码提供的覆盖范围描述。本次笔记整理未运行它们，也没有进行真实跨机 DMA 故障注入。
+这些单元测试分别约束等待、发布顺序与回收条件，支持的是控制流时序，不是链路性能或真实 DMA 故障恢复能力；本次整理未重新运行测试，也未进行跨机故障注入。
 
 与缓存恢复链路的关联是“异步 IO 必须尊重数据和资源的生命周期”，而不是二者使用完全相同的控制器或同步原语。WeLM sparse 的 Host L2 集成见 [HiCache 笔记](../WeLM-Sparse-Attention/index.md#hicache)。

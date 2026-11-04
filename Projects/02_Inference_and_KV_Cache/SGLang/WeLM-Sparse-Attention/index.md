@@ -246,11 +246,11 @@ Indexer 只承担打分，不需要像主 Attention 那样对自己的 V 做加�
 
 ### HiCache 为什么需要配套 Host 池
 
-HiCache 是分层缓存机制。GPU 缓存可视为 L1，Host 内存为 L2；其他存储后端可构成更低层级，但本 PR 的 WeLM sparse 集成只支持单体 L2。
+GPU L1 容量不足时，可把前缀备份到 Host L2，以主机内存和 Host↔GPU 搬运成本换取少做前缀重算。能否缩短请求时间取决于前缀命中与搬运、重算的相对成本。
 
 模型执行需要 GPU 上的缓存。此前初始化已建立的 GPU 池包括主 Attention KV、Indexer-K，以及配置启用时的 SWA 和 MTP draft 池。`build_welm_sparse_stack()` 并不重新创建这些 GPU 池，而是为它们建立配套 Host 存储与搬运控制器。
 
-当一个前缀从 GPU 被驱逐但仍保留 Host 副本时，下一次命中该前缀可以恢复缓存，减少前缀重算。对 WeLM sparse，只恢复主 KV 不够：后续 Indexer 还要读取相应的历史打分向量；启用 MTP 时也需要恢复相应 draft 状态。
+这要求恢复对象与计算依赖一致：主 KV、Indexer-K，以及启用 MTP 时的 draft 状态需要覆盖同一有效前缀。由此引出下面的容量关联与完成事件，而不是把几个 buffer 各自复制回来就结束。
 
 ### 初始化入口与配置检查
 
@@ -396,36 +396,14 @@ direct 不代表固定使用某个硬件引擎，也不能仅凭名字断言总�
 | GPU annotation 跨度 | 一个标注范围的起止时间差，可包含 kernel 间隙 |
 | 请求延迟 | 用户请求的端到端时间，不能由某个局部累计值直接替代 |
 
-比较不同实现时，输入形状、Selection、dtype、数值语义和计时边界必须一致，性能差异才有可解释的含义。本笔记不提供未测量的速度倍率或优化方案。
+比较不同实现时，输入形状、Selection、dtype、数值语义和计时边界必须一致，性能差异才有可解释的含义。实际设备模板、MMA 形状、split 数与 launch 数还需由所用构建和运行记录确定。
 
-### 模型、缓存和 kernel 之间的接口职责
+### 实现证据与取消场景
 
-可按以下职责查找实际版本的实现：
+[PR 验收文档](https://git.woa.com/wxg-odyssey/sglang/blob/f96e0205bb312894edef6ec308fd04290931dfff/docs/msa_merging/todo/05-msa-hicache.md) 报告了历史实机验收；其中取消观测发生时 CUDA 事件已完成。这能支持该记录中的完成后取消场景，尚不能证明 DMA 仍在进行时的资源回收也已覆盖。恢复链路中的“已提交”和“可读取”必须由前述事件区分，真实在途取消仍需额外证据。
 
-1. **模型 forward**：主 Q/K/V 与 indexer Q/K 分别由哪里产生。
-2. **Indexer cache**：逻辑位置如何写入物理 slot，数据与 scale 如何存放。
-3. **Score kernel 调用**：paged/non-paged 输入、可见长度和输出 score 形状。
-4. **Selection**：mask、pooling、top-k 的顺序，以及是否包含 head/group 轴。
-5. **页表适配**：请求归属、物理映射、尾页长度和 padding。
-6. **Attention backend**：Q/K/V、页表、缩放与输出 buffer 如何传入设备 kernel。
+### 与 PD 分离的边界
 
-仅确认 backend 名称，不能确定具体设备模板、MMA 形状、split 数或 launch 数。它们取决于所用构建和运行时分发，需要结合实际 kernel 记录判断。
-
-### HiCache 实现与验收的范围
-
-- Sparse 的主 Attention KV、Indexer-K、selection 是不同数据；本次增加的是 Indexer-K 的 L2 存储与恢复适配。
-- 配套容量和页面关联不等于共享物理 buffer，也不要求 Host/GPU 页号相同。
-- builder 负责初始化资源；控制器和前缀缓存负责请求运行时行为。
-- 阅读调用链需要包含已有代码，但应将它与 PR diff 区分。
-- [PR 验收文档](https://git.woa.com/wxg-odyssey/sglang/blob/f96e0205bb312894edef6ec308fd04290931dfff/docs/msa_merging/todo/05-msa-hicache.md) 报告了历史实机验收；其中明确指出取消观测时 CUDA 事件已完成。它不能被解释为已验证所有 DMA 进行中取消场景，也不能代替对当前提交的运行验证。
-
-### 与 Mooncake 生命周期修复的关系
-
-| 工作线 | 解决的问题 | 与 WeLM sparse 的关系 |
-| --- | --- | --- |
-| 单体 HiCache L2 恢复 | GPU 上的前缀被驱逐后，从 Host 恢复 Attention KV、Indexer-K 和必要的 draft 状态，再继续推理 | WeLM sparse 的缓存适配，属于推理系统实现 |
-| Mooncake GPU-source 生命周期修复 | 失败和取消时避免提前回收源页、避免取消与成功通知交错 | PD 分离的通用并发正确性问题 |
-
-两个功能出现在同一个 PR，不代表它们组成一条已支持的运行路径。该版本仍拒绝 PD + HiCache 的组合；L3、Deferred 等也不在本次 WeLM sparse L2 集成范围内。
+同一 PR 的 Mooncake 修改处理 PD 分离中取消、状态发布和源页回收的竞争。它与 Host L2 都涉及异步传输的生命周期，但该固定版本拒绝 PD + HiCache，不能将两条修改拼成一条可运行的端到端链路。
 
 [Mooncake：GPU-source 传输取消与资源回收](../Disaggregation/mooncake-gpu-source-lifetime.md) 独立讨论通用 PD 并发正确性。算法背景见 [DSA](../../../../Papers/01_Attention/DeepSeek-DSA/deepseek-sparse-attention-dsa.md)、[MSA 与 DSA 的比较](../../../../Papers/01_Attention/MiniMax-MSA/msa.md#msa-vs-dsa)，主注意力接口见 [SGLang Attention backend](../Layers/flashattention_backend.md)。

@@ -120,14 +120,6 @@ $$
 
 标准 cascade 与 DualChunk 都需要保存这类归一化信息，但两者划分的上下文及 query/logit 定义不同。DualChunk 的 [`_merge_attn_outputs`](https://github.com/sgl-project/sglang/blob/7152c143841df01cb8f5d27dd059fd338f958576/python/sglang/srt/layers/attention/dual_chunk_flashattention_backend.py#L1425) 对 LSE 做减最大值、指数和归一化后再加权输出。分块合并恒等式不意味着 DualChunk 与原始全上下文 attention 等价，也不消除浮点归约误差。
 
-## 两条路径的边界
-
-| 维度 | FlashAttention backend | 历史 DualChunk backend |
-| --- | --- | --- |
-| 核心适配对象 | 变长请求、分页 KV、模型层选项 | chunk 范围、多种 Q 表示、分区结果合并 |
-| Metadata | page table、Q/K lengths、encoder/local/SWA 等 | 总页表与 intra/succ/inter 视图 |
-| Extend | 分页 attention 或特定 varlen 路径 | 正常缓存路径进入 DualChunk prefill helper |
-| Decode | 依据层与投机配置选择调用路径 | 消费三种主要 Q，分区计算并合并 |
-| 版本限制 | 参数与分支均绑定所列提交 | 后续主线已删除，保留为历史源码解释 |
+拆成多个 attention 子问题的代价，是额外的子调用、局部输出和 LSE 存储，以及最终 merge。标准 cascade 通过分离公共前缀组织投机分支；DualChunk 则用不同 query 表示和可见范围改变计算。两者都使用合并公式，但是否节省时间取决于被复用或重新组织的工作能否覆盖这些额外成本。
 
 这里追踪到 Python backend 与 attention API 的边界。具体 GPU 模板、MMA 形状、launch 数和速度仍取决于构建、设备、输入与运行记录；不能由一个 Python 方法名直接推断。稀疏 selection 与页表的衔接见 [WeLM Sparse Attention](../WeLM-Sparse-Attention/index.md)。

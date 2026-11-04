@@ -17,11 +17,9 @@ doi: 10.48550/arXiv.1911.02150
 > Noam Shazeer，arXiv:1911.02150v1，2019。
 > 原文：[arXiv](https://arxiv.org/abs/1911.02150) / [PDF](https://arxiv.org/pdf/1911.02150)；Roadmap：[Architecture and Modern Sparse Attention](../../index.md#architecture-and-modern-sparse-attention)。
 
-## 一句话结论
+## 增量解码为什么反复读取 KV {#_1-增量解码为什么反复读取-kv}
 
-Multi-Query Attention（MQA）保留多个 query heads，却让它们共享一组 key/value heads；这不会减少 attention-score 与 value-aggregation 的主体计算，却会将 KV cache 容量和增量解码时的 KV 访存量降低约 $h$ 倍，从而缓解 memory-bandwidth bottleneck。代价是不同 query heads 不能再拥有独立的 K/V 表示空间，表达能力受到约束，论文实验中多数质量指标有小幅下降。[论文 §3–5, pp. 5–8](https://arxiv.org/pdf/1911.02150#page=5)
-
-## 1. 先区分 training、prefill 与 decode
+MQA 针对的是增量解码的历史 KV 搬运：保留多个 query heads，却让它们共用一组 K/V。减少持久状态的同时，也限制了各 head 独立编码历史的能力。理解这个取舍，需要先区分训练、prefill 与 decode 的数据生命周期。
 
 三者使用同一个 causal-attention 公式：
 
@@ -41,7 +39,7 @@ $$
 | Prefill | 整段 prompt | $[b,h,n,d_h]$ | 并行生成并写入 KV cache | 大矩阵计算；长 prompt 时 attention 计算显著 |
 | Decode | 当前新 token | $[b,h,1,d_h]$ | 追加一对新 K/V，并重新读取全部历史 KV cache | KV/weight memory bandwidth 与串行 latency |
 
-### 1.1 为什么 causal LM 训练可以并行
+### 为什么 causal LM 训练可以并行 {#_1-1-为什么-causal-lm-训练可以并行}
 
 给定训练文本：
 
@@ -79,7 +77,7 @@ $$
 
 如果位置 $i$ 能看见目标 $x_{i+1}$，优化仍然能够进行，甚至 loss 会很快下降；但这构成 label leakage，模型学到的是推理时不存在的“偷看答案”路径。
 
-### 1.2 为什么 decode 不能沿生成位置并行
+### 为什么 decode 不能沿生成位置并行 {#_1-2-为什么-decode-不能沿生成位置并行}
 
 标准自回归生成满足：
 
@@ -95,7 +93,7 @@ $$
 
 这解释了一个表面矛盾：training/prefill 与完整 decode 都会执行大量 attention 运算，但前者形成大型并行矩阵乘，后者却由 $n$ 个相互依赖的小步骤组成，并在每一步重新读取不断增长的 KV cache。
 
-## 2. Attention score、hidden dimension 与 vocabulary logits
+## Attention score、hidden dimension 与 vocabulary logits {#_2-attention-score、hidden-dimension-与-vocabulary-logits}
 
 “attention”可能指完整算子，也可能专指 score matrix。二者的 shape 不应混在一起。
 
@@ -165,7 +163,7 @@ $$
 
 再对 vocabulary logits 做 softmax 并与 $x_{i+1}$ 计算 cross-entropy。Loss 直接监督 vocabulary logits，但梯度会继续反传，间接训练产生 attention scores 的 $W_Q,W_K,W_V$。
 
-## 3. 一个 attention head 到底包含什么
+## 一个 attention head 到底包含什么 {#_3-一个-attention-head-到底包含什么}
 
 对输入表示 $x$，MHA 的第 $i$ 个 head 使用独立投影：
 
@@ -183,7 +181,7 @@ $$
 
 Head 并没有被人为指定为“语法头”或“位置头”。不同投影让各 head 可以学习不同的匹配空间、attention distribution 和输出表示，但具体语义不保证可解释。
 
-## 4. 从 MHA 到 MQA：只删除 KV 的 head 维度
+## 从 MHA 到 MQA：只删除 KV 的 head 维度 {#_4-从-mha-到-mqa-只删除-kv-的-head-维度}
 
 设 query-head 数为 $h$、每头维度为 $d_h$。忽略 batch 时：
 
@@ -219,7 +217,7 @@ $$
 
 标题中的“One Write-Head”强调的正是这种不对称：每个 token 只向 cache 写入一组 K/V，后续仍由多个 query heads 读取。
 
-### 4.1 为什么共享 K/V，而不是共享 Q
+### 为什么共享 K/V，而不是共享 Q {#_4-1-为什么共享-k-v-而不是共享-q}
 
 当前步的 Q 是临时张量：
 
@@ -227,7 +225,7 @@ $$
 Q_t:\Theta(hd_h)=\Theta(d).
 $$
 
-过去位置的 Q 不会被后续 decode 重新读取。K/V 则需要随上下文累积：
+当前 Q 的输入 hidden state 已经包含上下文，但过去位置的 Q 不作为历史 cache 被后续 decode 重新读取。K/V 则需要随上下文累积：
 
 $$
 KV_{\le t}:\Theta(thd_h)=\Theta(td),
@@ -237,7 +235,7 @@ $$
 
 但数学分析只能保证访存下降，不能证明 K/V heads 在质量上冗余。共享 K/V 后模型是否仍够用，必须由实验验证。
 
-## 5. 复杂度分析：MQA 买到的是带宽，不是 $h$ 倍 FLOPs 缩减
+## 复杂度分析：MQA 买到的是带宽，不是 $h$ 倍 FLOPs 缩减 {#_5-复杂度分析-mqa-买到的是带宽-不是-h-倍-flops-缩减}
 
 论文采用：
 
@@ -247,7 +245,7 @@ $$
 
 其中 $b$ 为 batch size、$n$ 为序列长度、$d$ 为模型宽度、$h$ 为 head 数、$k,v$ 为每头 key/value 维度。[论文 §2.3–3.1, pp. 3–6](https://arxiv.org/pdf/1911.02150#page=3)
 
-### 5.1 Incremental MHA
+### Incremental MHA {#_5-1-incremental-mha}
 
 跨完整的 $n$ 个解码调用：
 
@@ -267,7 +265,7 @@ $$
 
 $1/b$ 来自模型参数读取的 batch 摊销，可以通过增大 batch 改善；$n/d$ 来自每个序列自己的历史 K/V，增大 batch 时 KV 读取和对应计算同时增长，因此不会消失。
 
-### 5.2 Incremental MQA
+### Incremental MQA {#_5-2-incremental-mqa}
 
 去掉 KV 的 head 维度后：
 
@@ -307,15 +305,15 @@ $$
 
 因此核心 attention interaction 的计算量没有减少。K/V projections 确实变小，但论文的整体渐近算术量仍为 $\Theta(bnd^2)$。MQA 的主要收益是共享一次读取的 KV 数据，而不是把 attention FLOPs 降低 $h$ 倍；实际内核也必须在 query heads 间复用 shared-KV tile，才能兑现理论带宽收益。
 
-## 6. 实验：速度收益与质量代价
+## 实验：速度收益与质量代价 {#_6-实验-速度收益与质量代价}
 
-### 6.1 设置
+### 设置 {#_6-1-设置}
 
 WMT14 English-German 基线是 6 层 encoder-decoder Transformer：$d_{model}=1024$、$d_{ff}=4096$、$h=8$、$d_k=d_v=128$，共 211M 参数。MQA 替换 encoder self-attention、decoder self-attention 与 encoder-decoder attention，并把 $d_{ff}$ 扩至 5440，使总参数保持相同。作者还训练了 decoder local-attention 版本，窗口为当前位置加前 31 个位置。[论文 §4.1, pp. 6–7](https://arxiv.org/pdf/1911.02150#page=6)
 
 Billion Word LM 实验使用 6 层 decoder、$d_{model}=1024$、$h=8$、$d_k=d_v=128$，各模型均为 192M 参数。
 
-### 6.2 速度实验
+### 速度实验 {#_6-2-速度实验}
 
 在单台 8-core TPUv2 上，论文以 batch 1024、source/target length 128 测试 incremental greedy inference：[论文 §4.3 与 Table 2, pp. 7–8](https://arxiv.org/pdf/1911.02150#page=7)
 
@@ -332,7 +330,7 @@ Billion Word LM 实验使用 6 层 decoder、$d_{model}=1024$、$h=8$、$d_k=d_v
 
 **边界：** $12.1\times$ 不是由 $h=8$ 唯一决定的普适常数。端到端时间还包含 kernel 实现、固定 shape、padding、batch、硬件及其他算子。论文注明由于系统限制，decoder-self-attention 的 KV 张量被 padding 到最大长度 128，使每个 decoding step 用时相同。
 
-### 6.3 质量实验
+### 质量实验 {#_6-3-质量实验}
 
 | 指标 | MHA | MQA |
 |---|---:|---:|
@@ -346,7 +344,7 @@ Billion Word LM 实验使用 6 层 decoder、$d_{model}=1024$、$h=8$、$d_k=d_v
 
 作者还比较了具有相似总 KV 宽度的缩小版 MHA。MQA 保留 $8\times128$ 的 query 表达，只把 K/V 总宽度降至 128；其他方案把 Q/K/V 一起缩小，例如 $h=1,d_k=d_v=128$ 或 $h=2,d_k=d_v=64$。它们的 WMT dev BLEU 为 25.8–26.2，低于 MQA 的 26.5；Billion Word PPL 为 30.9–31.2，高于 MQA 的 30.2。这支持“优先保留多个 query heads，只压缩 KV heads”的容量分配，但仍是经验性证据，不是表达等价定理。
 
-### 6.4 与 local attention 正交
+### 与 local attention 正交 {#_6-4-与-local-attention-正交}
 
 Local attention 把参与读取的位置数从 $n$ 降为窗口 $w$；MQA 把每个位置的 KV 副本数从 $h$ 降为 1。它们压缩不同维度，因此可以组合：
 
@@ -359,25 +357,14 @@ Local attention 把参与读取的位置数从 $n$ 降为窗口 $w$；MQA 把每
 
 Beam-4 下 local MQA 为 16 μs，低于完整 MQA 的 32 μs。这个实验支持两种优化方向的正交性，但不能推出任意 workload 下收益都会相乘。[论文 §4.1、Table 2, pp. 7–8](https://arxiv.org/pdf/1911.02150#page=7)
 
-## 7. 容易误读的地方
-
-1. **MQA 不是单头注意力。** Query heads、attention distributions、per-head outputs 和 output projection 仍然保持多头；只有 K/V heads 变为 1。
-2. **共享 K/V 不会让所有 heads 关注相同位置。** 不同 $q_i$ 与同一 K 相乘，仍可产生不同 attention weights。
-3. **MQA 主要减少 IO，而不是 attention-score 数量。** MHA 与 MQA 的 score shape 都是 $[b,h,L_q,L_k]$。
-4. **Q 不是“不含上下文”。** 当前 hidden state 已包含上下文；准确说法是 Q 不作为历史状态缓存，而 K/V 会被后续步骤反复读取。
-5. **“质量近似保持”不等于数学上的无损压缩。** MQA 施加了更强的参数共享约束，任务所需信息是否能被共享 K/V 承载只能通过训练和评测判断。
-6. **Training 中的 K/V activation 与 decode KV cache 不是同一个生命周期概念。** Training 为 backward 保存或重算 activation；decode cache 用来避免在每个生成步重算历史 K/V。
-
-## 8. 局限与未闭合问题
+## 局限与未闭合问题 {#_8-局限与未闭合问题}
 
 - 实验来自 2019 年的 192M/211M 模型、$h=8$、长度 128 和 TPUv2，不能直接外推到现代大模型、长上下文及 GPU kernels。
-- 速度实验使用 batch 1024 和固定长度 padding；低 batch、动态长度和不同内存层级下的收益可能不同。
-- 没有多随机种子、方差或置信区间，小幅质量差异的统计意义不清楚。
 - MQA 从头训练；论文没有解决如何把已有 MHA checkpoint 稳定转换成 MQA。
 - 为保持总参数相同，MQA 扩大了 FFN；这是合理的等参数比较，但使“仅改变 attention 参数化”的归因不完全纯净。
 - 论文只考察 $H_{kv}=H_q$ 的 MHA 与 $H_{kv}=1$ 的 MQA 两个端点，没有探索中间的质量—带宽曲线。
 
-## 9. 与后续路线的连接
+## 与后续路线的连接 {#_9-与后续路线的连接}
 
 MQA 把 KV-head 数量变成一个显式架构旋钮：
 
@@ -391,28 +378,3 @@ MQA 把 KV-head 数量变成一个显式架构旋钮：
 - **MLA** 进一步压缩每个 token 的 KV 表示，而不只减少 KV-head 数。
 - **Local/sparse attention** 减少需要访问的序列位置；MQA/GQA 减少每个位置的 KV 副本，两个方向彼此正交。
 - **MSA/DSA** 在 GQA 或 MQA 基础上继续选择少量 KV positions；理解 MQA 的 shared-KV 与 decode bandwidth，是理解这些现代稀疏 attention 内核为何按 KV group 组织数据的前提。
-
-## 10. 最终心智模型
-
-```text
-Training / prefill
-  整段 token 已知
-  Q/K/V 按位置并行产生
-  causal mask 限制信息流，但不制造执行依赖
-  大矩阵计算，通常更偏 compute-bound
-
-Incremental decode
-  每步只有一个新 query
-  新 K/V 追加进 cache
-  每步重新读取全部历史 K/V
-  token 间串行，通常更偏 bandwidth-bound
-
-MHA
-  h 个 query heads + h 组持久 K/V
-
-MQA
-  h 个 query heads + 1 组持久 K/V
-  score/output shape 基本不变
-  KV cache 与理论 KV 读取量约缩小 h 倍
-  以 K/V 表达自由度换取解码效率
-```
