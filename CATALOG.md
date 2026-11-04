@@ -74,15 +74,11 @@
 
 ### 推理与 KV Cache
 
-- [DSA 前向路径：Indexer、块选择与分页 Attention](Projects/02_Inference_and_KV_Cache/SGLang/WeLM-Sparse-Attention/dsa-gqa-forward.md)
-- [GQA 稀疏 Attention：共享 Selection 与计算形状](Projects/02_Inference_and_KV_Cache/SGLang/WeLM-Sparse-Attention/dsa-gqa-head-shapes.md)
-- [sglang DualChunk FlashAttention backend](Projects/02_Inference_and_KV_Cache/SGLang/Layers/dual_chunk_flashattention_backend.md)
-- [sglang FlashAttention backend](Projects/02_Inference_and_KV_Cache/SGLang/Layers/flashattention_backend.md)
+- [WeLM Sparse Attention：计算、分页与缓存恢复](Projects/02_Inference_and_KV_Cache/SGLang/WeLM-Sparse-Attention/index.md)
+- [SGLang Attention backend：FlashAttention 与 DualChunk](Projects/02_Inference_and_KV_Cache/SGLang/Layers/flashattention_backend.md)
 
 - [PD 分离与缓存传输](Projects/02_Inference_and_KV_Cache/SGLang/Disaggregation/index.md)
 - [Mooncake：GPU-source 传输取消与资源回收](Projects/02_Inference_and_KV_Cache/SGLang/Disaggregation/mooncake-gpu-source-lifetime.md)
-- [WeLM Sparse Attention 推理学习](Projects/02_Inference_and_KV_Cache/SGLang/WeLM-Sparse-Attention/index.md)
-- [WeLM Sparse 的 HiCache：Indexer-K、Host 内存与页面恢复](Projects/02_Inference_and_KV_Cache/SGLang/WeLM-Sparse-Attention/hicache-indexer-k.md)
 - [Light-DuoAttention：CuTeDSL 与 SGLang 实践](Projects/02_Inference_and_KV_Cache/Light-DuoAttention/zhihu-reading.md)
 - [TileRT：面向低延迟推理的 tile 运行时](Projects/02_Inference_and_KV_Cache/TileRT/zhihu-reading.md)
 
@@ -93,28 +89,23 @@
 
 ### GPU 编译与性能
 
-- [FractalTensor 笔记](Projects/04_GPU_Compiler_and_Performance/FractalTensor/note.md)
-- [Infinitensor 源码阅读](Projects/04_GPU_Compiler_and_Performance/InfiniTensor/infinitensor.md)
+- [FractalTensor 笔记](Projects/04_GPU_Compiler_and_Performance/FractalTensor/index.md)
+- [Infinitensor 源码阅读](Projects/04_GPU_Compiler_and_Performance/InfiniTensor/index.md)
 - [nnfusion 源码阅读](Projects/04_GPU_Compiler_and_Performance/NNFusion/index.md)
-- [TK Tile](Projects/04_GPU_Compiler_and_Performance/ThunderKittens/Memory/tile.md)
+- [ThunderKittens：Register Tile](Projects/04_GPU_Compiler_and_Performance/ThunderKittens/index.md)
 
 ### 计算基础
 
 - [Arceos irq 分析](Projects/06_Computing_Foundations/ArceOS/irq.md)
 - [smoltcp](Projects/06_Computing_Foundations/ArceOS/smoltcp.md)
-- [boot_linux](Projects/06_Computing_Foundations/QEMU/boot_linux.md)
-- [QEMU](Projects/06_Computing_Foundations/QEMU/config.md)
-- [Virtio](Projects/06_Computing_Foundations/QEMU/virtio.md)
+- [QEMU：RISC-V 构建配置](Projects/06_Computing_Foundations/QEMU/index.md)
 - [xv6-riscv 中的 KPTI 机制](Projects/06_Computing_Foundations/Xv6-RISC-V/KPTI.md)
 - [xv6-riscv 设备](Projects/06_Computing_Foundations/Xv6-RISC-V/device.md)
 - [动态内存分配](Projects/06_Computing_Foundations/Xv6-Rust/alloc.md)
 - [启动](Projects/06_Computing_Foundations/Xv6-Rust/boot.md)
-- [环境配置](Projects/06_Computing_Foundations/Xv6-Rust/env.md)
-- [GDB调试](Projects/06_Computing_Foundations/Xv6-Rust/gdb.md)
+- [xv6-rust：环境配置与 GDB 调试](Projects/06_Computing_Foundations/Xv6-Rust/env.md)
 - [中断](Projects/06_Computing_Foundations/Xv6-Rust/interrupt.md)
 - [锁](Projects/06_Computing_Foundations/Xv6-Rust/lock.md)
-- [进程与线程](Projects/06_Computing_Foundations/Xv6-Rust/process.md)
-- [调度](Projects/06_Computing_Foundations/Xv6-Rust/scheduler.md)
 - [虚拟内存](Projects/06_Computing_Foundations/Xv6-Rust/vm.md)
 - [xv6 文件系统手册和代码阅读笔记](Projects/06_Computing_Foundations/Xv6-Rust/xv6%20%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F.md)
 - [xv6 rust design](Projects/06_Computing_Foundations/Xv6-Rust/xv6-rust-design.md)

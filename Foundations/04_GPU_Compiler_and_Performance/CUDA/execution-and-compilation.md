@@ -49,7 +49,7 @@ TTIR 仍是程序 IR，不应简单当成无控制流的静态图；TTGIR 的 la
 
 例：同一个 1024 元素逻辑 tile 可用不同 warp 数与元素布局实现。数学表达式没有改变，但每线程元素数、寄存器需求、归约与数据交换方式可能变化。这说明语义 IR 和执行布局的区别；并不证明增加 warp 数一定更快。
 
-Triton 教程版本为 `b575c0c38d428a609e25487db64051a5fa7bfab8`；上述 backend 阶段对应另行引用的官方移动分支，不代表该教程版本的固定调用链。不同 IR 抽象可对照 [FractalTensor](../../../Projects/04_GPU_Compiler_and_Performance/FractalTensor/note.md)。
+Triton 教程版本为 `b575c0c38d428a609e25487db64051a5fa7bfab8`；上述 backend 阶段对应另行引用的官方移动分支，不代表该教程版本的固定调用链。不同 IR 抽象可对照 [FractalTensor](../../../Projects/04_GPU_Compiler_and_Performance/FractalTensor/index.md)。
 
 ## Segmentation fault 与 Illegal Memory Access 分开定位
 

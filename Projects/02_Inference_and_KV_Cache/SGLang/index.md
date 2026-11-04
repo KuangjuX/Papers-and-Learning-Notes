@@ -1,12 +1,10 @@
 # SGLang
 
-- [sglang DualChunk FlashAttention backend](Layers/dual_chunk_flashattention_backend.md)
-- [sglang FlashAttention backend](Layers/flashattention_backend.md)
+- [SGLang Attention backend：FlashAttention 与 DualChunk](Layers/flashattention_backend.md)
 
 ## WeLM Sparse Attention
 
-- [WeLM Sparse Attention 推理学习](WeLM-Sparse-Attention/index.md)
-- [HiCache：Indexer-K、Host 内存与页面恢复](WeLM-Sparse-Attention/hicache-indexer-k.md)
+- [WeLM Sparse Attention：计算、分页与缓存恢复](WeLM-Sparse-Attention/index.md)
 
 ## PD 分离
 
