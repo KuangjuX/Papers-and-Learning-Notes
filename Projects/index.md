@@ -4,7 +4,7 @@
 
 ## Attention
 
-- [FlashMLA：DSA 的分块、加载重叠与公开性能](01_Attention/FlashMLA/flashmla.md)
+- [DSA Sparse Attention：Kernel 实现与公开性能](01_Attention/FlashMLA/dsa-sparse-attention.md)
 
 ## 推理与 KV Cache
 

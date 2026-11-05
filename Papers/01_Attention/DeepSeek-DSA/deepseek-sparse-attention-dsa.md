@@ -19,7 +19,7 @@ date: 2026
 >
 > 对比笔记：[MSA Indexer 与 DSA Lightning Indexer 的差别](../MiniMax-MSA/msa.md#msa-vs-dsa)
 
-> Kernel 实现：[FlashMLA：DSA 的分块、加载重叠与公开性能](../../../Projects/01_Attention/FlashMLA/flashmla.md)
+> Kernel 实现：[DSA Sparse Attention：Kernel 实现与公开性能](../../../Projects/01_Attention/FlashMLA/dsa-sparse-attention.md)
 
 ## DSA 解决什么问题 {#_1-dsa-解决什么问题}
 
