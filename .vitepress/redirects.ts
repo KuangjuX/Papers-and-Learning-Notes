@@ -1,5 +1,6 @@
 // Preserve incoming links to previously published notes and attachments.
 export default {
+  "Projects/01_Attention/FlashMLA/flashmla.md": "Projects/01_Attention/FlashMLA/dsa-sparse-attention.md",
   "notes/llm/learning-path.md": "Foundations/05_Model_Architecture_and_Reasoning/Learning-Paths/llm.md",
   "notes/llm-for-kernel/avo.md": "Papers/04_GPU_Compiler_and_Performance/Kernel-Generation/avo.md",
   "notes/llm-for-kernel/CAKE.md": "Papers/04_GPU_Compiler_and_Performance/Kernel-Generation/CAKE.md",

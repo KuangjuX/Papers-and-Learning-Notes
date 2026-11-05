@@ -4,4 +4,4 @@
 
 ## 阅读入口
 
-- [FlashMLA：DSA 的分块、加载重叠与公开性能](FlashMLA/flashmla.md)
+- [DSA Sparse Attention：Kernel 实现与公开性能](FlashMLA/dsa-sparse-attention.md)
