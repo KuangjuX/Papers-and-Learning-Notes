@@ -2,6 +2,10 @@
 
 按完整的实现主题记录设计、源码调用链和实验。同一主题的多次讨论更新同一篇文章；独立子系统通过项目总览组织。
 
+## Attention
+
+- [FlashMLA：DSA 的分块、加载重叠与公开性能](01_Attention/FlashMLA/flashmla.md)
+
 ## 推理与 KV Cache
 
 - [SGLang](02_Inference_and_KV_Cache/SGLang/index.md)
