@@ -22,7 +22,7 @@ FlashMLA 的 Hopper（SM90）sparse prefill 在提交 [`ba89a34`][revision] 中�
 
 ![DSA sparse attention kernel overview](images/dsa-kernel-overview.svg)
 
-图：Hopper sparse prefill 的逻辑 tile 与 CTA 分工（自绘，[draw.io 源文件](https://github.com/KuangjuX/Papers-and-Learning-Notes/blob/main/Projects/01_Attention/FlashMLA/images/dsa-kernel-overview.drawio)）。左侧为 tokenwise gather，右侧为 head 维组织的 QK/PV 计算；V 使用同一 KV tile 的 512 维 latent 部分。底部为双缓冲的 producer/consumer 依赖，不表示计时时序。实现依据：[FlashMLA ba89a34][kernel]。
+图：Hopper sparse prefill 的逻辑 tile 与 CTA 分工（自绘，[draw.io 源文件](https://github.com/KuangjuX/Papers-and-Learning-Notes/blob/main/Projects/01_Attention/FlashMLA/images/dsa-kernel-overview.drawio)）。左侧每张 Q 薄片对应一个 query 的 64 个 heads，网格表示 token 选取关系；右侧展开单个 CTA 的双缓冲与 QK/PV 计算，V 使用同一 KV tile 的前 512 维。图中连线表示数据与同步依赖，不表示计时时序。实现依据：[FlashMLA ba89a34][kernel]。
 
 ## 公开性能数据
 

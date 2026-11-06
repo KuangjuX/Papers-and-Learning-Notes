@@ -8,7 +8,7 @@ Example export (set the actual executable path):
 
 Implementation: FlashMLA ba89a3466e9470ad08ab39738d4e7bb66989e1e7,
 csrc/kernels/sm90/prefill/sparse/{config.h,phase1.cuh}.
-All tensor dimensions are logical tiles; depth is a visual cue, not a new axis.
+Tensor sheets represent queries; grids are schematic, with logical shapes labelled.
 """
 from pathlib import Path
 import base64
@@ -17,15 +17,9 @@ import zlib
 import xml.etree.ElementTree as ET
 
 OUT = Path(__file__).resolve().parent
-W, H = 1600, 1060
+W, H = 1520, 970
 INK, MUTED, LINE = '#192F49', '#52667D', '#C5D0DD'
 BLUE, PURPLE, GOLD, GREEN = '#176BB5', '#7041B2', '#B47A0B', '#087D6A'
-PAL = {
-    'kv': ('#71B6EA', '#AED9F5', '#287DBD', BLUE),
-    'q': ('#AE8ADC', '#D3BCEF', '#8051BA', PURPLE),
-    'p': ('#F4C15D', '#FFE2A1', '#D59924', GOLD),
-    'o': ('#51C3AF', '#9AE2D5', '#169A84', GREEN),
-}
 file = ET.Element('mxfile', host='Electron', version='32.6.10')
 diagram = ET.SubElement(file, 'diagram', id='dsa-sm90', name='DSA sparse prefill')
 model = ET.SubElement(diagram, 'mxGraphModel', dx=str(W), dy=str(H), grid='1',
@@ -102,144 +96,137 @@ def polygon(points, fill, stroke, parent='1', sw=1.2):
     return geometry(c, x0, y0, w, h)
 
 
-def tensor(x, y, w, h, key, rows=8, cols=8, depth=20, selected=None, name='Tensor'):
-    front, top, side, border = PAL[key]
-    g = group(x, y-depth, w+depth, h+depth, name)
-    # Coordinates in the group: the front begins at (0, depth).
-    polygon([(0, depth), (depth, 0), (w+depth, 0), (w, depth)], top, border, g)
-    polygon([(w, depth), (w+depth, 0), (w+depth, h), (w, h+depth)], side, border, g)
-    rect(0, depth, w, h, front if selected is None else '#E8EEF3', border, 1.5, g)
-    if selected is not None:
-        for r in selected:
-            ry = depth+r*h/rows
-            rect(0, ry, w, h/rows, '#2F8ED5', 'none', 0, g)
-            polygon([(w, ry), (w+depth, ry-depth), (w+depth, ry+h/rows-depth), (w, ry+h/rows)], '#1264A4', border, g, .5)
+# Paper-style vocabulary: thin query sheets, token strips, small matrix operands.
+BLUE, GREEN, PURPLE, GOLD = '#3E90D5', '#149D67', '#8858BF', '#D99C22'
+LIGHT_BLUE, LIGHT_GREEN, LIGHT_PURPLE, LIGHT_GOLD = '#DCECF8', '#C2EBD6', '#E6DAF4', '#FFE3A0'
+
+def matrix(x, y, w, h, rows=4, cols=6, fill=LIGHT_BLUE, stroke=BLUE):
+    rect(x, y, w, h, fill, stroke, 1.6)
     for r in range(1, rows):
-        yy = depth+r*h/rows
-        edge([(0, yy), (w, yy)], '#FFFFFF', .8, False, parent=g)
-        edge([(w, yy), (w+depth, yy-depth)], border, .6, False, parent=g)
+        edge([(x,y+r*h/rows),(x+w,y+r*h/rows)], stroke, .8, False)
     for c in range(1, cols):
-        xx = c*w/cols
-        edge([(xx, depth), (xx, depth+h)], '#FFFFFF', .8, False, parent=g)
-        edge([(xx, depth), (xx+depth, 0)], border, .5, False, parent=g)
-    rect(0, depth, w, h, 'none', border, 1.4, g)
-    return g
+        edge([(x+c*w/cols,y),(x+c*w/cols,y+h)], stroke, .8, False)
 
 
-def solid(x, y, w, h, front, top, side, border, depth=12, name='Module'):
-    g = group(x, y-depth, w+depth, h+depth, name)
-    polygon([(0, depth), (depth, 0), (w+depth, 0), (w, depth)], top, border, g)
-    polygon([(w, depth), (w+depth, 0), (w+depth, h), (w, h+depth)], side, border, g)
-    rect(0, depth, w, h, front, border, 1.2, g)
-    return g
+def sheet(x, y, fill, stroke=INK):
+    # A 64-head query slice; stacking direction is the query axis.
+    polygon([(x,y+18),(x+34,y),(x+116,y+26),(x+82,y+44)],fill,stroke,sw=1.5)
+    for t in [.25,.5,.75]:
+        edge([(x+34+82*t,y+26*t),(x+82*t,y+18+26*t)],stroke,.6,False)
 
 
-def panel_header(x, y, letter, title, color):
-    rect(x, y, 36, 36, color, color, 1)
-    text(x, y, 36, 36, letter, 24, '#FFFFFF', True)
-    text(x+50, y, 800, 36, title, 27, INK, True, 'left')
+def label(x,y,w,value,color=INK,size=23,bold=False):
+    text(x,y,w,30,value,size,color,bold)
 
+rect(0,0,W,H,'#FFFFFF','none',0)
+text(40,25,1100,45,'DSA sparse attention: from token selection to head-packed tiles',32,INK,True,'left')
+text(40,78,1000,30,'FlashMLA · Hopper sparse prefill · BF16 · Top-k = 2048',23,MUTED,align='left')
+edge([(40,126),(1480,126)],LINE,1,False)
+text(40,143,760,34,'(a) Query slices and tokenwise KV gather',26,INK,True,'left')
+text(863,143,620,34,'(b) One CTA: one query × 64 heads',26,INK,True,'left')
 
-# Background and title.
-rect(0, 0, W, H, '#FFFFFF', 'none', 0)
-rect(42, 36, 7, 60, '#1675C9', 'none', 0)
-text(66, 30, 1050, 44, 'DSA sparse attention · FlashMLA', 36, INK, True, 'left')
-text(66, 81, 1080, 28, 'One query · 64 heads / CTA · Top-k = 2048 · BF16', 23, MUTED, align='left')
-rect(1280, 41, 280, 48, '#192F49', '#192F49')
-text(1280, 41, 280, 48, 'Hopper / SM90 prefill', 23, '#FFFFFF', True)
-edge([(42, 130), (1558, 130)], LINE, 1, False)
+# A. Blue sheets are one 64-head slice per query. Green selects the current q.
+label(50,205,170,'Q · HBM',BLUE,25,True)
+label(45,238,180,'64 × 576 / slice',MUTED,21)
+for r in range(11,-1,-1):
+    sheet(84,282+r*24, GREEN if r==5 else '#70B6E9', '#116D4D' if r==5 else '#24597E')
+edge([(47,298),(47,593)],INK,2)
+text(-15,427,115,30,'queries',22,INK,extra='rotation=270;whiteSpace=nowrap;')
+label(70,610,160,'current query q',GREEN,22,True)
+# Top token strip: features vertical, tokens horizontal. K/V share one cache.
+label(257,199,490,'Shared latent KV cache · HBM',BLUE,25,True)
+label(257,232,490,'sequence tokens →   (576 features / token)',MUTED,21)
+x0,y0,cw=260,278,20
+selected=[1,4,8,13,18,22]
+for c in range(24):
+    rect(x0+c*cw,y0,cw,45,GREEN if c in selected else LIGHT_BLUE,INK,1)
+# Sparse selection map is a relation, not a materialized score matrix.
+my,rh=355,22
+label(260,321,480,'Selection mask · query × sequence token',MUTED,21)
+for r in range(12):
+    cols=selected if r==5 else sorted({(r*5+v)%24 for v in [0,2,7,11,17]})
+    for c in range(24):
+        fill=GREEN if r==5 and c in cols else LIGHT_GREEN if c in cols else '#FFFFFF'
+        rect(x0+c*cw,my+r*rh,cw,rh,fill,'#CDD5DD',.7)
+rect(x0,my+5*rh,480,rh,'none',GREEN,2)
+# Q selection relates the thin query plane to its sparse row.
+edge([(208,432),(233,432),(233,476),(257,476)],GREEN,2.5)
+# Indices identify non-contiguous cache tokens. No contiguous-block implication.
+for c in selected:
+    cx=x0+(c+.5)*cw
+    edge([(cx,323),(cx,350)],GREEN,1.5,False,True)
+# An index-based gather path wraps the selection map.
+edge([(744,299),(795,299),(795,712),(738,712)],GREEN,2.5)
+text(754,420,180,30,'indexed load',21,GREEN,extra='rotation=270;whiteSpace=nowrap;')
+label(267,631,467,'I[q]: 2048 indices shared by all heads',GREEN,22,True)
+edge([(500,621),(500,677)],MUTED,1.5,True,True)
+# Packed tokens: one of 32 logical tiles, not 32 physical buffers.
+for c in range(8):
+    rect(344+c*48,685,48,54,LIGHT_GREEN,GREEN,1.3)
+label(347,692,376,'KVⱼ   ·   64 selected tokens × 576',INK,22,True)
+label(307,750,460,'WG2: cp.async · 8 threads / token',GREEN,23,True)
+label(310,785,460,'2048 selected tokens → 32 logical tiles',MUTED,22)
+# The tile is expanded at right into SMEM and compute.
+edge([(740,683),(829,683),(829,293),(871,293)],GREEN,2,True,True)
+label(741,246,122,'tile detail',MUTED,20)
 
-# A: discrete sparse rows and their regular shared-memory tile.
-panel_header(42, 155, 'A', 'Sparse token gather', BLUE)
-text(80, 219, 425, 34, 'Shared indices:  i₀, i₁, …, i₂₀₄₇', 24)
-text(74, 263, 220, 32, 'KV cache · HBM', 24, BLUE, True)
-selected = [1, 4, 6, 9, 12, 14]
-tensor(92, 320, 164, 290, 'kv', 16, 9, 20, selected, 'HBM KV cache')
-text(0, 450, 120, 30, 'sequence tokens', 21, MUTED, extra='rotation=270;whiteSpace=nowrap;')
-text(82, 627, 200, 30, '576 features', 23, BLUE)
-text(353, 301, 170, 35, 'KV tile j', 25, BLUE, True)
-tensor(372, 377, 124, 180, 'kv', 6, 9, 22, name='Gathered KV tile')
-for j, row in enumerate(selected):
-    sy = 320+(row+.5)*290/16
-    dy = 377+(j+.5)*30
-    edge([(278, sy-10), (300+j*6, sy-10), (300+j*6, dy), (370, dy)], BLUE, 1.8)
-text(353, 579, 182, 32, '64 × 576', 26, BLUE, True)
-text(353, 616, 182, 28, 'cp.async gather', 22, BLUE)
-text(56, 677, 475, 32, '2048 tokens → 32 logical KV tiles', 24, INK, True)
-rect(83, 726, 17, 17, '#2F8ED5', BLUE)
-text(109, 718, 125, 32, 'selected', 21, MUTED, align='left')
-rect(253, 726, 17, 17, '#E8EEF3', LINE)
-text(279, 718, 210, 32, 'not selected', 21, MUTED, align='left')
-edge([(553, 155), (553, 755)], LINE, 1, False)
-
-# B: logical tensor shapes. Faces use one consistent depth direction.
-panel_header(586, 155, 'B', 'Head-packed tile computation', PURPLE)
-text(610, 221, 212, 34, 'Q', 30, PURPLE, True)
-text(867, 210, 117, 34, 'Kⱼᵀ', 30, BLUE, True)
-text(1100, 221, 150, 34, 'Sⱼ', 30, GOLD, True)
-tensor(626, 282, 178, 112, 'q', 8, 9, 20, name='Query tile')
-tensor(882, 268, 84, 145, 'kv', 9, 8, 20, name='Transposed key tile')
-tensor(1118, 282, 112, 112, 'p', 8, 8, 20, name='Score tile')
-text(548, 320, 100, 30, '64 heads', 20, PURPLE, extra='rotation=270;whiteSpace=nowrap;')
-text(828, 317, 40, 45, '×', 36)
-edge([(994, 339), (1096, 339)], INK, 2.4)
-text(991, 293, 110, 32, 'QKᵀ', 24, INK, True)
-text(982, 359, 130, 30, 'WGMMA', 21, MUTED)
-text(622, 420, 190, 32, '64 × 576', 24, PURPLE, True)
-text(866, 437, 137, 30, '576 × 64', 23, BLUE, True)
-text(1098, 420, 154, 32, '64 × 64', 24, GOLD, True)
-text(602, 458, 240, 28, 'Q: TMA → SMEM', 21, MUTED)
-text(1283, 279, 260, 34, '64 heads share', 26, BLUE, True)
-text(1283, 315, 260, 32, 'one KV tile', 26, BLUE, True)
-text(1285, 365, 260, 52, 'tile axes:\nheads × selected tokens', 22, MUTED)
-
-solid(842, 494, 346, 64, '#FFCD65', '#FFE3A7', '#D89D2E', GOLD, 12, 'Online softmax')
-text(852, 502, 326, 30, 'Online softmax', 26, '#583D05', True)
-text(852, 532, 326, 25, 'row max / sum across KV tiles', 21, '#684B12')
-edge([(1252, 369), (1266, 369), (1266, 469), (1143, 469), (1143, 480)], GOLD, 2.2)
-edge([(840, 525), (596, 525), (596, 673), (624, 673)], GOLD, 2.2)
-edge([(1202, 525), (1495, 525), (1495, 613), (1471, 613)], GOLD, 2, True, True)
-text(1285, 486, 210, 30, 'rescale O', 23, GOLD)
-text(617, 578, 128, 34, 'Pⱼ', 30, GOLD, True)
-text(868, 578, 206, 34, 'Vⱼ', 30, BLUE, True)
-text(1282, 578, 200, 34, 'Oacc', 29, GREEN, True)
-tensor(626, 633, 112, 112, 'p', 8, 8, 20, name='Probability tile')
-tensor(888, 633, 178, 112, 'kv', 8, 8, 20, name='Value latent slice')
-tensor(1291, 633, 178, 112, 'o', 8, 8, 20, name='Accumulated output')
-text(795, 661, 45, 45, '×', 36)
-edge([(1095, 689), (1269, 689)], INK, 2.4)
-text(1090, 644, 182, 32, 'PV + accumulate', 23, INK, True)
-text(1110, 708, 143, 30, 'WGMMA', 21, MUTED)
-text(604, 760, 163, 30, '64 × 64', 23, GOLD, True)
-text(876, 760, 205, 30, '64 × 512', 23, BLUE, True)
-text(1286, 760, 202, 30, '64 × 512', 23, GREEN, True)
-
-# C: physical buffers and roles, not a quantitative timeline.
-edge([(42, 811), (1558, 811)], LINE, 1, False)
-panel_header(42, 832, 'C', 'CTA execution · load / compute overlap', GREEN)
-text(1308, 834, 236, 34, '384 threads / CTA', 23, MUTED)
-solid(61, 911, 245, 91, '#247AC0', '#6EAFE0', '#14558E', '#14558E', 13, 'Producer warpgroup')
-text(67, 919, 234, 34, 'Producer · WG2', 25, '#FFFFFF', True)
-text(67, 953, 234, 24, 'indexed cp.async', 23, '#FFFFFF')
-text(67, 979, 234, 23, '8 threads / token', 21, '#E7F4FF')
-text(395, 871, 282, 30, 'KV double buffer · SMEM', 23, BLUE, True)
-for x, label in [(420, 'A'), (555, 'B')]:
-    tensor(x, 927, 100, 75, 'kv', 4, 6, 17, name=f'KV buffer {label}')
-    rect(x+32, 945, 36, 39, '#176BB5', '#176BB5')
-    text(x+32, 945, 36, 39, label, 27, '#FFFFFF', True)
-edge([(324, 957), (401, 957)], BLUE, 2.6)
-edge([(675, 957), (741, 957)], BLUE, 2.6)
-text(675, 917, 69, 30, 'ready', 21, MUTED)
-solid(746, 911, 365, 91, '#263B58', '#607794', '#132640', '#132640', 13, 'Computing warpgroups')
-text(751, 922, 354, 34, 'Compute · WG0 + WG1', 25, '#FFFFFF', True)
-text(751, 963, 354, 31, 'QKᵀ → softmax → PV', 24, '#E5F1FF')
-edge([(929, 1005), (929, 1024), (544, 1024), (544, 1003)], MUTED, 1.8, True, True)
-text(566, 1030, 394, 27, 'free: buffer reusable after consumption', 20, MUTED)
-edge([(1130, 957), (1232, 957)], GREEN, 2.6)
-text(1134, 917, 90, 30, 'all tiles', 21, MUTED)
-solid(1238, 911, 287, 91, '#15967F', '#5CC3B1', '#086E5C', '#086E5C', 13, 'Output epilogue')
-text(1243, 921, 277, 34, 'Merge + normalize', 25, '#FFFFFF', True)
-text(1243, 962, 277, 31, 'O → HBM', 25, '#FFFFFF')
+# B. SageAttention-style on-chip boundary and small matrix formulas.
+rect(862,196,618,704,'#F7F9FB',INK,1.6)
+label(876,208,578,'ON CHIP',INK,22,True)
+label(885,247,569,'SMEM · two KV buffers, each 64 × 576',BLUE,23,True)
+for bx,name in [(900,'A'),(1173,'B')]:
+    matrix(bx,289,220,48,3,8,LIGHT_GREEN,GREEN)
+    rect(bx+86,299,48,29,'#FFFFFF',GREEN,1)
+    label(bx+86,298,48,name,GREEN,22,True)
+label(884,347,565,'ready / free barriers ↔ WG0 + WG1',MUTED,22)
+edge([(890,389),(1452,389)],LINE,1,False)
+label(879,398,577,'WGMMA · QKᵀ',INK,23,True)
+# Query tile x key tile -> scores; 64 rows are heads.
+for x,w,h,key,title,shape in [
+    (900,114,58,'q','Qq · TMA','64 × 576'),
+    (1074,76,76,'kv','Kⱼᵀ','576 × 64'),
+    (1294,76,76,'p','Sⱼ','64 × 64')]:
+    color,fill={'q':(PURPLE,LIGHT_PURPLE),'kv':(GREEN,LIGHT_GREEN),'p':(GOLD,LIGHT_GOLD)}[key]
+    matrix(x,464,w,h,4,6,fill,color)
+    label(x-19,431,w+38,title,color,22,True)
+    label(x-20,545,w+40,shape,color,22)
+label(1026,476,36,'×',INK,31)
+edge([(1171,501),(1278,501)],INK,2)
+label(1167,464,110,'WGMMA',MUTED,19)
+text(846,483,75,24,'heads',18,PURPLE,extra='rotation=270;whiteSpace=nowrap;')
+# Online softmax, with running state and rescaling outside the GEMM equation.
+edge([(1372,501),(1448,501),(1448,589),(1264,589)],GOLD,2)
+label(898,579,365,'Pⱼ = OnlineSoftmax(Sⱼ)',GOLD,26,True)
+label(897,611,534,'running max / sum; rescale output',MUTED,21)
+# Probability x latent V -> accumulated output.
+for x,w,key,title,shape in [
+    (900,76,'p','Pⱼ','64 × 64'),
+    (1056,114,'kv','Vⱼ','64 × 512'),
+    (1300,114,'o','Oacc','64 × 512')]:
+    color,fill={'kv':(GREEN,LIGHT_GREEN),'p':(GOLD,LIGHT_GOLD),'o':(BLUE,LIGHT_BLUE)}[key]
+    matrix(x,680,w,60,4,6,fill,color)
+    label(x-10,646,w+20,title,color,24,True)
+    label(x-20,751,w+40,shape,color,22)
+label(996,692,40,'×',INK,31)
+edge([(1182,711),(1286,711)],INK,2)
+label(1178,676,112,'WGMMA',MUTED,19)
+label(1180,720,106,'+ accum.',MUTED,19)
+label(877,785,585,'Vⱼ: the first 512 features of the same KV tile',GREEN,21)
+# Epilogue after all selected tokens. Output sheet keeps the query-slice grammar.
+edge([(1357,818),(1357,852),(1179,852)],BLUE,2.5)
+label(899,834,280,'Merge + normalize',INK,24,True)
+edge([(890,852),(720,852)],BLUE,2.5)
+label(735,818,143,'TMA store',BLUE,21)
+for i in range(5,-1,-1):
+    sheet(551+i*24,842,'#70B6E9' if i!=2 else GREEN,'#24597E')
+label(322,842,219,'Output · HBM',BLUE,24,True)
+label(312,877,229,'64 × 512 / query slice',MUTED,21)
+# Key dimensions rather than decorative depth.
+edge([(40,922),(1480,922)],LINE,1,False)
+for x,fill,title in [(50,'#70B6E9','HBM tensors'),(310,GREEN,'current query / selected KV'),(745,LIGHT_GOLD,'scores / probabilities')]:
+    rect(x,938,16,16,fill,INK,.8)
+    text(x+25,931,410,29,title,20,MUTED,align='left')
+text(1166,931,314,29,'schematic cells; logical shapes',19,MUTED,align='right')
 
 ET.indent(file, space='  ')
 path = OUT/'dsa-kernel-overview.drawio'
