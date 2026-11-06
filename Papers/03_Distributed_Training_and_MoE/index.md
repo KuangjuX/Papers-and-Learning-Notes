@@ -4,10 +4,11 @@
 
 训练系统、并行策略、专家路由、通信计算重叠与训练数值。
 
-共 53 个清单条目；已读 8，待读 45。
+共 54 个清单条目；已读 8，待读 46。
 
 ## 本地笔记
 
+- [Efficient LLM Training Survey：训练数据、checkpoint 与存储系统分工](Efficient-LLM-Training-Survey/index.md)
 - [MegaMoE：把 MoE 前向路径压进一个通信计算融合核](MegaMoE/megamoe.md)
 - [PithTrain: A Compact and Agent-Native MoE Training System](PithTrain/pithtrain.md)
 - [PockEngine: Sparse and Efficient Fine-tuning in a Pocket：阅读笔记](PockEngine/github-reading.md)
@@ -36,6 +37,7 @@
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
+| ⬜ 📝 | <a id="pdf-3faca9qb"></a>**Efficient Training of Large Language Models on Distributed Infrastructures: A Survey** | [arXiv'24](https://arxiv.org/abs/2407.20018v1) | 从训练数据供给、checkpoint 恢复与存储分工理解训练基础设施的约束 | [Paper](https://arxiv.org/abs/2407.20018v1) / [Note](Efficient-LLM-Training-Survey/index.md) |
 | ⬜ | **PyTorch Distributed: Experiences on Accelerating Data Parallel Training** | [VLDB'20](https://www.vldb.org/pvldb/vol13/p3005-li.pdf) | 剖析 DDP 梯度分桶、通信计算重叠与同步机制，理解数据并行的实际扩展瓶颈 | [Paper](https://www.vldb.org/pvldb/vol13/p3005-li.pdf) |
 | ⬜ | **GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism** | [NeurIPS'19](https://arxiv.org/abs/1811.06965) | 用 microbatch 和重计算搭建同步流水线训练，理解大模型分层切分与 bubble 开销 | [Paper](https://arxiv.org/abs/1811.06965) |
 | ⬜ | **PipeDream: Generalized Pipeline Parallelism for DNN Training** | [SOSP'19](https://dl.acm.org/doi/10.1145/3341301.3359646) | 通过流水线调度和权重版本管理提高训练利用率，理解流水线并行中的参数一致性取舍 | [Paper](https://dl.acm.org/doi/10.1145/3341301.3359646) |
