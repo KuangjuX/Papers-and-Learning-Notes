@@ -20,9 +20,11 @@ FlashMLA 的 Hopper（SM90）sparse prefill 在提交 [`ba89a34`][revision] 中�
 3. **双缓冲与 warpgroup 分工。** Producer 使用两份 KV buffer；计算 warpgroups 执行 WGMMA、online softmax 和 PV，与后继 KV 的加载交叠。[主循环][kernel]
 4. **在 kernel 内完成归一化与累加。** Online softmax 跨 KV tiles 更新最大值、归一化分母和输出，最终在全部入选 token 上归一化，不向显存写回完整的 attention scores/probabilities。[归一化实现][softmax]
 
-![DSA sparse attention kernel overview](images/dsa-kernel-overview.svg)
+![DSA query 切片与 tokenwise gather](images/dsa-algorithm.svg)
 
-图：Hopper sparse prefill 的逻辑 tile 与 CTA 分工（自绘，[draw.io 源文件](https://github.com/KuangjuX/Papers-and-Learning-Notes/blob/main/Projects/01_Attention/FlashMLA/images/dsa-kernel-overview.drawio)）。左侧每张 Q 薄片对应一个 query 的 64 个 heads，网格表示 token 选取关系；右侧展开单个 CTA 的双缓冲与 QK/PV 计算，V 使用同一 KV tile 的前 512 维。图中连线表示数据与同步依赖，不表示计时时序。实现依据：[FlashMLA ba89a34][kernel]。
+![DSA CTA 内的硬件映射与缓冲区复用](images/dsa-hardware-mapping.svg)
+
+图：Hopper sparse prefill 的逻辑 tile 与 CTA 分工（自绘，[draw.io 源文件](https://github.com/KuangjuX/Papers-and-Learning-Notes/blob/main/Projects/01_Attention/FlashMLA/images/dsa-kernel-overview.drawio)）。(a) 每张 Q 薄片对应一个 query 的 64 个 heads。(b) WG0/WG1 分别对偶数/奇数 KV tile 做 QK 与 softmax，通过 SMEM 交换概率 tile 与最大值，分别累加输出的前/后 256 维；WG2 按特征区域的 ready/free barrier 加载和复用 KV buffer。(b) 的时间轴按源码依赖展开相邻两轮，WGMMA 条表示发射到对应 wait 的异步区间；条宽不代表实测耗时。实现依据：[FlashMLA ba89a34][kernel]。
 
 ## 公开性能数据
 

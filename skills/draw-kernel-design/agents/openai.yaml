@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kernel Design 绘图"
+  short_description: "绘制论文式 GPU kernel 图，表达张量分块、硬件映射与流水线依赖"
+  default_prompt: "使用 $draw-kernel-design，基于源码和论文参考图绘制 kernel 的硬件映射与缓冲区依赖，并交付可编辑源文件。"
