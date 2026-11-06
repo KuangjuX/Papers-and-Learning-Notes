@@ -36,7 +36,7 @@ Papers/ | Projects/ | Foundations/
 <!-- paper-reading-list:start -->
 ## Paper 阅读清单
 
-共 **342 个分类条目**：已读 75，待读 267。
+共 **343 个分类条目**：已读 75，待读 268。
 
 ✅ 已读 · ⬜ 待读 · 📝 有笔记。
 
@@ -45,7 +45,7 @@ Papers/ | Projects/ | Foundations/
 | [待分类](Papers/00_Inbox/index.md) | 0 | 0 | 0 |
 | [Attention](Papers/01_Attention/index.md) | 42 | 14 | 28 |
 | [推理与 KV Cache](Papers/02_Inference_and_KV_Cache/index.md) | 47 | 6 | 41 |
-| [分布式训练与 MoE](Papers/03_Distributed_Training_and_MoE/index.md) | 53 | 8 | 45 |
+| [分布式训练与 MoE](Papers/03_Distributed_Training_and_MoE/index.md) | 54 | 8 | 46 |
 | [GPU 编译与性能](Papers/04_GPU_Compiler_and_Performance/index.md) | 64 | 29 | 35 |
 | [模型架构与推理能力](Papers/05_Model_Architecture_and_Reasoning/index.md) | 108 | 4 | 104 |
 | [计算基础](Papers/06_Computing_Foundations/index.md) | 18 | 14 | 4 |
@@ -202,7 +202,7 @@ Papers/ | Projects/ | Foundations/
 </details>
 
 <details>
-<summary>分布式训练与 MoE（53 篇；已读 8，待读 45）</summary>
+<summary>分布式训练与 MoE（54 篇；已读 8，待读 46）</summary>
 
 ### LLM Inference / MegaKernel
 
@@ -225,6 +225,7 @@ Papers/ | Projects/ | Foundations/
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
+| ⬜ 📝 | <a id="pdf-3faca9qb"></a>**Efficient Training of Large Language Models on Distributed Infrastructures: A Survey** | [arXiv'24](https://arxiv.org/abs/2407.20018v1) | 从训练数据供给、checkpoint 恢复与存储分工理解训练基础设施的约束 | [Paper](https://arxiv.org/abs/2407.20018v1) / [Note](Papers/03_Distributed_Training_and_MoE/Efficient-LLM-Training-Survey/index.md) |
 | ⬜ | **PyTorch Distributed: Experiences on Accelerating Data Parallel Training** | [VLDB'20](https://www.vldb.org/pvldb/vol13/p3005-li.pdf) | 剖析 DDP 梯度分桶、通信计算重叠与同步机制，理解数据并行的实际扩展瓶颈 | [Paper](https://www.vldb.org/pvldb/vol13/p3005-li.pdf) |
 | ⬜ | **GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism** | [NeurIPS'19](https://arxiv.org/abs/1811.06965) | 用 microbatch 和重计算搭建同步流水线训练，理解大模型分层切分与 bubble 开销 | [Paper](https://arxiv.org/abs/1811.06965) |
 | ⬜ | **PipeDream: Generalized Pipeline Parallelism for DNN Training** | [SOSP'19](https://dl.acm.org/doi/10.1145/3341301.3359646) | 通过流水线调度和权重版本管理提高训练利用率，理解流水线并行中的参数一致性取舍 | [Paper](https://dl.acm.org/doi/10.1145/3341301.3359646) |
