@@ -4,6 +4,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { buildPrompt, enqueue, marker, newState, readJson, replyBody, saveJson } from './core.mjs';
 import { GitHub } from './github.mjs';
 import { runCodex } from './codex.mjs';
+import { Notes } from './notes.mjs';
 
 export async function acquireLock(directory) {
   await mkdir(directory, { recursive: true, mode: 0o700 });
@@ -27,8 +28,8 @@ export async function acquireLock(directory) {
 }
 
 export class Worker {
-  constructor(config, { github = new GitHub(config), runner = runCodex, log = console.log } = {}) {
-    Object.assign(this, { config, github, runner, log });
+  constructor(config, { github = new GitHub(config), runner = runCodex, notes = new Notes(config, { runner }), log = console.log } = {}) {
+    Object.assign(this, { config, github, runner, notes, log });
     this.path = join(config.stateDirectory, 'state.json');
   }
   async load() {
@@ -57,7 +58,8 @@ export class Worker {
     const comments = await this.github.issueComments(job.issue);
     const previous = comments.find(c => c.user?.login === `${this.config.slug}[bot]` && c.body?.includes(marker(job.id)));
     // A previous POST may have succeeded even if its response was lost.
-    const reply = previous ?? await this.github.createReply(job.issue, replyBody(job, '已收到，正在由本机 Codex 查阅资料。'));
+    const reply = previous ?? await this.github.createReply(job.issue, replyBody(job, job.request.mode === 'note'
+      ? '已收到，正在整理主笔记；检查通过后会在此回复 PR 链接。' : '已收到，正在由本机 Codex 查阅资料。'));
     job.replyId = reply.id;
     await this.save();
   }
@@ -72,7 +74,15 @@ export class Worker {
       job.status = 'skipped'; await this.save(); return;
     }
     await this.ensureReply(job);
-    if (job.request.reset) {
+    if (job.request.mode === 'note') {
+      job.status = 'running'; job.attempts++; await this.save();
+      try {
+        job.answer = await this.notes.run({ issue, comments: await this.github.issueComments(job.issue), job, save: () => this.save(), signal });
+      } catch (error) {
+        if (signal?.aborted || !error.publicMessage) { job.status = 'queued'; await this.save(); throw error; }
+        job.answer = error.publicMessage;
+      }
+    } else if (job.request.reset) {
       delete this.state.threads[job.issue];
       job.answer = '已重置这个 Issue 对应的 Codex 会话。下次提问会创建新会话，并重新读取 Issue 讨论。';
     } else {
@@ -112,6 +122,13 @@ export class Worker {
           job.retryAfter = Date.now() + 60000;
         }
         await this.save(); throw error;
+      }
+    }
+    if (this.config.notesEnabled && (!this.state.cleanupAt || Date.now() - this.state.cleanupAt > 3600000)) {
+      this.state.cleanupAt = Date.now(); await this.save();
+      for (const completed of Object.values(this.state.jobs).filter(item => item.status === 'done' && item.note?.pr && !item.note.cleaned)) {
+        try { await this.notes.cleanup(completed, () => this.save()); }
+        catch { this.log(`Note task ${completed.id}: cleanup deferred; local changes were preserved.`); }
       }
     }
   }
