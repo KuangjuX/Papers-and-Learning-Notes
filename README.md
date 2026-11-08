@@ -697,4 +697,6 @@ pnpm docs:dev
 
 Zotero 与 Codex 的侧栏阅读、标注导入及增量笔记工作流见 [Zotero 阅读配置](scripts/ZOTERO.md)。
 
+在阅读 Issue 中 @ 自建 GitHub bot、由本机 Codex 查阅资料并回复的配置见 [论文阅读 bot](scripts/READING-BOT.md)。
+
 原 Notes 内容的许可证见 [Notes-LICENSE](licenses/Notes-LICENSE.txt)。
