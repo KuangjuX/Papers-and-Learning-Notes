@@ -1,6 +1,8 @@
 # HyperBench: A Benchmark Suite for Virtualization Capabilities
 
-## COST MODEL
+应用级 benchmark 会把指令陷入、页表管理和 I/O 通知的成本混在一起。HyperBench 用可控微基准分别触发这些事件，再比较 guest 与 native 的时间，定位虚拟化开销来自事件频率还是单次处理成本。[论文与实现](https://github.com/DCSec/HyperBench)
+
+## 从事件次数分解虚拟化成本
 
 - $GNR(Guest Native Ratio) = \frac{T_{guest}}{T_{native}}$
 
@@ -14,7 +16,9 @@
 
 - $T_{io} = C_{in} * T_{in} + C_{out} * T_{out}$
 
-## HYPERBENCH BENCHMARKS
+这里 $GNR>1$ 表示 guest 更慢，$T_{direct}$ 是直接执行部分，$\eta$ 收纳其他开销。各 $C_*$ 表示相应事件次数，$T_*$ 表示单次成本；乘法写法是可加、单次成本固定时的近似。下文的批量 IPI 会打破一条逻辑事件对应一次 VM exit 的假设，因此不能直接用单次结果外推完整应用。
+
+## 让微基准分别触发 CPU、内存与 I/O 事件
 
 ### 敏感指令
 
@@ -56,7 +60,7 @@ IO benchmarks 主要用来测试 host 和 guest  的通信机制。hypervisor �
 
 ![](Hyperbench-A-Benchmark-Suite-for-Virtualization-Capabilities/figure-7.png)
 
-## IMPLEMENTATION
+## 内外两种计时路径如何控制扰动
 
 ![](Hyperbench-A-Benchmark-Suite-for-Virtualization-Capabilities/figure2.png)
 
@@ -68,21 +72,21 @@ IO benchmarks 主要用来测试 host 和 guest  的通信机制。hypervisor �
 
 ![](Hyperbench-A-Benchmark-Suite-for-Virtualization-Capabilities/figure-4.png)
 
-- 可移植性：尽管不同的 bechmarks 关注于不同的特性，所有的 benchmarks 共享底层的 **POSIH**。POSIH 和硬件直接交互。因此 HyperBench 能够运行在任何体系结构上只要对应在对应体系结构的硬件驱动已经被实现了。
+- 可移植性：尽管不同的 benchmarks 关注于不同的特性，所有的 benchmarks 共享底层的 **POSIH**。POSIH 和硬件直接交互。因此 HyperBench 能够运行在任何体系结构上只要对应在对应体系结构的硬件驱动已经被实现了。
 
 - 可扩展性：HyperBench 的一个重要优势是添加一个新的 benchmarks 是相当容易的。那是由于 POSIH 在内存布局上进行了仔细地设计。当添加一个新的 benchmark 时许多函数可以被重用。**.benchmarks** 段是一个描述所有的 HyperBench benchmarks 所映射的所有数据结构的一个描述符表：
 
 ```c
 typedef void (*function_t)();
 typedef struct {
-const char∗ name;
-const char∗ category;
+const char* name;
+const char* category;
 function_t init;
 function_t benchmark;
 function_t benchmark_control;
 function_t cleanup;
 uint64_t iteration_count;
-}benchmark_ t;
+} benchmark_t;
 ```
 
 ### Measurement
@@ -91,21 +95,21 @@ uint64_t iteration_count;
 
 在测量多核系统性能的情况下，由中断和调度引起的变化会使测量结果偏移数千个周期。进一步提高外部测量、乱序执行和多核调度干扰的准确性被考虑在内。HyperBench 通过 grub 和将 VCPU 到 PCPU 进行映射来隔离 CPU。在获取时间前后使用指令屏障避免乱序执行或流水线扭曲测量结果。
 
-## EVALUATION
+## 事件开销与平台配置的对应
 
 ![](Hyperbench-A-Benchmark-Suite-for-Virtualization-Capabilities/figure-5.png)
 
 ![](Hyperbench-A-Benchmark-Suite-for-Virtualization-Capabilities/figure-6.png)
 
-上表展示了运行 benchmarks 的结果，单位是时钟/每次迭代。
+上表是论文报告的 benchmark 结果，单位为 cycles/iteration；以下 KVM、Xen、QEMU 的差异对应表中版本和配置，不是各系统的普遍排序。
 
-根据上表的推论，可以推断出 hypervisior 优化的一个措施是减少虚拟化敏感事件。将硬件虚拟化和软件虚拟化技术合并会破坏 VMM 中退出和其发生次数之间的一一映射关系。另一个例子是半虚拟化 IPI，它使用 Hypercall 向多个 VCPUs 发送 IPI。一批 IPI 仅需要一个VM退出。因此，cost model 中表示 C 和 T 之间关系的未确定运算符是虚拟化程序的重要特征。为了验证测试的虚拟化程序是否具有类似的特征，我们在主机机器和测试的虚拟化程序上使用可变迭代运行 HyperBench。
+根据上表的推论，可以推断出 hypervisor 优化的一个措施是减少虚拟化敏感事件。将硬件虚拟化和软件虚拟化技术合并会破坏 VMM 中退出和其发生次数之间的一一映射关系。另一个例子是半虚拟化 IPI，它使用 Hypercall 向多个 VCPUs 发送 IPI。一批 IPI 仅需要一个VM退出。因此，cost model 中表示 C 和 T 之间关系的未确定运算符是虚拟化程序的重要特征。为了验证测试的虚拟化程序是否具有类似的特征，作者在主机与虚拟化环境中改变迭代次数运行 HyperBench。
 
 ### Effectiveness
 
 - Idle Benchmark: physical machine 比虚拟化环境表现更好因为 host 直接读取硬件 `counter`。
 
-- Hypercall Benchmark: KVM 和 Xen 在性能上没有表现出显著的差异因为 KVM 和 Xen 都使用相同的硬件机制在 VM 和 hypervisor 之间进行转换。由于接收 VPCU 处于暂停状态，KVM 上的 IPI 成本超过一个硬件 IPI 和一个 Hypercall。KVM 上 IPI 和 Hypercall 的结果证实了这一点。我们还向 KVM 上正在运行的 CPU 发送了一个 IPI。该 IPI 消耗了3375 个时钟周期，这需要一个 Hypercall 和一个硬件 IPI。这表明 KVM x86 启用了“posted-interrupt processing” 功能。然而，Xen 的 IPI 比 KVM 花费更多的周期。在相同的硬件支持下，这是由于虚拟机监控器设置的差异。通过运行 **xl demsg** 命令，我们发现 Xen 未能启用远程中断重映射，并且不会启用 x2APIC。对于 QEMU 而言，IPI是比KVM 和 Xen 更昂贵的操作，这表明 DBT 在处理 IPI 方面表现不佳。
+- Hypercall Benchmark: KVM 和 Xen 在性能上没有表现出显著的差异因为 KVM 和 Xen 都使用相同的硬件机制在 VM 和 hypervisor 之间进行转换。由于接收 VCPU 处于暂停状态，KVM 上的 IPI 成本超过一个硬件 IPI 和一个 Hypercall。KVM 上 IPI 和 Hypercall 的结果证实了这一点。作者还向 KVM 上正在运行的 CPU 发送了一个 IPI。该 IPI 消耗了3375 个时钟周期，这需要一个 Hypercall 和一个硬件 IPI。这表明 KVM x86 启用了“posted-interrupt processing” 功能。然而，Xen 的 IPI 比 KVM 花费更多的周期。在相同的硬件支持下，这是由于虚拟机监控器设置的差异。通过运行 **xl dmesg** 命令，作者发现 Xen 未能启用远程中断重映射，并且不会启用 x2APIC。对于 QEMU 而言，IPI是比KVM 和 Xen 更昂贵的操作，这表明 DBT 在处理 IPI 方面表现不佳。
 
 - Memory Benchmark: HyperBench 在揭示平台的内存虚拟化能力方面也表现出色。当KVM和Xen都使用 EPT 时，它们在构建 EPT 条目和 2D 页表遍历方面会遭受一定程度的性能降低。冷内存访问的结果显示了大约 1.4 倍的减速。对于冷内存访问，KVM 和 Xen 的 $T_{memory}$ 处于300个时钟周期的水平。对于 QEMU 来说，虽然从 GPA 到 HPA 的转换都是通过相对较慢的软件 MMU 和硬件 MMU 进行的，但在内存访问过程中没有出现 VM exit。最终结果是 QEMU 比 KVM 和 Xen 稍微具有一些性能优势。热内存访问基准测试显示，x86 KVM 和 x86 Xen 在 TLB 虚拟化方面与主机具有相同的能力。借助EPT，直接从GVA到HPA的映射可以被缓存。在 QEMU 中，只有从主机虚拟地址（等效于GPA）到HPA的映射可以被缓存。对于QEMU的热内存访问，GVA 到 GPA 的转换会错过TLB，而 HVA 到 HPA 的转换可能会击中 TLB。因此，QEMU 上的热内存访问性能仍然很差，但需要的时钟周期比冷内存访问要少。对于大多数为热内存访问的 Set Page Table基准测试，QEMU 的代价比 KVM 和 Xen 高出一个数量级。
 

@@ -6,7 +6,7 @@
 
 ## 中间张量的搬运为何成为瓶颈
 
-由于观测到内存操作在模型推理运行中占据了大量的时间，算子的输入输出在三级内存（寄存器，共享内存，全局内存）中互相搬运浪费太多时间，因此想提出一个方案用于解决过多的内存加载与存储。
+算子边界使中间张量反复经过寄存器、共享内存与全局内存。Welder 用 tile-graph 表达相邻算子在哪一级内存复用数据，再联合选择 tile 大小，以减少搬运。
 
 ![截屏2023-11-01 15 07 28](images/issue-25-01.png)
 
@@ -19,7 +19,7 @@ Welder 提出了 tile-graph 的概念，采取先连接后融合。首先猜测�
 ![截屏2023-10-31 20 44 38](images/issue-25-02.png)
 Conv 算子计算 1x1xC 大小的 tile，输入是一个 3x3xC 的 data tile，MaxPool 输入一个 2x2xF，输出 1x1xF。为了提高内存利用资源，Welder 允许两个相邻的算子 tile 通过中间 tile 进行连接，也叫做 **reuse-tile**。
 
-- Tile propagation. 连接后在 tile-graph 中的大部分 tile 相互关联，可以通过自动推断传播到整个图。输入的 region 可能包含不规整模式例如系数矩阵活着不连续访问（Gather 或者带步长的卷积），分析中会有一个 input tile shape 的上界。
+- Tile propagation. 连接后在 tile-graph 中的大部分 tile 相互关联，可以通过自动推断传播到整个图。输入的 region 可能包含不规整模式例如系数矩阵或者不连续访问（Gather 或者带步长的卷积），分析中会有一个 input tile shape 的上界。
 - Memory traffic and footprint. 传播后，内存带宽和足迹可以被确定。单独的 tile-graph 的内存带宽可以累加输入和输出 tile size。最小的内存可以使用例如 bestfit 等内存分配算法进行分配通过拓扑排序进行分配。
 
 ### Tile-graph Scheduling
@@ -27,12 +27,11 @@ Conv 算子计算 1x1xC 大小的 tile，输入是一个 3x3xC 的 data tile，M
 ![截屏2023-10-31 21 08 48](images/issue-25-03.png)
 在 Figure 5 中 Conv 和 ReLu 在 L0 进行融合并形成了一个 tile-graph。同时它们在 L1 级别被视为一个虚拟节点。ReLU 的输出被 spill 到 L1 中并且作为 MaxPool 的输入。这允许三个算子在 L1 形成一个单 tile-graph。
 
-- Decoupling optimization space.
-- Scheduling interface. Weilder 提供了两个接口用于控制图连接和子图 tiling，如 Figure 6 展示。**SetConnect** 为一条边在 tile-graph 上分配 memory level。链接后，tile shape 可以在图中进行广播。在 Figure 5 中可以使用这个接口连接 Conv 和 ReLU 在 L0，链接 ReLU 和 MaxPool 在 L1。连接后通过传播推断出 reuse tile 大小为 [1,1]，输出 tile 大小为 [1, 1]。我们也可以推断出 Conv + Relu + MaxPool 子图的 reuse tile 大小为 (2,2,F)，输出大小为 (1,1,F)。Welder 通过这个接口可以用于在两个节点间连接并且进行传播。除了这个外，**MemFootprint** 和 **MemTraffic** 用来计算内存 footprint 和 整个 tile-graph 的流量。
+- Scheduling interface. Welder 提供了两个接口用于控制图连接和子图 tiling，如 Figure 6 展示。**SetConnect** 为一条边在 tile-graph 上分配 memory level。链接后，tile shape 可以在图中进行广播。在 Figure 5 中可以使用这个接口连接 Conv 和 ReLU 在 L0，链接 ReLU 和 MaxPool 在 L1。连接后通过传播推断出 reuse tile 大小为 [1,1]，输出 tile 大小为 [1, 1]。我们也可以推断出 Conv + Relu + MaxPool 子图的 reuse tile 大小为 (2,2,F)，输出大小为 (1,1,F)。Welder 通过这个接口可以用于在两个节点间连接并且进行传播。除了这个外，**MemFootprint** 和 **MemTraffic** 用来计算内存 footprint 和 整个 tile-graph 的流量。
 
 ![截屏2023-10-31 22 34 53](images/issue-25-04.png)
 
-- Scheduling policy. Weler 使用两步调度算法优化数据流。graph-connecting scheduler 首先枚举不同的图连接 plans 通过为每个边设置不同的重用规则，然后 sub-graph scheduler 对于每个子图搜索有效率的 tile 配置。算法描述如下：
+- Scheduling policy. Welder 使用两步调度算法优化数据流。graph-connecting scheduler 首先枚举不同的图连接 plans 通过为每个边设置不同的重用规则，然后 sub-graph scheduler 对于每个子图搜索有效率的 tile 配置。算法描述如下：
 
 ![截屏2023-10-31 22 54 40](images/issue-25-05.png)
 

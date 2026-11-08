@@ -15,8 +15,6 @@ doi: 10.48550/arXiv.1503.02531
 > Geoffrey Hinton, Oriol Vinyals, Jeff Dean，arXiv v1，2015-03-09。
 > 原文：[arXiv](https://arxiv.org/abs/1503.02531) / [PDF](https://arxiv.org/pdf/1503.02531)；Roadmap：[Distillation and Router Training](../../index.md#distillation-and-router-training)。
 
-## 一句话结论
-
 知识蒸馏不是复制教师参数，而是让更易部署的学生拟合教师的**完整输出分布**。soft targets 暴露了 hard label 丢掉的类别关系，temperature 控制这些关系显露多少；训练时把 soft-target CE（等价于 forward KL）和 hard-label CE 组合，部署时只保留学生并恢复普通 $T=1$ softmax。[论文 §1–2, pp. 1–3](https://arxiv.org/pdf/1503.02531#page=1)
 
 ## 1. 先把 teacher、student 和流程说清楚
@@ -62,7 +60,7 @@ $$
 
 $T=1$ 是普通 softmax；$T>1$ 把 logit 差距除小，使概率分布更平，但不会改变类别排序。[论文 Eq. 1 与 §2, pp. 2–3](https://arxiv.org/pdf/1503.02531#page=2)
 
-用我们讨论过的 logits $[10,6,2]$：
+取 logits $[10,6,2]$：
 
 | Temperature | softmax 概率（约） |
 |---:|---|
@@ -93,7 +91,7 @@ $$
 D_{\mathrm{KL}}(p_{teacher}\|q_{student})
 $$
 
-有完全相同的 student 最优点。原文主要写 CE；roadmap 中说的 KL 是这个等价形式。
+有完全相同的 student 最优点与梯度；原文主要使用 CE 表述。
 
 方向也有含义：forward KL 的期望权重来自 teacher。teacher 认为重要的类别若被 student 给出过低概率，会受到大惩罚；teacher 几乎不关心的类别权重也很小。其 logit 梯度直接写成：
 
@@ -191,15 +189,12 @@ JFT 有 100M 图像、15,000 类。作者训练 61 个独立 specialists，每�
 ## 8. 简要局限
 
 - 语音与 JFT 是内部数据，训练细节不足以完整复现；论文没有置信区间、student 重训方差或系统的 loss-weight 消融。
-- MNIST 缺类实验用测试集调 bias，只能说明 soft targets 含结构信息，不能作为无偏性能估计。
-- student 容量仍是硬上限；30-unit 实验已经显示温度敏感性。
 - 蒸馏节省部署计算，不会消除先训练大 teacher / ensemble 的成本。
 - 语音任务优化 frame CE，最终指标却是 WER；61.1%→60.8% 的 frame 差距与 WER 同为 10.7% 也说明目标并不完全一致。
-- specialist ensemble 的最终蒸馏只是设想，没有实验结果。[论文 §8, p. 8](https://arxiv.org/pdf/1503.02531#page=8)
 
 ## 9. 与 MSA / DSA 的连接
 
-把蒸馏中的“类别”换成“候选 key/token 位置”，就得到 roadmap 想建立的直觉：
+把蒸馏中的类别换成候选 key/token 位置，可以对应到路由监督：
 
 ```text
 经典蒸馏：teacher 类别分布 ──forward KL──► student 类别分布

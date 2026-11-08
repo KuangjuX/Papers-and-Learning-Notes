@@ -34,7 +34,7 @@ rOperator 是一组 rTasks 的集合，rTask 是能够在加速器设备上进�
 
 ### Virtualized Parallel Device
 
-现代加速器不提供直接把对应的 rTask 映射到执行单元执行的功能。普通 kernel launch 不直接暴露逐个 rTask 到执行单元的映射；这不意味着 GPU 不能并发执行多个 kernel。为了解决这个挑战，RAMMER 设计了一个叫做 vDevice（virtualized parallel device）的概念。一个 vDevice 中含有多个 vEUs(virtual execution units)。因此 RAMMER 可以将 rProgram 组织成一个二维数组，`prog[vEU_id][order]`，order 表示在一个 vEU 中的任务的执行顺序。为了确保互相有依赖的任务正确进行执行，RAMMER 添加了一个 **barrier-rTask**。barrier-rTask 接受一系列 `<vEU_id, order>` 的任务。barrier-rTask 会等待每一个 rTask 完成后才会继续执行。
+普通 kernel launch 不暴露逐个 rTask 到执行单元的指定映射。为了解决这个挑战，RAMMER 设计了一个叫做 vDevice（virtualized parallel device）的概念。一个 vDevice 中含有多个 vEUs(virtual execution units)。因此 RAMMER 可以将 rProgram 组织成一个二维数组，`prog[vEU_id][order]`，order 表示在一个 vEU 中的任务的执行顺序。为了确保互相有依赖的任务正确进行执行，RAMMER 添加了一个 **barrier-rTask**。barrier-rTask 接受一系列 `<vEU_id, order>` 的任务。barrier-rTask 会等待每一个 rTask 完成后才会继续执行。
 
 ### rTask-aware DFG Compiler
 
@@ -66,7 +66,7 @@ rOperator 是一组 rTasks 的集合，rTask 是能够在加速器设备上进�
 
 ## 分别评估执行时间、利用率与调度开销
 
-这里分别对于执行时间、GPU 资源利用率以及调度开销与其他机器学习框架以及张量编译器进行对比并进行了评估：
+下图分别比较执行时间、GPU 资源利用率与调度开销；三个指标对应整体收益、并行执行效果及运行时成本。
 
 ![截屏2023-08-15 22 22 34](images/issue-22-10.png)
 

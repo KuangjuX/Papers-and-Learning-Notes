@@ -287,7 +287,7 @@ H200 路径接收 BF16 Q 和 FP8 E4M3 KV：Q 按 head-row 量化后执行 FP8 QK
 
 PageWeaver 因此使用 page 关系寻找适合一起执行的 Query，同时保留 Query-owned accumulation。这个实验同时改变了 work lists、producer 映射和 workspace；附录 B 提醒，不能把结果当成只改变 output ownership 的单变量消融。
 
-### Figure 5：工作列表与 partial 成本是否抵消复用
+### Figure 5：工作列表与 partial 成本是否抵消复用 {#_6-3-figure-5-直接-kv-page-执行的机会与代价}
 
 人工交错支持集上，direct KV-page union 相对 FlashInfer 的完整调用延迟在 32K 从 1.588 ms 降为 1.340 ms（降低 15.6%），在 64K 从 3.172 ms 降为 2.852 ms（降低 10.1%）。但模型 captures 上 Union8 更快；低重叠的 L43/r1 64K 输入上，page union 为 1.827 ms，Union8 为 1.368 ms。
 
@@ -328,12 +328,6 @@ B300 的 native 不能未经确认就沿用 H200 的 SM90 版本身份；正文�
 | Union8 / Union4 | 相同算术配置下几何平均加速 1.075× | 更直接隔离组大小的收益；测试输入输出逐位一致，但不证明八 Query 普遍最优 |
 
 这些首先说明基础 Union8 的性能，不是在线 regroup 的增量收益。[§5.2，第 6 页；Figure 4，第 7 页](zotero://open-pdf/library/items/SBISCM3P?page=7)。
-
-### Figure 5：直接 KV-page 执行的机会与代价 {#_6-3-figure-5-直接-kv-page-执行的机会与代价}
-
-人工交错支持集上，direct KV-page union 相对 FlashInfer 的完整调用延迟在 32K 从 1.588 ms 降为 1.340 ms（降低 15.6%），在 64K 从 3.172 ms 降为 2.852 ms（降低 10.1%）。但模型 captures 上 Union8 更快；低重叠的 L43/r1 64K 输入上，page union 为 1.827 ms，Union8 为 1.368 ms。
-
-人工案例证明这种复用模式可能存在，不说明它在自然输入中的出现频率。发现非局部复用后，还必须支付工作列表和部分输出处理的成本。[§5.3、Figure 5，第 6–7 页](zotero://open-pdf/library/items/SBISCM3P?page=7)。
 
 ### Figure 6：在线收益必须扣掉分组成本 {#_6-4-figure-6-在线收益必须扣掉分组成本}
 

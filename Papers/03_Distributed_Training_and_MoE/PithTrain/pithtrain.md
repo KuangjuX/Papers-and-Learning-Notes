@@ -24,8 +24,6 @@ arxiv: "2605.31463"
 - **语言边界成本**：C++/CUDA 扩展（如 TransformerEngine 的 grouped-GEMM）抛出不可读的 segfault，迫使 agent 猜测性开关配置；改动还触发重编译循环。
 - **间接层成本**：Megatron 的隐藏参数 registry 使 agent 手动添加的 CLI flag 与自动派生的 flag 冲突；runtime spec 让 call site 的实际执行路径无法通过局部阅读确定。
 
-论文的核心设问：**能否重新设计一个降低 agent 任务成本、同时吞吐率不输生产框架的 MoE 训练系统？**
-
 ## 把开发成本对应到四项结构选择
 
 论文 §3.1 的四项原则分别针对上面的成本。它们是对框架结构的选择，并不要求改变 agent 本身。
@@ -142,7 +140,7 @@ class LayerProtocol(Protocol):
 - **Gate**（`Qwen3MoeGate`）：softmax→topk→归一化权重；负载均衡 loss 通过 `MoELoadBalanceLossInjector.apply(topk_weight, lb_loss * n_tokens)` 以自定义 autograd 函数**注入到 topk_weight 的梯度通路**，绕过 loss 直接把 lb 梯度混进反向——这样 train_step 统一除以 token 数后 lb 梯度仍然正确归一化。这一缩放与 step 末的 token 归一化相配合。
 - **Experts**（`Qwen3MoeExperts`）：三个 `GroupedLinear`（gate/up/down），`silu_mul` 融合激活，按 `grouped_mm_offs` 分组 GEMM。每个 rank 只持有 `num_experts // ep_size` 个专家。
 - **Stage 切分点**：stage1 结束于 `prepare_dispatch`（本地先做 token 去重），stage3 是 scatter→grouped GEMM→gather，stage5 是 topk 加权 scatter_add + 残差。stage1/5 包了 `@torch.compile(fullgraph=True)`，stage3 故意不包（数据依赖 shape）。 `fullgraph=True` 要求被编译区域形成完整图，遇到 graph break 会报错；这一限制把部分兼容问题提前暴露，而不是默默退回分段执行。
-- **zigzag CP**：`forward_posemb` 里 position_ids 按"前块+镜像后块"拼接，与 `pretrain_lm.get_global_batch` 的数据切分、`ring_attention.py` 的注意力实现三方严格对齐；三处必须遵守同一位置约定。
+- **zigzag CP**：`forward_posemb` 里 position_ids 按"前块+镜像后块"拼接，与 `pretrain_lm.get_global_batch` 的数据切分、`ring_attention.py` 的注意力实现三方严格对齐；
 
 [源码：`pithtrain/models/qwen3_moe.py`](https://github.com/KuangjuX/pith-train/blob/889a408/pithtrain/models/qwen3_moe.py)。
 
@@ -274,7 +272,7 @@ ATE-Bench 共 20 个任务（12+4+4），固定 Claude Code Opus 4.7 @ xhigh；O
 
 ## 个人理解与相关系统的联系
 
-- **与 SkVM 对照阅读**：两者都在做"为 agent 优化软件层"——SkVM 优化技能的执行（编译类比），PithTrain 优化框架本身的结构（让 agent 静态阅读即可导航）。合起来指向一个趋势：系统的第一类用户正在变成 agent，软件设计需要为此重新定价。
+- **与 SkillRT（SkVM）的联系**：两者都在做"为 agent 优化软件层"——SkillRT 优化技能的执行（编译类比），PithTrain 优化框架本身的结构（让 agent 静态阅读即可导航）。合起来指向一个趋势：系统的第一类用户正在变成 agent，软件设计需要为此重新定价。
 - **ATE 五指标可直接借用**：Session Duration / Active GPU Time / Agent Turns / Per-Turn Context / Output Tokens——评估任何"agent 操作基础设施"项目（编译器、集群工具、CI 系统）时可以作为候选指标，尤其"固定 agent 变系统"的反转实验设计。
 - **Skill 三属性（specific scope / explicit prerequisites / verifiable success）是可立刻落地的实践**，本质是把"可验证性"从研究领域搬到工程领域：让技能以脚本 PASS/FAIL 收尾而不是 agent 自评，让验证结果有明确的外部依据。
 - **相关工作对比**：可与 TorchTitan（同为 Python-native 但未以 agent-native 为第一目标）、DeepEP/DualPipe（其复用的通信原语）、以及 Anthropic Agent Skills 官方博客（skills 概念来源）对照阅读。

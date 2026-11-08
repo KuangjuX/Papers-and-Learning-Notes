@@ -6,22 +6,9 @@
 
 ## 用硬件原生模板缩小调优空间
 
-当前关于 Auto-tunner 会造成与原生的 Nvidia SDK 库有较大的性能差异以及无效率的搜索。本篇文章的关注点在于使用模版库可以使 auto-tuners 的空间缩紧。
-
-**Insights**
-
-- 模版库提供了挖掘硬件性能的可重用原语。
-- 对于不同的 tensor shape 可以轻易参数化。
-- 对于 auto-tunning 搜索有更少的融合。
-- 基础原语可以被扩展到更复杂的原语（deeper operator fusion）
-
-**Graph Level**
-Enable deeper operator fusion. Bolt 开发了一个叫 **persistent kernel fusion** 的技术用来提高性能。算子融合可以将多个算子融合成一个算子来提升性能。例如将 Conv2D + BiasAdd + Hardswish 在一个 kernel 中去提升性能，但是这种可能不会被 cuDNN 等库所支持。
+BOLT 从硬件原生模板库中选择可复用、可参数化的计算原语，缩小 auto-tuning 搜索空间。图级优化扩展融合范围，例如 Conv2D + BiasAdd + Hardswish；算子级优化则搜索模板参数并生成代码。两者分别处理跨算子数据移动和单 kernel 的硬件效率。
 
 ![](images/issue-28-01.png)
-
-**Operator Level**
-Operator level: Automating templated code generation. Bolt 设计了一个轻量级的 profiler 进行自动搜索，搜索的结果随后被放在模版中并生成底层代码。
 
 ## 先划分子图，再融合与搜索模板
 
@@ -56,8 +43,6 @@ Persistent kernel 允许将多个 GEMMs 和 Conv 融合到一个算子用来提�
 
 ![](images/issue-28-04.png)
 
-**RF-resident fusion.**
-
 **Shared memory-resident fusion.** 当 GEMM_N 更大时有更高的 RF 压力，因此使用 shared memory-resident fusion 用于缓解 warp size 的限制。在第二阶段的 GEMM/Conv 需要在 warp 共享时，数据可以暂存在共享内存中。Figure7 展示了一个例子，计算 D1 需要 N 维度的多个 warp tile 流式传输 fragments。因此在 GEMM0 阶段在累加器产生的数据必须从 RF 加载到 shared memory 为了加载 GEMM1。每个 warp 所拥有的数据将被在下一层进行共享。为了能够进行 shared memory-resident fusion，本篇论文实现了一个 smem fragment iterator 可以把 accumulator tile 存到 shared memory 中，之后从第二阶段的 GEMM 中的共享内存中取值。
 
 ![](images/issue-28-05.png)
@@ -78,9 +63,5 @@ Bolt 设计了一个轻量级的 performance profiler 用于搜索最好的模�
 - **Kernel padding.** 尽管 CUTLASS 支持 8，4，2，1 的对齐，性能在不同的对齐间依然有巨大差距。论文 §3.2.3 使用 128-bit 向量化 load/store 作为该路径的对齐依据。所以对于 FP 16 最有效的方式是使用 8 个 FP16 元素对齐（16 字节）（128/16）。因此 Bolt 自动将未对齐的张量填充为 8 个 FP16 元素对齐（16 字节）。
 
 ## 用模型中的 GEMM 与卷积检查性能
-
-### Microbenchmarks
-
-#### GEMM/Conv2D
 
 从 BERT 和 ResNet-50 这些模型中提取了一些内部算子做 micro benchmark，和 Ansor 的性能做对比。

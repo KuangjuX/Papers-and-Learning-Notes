@@ -29,8 +29,7 @@
 
 ![截屏2024-01-12 14 54 45](images/issue-31-02.png)
 
-- Hardware-aware mapping: 关注于 PE 连接，buffer 配置的细节，软硬协同设计。
-- ISA-aware mapping: 对于比较灵活的加速器，它们暴露 instrinsics 给程序员，为了使用这些 instrinsics，程序员必须要写 schedule templates 和对于性能进行调优并给出一个调度空间。
+上述两类映射方式的区别，在这里体现为是否直接建模 PE 连接与 buffer，还是通过 intrinsics 表达约束。
 
 论文中给出了一些 motivational examples。当前的 SOTA 例如 XLA 对于现实中的 workloads 可能进行无效率的优化，对于在 V100 上，XLA 使用经过手工调优的复杂模版来匹配这些运算符，如果匹配上的话就会下降到底层手动优化的库例如 CuDNN 和 CUTLASS。
 
@@ -42,7 +41,7 @@
 
 ![截屏2024-01-12 16 32 00](images/issue-31-04.png)
 
-AMOS 的输入是一个使用 DSL 写的高级程序，定义了 loops 和 tensors。loops de的结构以及 tensor 的访问也在 DSL 里面被定义，例如 Figure 3(a)。AMOS 使用软硬件信息来生成不同的软硬件映射。软硬件映射包含计算映射和内存映射。计算映射表明了在软件中定义了什么操作应该对应映射到目标硬件中和通过合适的计算 intrinsics 来实现。内存映射表明如何从全局/共享内存中加载数据并且将其通过 memory instrinsics 存储在 on-chip 寄存器中。AMOS 和以往的设计不同，不依赖于手写的模版而提供全自动的编译流通过将 tensor program 映射到对应的加速器上。
+AMOS 的输入是一个使用 DSL 写的高级程序，定义了 loops 和 tensors。loops 的结构以及 tensor 的访问也在 DSL 里面被定义，例如 Figure 3(a)。AMOS 使用软硬件信息来生成不同的软硬件映射。软硬件映射包含计算映射和内存映射。计算映射表明了在软件中定义了什么操作应该对应映射到目标硬件中和通过合适的计算 intrinsics 来实现。内存映射表明如何从全局/共享内存中加载数据并且将其通过 memory instrinsics 存储在 on-chip 寄存器中。AMOS 和以往的设计不同，不依赖于手写的模版而提供全自动的编译流通过将 tensor program 映射到对应的加速器上。
 
 ## 分别表达计算语义与数据搬运
 
@@ -106,7 +105,7 @@ AMOS 新增了两个 IR Node(Compute, Memory) 在 TVM 上。
 
 算子里考虑了 GEMV (GMV), GEMM (GEM), 1D convolution (C1D), 2D convolution (C2D), 3D convolution (C3D), transposed 2D convolution (T2D), group convolution [23] (GRP), dilated convolution (DIL), depthwise convolution [12] (DEP), capsule convolution [21] (CAP), batched convolution [61] (BCV), grouped fully-connected layer [35] (GFC), matrix mean and variance (MEN and VAR), and scan computation [13] (SCN)。
 
-首先 AMOS 和 Pytorch 的性能做对比，Pytorch 使用了手工优化的库例如 CuDNN，CuBLAS 和 CUTLASS 去支持不同的算子。论文 §7.3、Figure 6(a)(b) 在 batch size 1、113 种算子配置上报告，相对 PyTorch 的几何平均加速在 V100/A100 上分别为 2.50×/2.80×。AMOS 进行了全面的 software-hardware 的探索而 Pytorch 仅仅是用了固定的手动优化的库导致优化不够全面。
+首先 AMOS 和 Pytorch 的性能做对比，Pytorch 使用了手工优化的库例如 CuDNN，CuBLAS 和 CUTLASS 去支持不同的算子。论文 §7.3、Figure 6(a)(b) 在 batch size 1、113 种算子配置上报告，相对 PyTorch 的几何平均加速在 V100/A100 上分别为 2.50×/2.80×。该结果比较的是这组配置下的自动映射与库调用路径，不能单凭总体加速量化搜索、映射和具体内核各自的贡献。
 
 除此之外 AMOS 还和现有的 SOTA compilers 进行了比较，从 ResNet-18 中提取了 12 种不同配置的卷积层，结果如下图(2.38× to CuDNN, 1.79× to Ansor, 1.30× to AutoTVM-Expert, 4.96× to UNIT)：
 ![](images/issue-31-15.png)

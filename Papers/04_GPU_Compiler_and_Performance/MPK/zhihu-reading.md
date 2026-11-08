@@ -1,41 +1,25 @@
 # Mirage Persistent Kernel：任务图与持久化运行时
 
-来源：[2025 年度 LLM 研究总结](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
+小 batch 推理中，kernel 启动、算子边界和尾效应会妨碍 GPU 持续执行。Mirage Persistent Kernel（MPK）将模型的计算与通信组织成细粒度任务，由持久化 GPU 运行时根据依赖调度。[原始讨论与参考链接](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)
 
-背景是小 batch 推理的算子边界、启动与尾效应；核心是将计算和通信变为可由持久化 GPU 运行时调度的任务。
+## tGraph 将完整算子拆成可独立执行的任务
 
-## 要点与边界
+MPK 基于 Mirage 编译器，将模型转为由 Task 和 Event 组成的 tGraph。Task 对应单个 SM 可执行的工作，例如矩阵乘、attention 或 AllReduce 的子块；Event 表达前置任务完成条件，并据此触发后继任务。任务粒度因此不必等同于一个完整 CUDA grid。
 
-- tGraph 的任务／事件用于表达局部依赖，不应把所有任务都理解成 CUDA grid 的完整算子。
-- 原总结的“1–1.7 倍”没有统一指定基线、硬件和模型，不能作通用加速比引用。
-- 讨论“MPK 参考了谁”的历史关系需要作者或引用证据，不能由发布时间先后直接推出。
+![MPK 编译工作流](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/images/work-summary-03.jpg)
 
-## 机制与实现
+![从算子计算转换成 SM 级 tGraph](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/images/work-summary-04.jpg)
 
-#### Mirage Persistent Kernel[8](https://zhuanlan.zhihu.com/p/1994788371738949558#ref_8)
+## 运行时如何复用资源并重叠工作
 
-MPK 的一个主要目的是自动将多 GPU 模型推理转化为单个 MegaKernel，通过所重新设计计算表示与运行时系统解决上述问题，其核心思想可以概括为：**以 GPU 流多处理器（SM）为粒度拆分任务，用细粒度依赖调度替代粗粒度内核同步。**MPK 这个项目主要是依赖于 Mirage[9](https://zhuanlan.zhihu.com/p/1994788371738949558#ref_9) 这个编译器做的。
+1. **分页共享内存。** 将 shared memory 切成固定页面，由任务申请和释放，为预取与跨任务复用提供空间管理。
+2. **跨任务软件流水线。** 当前任务计算时准备后继任务的数据，减少独立 kernel 边界造成的空隙。
+3. **内核内通信。** 多 GPU 路径使用 NVSHMEM 执行通信任务，使其与计算按细粒度依赖交叠。
 
-![](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/images/work-summary-03.jpg)
+把模型执行融合进持久化 kernel 后，调度、资源管理与依赖通知也进入运行时；减少 kernel 边界不代表这些成本消失。
 
-MPK 编译器工作流
+## 性能记录的范围
 
-MPK 这篇论文提出了 `tGraph` 这个概念，以 SM 为最小单位，将模型的计算和通信拆成了 SM-level Task 和 Event。Task 表示的是单个 SM 可独立执行的最小单元，例如矩阵乘法子块，注意力子块以及 AllReduce 子块传输，Event 代表任务间的同步信号，仅当所有前置任务完成时激活，触发下游任务执行。
+![MPK 性能评估](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/images/work-summary-05.jpg)
 
-MPK 通过一系列关键的优化，例如：
-
-- 分页共享内存：将共享内存划分为固定页面，任务按需申请 / 释放，支持跨任务数据预取与零拷贝复用；
-- 跨任务软件流水线：重叠当前任务的计算阶段与下一个任务的数据预加载阶段，隐藏访存延迟；
-- 内核内通信：多 GPU 场景下，用 NVSHMEM 实现跨 GPU 通信任务，与计算任务细粒度重叠（无需启动 NCCL 内核）。
-
-将整个模型 fuse 成一个 MegaKernel。
-
-![](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/images/work-summary-04.jpg)
-
-MPK 讲一个内核级计算转换成 SM 级 tGraph
-
-最终平均实现 1 - 1.7 倍的性能提升，且在低延迟场景（小 bs）、多 GPU 扩展场景中优势最突出，本质是通过细粒度调度消除了传统框架的结构性开销。
-
-![](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/images/work-summary-05.jpg)
-
-MPK 性能评估
+原始讨论记录了约 1–1.7× 的性能范围，并指出小 batch、多 GPU 场景的收益。该范围没有在文字中统一绑定模型、硬件和基线，不能作为一般加速比。与 [Llama-1B Megakernel](../Megakernels/zhihu-reading.md) 的设计相似性可以用于对照，但是否存在直接借鉴关系仍需作者或引用证据。
