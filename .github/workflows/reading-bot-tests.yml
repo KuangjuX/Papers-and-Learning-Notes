@@ -1,0 +1,25 @@
+name: Reading bot tests
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/reading-bot/**'
+      - '.github/workflows/reading-bot-tests.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/reading-bot/**'
+      - '.github/workflows/reading-bot-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: node --test scripts/reading-bot/reading-bot.test.mjs

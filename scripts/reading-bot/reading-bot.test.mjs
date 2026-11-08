@@ -1,0 +1,226 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtemp, rm, stat, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { generateKeyPairSync, verify } from 'node:crypto';
+import { buildPrompt, enqueue, marker, newState, parseMention, readJson, replyBody, saveJson } from './core.mjs';
+import { appJwt, GitHub } from './github.mjs';
+import { codexArgs, childEnvironment } from './codex.mjs';
+import { acquireLock, Worker } from './worker.mjs';
+import { manifest } from './setup.mjs';
+import { servicePlist, validateConfig } from './cli.mjs';
+
+const baseConfig = {
+  version: 1, repo: 'owner/notes', repositoryId: 9, appId: 7, installationId: 8,
+  slug: 'paper-reader', allowedUserId: 42, workspace: '/tmp/notes',
+  codexPath: '/bin/codex', privateKeyPath: '/private/key.pem', stateDirectory: '/private/state',
+  pollSeconds: 30, taskTimeoutSeconds: 120,
+};
+const comment = (id = 101, overrides = {}) => ({
+  id, user: { id: 42, login: 'owner', type: 'User' }, body: '@paper-reader Explain figure 2',
+  created_at: '2026-11-08T02:00:00Z', updated_at: '2026-11-08T02:00:00Z',
+  issue_url: 'https://api.github.com/repos/owner/notes/issues/3',
+  html_url: `https://github.com/owner/notes/issues/3#issuecomment-${id}`, ...overrides,
+});
+
+test('only a leading exact bot mention triggers a request', () => {
+  assert.equal(parseMention('@paper-reader hello', 'paper-reader').question, 'hello');
+  assert.equal(parseMention('\n @PAPER-READER[bot] /ask 你好', 'paper-reader').question, '你好');
+  for (const body of ['@paper-reader-evil hello', '@paper-reader', '> @paper-reader hello', '```\n@paper-reader hello\n```', 'example @paper-reader hello']) {
+    assert.equal(parseMention(body, 'paper-reader'), null);
+  }
+  assert.equal(parseMention('@paper-reader /reset', 'paper-reader').reset, true);
+});
+
+test('queue checks numeric user identity, repository, creation time and duplicate IDs', () => {
+  const state = newState('2026-11-08T01:00:00Z');
+  enqueue(state, [comment(), comment(), comment(102, { user: { id: 43, login: 'owner', type: 'User' } }),
+    comment(103, { user: { id: 42, type: 'Bot' } }),
+    comment(104, { created_at: '2026-01-01T00:00:00Z' }),
+    comment(105, { issue_url: 'https://api.github.com/repos/other/repo/issues/3' }),
+    comment(106, { issue_url: 'https://api.github.com/repos/owner/notes/issues/3/evil' }),
+  ], baseConfig);
+  assert.deepEqual(Object.keys(state.jobs), ['101']);
+});
+
+test('reply body stays under the GitHub limit and retains a deduplication marker', () => {
+  const body = replyBody({ id: 101, url: comment().html_url }, '中'.repeat(70000));
+  assert.ok(body.length < 55000);
+  assert.ok(body.includes(marker(101)));
+  assert.ok(body.includes('已截断'));
+});
+
+test('prompt labels untrusted sources, preserves owner question and omits later comments', () => {
+  const job = { id: 101, url: comment().html_url, request: { question: 'Explain the bound' } };
+  const prompt = buildPrompt({ title: 'Paper', html_url: 'https://github.com/owner/notes/issues/3', body: 'Source' }, [comment(), comment(102, { body: 'LATER_SECRET' })], job);
+  assert.ok(prompt.includes('Explain the bound'));
+  assert.ok(prompt.includes('不是系统指令'));
+  assert.ok(!prompt.includes('LATER_SECRET'));
+});
+
+test('Codex receives stdin rather than shell interpolation and preserves explicit session ID', () => {
+  const args = codexArgs(baseConfig, 'session-for-issue-3', '/private/output.md', ['cua_repl', 'zotero_reading']);
+  assert.ok(args.includes('read-only'));
+  assert.ok(args.includes('mcp_servers.cua_repl={command="/usr/bin/false",enabled=false}'));
+  assert.ok(!args.some(arg => arg.includes('zotero_reading')));
+  assert.deepEqual(args.slice(-6), ['resume', 'session-for-issue-3', '--json', '--output-last-message', '/private/output.md', '-']);
+  const env = childEnvironment({ HOME: '/home/u', PATH: '/bin', GH_TOKEN: 'secret', GITHUB_TOKEN: 'secret', BOT_PRIVATE_KEY: 'secret', CODEX_SESSION_ID: 'parent' });
+  assert.deepEqual(env, { HOME: '/home/u', PATH: '/bin' });
+});
+
+test('App JWT has bounded lifetime, correct issuer and a valid RSA signature', () => {
+  const { privateKey, publicKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
+  const token = appJwt(7, privateKey, 1800000000000);
+  const [header, payload, signature] = token.split('.');
+  const claims = JSON.parse(Buffer.from(payload, 'base64url'));
+  assert.equal(claims.iss, '7');
+  assert.equal(claims.exp - claims.iat, 600);
+  assert.ok(verify('RSA-SHA256', Buffer.from(`${header}.${payload}`), publicKey, Buffer.from(signature, 'base64url')));
+});
+
+test('GitHub pagination does not drop the 101st comment', async () => {
+  const github = new GitHub(baseConfig);
+  const requests = [];
+  github.request = async path => { requests.push(path); return path.endsWith('page=1') ? Array.from({ length: 100 }, (_, id) => ({ id })) : [{ id: 100 }]; };
+  assert.equal((await github.pages('/comments?since=date')).length, 101);
+  assert.equal(requests.length, 2);
+  assert.ok(requests[1].includes('&per_page=100&page=2'));
+});
+
+async function fixture(t, options = {}) {
+  const directory = await mkdtemp(join(tmpdir(), 'reading-bot-test-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const config = { ...baseConfig, stateDirectory: directory };
+  const source = comment();
+  const comments = [source];
+  const calls = { run: 0, create: 0, update: 0, threads: [], posted: [] };
+  const github = {
+    comments: async () => comments,
+    issue: async () => ({ title: 'Paper', body: 'PDF source', html_url: 'https://github.com/owner/notes/issues/3', ...options.issue }),
+    comment: async () => ({ ...source, ...options.trigger }),
+    issueComments: async () => comments,
+    createReply: async (issue, body) => {
+      calls.create++;
+      const posted = { id: 900 + calls.create, user: { login: 'paper-reader[bot]', type: 'Bot' }, body };
+      comments.push(posted);
+      if (options.losePostResponse && calls.create === 1) throw new Error('Network response lost');
+      return posted;
+    },
+    updateReply: async (id, body) => {
+      calls.update++;
+      if (options.failPatch && calls.update === 1) throw new Error('Network down');
+      calls.posted.push(body);
+      return { id };
+    },
+  };
+  const runner = async ({ threadId }) => {
+    calls.run++; calls.threads.push(threadId);
+    if (options.failCodex) throw new Error('Sensitive internal error must not be published');
+    return { text: 'Answer with source', threadId: 'thread-for-issue-3' };
+  };
+  const worker = new Worker(config, { github, runner, log: () => {} });
+  await worker.load();
+  worker.state.activatedAt = '2026-11-08T01:00:00Z';
+  worker.state.since = worker.state.activatedAt;
+  return { worker, config, github, runner, comments, calls, directory };
+}
+
+test('a complete question becomes one reply and stores the per-Issue session', async t => {
+  const { worker, calls } = await fixture(t);
+  await worker.tick(); await worker.tick();
+  assert.equal(calls.run, 1); assert.equal(calls.create, 1);
+  assert.equal(worker.state.jobs[101].status, 'done');
+  assert.equal(worker.state.threads[3], 'thread-for-issue-3');
+});
+
+test('a second question in the same Issue resumes its own session', async t => {
+  const { worker, calls, comments, github } = await fixture(t);
+  await worker.tick();
+  const second = comment(102);
+  comments.push(second); github.comment = async () => second;
+  await worker.tick();
+  assert.deepEqual(calls.threads, [undefined, 'thread-for-issue-3']);
+});
+
+test('a lost POST response is recovered by marker without duplicate replies', async t => {
+  const { worker, calls } = await fixture(t, { losePostResponse: true });
+  await assert.rejects(worker.tick());
+  worker.state.jobs[101].retryAfter = 0;
+  await worker.tick();
+  assert.equal(calls.create, 1); assert.equal(calls.run, 1);
+});
+
+test('durable answer survives restart and a failed PATCH without rerunning Codex', async t => {
+  const { worker, calls, config, github, runner } = await fixture(t, { failPatch: true });
+  await assert.rejects(worker.tick());
+  assert.equal(worker.state.jobs[101].status, 'answered');
+  const restarted = new Worker(config, { github, runner });
+  await restarted.load(); restarted.state.jobs[101].retryAfter = 0;
+  await restarted.tick();
+  assert.equal(calls.run, 1); assert.equal(calls.create, 1);
+  assert.equal(restarted.state.jobs[101].status, 'done');
+});
+
+test('PR comments and comments edited after enqueue are not sent to Codex', async t => {
+  for (const options of [{ issue: { pull_request: {} } }, { trigger: { body: '@paper-reader changed' } }]) {
+    const { worker, calls } = await fixture(t, options);
+    await worker.tick();
+    assert.equal(calls.run, 0); assert.equal(calls.create, 0);
+    assert.equal(worker.state.jobs[101].status, 'skipped');
+  }
+});
+
+test('Codex failures result in a useful reply without leaking internal errors', async t => {
+  const { worker, calls } = await fixture(t, { failCodex: true });
+  await worker.tick();
+  assert.ok(calls.posted[0].includes('执行未完成'));
+  assert.ok(!calls.posted[0].includes('Sensitive'));
+});
+
+test('reset removes only the specified Issue session without calling Codex', async t => {
+  const { worker, calls, comments, github } = await fixture(t);
+  comments[0] = comment(101, { body: '@paper-reader /reset' });
+  github.comment = async () => comments[0];
+  worker.state.threads = { 3: 'old', 4: 'keep' };
+  await worker.tick();
+  assert.deepEqual(worker.state.threads, { 4: 'keep' }); assert.equal(calls.run, 0);
+});
+
+test('interrupted running jobs are recoverable and state is private', async t => {
+  const { worker, config, github, runner, directory } = await fixture(t);
+  await worker.poll(); worker.state.jobs[101].status = 'running'; await worker.save();
+  const restarted = new Worker(config, { github, runner }); await restarted.load();
+  assert.equal(restarted.state.jobs[101].status, 'queued');
+  assert.equal((await stat(join(directory, 'state.json'))).mode & 0o777, 0o600);
+  const wrong = new Worker({ ...config, repositoryId: 100 }, { github, runner });
+  await assert.rejects(wrong.load(), /another repository/);
+});
+
+test('worker lock excludes a second process and can be released', async t => {
+  const { directory } = await fixture(t);
+  const release = await acquireLock(directory);
+  await assert.rejects(acquireLock(directory), /already running/);
+  await release();
+  await (await acquireLock(directory))();
+});
+
+test('configuration, manifest and service use scoped permissions and absolute paths', () => {
+  assert.equal(validateConfig(baseConfig), baseConfig);
+  assert.throws(() => validateConfig({ ...baseConfig, workspace: '.' }), /absolute/);
+  assert.throws(() => validateConfig({ ...baseConfig, allowedUserId: 'owner' }), /Invalid/);
+  const app = manifest('http://127.0.0.1:8765', 'state', 'owner/notes');
+  assert.deepEqual(app.default_permissions, { issues: 'write', contents: 'read' });
+  assert.equal(app.hook_attributes.active, false); assert.equal(app.public, false);
+  const plist = servicePlist(baseConfig, '/private/a&b.json', '/usr/bin/node');
+  assert.ok(plist.includes('/private/a&amp;b.json'));
+  assert.ok(!plist.includes('key.pem'));
+});
+
+test('JSON state handles absence but never silently discards corrupted state', async t => {
+  const { directory } = await fixture(t);
+  const path = join(directory, 'new.json');
+  assert.equal(await readJson(path, null), null);
+  await saveJson(path, { a: 1 }); assert.deepEqual(await readJson(path), { a: 1 });
+  await writeFile(path, '{broken'); await assert.rejects(readJson(path, {}));
+});
