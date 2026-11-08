@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
+import { copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitepress'
@@ -20,6 +20,10 @@ export default defineConfig({
   ignoreDeadLinks: false,
 
   buildEnd(site) {
+    // Linked presentation downloads keep the same paths as the source archive.
+    const slidesPath = 'Foundations/01_Attention/Blackwell-Sparse-Attention/Slides'
+    cpSync(join(repositoryRoot, slidesPath), join(site.outDir, slidesPath), { recursive: true })
+
     for (const [oldPath, newPath] of Object.entries(redirects)) {
       const output = join(site.outDir, oldPath.replace(/\.md$/, '.html'))
       // Case-only aliases already resolve on a case-insensitive filesystem.

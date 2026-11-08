@@ -11,6 +11,7 @@
 - [Sparse Attention](SparseAttention.md)
 - [attention-sinks](Attention-Sinks/index.md)
 - [[译] 用 60 幅图从零构建 FlashAttention-4](B200-Attention/index.md)
+- [Blackwell Sparse Attention 优化](Blackwell-Sparse-Attention/index.md)
 
 ## 参考资料
 
