@@ -14,8 +14,9 @@ export function childEnvironment(env = process.env) {
   return Object.fromEntries(allowed.filter(key => env[key] !== undefined).map(key => [key, env[key]]));
 }
 
-export function codexArgs(config, threadId, output, mcpNames = []) {
-  const args = ['exec', '--sandbox', 'read-only', '-c', 'approval_policy="never"'];
+export function codexArgs(config, threadId, output, mcpNames = [], mode = 'ask') {
+  if (mode === 'note' && threadId) throw new Error('Note editing requires a fresh isolated session');
+  const args = ['exec', '--sandbox', mode === 'note' ? 'workspace-write' : 'read-only', '-c', 'approval_policy="never"'];
   // Keep the reading MCP; desktop automation and unrelated connectors are not needed by this bot.
   for (const name of mcpNames) {
     if (!/^[a-zA-Z0-9_-]+$/.test(name)) throw new Error('Unsupported MCP name; configure a bot-specific Codex profile');
@@ -28,7 +29,7 @@ export function codexArgs(config, threadId, output, mcpNames = []) {
   return args;
 }
 
-export async function runCodex({ config, prompt, threadId, directory, signal }) {
+export async function runCodex({ config, prompt, threadId, directory, signal, mode = 'ask' }) {
   await mkdir(directory, { recursive: true, mode: 0o700 });
   await writeFile(join(directory, 'prompt.txt'), prompt, { mode: 0o600 });
   const env = childEnvironment();
@@ -37,7 +38,7 @@ export async function runCodex({ config, prompt, threadId, directory, signal }) 
   });
   const names = JSON.parse(stdout).map(server => server.name);
   const output = join(directory, 'answer.md');
-  const child = spawn(config.codexPath, codexArgs(config, threadId, output, names), {
+  const child = spawn(config.codexPath, codexArgs(config, threadId, output, names, mode), {
     cwd: config.workspace, env, detached: true, stdio: ['pipe', 'pipe', 'pipe'],
   });
   const events = createWriteStream(join(directory, 'events.jsonl'), { mode: 0o600 });

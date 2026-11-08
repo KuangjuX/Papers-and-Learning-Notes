@@ -31,13 +31,15 @@ export async function api(path, { token, method = 'GET', body } = {}) {
 }
 
 export class GitHub {
-  constructor(config) { this.config = config; this.cached = null; }
+  constructor(config, { notes = false } = {}) { this.config = config; this.notes = notes; this.cached = null; }
   async jwt() { return appJwt(this.config.appId, await readFile(this.config.privateKeyPath, 'utf8')); }
   async token() {
     if (!this.cached || Date.parse(this.cached.expires_at) < Date.now() + 120000) {
       this.cached = await api(`/app/installations/${this.config.installationId}/access_tokens`, {
         token: await this.jwt(), method: 'POST',
-        body: { repositories: [this.config.repo.split('/')[1]], permissions: { issues: 'write', contents: 'read' } },
+        body: { repositories: [this.config.repo.split('/')[1]], permissions: this.notes
+          ? { contents: 'write', pull_requests: 'write' }
+          : { issues: 'write', contents: 'read' } },
       });
     }
     return this.cached.token;
@@ -72,4 +74,17 @@ export class GitHub {
   comment(id) { return this.request(`${this.base()}/issues/comments/${id}`); }
   createReply(number, body) { return this.request(`${this.base()}/issues/${number}/comments`, { method: 'POST', body: { body } }); }
   updateReply(id, body) { return this.request(`${this.base()}/issues/comments/${id}`, { method: 'PATCH', body: { body } }); }
+  async notePermissions() {
+    const installation = await api(`/app/installations/${this.config.installationId}`, { token: await this.jwt() });
+    return installation.permissions?.contents === 'write' && installation.permissions?.pull_requests === 'write';
+  }
+  repository() { return this.request(this.base()); }
+  pulls(query = 'state=open') { return this.pages(`${this.base()}/pulls?${query}`); }
+  pull(number) { return this.request(`${this.base()}/pulls/${number}`); }
+  createPull(body) { return this.request(`${this.base()}/pulls`, { method: 'POST', body }); }
+  gitObject(type, body) { return this.request(`${this.base()}/git/${type}`, { method: 'POST', body }); }
+  async branchRef(branch) {
+    try { return await this.request(`${this.base()}/git/ref/heads/${branch}`); }
+    catch (error) { if (error.status === 404) return null; throw error; }
+  }
 }

@@ -5,7 +5,7 @@ import { homedir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { access, mkdir, rm, writeFile } from 'node:fs/promises';
-import { readJson } from './core.mjs';
+import { readJson, saveJson } from './core.mjs';
 import { GitHub } from './github.mjs';
 import { runWorker } from './worker.mjs';
 import { runCodex } from './codex.mjs';
@@ -20,6 +20,7 @@ const plistPath = join(homedir(), 'Library', 'LaunchAgents', `${label}.plist`);
 const xml = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[c]);
 
 export function validateConfig(config) {
+  if (config.notesEnabled !== undefined && typeof config.notesEnabled !== 'boolean') throw new Error('notesEnabled must be a boolean');
   if (config.version !== 1 || !/^[\w.-]+\/[\w.-]+$/.test(config.repo) || !/^[a-z0-9-]+$/.test(config.slug)) throw new Error('Invalid bot configuration');
   for (const key of ['allowedUserId', 'appId', 'installationId', 'repositoryId']) {
     if (!Number.isSafeInteger(config[key]) || config[key] < 1) throw new Error(`Invalid config field: ${key}`);
@@ -56,7 +57,7 @@ async function main() {
   const [command] = positionals;
   const configPath = resolve(values.config);
   if (!command || command === 'help') {
-    console.log('Usage: node scripts/reading-bot/cli.mjs <setup|doctor|smoke|start|status|install-service|uninstall-service> [--config PATH] [--once]');
+    console.log('Usage: node scripts/reading-bot/cli.mjs <setup|doctor|smoke|start|status|enable-notes|disable-notes|install-service|uninstall-service> [--config PATH] [--once]');
     return;
   }
   if (command === 'setup') {
@@ -76,7 +77,16 @@ async function main() {
     console.log('Background service removed. App, configuration and history were preserved.'); return;
   }
   const config = validateConfig(await readJson(configPath));
-  if (command === 'doctor') {
+  if (command === 'enable-notes') {
+    const github = new GitHub(config, { notes: true });
+    if (!await github.notePermissions()) throw new Error(`Grant Contents: read/write and Pull requests: read/write in https://github.com/settings/apps/${config.slug}/permissions, then accept the installation update at https://github.com/settings/installations/${config.installationId}.`);
+    await github.verify();
+    await saveJson(configPath, { ...config, notesEnabled: true });
+    console.log('Note-to-PR mode enabled. Restart the worker to load the new configuration.');
+  } else if (command === 'disable-notes') {
+    await saveJson(configPath, { ...config, notesEnabled: false });
+    console.log('Note-to-PR mode disabled. Restart the worker to load the new configuration.');
+  } else if (command === 'doctor') {
     await Promise.all([access(config.workspace), access(config.privateKeyPath), access(config.codexPath)]);
     await execute(config.codexPath, ['login', 'status'], { cwd: config.workspace, timeout: 30000 });
     const { stdout } = await execute(config.codexPath, ['mcp', 'list', '--json'], { cwd: config.workspace, timeout: 30000 });
@@ -84,6 +94,7 @@ async function main() {
     await new GitHub(config).verify();
     console.log(`GitHub App and repository verified: @${config.slug} → ${config.repo}`);
     console.log(`Codex login available; zotero_reading configured: ${Boolean(zotero?.enabled)} (actual tool connectivity is checked during a task).`);
+    console.log(`Note-to-PR mode configured: ${Boolean(config.notesEnabled)}; installation write permissions available: ${await new GitHub(config).notePermissions()}`);
     console.log('Run smoke to verify a real Codex turn, then install-service.');
   } else if (command === 'smoke') {
     const directory = join(config.stateDirectory, 'smoke', String(Date.now()));
@@ -99,6 +110,7 @@ async function main() {
   } else if (command === 'status') {
     const state = await readJson(join(config.stateDirectory, 'state.json'), null);
     console.log(`Bot: @${config.slug}; repository: ${config.repo}`);
+    console.log(`Note-to-PR mode: ${Boolean(config.notesEnabled)}`);
     if (!state) { console.log('Worker has not started yet.'); return; }
     const counts = {};
     for (const job of Object.values(state.jobs)) counts[job.status] = (counts[job.status] ?? 0) + 1;
