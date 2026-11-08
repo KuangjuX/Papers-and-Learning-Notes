@@ -1,34 +1,6 @@
 # The Deep Learning Compiler: A Comprehensive Survey
 
-## Deep Learning Framework
-
-- Tensorflow
-
-- Keras
-
-- Pytorch
-
-- Caffee/Caffee2
-
-- MXNet
-
-- CNTK
-
-- PaddlePaddle
-
-- ONNX
-
-## Deep Learning Hardware
-
-- GPU
-
-- FPGA/ASIC
-
-- Neuromorphic Hardware
-
-## Hardware-specific DL Code Generator
-
-可以通过模型编译生成对应的 HLS bitstream，不做详细讨论。
+深度学习编译器把来自 TensorFlow、PyTorch、Keras、Caffe/Caffe2、MXNet、CNTK、PaddlePaddle 等框架或 ONNX 格式的模型，转换为面向 GPU、FPGA/ASIC 等硬件的程序。核心分工是：前端保留模型语义并优化计算图，后端将计算映射到目标硬件；FPGA 路径还涉及 HLS 与 bitstream 生成。
 
 ## Common Design Architecture Of DL Compilers
 
@@ -46,7 +18,7 @@ Low Level IR 分为：
 - **Polyhedral-based IR**：Polyhedral 模型使用 linear programming, affine transformations 以及其他的数学方法来优化具有静态控制流边界和分支的以循环为基础的代码。
 - **其他 IR**：也有其他的编译器采用了除了以上两种方式之外的 IR，然后将硬件优化交给 LLVM IR 等设施，MLIR 就是一个例子。
 
-以上也反映了最后代码生成部分的不同思路，尽管多数编译器会最后转换成 LLVM IR 从而利用其成熟的优化器和代码生成器，但是将深度学习的代码直接交给 LLVM 之类的传统编译器很有可能会生成质量恶劣的代码，所以通常为了能够针对硬件更好的优化会 1) 在 LLVM 上层先进行优化（Halide-based IR 和 polyhedral-based IR）或者 2) 提供更多额外信息给优化 pass。1）在LLVM的上层IR中执行针对特定目标的循环转换（例如基于Halide和基于polyhedral的IR），2）为优化过程提供有关硬件目标的附加信息。大多数DL编译器都应用了这两种方法，但侧重点不同。一般来说，更倾向于前端用户的DL编译器（例如TC、TVM、XLA和nGraph）可能更注重1），而更倾向于后端开发者的DL编译器（例如Glow、PlaidML和MLIR）可能更注重2）。
+直接降到 LLVM IR 可能过早丢失张量结构。深度学习编译器通常先在较高层 IR 做循环与布局优化，或向后端提供额外硬件信息；两种方式可以结合，之后再复用 LLVM 的优化与代码生成。
 
 编译时也存在两种方式：JIT（just-in-time）和 AOT（ahead-of-time）。JIT 在运行时生成代码，能够根据运行情况优化代码，而 AOT 则是先生成二进制代码再运行，因此可以在编译时进行更大范围的静态分析，此外还可以交叉编译用于嵌入式平台。
 

@@ -1,8 +1,8 @@
 # HIDA: A Hierarchical Dataflow Compiler for High-Level Synthesis
 
-这篇 paper 是基于数据流分析生成 HLS 代码的文章。这篇文章可以将算法经过数据流分析转换成高效的 HLS 代码。
+HIDA 用层次化数据流 IR 连接算法描述与 HLS 硬件结构，将任务划分和硬件缓冲分在不同抽象层优化。
 
-## Introduction
+## 数据流的难点在任务划分与通信的耦合
 
 因为摩尔定律不像之前一样每年都有一个大的性能提升。HLS 是一个有前途的方法将高级算法描述转变为 HDL 描述。
 - **Dataflow Architecture.** 定制硬件加速器的一个重要架构是数据流，它能够并行执行粗粒度任务。与冯诺依曼架构不同，数据流架构可以利用任务之间的片上通信来避免频繁的外部内存访问。
@@ -14,13 +14,13 @@
     - 提出了 HIDA-OPT 数据流优化器。
     - 提供了 end-to-end，可以支持 Pytorch 和 C++ 输入。
 
-## Overview
+## 从输入程序进入两级数据流 IR
 
 ![](figure2.png)
 
 HIDA 构建在 MLIR 基础设施上，可以采用 Pytorch 或者 HLS C++ 代码作为输入。
 
-## HIDA IR
+## Functional 表达任务，Structural 明确硬件结构
 
 当前的 HLS 工具使用串行 IR 来时表示 HLS 结构。然而，因为缺乏并行特征和数据流的微架构，这些架构限制了优化数据流的能力。HIDA 提出了 **Functional** 和 **Structural** 来表示两级表示，Functional 被设计用来捕获高纬度信息，Structural 被设计用来表示微架构信息。
 
@@ -49,5 +49,3 @@ HIDA 构建在 MLIR 基础设施上，可以采用 Pytorch 或者 HLS C++ 代码
 ### Functional Dataflow Optimization
 
 ![](algorithm2.png)
-
-### Structural Dataflow Construction

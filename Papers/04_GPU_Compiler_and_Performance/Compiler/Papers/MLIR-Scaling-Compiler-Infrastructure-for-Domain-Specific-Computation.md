@@ -1,4 +1,4 @@
-# MLIR: Scaling Compiler Infrastructure for Domain Specifific Computation
+# MLIR: Scaling Compiler Infrastructure for Domain-Specific Computation
 
 ## Introduction
 
@@ -8,7 +8,7 @@
 
 有一些语言在更高级或更低级的 IR 中进行抽象更好分析。例如 LLVM IR 很难对 C++ 进行源码分析。Swift，Rust 等语言会开发新型 IR 去解决领域特定问题。在 ML 领域使用 ML graph 作为领域特定抽象。
 
-MLIR 是为了解决 解决这些领域特定问题面临的问题和挑战而抽象出的层级：
+MLIR 通过可定义的方言保留领域抽象，并共享编译基础设施：
 
 - 基于 SSA
 
@@ -25,9 +25,3 @@ MLIR 是为了解决 解决这些领域特定问题面临的问题和挑战而�
 ![](MLIR-Scaling-Compiler-Infrastructure-for-Domain-Specific-Computation/fig1.png)
 
 ![](MLIR-Scaling-Compiler-Infrastructure-for-Domain-Specific-Computation/fig2.png)
-
-## Design Principles
-
-
-
-

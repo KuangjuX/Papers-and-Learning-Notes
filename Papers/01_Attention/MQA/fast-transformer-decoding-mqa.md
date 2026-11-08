@@ -56,15 +56,6 @@ $$
 \end{aligned}
 $$
 
-同一个 forward 同时建立以下监督关系：
-
-| 当前位置可见的前缀 | 预测目标 |
-|---|---|
-| `<BOS>` | 我 |
-| `<BOS> 我` | 喜欢 |
-| `<BOS> 我 喜欢` | 猫 |
-| `<BOS> 我 喜欢 猫` | 。 |
-
 训练数据已经给出所有真实 token，所以每个位置的 Q/K/V 可以同时计算；causal mask 只让位置 $i$ 看见 $j\le i$，并不要求硬件按位置串行执行。这就是 teacher forcing：训练时位置 $i+1$ 使用数据集里的真实 token，decode 时则必须使用模型刚生成的 token。
 
 训练目标是：
@@ -91,7 +82,7 @@ $$
 1+2+\cdots+n=\frac{n(n+1)}2=\Theta(n^2).
 $$
 
-这解释了一个表面矛盾：training/prefill 与完整 decode 都会执行大量 attention 运算，但前者形成大型并行矩阵乘，后者却由 $n$ 个相互依赖的小步骤组成，并在每一步重新读取不断增长的 KV cache。
+Training/prefill 将这些交互组织成并行矩阵乘；decode 则分成 $n$ 个相互依赖的小步骤，反复读取增长中的 KV cache。
 
 ## Attention score、hidden dimension 与 vocabulary logits {#_2-attention-score、hidden-dimension-与-vocabulary-logits}
 
@@ -211,10 +202,6 @@ $$
 
 则两个 query heads 对同一份 K 得到相反的偏好：第一个主要选择位置 1，第二个主要选择位置 2。
 
-因此 MQA 不是“把整个多头注意力压成单头”，而是：
-
-> 保留多个独立读取者（query heads），让它们共同读取一份持久记忆（shared K/V）。
-
 标题中的“One Write-Head”强调的正是这种不对称：每个 token 只向 cache 写入一组 K/V，后续仍由多个 query heads 读取。
 
 ### 为什么共享 K/V，而不是共享 Q {#_4-1-为什么共享-k-v-而不是共享-q}
@@ -324,11 +311,9 @@ Billion Word LM 实验使用 6 层 decoder、$d_{model}=1024$、$h=8$、$d_k=d_v
 | Incremental decoder | 46 μs | 3.8 μs | 约 $12.1\times$ 加速 |
 | Beam-4 decoder | 203 μs | 32 μs | 约 $6.3\times$ 加速 |
 
-**论文 claim：** 降低 KV 带宽需求能显著加速增量解码。
+Training 将所有位置组成大矩阵运算，且包含 backward，通常具有更高 arithmetic intensity；decode 每步只有一个新 query，却反复读取历史 KV，更容易 bandwidth-bound。因此相同架构变化在两阶段产生截然不同的 wall-clock 效果。
 
-**解释：** Training 将所有位置组成大矩阵运算，且包含 backward，通常具有更高 arithmetic intensity；decode 每步只有一个新 query，却反复读取历史 KV，更容易 bandwidth-bound。因此相同架构变化在两阶段产生截然不同的 wall-clock 效果。
-
-**边界：** $12.1\times$ 不是由 $h=8$ 唯一决定的普适常数。端到端时间还包含 kernel 实现、固定 shape、padding、batch、硬件及其他算子。论文注明由于系统限制，decoder-self-attention 的 KV 张量被 padding 到最大长度 128，使每个 decoding step 用时相同。
+$12.1\times$ 不是由 $h=8$ 唯一决定的普适常数。端到端时间还包含 kernel 实现、固定 shape、padding、batch、硬件及其他算子。论文注明由于系统限制，decoder-self-attention 的 KV 张量被 padding 到最大长度 128，使每个 decoding step 用时相同。
 
 ### 质量实验 {#_6-3-质量实验}
 

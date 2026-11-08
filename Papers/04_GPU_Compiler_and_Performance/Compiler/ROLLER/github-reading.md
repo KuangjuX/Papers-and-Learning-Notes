@@ -9,15 +9,15 @@
 张量编译器用来优化算子并生成可以在特定加速器执行的代码。然而优化算子涉及到嵌套循环拆分/融合/重排序，实际上是一个组合优化问题，搜索空间巨大。目前先进的编译器像 TVM，Ansor，Flextensor 等通过机器学习算法搜索解决方案，然而这非常耗费时间。在本篇文章中提出了 Roller。
 
 - 首先 Roller 把在 DNN 算子中的计算视为流水线数据处理而不是多级嵌套循环，数据块在并行执行单元和多级内存架构上进行移动和处理。目标由生成有效率的内核程序变成了提高流水线吞吐量。
-- 其次，为了加速器执行有效率，tile(数据块）的大小应该和内存 bank，内存食物长度和最小调度单元（GPU warp size）对齐。
+- 其次，为了加速器执行有效率，tile(数据块）的大小应该和内存 bank，内存事务长度和最小调度单元（GPU warp size）对齐。
 - 再其次，对齐流水线的性能是高度可预测的。
 
-因此 Roller 提出了 **rTile** 抽象用于管理 data tile shapes 和加速器关键特性和输入的张量大小对齐。一系列流水线处理过程可以被描述为 rTile-based program。有 Load，Stroe，Compute 三个接口。它使用先扩展然后后扩展的方法。
+因此 Roller 提出了 **rTile** 抽象用于管理 data tile shapes 和加速器关键特性和输入的张量大小对齐。一系列流水线处理过程可以被描述为 rTile-based program。有 Load，Store，Compute 三个接口。构建过程区分单执行单元内扩大 tile 与跨执行单元扩展并行。
 
 ## tile 大小与布局为何决定成本
 
 - **Excessive compilation time**： 在 Ansor 上编译一组算子非常慢，在编译 NASNet 的时候花费了 41.8 个小时，这主要是由于搜索空间巨大造成的。
-- **Observation and insights**： 以矩阵乘法为例，$C_{m,n} = A_{m,k} * B_{k,n}$，在存在的编译器中将这个视为三重循环。但是本文可以将其视为：1. Load 子矩阵（i.e. a tile）从 A 矩阵和 B 矩阵中。2. Compute 两个矩阵。3. 存储 C 的 tile 到内存中。因此计算结果的速度依赖于数据 tiles 可以在 Load-Compute-Store 流水线中有多快。
+矩阵乘法可按 Load A/B tiles → Compute → Store C tile 组织；tile 形状与布局决定各阶段成本，以及流水线能否持续供给计算。
 
 ![截屏2023-08-18 10 03 06](images/issue-24-01.png)
 
@@ -31,7 +31,7 @@ Roller 从张量表达式中提取张量 shape 并基于硬件特性构建 rTile
 
 ### Tensor Expression and rTile
 
-Raller 将 tensor 表达式计算作为一个基于索引的匿名表达式：`C = compute((M, N), lambda i,j: sum(A[i,k] * B[k,j]))`，可以覆盖大部分 DNN 模型中的算子。
+Roller 将 tensor 表达式计算作为一个基于索引的匿名表达式：`C = compute((M, N), lambda i,j: sum(A[i,k] * B[k,j]))`，可以覆盖大部分 DNN 模型中的算子。
 
 ![截屏2023-08-18 10 26 32](images/issue-24-03.png)
 
@@ -68,9 +68,6 @@ Figure 6 和 Figure 7 是一个示例，首先从 L2 中加载 [4,4] 和 [4,8] �
 
 Figure 8 展示了构建 rTile 的算法，输入张量表达式和设备，通过递归调用 `EnlargeTile` 来获得 rTile，每次将会获得 Top K 个，防止设备有些隐藏特性不能使用。
 
-**Scaling out an rProgram.**
-**Small operator and irregular tensor shape.**
-
 ### Efficient Evaluation of an rProgram
 
 Roller 也引入了一个 efficient evaluation 用来评估性能，在 Figure 8 中提到了。这些 evaluation 可以通过一次 offline profile 并将其缓存。
@@ -81,6 +78,5 @@ Roller 也引入了一个 efficient evaluation 用来评估性能，在 Figure 8
 
 Roller 的实现基于 Rammer 和 TVM 两个开源项目。
 
-- **Code Generation.**
 - **Tensor padding.** 由于最底层内存，例如 DRAM 由机器学习框架进行分配，因此 Roller 只对上层内存进行填充，例如可以使用 TVM 的 `storage_align` 原语来添加 padding。
 - **Performance profiling.** Roller 实现了两个 profiller，分别是 micro-performance profiler 和 kernel profiler。前者通过一组微分析生成设备规格，包括内存带宽，计算吞吐量。对于每个设备类型和张量表达式类型（不管 tensor shape 是什么）进行一次离线分析。kernel profiler 从 top K 个 rProgram 中进行评估。

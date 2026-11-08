@@ -1,5 +1,7 @@
 # A Survey of LLM Inference Systems
 
+自回归生成使请求长度、KV 占用与每轮活跃 batch 不断变化。推理系统需要同时安排算子执行、批处理和缓存生命周期，避免单项优化转化为另一处的等待或内存压力。[综述](https://arxiv.org/html/2506.21901v1)
+
 ![](llm_inference_survey/fig1.png)
 
 ## Request Processing
@@ -8,11 +10,11 @@
 
 请求包含一个初始的前缀 $x_1, x_2, ... x_p$，基于此生成一个完整的回复 $x_1, ...,x_p, ..., x_n$。$x_{i+1} = LLM(x_1, ..., x_i)$，输出序列通过反馈前面的 tokens 形成一个 token，这个过程叫做 **autoregressive generation**(自回归生成)。
 
-为了生成 output token，每个输入 token 都会被映射到一个高维度的 embedding 通过 **embedding model**。这些 rmbedding 会流经一系列 Transformer 层，每个 Transformer 层功能相同，但参数设置不同，从而实现 contextualized(上下文化)。输入序列的最后一个 token 的 contextualized embedding 会被输入到 token sampler 中生成 output token。
+为了生成 output token，每个输入 token 都会被映射到一个高维度的 embedding 通过模型的 embedding 层。这些 embedding 会流经一系列 Transformer 层，各层使用相似的模块结构，但具有各自的参数，从而实现 contextualized(上下文化)。输入序列的最后一个 token 的 contextualized embedding 会被输入到 token sampler 中生成 output token。
 
 ![](llm_inference_survey/fig2.png)
 
-每个 Transformer 中含有一个 Attention 和 FFN，中间还有一个 **Normalization**。Attention 和 FFN 主要通过将 embedding 乘各种权重矩阵来工作，这些权重矩阵的值通过训练确定。具体到注意力算子，针对第 $i$ 个 embedding 需要对 $j$ 个 embedding 进行 **linear projection**(线性投影)，$j < i$。由于序列生成是自回归的这些投影数量（KV Cache）会在请求生命周期内增长。
+每个 Transformer 中含有一个 Attention 和 FFN，中间还有一个 **Normalization**。Attention 和 FFN 主要通过将 embedding 乘各种权重矩阵来工作，这些权重矩阵的值通过训练确定。每层为新 token 计算 Q、K、V，历史 token 的 K、V 可复用；随生成继续，KV cache 的行数增长。
 
 ### Operator
 
@@ -22,13 +24,13 @@
 
 $$
 \begin{equation}
-u_i = softmax(q_i^TK^T)V
+u_i = softmax(q_i^TK^T/\sqrt{d_k})V
 \end{equation}
 $$
 
-其中 $q_i^T = x_i^TW_q$，其中 $q_i$ 成为对 token $x_i$ 的查询， $q_i^T$ 称为 **attention pattern**。
+其中 $q_i^T = x_i^TW_q$ 是查询；softmax 后的权重才是 attention pattern。这里省略多头拼接和输出投影。
 
-K 和 V 矩阵由 $x_i$ 之前的标记(即 $x_1, ..., x_{i-1}$) 构成。具体而言，K 的第 j 行($k_j$) 以及 V 的第 j 行($V_j$)对应于第 j 个 embedding vector 的线性投影。换句话说，对于 0 到 i 之间的所有 j 都有
+因果自注意力的 K、V 包含到当前位置为止的 token（$x_1,\ldots,x_i$）。具体而言，K 的第 j 行($k_j$) 以及 V 的第 j 行($V_j$)对应于第 j 个 embedding vector 的线性投影。换句话说，对于 $1 \le j \le i$ 都有
 
 $$
 K^T_j = x^T_j W_k,
@@ -43,18 +45,18 @@ $$
 
 $$
 \begin{equation}
-U = softmax(QK^T)V
+U = softmax(QK^T/\sqrt{d_k} + M)V
 \end{equation}
 $$
 
-在数据并行硬件中，即使基本成本相同，使用（2）一次计算也比使用（1）多次计算更高。除了预填充外，此属性还促成了请求批处理，从而有效第允许再一次调用中对多个请求执行多次解码。
+其中 $M$ 是因果掩码。把多个 query 合并为矩阵运算可以提高硬件利用率；decode 则可把多个请求的当前 token 合批，在一次调用中推进各请求。
 
 
 ![](llm_inference_survey/table1.png)
 
 **Attention Variants.** 对于 long prompts 的请求，需要大量解码轮次，K，V 的行数可能会非常长。
 - MHA：垂直分割 $W_q$, $W_k$, $W_v$ 并行化公式（1）和（2）。
-- 分组注意力：通过删除一些小矩阵直接降低成本，参考图（4）和表（1）。
+- 分组注意力：让多个 query 头共享 KV 头，以减少 KV 投影和缓存，参考图（4）和表（1）。
 - 稀疏注意力：通过仅计算某些键的注意力模式来降低计算成本。
 - 共享注意力：通过在多个输入之间共享注意力模式来降低内存和计算成本，这些输入可能属于单个请求(beam search)也可能属于多个请求（system prompt），该技术通过仅计算一次共享 token 的注意力来降低计算成本。
 
@@ -70,9 +72,9 @@ FFN(x_i) = max(0, X^T_iW_1 + b_1)^TW_2 + b_2
 \end{equation}
 $$
 
-计算和内存成本与参数大小成正比，但与注意力机制不同，注意力机制的成本会根据 KV Cache 的大小变化，而 FFN 的成本对于所有输入都是相通的。
+计算和内存成本与参数大小成正比，但与注意力机制不同，注意力机制的成本会根据 KV Cache 的大小变化，而 FFN 的成本对于所有输入都是相同的。
 
-**Mixture-of-Experts.** 在 MoE 系统中，FFN 被一组较小的网络取代，每个网络称为一个专家。门电路决定使用哪个专家来处理给定的输入。由于每个专家都比原始 FFN 小得多，因此计算成本显著降低。MoE 系统的大部分工作集中在专家架构、门电路设计、专家的动态加载以及专家计算的硬件优化上。在分布式环境中，还需要考虑专家的布局和负载均衡。
+**Mixture-of-Experts.** 在 MoE 系统中，FFN 被一组较小的网络取代，每个网络称为一个专家。门电路决定使用哪个专家来处理给定的输入。每个 token 只激活部分专家，使激活计算量小于执行全部专家的成本；专家尺寸不必小于 dense FFN。MoE 系统的大部分工作集中在专家架构、门电路设计、专家的动态加载以及专家计算的硬件优化上。在分布式环境中，还需要考虑专家的布局和负载均衡。
 
 - Token Sampling
 
@@ -84,7 +86,7 @@ Token Sampling 是指在生成文本时，从模型给出的概率分布中选�
 
 ### Sequence Generation
 
-为了生成完整的输出序列，可以将部分生成的序列递归地反馈到模型中，以流式方式生成下一个标记，一旦达到终止条件（例如，生成终止标记）就停止。但是，提示中的细微差异，例如 $\textit{chain-of-thout}$ (CoT)、$\textit{few-shot-examples}$(小样本示例)和其他提示工程技术，都可能导致输出的巨大差异，从而影响成本和准确性。另一方面，结构化生成方法会跟踪一组潜在的输出序列，在选择其中一个候选序列作为最终输出序列之前，会自回归地将每个候选序列推进到所需的距离。这些方法，例如 $\textit{beam search}$、$\textit{tree-of-thoughts}$、$\textit{graph-of-thoughts}$ 和 $\textit{self-consistency}$，会使请求处理成本成倍增加，但可以为许多任务带来更高质量的输出。
+为了生成完整的输出序列，可以将部分生成的序列递归地反馈到模型中，以流式方式生成下一个标记，一旦达到终止条件（例如，生成终止标记）就停止。但是，提示中的细微差异，例如 $\textit{chain-of-thought}$ (CoT)、$\textit{few-shot-examples}$(小样本示例)和其他提示工程技术，都可能导致输出的巨大差异，从而影响成本和准确性。另一方面，结构化生成方法会跟踪一组潜在的输出序列，在选择其中一个候选序列作为最终输出序列之前，会自回归地将每个候选序列推进到所需的距离。这些方法，例如 $\textit{beam search}$、$\textit{tree-of-thoughts}$、$\textit{graph-of-thoughts}$ 和 $\textit{self-consistency}$，会使请求处理成本成倍增加，但可以为许多任务带来更高质量的输出。
 
 
 <div style="display: flex; gap: 10px;">
@@ -114,7 +116,7 @@ Token Sampling 是指在生成文本时，从模型给出的概率分布中选�
 - Other Kernels
 
 
-对于 FFN，$f_1$、$f_2$ 和 $g$ 函数均可 $\textit{element-wise}$ 实现，从而可以将它们流水线化到单个融合内核中。此特性还允许将其直接融合到块级注意力内核中，从而适度降低延迟。
+FFN 的 $f_1$、$f_2$ 包含矩阵乘法，$g$ 是逐元素激活。融合可减少中间张量读写与启动次数，但是否能跨 GEMM、激活乃至注意力融合，取决于 tile、数据依赖和片上资源。
 
 对于其他算子，LightSeq 将连续的非 GeMM 操作组合到单个融合内核中，从而生成多个用于 $\textit{layer normalization}$、$\textit{tensor reshape}$、$\textit{softmax}$ 和 $\textit{ReLU}$ 激活等操作的手工内核。与基于供应商内核的实现相比，每个 Transformer 块的内核调用次数减少了 4 倍。
 
@@ -126,12 +128,12 @@ Token Sampling 是指在生成文本时，从模型给出的概率分布中选�
 
 ![](llm_inference_survey/fig10.png)
 
-如果批量注意力算子的输入不均匀，也就是说，每个请求的查询矩阵和键矩阵的长度或宽度不相等，那么计算矩阵乘积可能会导致处理器核心因矩阵稀疏性而利用不足。如果批量注意力算子的输入不均匀，也就是说，每个请求的查询矩阵和键矩阵的长度或宽度不相等，那么计算矩阵乘积可能会导致处理器核心因矩阵稀疏性而利用不足。另一方面，brusting 可以避免稀疏矩阵，但需要单独启动内核，每个请求对应一个内核(图10(b))。
+如果批量注意力算子的输入不均匀，也就是说，每个请求的查询矩阵和键矩阵的长度或宽度不相等，那么计算矩阵乘积可能会导致处理器核心因矩阵稀疏性而利用不足。另一方面，bursting 可以避免稀疏矩阵，但需要单独启动内核，每个请求对应一个内核(图10(b))。
 
 **Dynamic Batching.** 在静态批处理中，批处理的请求会被一起执行与返回，因此即使某些请求可能比其他请求更早达到终止状态，它们的延迟看起来也相等。Continuous Batching 通过在迭代之间动态插入和删除批处理中的请求来解决此问题，从而提高了 GPU 利用率。
 
 (1) $\textit{continuous batching}$ 会在每轮执行后而不是完成时重新构建批处理（Orca: A distributed serving system for transformer-based generative models）。
-(2) $\textit{Chunked prefill}$ 将 continous batching 的理念扩展到 prefill 阶段，方法是请求拆分成小块，并在多个执行轮次处理。
+(2) $\textit{Chunked prefill}$ 将 continuous batching 的理念扩展到 prefill 阶段，方法是请求拆分成小块，并在多个执行轮次处理。
 
 <div style="display: flex; gap: 10px;">
   <div style="flex: 1;">
@@ -141,10 +143,6 @@ Token Sampling 是指在生成文本时，从模型给出的概率分布中选�
     <img src="./llm_inference_survey/fig12.png" alt="Figure 12" style="width: 100%;">
   </div>
 </div>
-
-### Scheduling
-
-TODO
 
 ## Memory Management
 
@@ -160,7 +158,9 @@ TODO
 
 **Memory Manager.** 内存管理器负责页面的创建、删除和查找。为了跟踪页面块地址和内容（即映射到页面中存储的 KV 条目的 token 及其在序列中的位置），可以使用页表来列出每个页面的地址和内容（图 13）。在 vLLM 中，GPU 内存作为内存容器，内存管理器和页表在主机上实现。
 
-对于使用基于 CPU 的内存管理器的基于 GPU 的系统，由于物理块驻留在 GPU 上,页面创建和删除会导致从 CPU 向 GPU 提交内存分配和释放命令。同样，由在 GPU 内运行的特殊页感知注意力内核执行的页面查找会导致从内核向内存管理器提交查找命令。在 vAttention 中，通过利用 GPU 的原生内存管理能力来减少这些通信产生的开销。这样做还有一个次要优势，即使缓存在内核看来就像存储在连续内存中一样，从而可以使用非分页内核。
+主机维护块分配与逻辑映射，并将 block table 作为元数据提供给 GPU kernel；kernel 在设备侧查表定位 KV，不是每次访存都向 CPU 发起查找。块池内的分配也不等于每次调用底层 GPU 分配器。代价来自查表、分支和不连续访存。[vLLM kernel 文档](https://docs.vllm.ai/en/v0.6.3/dev/kernel/paged_attention.html)
+
+vAttention 则利用虚拟内存映射保持 kernel 可见的连续地址，在背后按需提供物理内存，从而允许使用非分页 attention kernel；其代价转为映射管理与相关同步。[vAttention §3–4](https://www.microsoft.com/en-us/research/uploads/prodnew/2024/05/vattention_arxiv24.pdf)
 
 **Block Sharing.** 为了实现 $\textit{block sharing}$，可以将对应于不同请求的多个页面条目简单地分配给同一个块地址。何时以这种方式链接页面的条件取决于共享注意力机制（第 4.4 节）。在 (1) $\textit{exact match sharing}$（精确匹配共享）中，只有一个或多个请求之间最长公共前缀的缓存条目可以被共享。块大小会影响这些共享机会的数量，因为页表只允许共享整个块。较小的块大小使得更容易找到块中所有条目都满足此条件的块，但同时会增加推理期间块检索的数量。在 (2) $\textit{partial match sharing}$（部分匹配共享）中，此条件被放宽以允许部分前缀匹配，即共享一些或全部相同 $\textit{token}$ 的前缀，这些 $\textit{token}$ 也可能是乱序的。
 
@@ -228,22 +228,3 @@ TODO
 ## Inference Systems
 
 在 **LLM** 推理系统中，各种请求处理、执行和内存管理技术被结合起来，以支持高效和高质量地处理通用 **LLM** 工作负载，或针对更具体的应用。一个完整的推理系统由前端（$\textit{frontend}$）和运行时（$\textit{runtime}$）组成。前端允许用户交互，例如通过声明式或命令式接口，并可能提供诸如结构化输出和自动提示优化等功能。运行时管理模型执行的所有其他方面，单副本运行时（$\textit{single-replica runtimes}$）针对单个 LLM 上的请求处理，而多副本运行时（$\textit{multireplica runtimes}$）针对具有多个相同 LLM 的环境。单副本和多副本系统都可以支持分布式执行（$\textit{distributed execution}$），而后者还可以被设计为支持分解式执行（$\textit{disaggregated execution}$）。
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

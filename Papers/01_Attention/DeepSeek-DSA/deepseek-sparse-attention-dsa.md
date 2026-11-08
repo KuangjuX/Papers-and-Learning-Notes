@@ -157,7 +157,7 @@ $$
 
 这里的 $c_s$ 不是普通 MHA 的一个 Key，也不是一个 Value，而是 token $s$ 的 **MLA latent KV entry**。工程上还要配套读取该 token 的 decoupled RoPE key 部分 $k_s^R$。
 
-因此，Top-k 选择的单位仍然是“原始 token 位置”，只是该位置在 KV cache 中对应的是压缩 latent 表示，而不是展开后的所有 per-head K/V vectors。
+选择单位是 token 位置，读取的是该位置的压缩表示。
 
 ---
 
@@ -173,20 +173,7 @@ c_s^{KV}=W^{DKV}h_s,
 c_s^{KV}\in\mathbb R^{d_c}.
 $$
 
-$c_s^{KV}$ 是同一 token 的 Key/Value 信息的联合低维编码。概念上：
-
-```text
-一个原始 token h_s
-        ↓ W_DKV
-一个 latent code c_s^KV
-```
-
-它不是：
-
-- 一个压缩了多个 token 的“超级 token”；
-- 普通意义上的单个 Key vector；
-- 普通意义上的单个 Value vector；
-- DSA Indexer 自己使用的 $k_s^I$。
+$c_s^{KV}$ 联合编码同一 token 的 Key/Value 信息，不合并多个 token，也不同于检索分支的 $k_s^I$。
 
 ### MHA-mode 可以把 latent 展开成 per-head K/V {#_5-2-mha-mode-可以把-latent-展开成-per-head-k-v}
 
@@ -319,11 +306,7 @@ $$
 
 代码中常见的 `uo_proj` 对应的就是这类融合输出映射。
 
-因此：
-
-> `uk_proj` 被吸收到 Query 侧，用来计算 per-head attention score；`uv_proj` 与 `o_proj` 融合成 `uo_proj`，用来把加权 latent representation 映射回 hidden space。
-
-`uo_proj` 不会恢复 Indexer score，也不会恢复 attention logits。
+`uo_proj` 的输入是加权 latent output，不是 Indexer score 或 attention logit。
 
 ### 为什么它不是 vanilla MQA {#_6-4-为什么它不是-vanilla-mqa}
 
@@ -340,13 +323,7 @@ vanilla MQA 让所有 Query heads 直接共用一组普通 K/V。MLA MQA-mode �
 
 ## 三种“分数/表示”不能混为一谈 {#_8-三种-分数-表示-不能混为一谈}
 
-| 名称 | 公式或表示 | 作用 | 是否进入 `uo_proj` |
-|---|---|---|---|
-| Indexer score | $I_{t,s}$ | Top-k 排序，决定候选 token | 否 |
-| Main attention logit | $a_{t,s,i}$ | 在候选集合内计算 softmax | 否 |
-| Main attention probability | $p_{t,s,i}$ | 对 latent values 加权 | 间接决定输入 |
-| Weighted latent output | $z_{t,i}=\sum_s p_{t,s,i}c_s^{KV}$ | `uo_proj` 的直接输入 | 是 |
-| Final output | $u_t=\sum_iW_i^{UO}z_{t,i}$ | 写回 hidden/residual space | 已是结果 |
+Indexer 分数决定位置；主 attention logits 决定这些位置上的概率；概率加权 latent KV 后才得到 `uo_proj` 的输入。下面用一次前向连接这三类数据。
 
 ### 一次推理如何连接选择与主分支
 

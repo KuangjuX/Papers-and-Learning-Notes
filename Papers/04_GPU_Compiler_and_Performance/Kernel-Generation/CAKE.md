@@ -14,7 +14,7 @@ arxiv: 2608.12629
 
 Kernel agent 每次得到一个报错或延迟数字后，都需要判断应修改计算、布局、同步还是调度。CAKE 将这些硬件决策放入可分析的 Cake IR，并让编译器返回更局部的诊断；反复出现的问题还可转化为新的验证规则与编译能力。
 
-[Zihao Ye 等，CAKE，arXiv:2608.12629](https://arxiv.org/abs/2608.12629)，NVIDIA / CMU。下文依次解释表示、反馈、演化过程和评测口径。
+[Zihao Ye 等，CAKE，arXiv:2608.12629](https://arxiv.org/abs/2608.12629)，NVIDIA / CMU。
 
 ## 黑盒 kernel 搜索缺少什么反馈
 
@@ -229,7 +229,6 @@ API 与 GPU-span 数字的差距说明，大幅端到端提升还来自减少 GP
 - **主要证据集中在 B200**：跨 Ampere–Blackwell 的语言与 lowering 覆盖不等于跨平台性能证据；非 NVIDIA 后端尚未测量，移植需要重建 backend。
 - **“Clean start”不等于环境没有先验**：智能体看不到目标低层实现，但 Cake IR/harness 已从生产 kernel corpus 中演化出来；优势来自表示与环境中累积的领域知识，而不只是语法更简洁。
 - **演化成本高**：Flash-KMeans 每次使用 8000 万 token，KDA 轨迹达到十亿级累计 token；论文较少讨论推理成本和维护 compiler harness 的人力如何摊销。
-- **不同案例的 speedup 不可直接横向比较**：硬件、shape、baseline、API/GPU-span 口径和协议不同，尤其不能把 Alpha-MoE 的 API 级 6.204× 当作 kernel 执行本身的加速。
 
 ## 个人理解：可复用的诊断也有维护成本
 

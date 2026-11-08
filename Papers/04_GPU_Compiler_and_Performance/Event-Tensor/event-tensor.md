@@ -115,9 +115,7 @@ producer mapping = "ij->i"
 consumer mapping = "i->i"
 ```
 
-因此更准确的表述不是“Event Tensor 取代 DAG”，而是：
-
-> Event Tensor 是 task DAG 的 tensorized、symbolic、parametric representation。
+Event Tensor 因而是 task DAG 的张量化、符号化与参数化表示。
 
 ## 把符号 shape 和运行时路由放入同一表示
 
@@ -248,12 +246,7 @@ Event Tensor 论文的重点是第 3 步：同一份 dependency IR 可以被降�
 
 Qwen3-32B、TP=4 中，static 相对 unfused 为 1.06×-1.09×，dynamic 只有 0.82×-0.89×。规则任务不需要动态均衡，而多 GPU push/pop 尤其昂贵。
 
-因此不能将动态调度简单理解为静态调度的升级版：
-
-```text
-规则、低延迟、可预测任务       -> static schedule
-MoE、通信抖动、不规则执行时间 -> dynamic schedule
-```
+动态队列的成本必须由减少等待和负载不均带来的收益覆盖。
 
 
 ## 运行时怎样执行编译后的控制流
@@ -279,7 +272,7 @@ MoE、通信抖动、不规则执行时间 -> dynamic schedule
 - CUDA 13.0；
 - Driver 580.82.07。
 
-所有主要结果都来自 B200。抽象本身位于 compiler IR 层，但性能结论是否可直接迁移到 A100/H100、PCIe 或其他互连拓扑，论文没有验证。
+主要图表未明显报告误差条、运行次数或方差。所有主要结果都来自 B200。抽象本身位于 compiler IR 层，但性能结论是否可直接迁移到 A100/H100、PCIe 或其他互连拓扑，论文没有验证。
 
 ### 计算通信融合
 
@@ -395,16 +388,6 @@ MPK：自动构造显式 tGraph，再将它压缩并交给 in-kernel runtime
 自动化程度则相反：MPK 更接近从 PyTorch graph 到 task code 和 runtime 的完整 vertical system；Event Tensor 提供了更简洁、DSL-agnostic 的依赖语言，但当前还不能自动从普通计算图生成全部 Event Tensor annotations。
 
 版本上需注意：Event Tensor v2 发布于 2026-04-21；当前 MPK v2 更新于 2026-06-10，已经加入 continuous batching、MoE 和 multi-GPU dynamic workload 支持。因此 Event Tensor related-work 中“现有 megakernel 仅支持 single-batch dense model”的描述不应直接套用于当前 MPK v2。
-
-## 适用边界与尚未自动化的部分
-
-### Event Tensor graph 仍需人工或上游 compiler 提供
-
-当前 pipeline 从“已经 tile 化并显式标注 Event Tensor 的图”开始。如何从普通 PyTorch/Relax graph 自动选择 tile granularity、推导最小依赖、合并 events 并生成 annotations，仍被留作未来工作。这也是 MPK 当前自动化更强的部分。
-
-### 实验硬件和统计报告有限
-
-主要实验只使用 B200；图表没有明显给出误差条、运行次数或方差。Triton Distributed 的 B200 支持尚不成熟，也会影响部分基线比较的解释。
 
 ## 个人理解：数据流与就绪条件的分离
 

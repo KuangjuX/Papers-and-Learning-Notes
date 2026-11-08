@@ -1,21 +1,11 @@
 # Look Ma, No Bubbles!：Llama-1B Megakernel 阅读摘记
 
-来源：[2025 年度 LLM 研究总结](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)。
+Llama-3.2-1B 的单序列解码需要不断加载模型权重。拆成大量小 kernel 后，每次准备、收尾与边界同步都可能让访存停顿。Hazy Research 用 ThunderKittens 将一次前向组织成 Megakernel，以跨算子资源复用和同步减少这些间隙。[原始博文](https://hazyresearch.stanford.edu/blog/2025-05-27-no-bubbles)
 
-用 ThunderKittens 将模型计算组织成低延迟 Megakernel。
+![Llama-1B Megakernel 实现与性能](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/images/work-summary-06.jpg)
 
-## 要点与边界
+博文的 Figure 1 使用 32-token prompt、生成 128 tokens、无投机解码；H100 上报告 78% 的显存带宽利用率，以及相对所比较系统超过 1.5× 的速度。这是特定模型、batch size 1 与实现条件下的结果；原始讨论还涉及 B200，不能将不同 GPU 的结果混用。
 
-- 原始来源：[Hazy Research 博文](https://hazyresearch.stanford.edu/blog/2025-05-27-no-bubbles)。
-- 实验性模型实现不等于通用编译器能力；与 MPK 的优先权关系需要独立证据。
-- 旧文中的性能比较应绑定 Llama-1B、batch size 1、具体 GPU 与服务框架版本，不能跨模型直接套用。
+与 [MPK](../MPK/zhihu-reading.md) 相比，这项工作聚焦特定模型的实现，MPK 则通过 Mirage 的任务图和运行时组织执行。前者的结果不能单独证明通用编译器能够自动达到同样性能。
 
-## 机制与实现
-
-#### Look Ma, No Bubbles! Designing a Low-Latency Megakernel for Llama-1B[10](https://zhuanlan.zhihu.com/p/1994788371738949558#ref_10)
-
-同时，Hazy Research Lab 也发布了一篇 Blog 利用 ThunderKittens[11](https://zhuanlan.zhihu.com/p/1994788371738949558#ref_11) 做了这个工作，将 Llama-1B[12](https://zhuanlan.zhihu.com/p/1994788371738949558#ref_12) fuse 成了一个巨型内核。理论上来说 Hazy Research Lab 是第一个做这个工作的，MPK 应该在很大程度上参考了这篇工作。这篇 Blog 的整体思路应该是和 MPK 差不多的，但是 MPK 是将整个的思路做到了他们的 mirage 上，而这篇 Blog 则是采用 ThunderKittens 这个 DSL 来进行实现。
-
-![](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/images/work-summary-06.jpg)
-
-相比于 MPK，MegaKernels 可能算是一个比较实验性的实现，并没有对太多的 DNN Workload 进行评估，主要在单卡 H100/B200 针对 Llama-1B 进行评估，在 bsz=1 的情况下相比于 vLLM 和 SGLang 有巨大的提升。
+原笔记曾推测 MPK 参考了该工作；这一历史关系尚无作者或引用证据，保留为个人疑问。[原始讨论](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)

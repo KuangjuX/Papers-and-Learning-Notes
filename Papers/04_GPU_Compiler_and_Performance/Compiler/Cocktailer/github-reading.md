@@ -21,7 +21,7 @@
 2. branch uTask
 3. uTask reference
 
-通过引用 uTask，Cocktailer 构造了一种控制流与数据流的协同调度空间。这样可以讲一些控制流操作，例如循环和分支放到加速器端来执行，这样可以在控制流侧做更多的优化。Cocktailer 构建于通用的 DNN Tensor 编译器上，可以适配不同的加速器。例如 CUDA GPU 和 ROCm GPU。
+通过引用 uTask，Cocktailer 构造了一种控制流与数据流的协同调度空间。这样可以将一些控制流操作，例如循环和分支放到加速器端来执行，这样可以在控制流侧做更多的优化。Cocktailer 构建于通用的 DNN Tensor 编译器上，可以适配不同的加速器。例如 CUDA GPU 和 ROCm GPU。
 
 在编程语言中，控制流通常包括顺序，循环，分支和函数调用。与之类似，DNN 模型也可以分成类似的：loops for temporal-wise dynamism，models with branches to skip computation 和 models with tree-based architecture via recursion：
 
@@ -31,13 +31,7 @@
 
 由于现代加速器都有流多处理器用于并行执行，比较难以处理串行逻辑，因此目前的 DNN 串行逻辑都在 CPU 执行。在不同模型上去执行全部逻辑与只执行数据流运算有不同的效果，最显著的是 RAE，会慢 56.22 倍。
 
-为什么会慢这么多？
-
-1. CPU 和 GPU 之间的同步是一个很大的开销，同步过程会造成 CPU 阻塞和 GPU 空闲。
-2. CPU 和 GPU 不在一个调度空间内，阻止了更进一步的整体的优化。
-3. CPU 与 GPU 的边界阻止了更进一步本可以同时执行的算子的并行。
-
-因此，本篇文章有一个动机，就是将控制流和数据流放在同一个调度空间内执行，也就是放在加速器端运行。并且幸运的事，调研发现在加速器端执行控制流是可行的。
+这一差距来自前述同步、优化边界与并行性损失；将控制流与数据流纳入同一调度空间，才有机会联合安排它们。
 
 ## 用 uTask 统一表示数据、分支与循环
 
@@ -97,7 +91,7 @@ interface BranchUTask: NestedUTask {
 
 函数可以简单表示成一个 `NestedUTask`，通过串行执行 `body_uTasks` 并且通过 `get_input_data()` 获取对应的张量数据。
 
-- Recurisve
+- Recursive
 
 为了支持递归，新增了 uTask 引用，当执行到 uTask 引用时找到对应的 uTask 继续执行。
 
