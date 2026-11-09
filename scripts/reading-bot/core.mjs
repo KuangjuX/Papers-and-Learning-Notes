@@ -19,9 +19,27 @@ export function newState(now = new Date().toISOString()) {
 
 export function parseMention(body, slug) {
   const escaped = slug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = body.trimStart().match(new RegExp(`^@${escaped}(?:\\[bot\\])?(?=\\s|$)\\s*([\\s\\S]*)$`, 'i'));
-  if (!match) return null;
-  const text = match[1].trim();
+  const mention = new RegExp(`^ {0,3}@${escaped}(?:\\[bot\\])?(?=\\s|$)`, 'i');
+  const lines = body.split(/\r?\n/);
+  let fence;
+  let text;
+  for (let index = 0; index < lines.length; index++) {
+    const line = lines[index];
+    // Quoted answers and examples must never dispatch commands. A real question
+    // may follow GitHub's "Quote reply" block on a new, unquoted line.
+    if (/^ {0,3}>/.test(line)) continue;
+    const delimiter = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+    if (fence) {
+      if (delimiter && delimiter[1][0] === fence[0] && delimiter[1].length >= fence.length && !delimiter[2].trim()) fence = undefined;
+      continue;
+    }
+    if (delimiter) { fence = delimiter[1]; continue; }
+    const match = line.match(mention);
+    if (match) {
+      text = [line.slice(match[0].length), ...lines.slice(index + 1)].join('\n').trim();
+      break;
+    }
+  }
   if (!text) return null;
   if (text === '/reset') return { reset: true, question: '' };
   if (/^\/note(?:\s|$)/.test(text)) return {

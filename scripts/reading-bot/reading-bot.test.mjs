@@ -24,13 +24,37 @@ const comment = (id = 101, overrides = {}) => ({
   html_url: `https://github.com/owner/notes/issues/3#issuecomment-${id}`, ...overrides,
 });
 
-test('only a leading exact bot mention triggers a request', () => {
+test('only an exact bot mention at the start of a non-code, unquoted line triggers', () => {
   assert.equal(parseMention('@paper-reader hello', 'paper-reader').question, 'hello');
   assert.equal(parseMention('\n @PAPER-READER[bot] /ask 你好', 'paper-reader').question, '你好');
   for (const body of ['@paper-reader-evil hello', '@paper-reader', '> @paper-reader hello', '```\n@paper-reader hello\n```', 'example @paper-reader hello']) {
     assert.equal(parseMention(body, 'paper-reader'), null);
   }
   assert.equal(parseMention('@paper-reader /reset', 'paper-reader').reset, true);
+});
+
+test('GitHub quote replies dispatch the new question, not quoted commands', () => {
+  const body = '> Previous explanation\n> @paper-reader /note quoted command\n> ```\n> @paper-reader /reset\n> ```\n\n@paper-reader 这里的 A 和 B 的 shape 是什么？';
+  assert.deepEqual(parseMention(body, 'paper-reader'), { reset: false, question: '这里的 A 和 B 的 shape 是什么？' });
+  assert.deepEqual(parseMention('Background\n\n@paper-reader /note 整理上述讨论\n保留疑问', 'paper-reader'), { reset: false, mode: 'note', question: '整理上述讨论\n保留疑问' });
+  const state = newState('2026-11-08T01:00:00Z');
+  enqueue(state, [comment(101, { body }), comment(101, { body })], baseConfig);
+  assert.deepEqual(Object.keys(state.jobs), ['101']);
+  assert.equal(state.jobs[101].body, body);
+  assert.equal(state.jobs[101].request.question, '这里的 A 和 B 的 shape 是什么？');
+});
+
+test('quoted, indented and fenced examples do not dispatch, including long fences', () => {
+  for (const body of [
+    'Background\n\n> @paper-reader /note quoted',
+    'Background\n\n    @paper-reader indented',
+    'Background\n\n\t@paper-reader indented',
+    'Example\n```text\n@paper-reader /note code\n```',
+    'Example\n~~~text\n@paper-reader /reset\n~~~',
+    '````text\n```\n@paper-reader /note still code\n````',
+    '~~~\n```\n@paper-reader still code\n~~~',
+  ]) assert.equal(parseMention(body, 'paper-reader'), null, body);
+  assert.equal(parseMention('```\n@paper-reader ignored\n```\n\n@paper-reader real question', 'paper-reader').question, 'real question');
 });
 
 test('queue checks numeric user identity, repository, creation time and duplicate IDs', () => {
