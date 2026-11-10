@@ -141,7 +141,7 @@ async function fixture(t, options = {}) {
   const runner = async ({ threadId }) => {
     calls.run++; calls.threads.push(threadId);
     if (options.failCodex) throw new Error('Sensitive internal error must not be published');
-    return { text: 'Answer with source', threadId: 'thread-for-issue-3' };
+    return { text: options.answer ?? 'Answer with source', threadId: 'thread-for-issue-3' };
   };
   const worker = new Worker(config, { github, runner, log: () => {} });
   await worker.load();
@@ -176,7 +176,8 @@ test('a lost POST response is recovered by marker without duplicate replies', as
 });
 
 test('durable answer survives restart and a failed PATCH without rerunning Codex', async t => {
-  const { worker, calls, config, github, runner } = await fixture(t, { failPatch: true });
+  const answer = '状态 \\(S_t\\)。\n\n\\[\ny = \\frac{M}{L}\n\\]';
+  const { worker, calls, config, github, runner } = await fixture(t, { failPatch: true, answer });
   await assert.rejects(worker.tick());
   assert.equal(worker.state.jobs[101].status, 'answered');
   const restarted = new Worker(config, { github, runner });
@@ -184,6 +185,9 @@ test('durable answer survives restart and a failed PATCH without rerunning Codex
   await restarted.tick();
   assert.equal(calls.run, 1); assert.equal(calls.create, 1);
   assert.equal(restarted.state.jobs[101].status, 'done');
+  assert.equal(restarted.state.jobs[101].answer, answer);
+  assert.ok(calls.posted[0].includes('状态 $`S_t`$。'));
+  assert.ok(calls.posted[0].includes('```math\ny = \\frac{M}{L}\n```'));
 });
 
 test('PR comments and comments edited after enqueue are not sent to Codex', async t => {

@@ -89,6 +89,25 @@ node scripts/reading-bot/cli.mjs install-service
 - Issue 提供论文链接、Zotero key 或主笔记路径，会让材料定位更可靠。GitHub 附图不会自动作为图片输入；助手需另行读取并在无法读取时说明。
 - 问答的长讨论会截取最近约 14 万字符，并明确告知较早内容省略；整理模式另存完整讨论供 Codex 读取。GitHub 回复过长时截断，完整结果仍保存在本机。
 
+### 回复中的数学公式
+
+问答和整理模式的最终回复都要求使用 GitHub 的数学格式：行内用美元符号包裹反引号，独立公式用 `math` 围栏，前后留空行。多行等式在围栏内使用 `aligned`，中文解释放在公式外。不要从渲染页面复制整段公式来引用；链接原评论可避免上下标变成散落的 Unicode 文本。
+
+````markdown
+状态 $`S_t`$ 按下式更新：
+
+```math
+\begin{aligned}
+S_t &= \alpha_t S_{t-1} + v_t k_t^{\top}, \\
+o_t &= S_t q_t.
+\end{aligned}
+```
+````
+
+发布前程序还会将正文中成对的 `\(...\)`、`\[...\]`、`$...$` 和 `$$...$$` 转成上述格式；原始答复保留在任务日志中。代码围栏、行内代码、引用行与缩进代码不转换，已有正确格式重复处理不变。缺少闭合符号或从页面复制后丢失结构的公式不会猜测修复。超长回复按完整段落和围栏边界截断，避免截断公式；这些规则只用于 GitHub 评论，不改变正式笔记的数学语法。
+
+发布 API 成功只代表文本已保存，不代表公式显示正确。修改公式发布逻辑后，除了回归测试，还要打开真实 GitHub 评论检查行内公式、多行等式和分数的渲染。规则依据：[GitHub 数学表达式文档](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/writing-mathematical-expressions)。
+
 ## 本机服务与恢复
 
 ```sh
