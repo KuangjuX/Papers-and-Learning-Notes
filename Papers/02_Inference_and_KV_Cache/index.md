@@ -4,10 +4,11 @@
 
 推理服务、缓存管理、投机解码与 SGLang 源码实践。
 
-共 47 个清单条目；已读 6，待读 41。
+共 48 个清单条目；已读 6，待读 42。
 
 ## 本地笔记
 
+- [ReplaySSM：缓存输入，减少状态写回](ReplaySSM/index.md)
 - [Dual Chunk Attention](Dual-Chunk-Attention/DCA.md)
 - [HiSparse：稀疏注意力的分层 KV Cache 管理](HiSparse/hisparse.md)
 - [A Survey of LLM Inference Systems](Surveys/llm_inference_survey.md)
@@ -19,6 +20,7 @@
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
+| ⬜ 📝 | **ReplaySSM: Cache SSM Inputs, Not State** | arXiv · 2026 | 以 checkpoint 与输入缓存减少 SSM 状态写回，支持 output-only 验证、投机回滚和精度分离 | [Paper](https://arxiv.org/abs/2610.13778) / [Note](ReplaySSM/index.md) / [Zotero](zotero://select/library/items/YV8FP7TL) |
 | ⬜ | **The Curious Case of Neural Text Degeneration** | [ICLR'20](https://pubs.cs.uct.ac.za/1407/1/the_curious_case_of_neural_text_degeneration.pdf) | 系统比较 greedy、beam、top-k 与 nucleus sampling，理解生成质量、随机性和退化 | [Paper](https://arxiv.org/abs/1904.09751) |
 | ⬜ | <a id="pdf-3d2kg559"></a>**Fast Inference from Transformers via Speculative Decoding** | [ICML'23](https://proceedings.mlr.press/v202/leviathan23a.html) | draft–verify 与拒绝采样；在保持目标分布不变的前提下并行生成多个 token | [Paper](https://proceedings.mlr.press/v202/leviathan23a.html) / [Zotero](zotero://select/library/items/3D2KG559) |
 | ⬜ | **Accelerating Large Language Model Decoding with Speculative Sampling** | [arXiv'23](https://arxiv.org/abs/2302.01318) | speculative sampling 的独立推导与工程验证，适合和上一论文对照阅读 | [Paper](https://arxiv.org/abs/2302.01318) |

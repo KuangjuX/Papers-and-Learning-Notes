@@ -36,7 +36,7 @@ Papers/ | Projects/ | Foundations/
 <!-- paper-reading-list:start -->
 ## Paper 阅读清单
 
-共 **343 个分类条目**：已读 75，待读 268。
+共 **344 个分类条目**：已读 75，待读 269。
 
 ✅ 已读 · ⬜ 待读 · 📝 有笔记。
 
@@ -44,7 +44,7 @@ Papers/ | Projects/ | Foundations/
 | --- | ---: | ---: | ---: |
 | [待分类](Papers/00_Inbox/index.md) | 0 | 0 | 0 |
 | [Attention](Papers/01_Attention/index.md) | 42 | 14 | 28 |
-| [推理与 KV Cache](Papers/02_Inference_and_KV_Cache/index.md) | 47 | 6 | 41 |
+| [推理与 KV Cache](Papers/02_Inference_and_KV_Cache/index.md) | 48 | 6 | 42 |
 | [分布式训练与 MoE](Papers/03_Distributed_Training_and_MoE/index.md) | 54 | 8 | 46 |
 | [GPU 编译与性能](Papers/04_GPU_Compiler_and_Performance/index.md) | 64 | 29 | 35 |
 | [模型架构与推理能力](Papers/05_Model_Architecture_and_Reasoning/index.md) | 108 | 4 | 104 |
@@ -130,12 +130,13 @@ Papers/ | Projects/ | Foundations/
 </details>
 
 <details>
-<summary>推理与 KV Cache（47 篇；已读 6，待读 41）</summary>
+<summary>推理与 KV Cache（48 篇；已读 6，待读 42）</summary>
 
 ### LLM Inference / Decoding Algorithms
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
+| ⬜ 📝 | **ReplaySSM: Cache SSM Inputs, Not State** | arXiv · 2026 | 以 checkpoint 与输入缓存减少 SSM 状态写回，支持 output-only 验证、投机回滚和精度分离 | [Paper](https://arxiv.org/abs/2610.13778) / [Note](Papers/02_Inference_and_KV_Cache/ReplaySSM/index.md) / [Zotero](zotero://select/library/items/YV8FP7TL) |
 | ⬜ | **The Curious Case of Neural Text Degeneration** | [ICLR'20](https://pubs.cs.uct.ac.za/1407/1/the_curious_case_of_neural_text_degeneration.pdf) | 系统比较 greedy、beam、top-k 与 nucleus sampling，理解生成质量、随机性和退化 | [Paper](https://arxiv.org/abs/1904.09751) |
 | ⬜ | <a id="pdf-3d2kg559"></a>**Fast Inference from Transformers via Speculative Decoding** | [ICML'23](https://proceedings.mlr.press/v202/leviathan23a.html) | draft–verify 与拒绝采样；在保持目标分布不变的前提下并行生成多个 token | [Paper](https://proceedings.mlr.press/v202/leviathan23a.html) / [Zotero](zotero://select/library/items/3D2KG559) |
 | ⬜ | **Accelerating Large Language Model Decoding with Speculative Sampling** | [arXiv'23](https://arxiv.org/abs/2302.01318) | speculative sampling 的独立推导与工程验证，适合和上一论文对照阅读 | [Paper](https://arxiv.org/abs/2302.01318) |
