@@ -1,7 +1,7 @@
 import { mkdir, open, readFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
-import { buildPrompt, enqueue, marker, newState, readJson, replyBody, saveJson } from './core.mjs';
+import { buildPrompt, enqueue, enqueueIssues, marker, newState, readJson, replyBody, saveJson } from './core.mjs';
 import { GitHub } from './github.mjs';
 import { runCodex } from './codex.mjs';
 import { Notes } from './notes.mjs';
@@ -47,10 +47,16 @@ export class Worker {
   save() { return saveJson(this.path, this.state); }
   async poll() {
     const started = Date.now();
-    const comments = await this.github.comments(this.state.since);
+    const [comments, issues] = await Promise.all([
+      this.github.comments(this.state.since),
+      // Existing installations must discover bodies missed by comment-only polling.
+      this.github.issues(this.state.issuesSince ?? this.state.activatedAt),
+    ]);
     enqueue(this.state, comments, this.config);
+    enqueueIssues(this.state, issues, this.config);
     // Overlap catches updates during pagination. Deduplicate using immutable comment IDs.
     this.state.since = new Date(started - 60000).toISOString();
+    this.state.issuesSince = this.state.since;
     await this.save();
   }
   async ensureReply(job) {
@@ -69,8 +75,12 @@ export class Worker {
       await this.github.updateReply(job.replyId, replyBody(job, job.answer));
       job.status = 'done'; await this.save(); return;
     }
-    const [issue, trigger] = await Promise.all([this.github.issue(job.issue), this.github.comment(job.id)]);
-    if (issue.pull_request || trigger.body !== job.body || trigger.user?.id !== this.config.allowedUserId) {
+    const [issue, comment] = await Promise.all([
+      this.github.issue(job.issue),
+      job.source === 'issue' ? null : this.github.comment(job.id),
+    ]);
+    const trigger = job.source === 'issue' ? issue : comment;
+    if (issue.pull_request || trigger.body !== job.body || trigger.user?.id !== this.config.allowedUserId || trigger.user?.type !== 'User') {
       job.status = 'skipped'; await this.save(); return;
     }
     await this.ensureReply(job);
@@ -110,7 +120,7 @@ export class Worker {
     await this.poll();
     const jobs = Object.values(this.state.jobs)
       .filter(job => ['queued', 'answered'].includes(job.status))
-      .sort((a, b) => a.id - b.id);
+      .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt) || String(a.id).localeCompare(String(b.id), 'en', { numeric: true }));
     // One task per tick keeps polling active between long Codex turns.
     const job = jobs.find(candidate => !candidate.retryAfter || candidate.retryAfter <= Date.now());
     if (job) {
