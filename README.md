@@ -36,14 +36,14 @@ Papers/ | Projects/ | Foundations/
 <!-- paper-reading-list:start -->
 ## Paper 阅读清单
 
-共 **344 个分类条目**：已读 76，待读 268。
+共 **344 个分类条目**：已读 77，待读 267。
 
 ✅ 已读 · ⬜ 待读 · 📝 有笔记。
 
 | 主题 | 条目 | 已读 | 待读 |
 | --- | ---: | ---: | ---: |
 | [待分类](Papers/00_Inbox/index.md) | 0 | 0 | 0 |
-| [Attention](Papers/01_Attention/index.md) | 42 | 14 | 28 |
+| [Attention](Papers/01_Attention/index.md) | 42 | 15 | 27 |
 | [推理与 KV Cache](Papers/02_Inference_and_KV_Cache/index.md) | 48 | 7 | 41 |
 | [分布式训练与 MoE](Papers/03_Distributed_Training_and_MoE/index.md) | 54 | 8 | 46 |
 | [GPU 编译与性能](Papers/04_GPU_Compiler_and_Performance/index.md) | 64 | 29 | 35 |
@@ -53,7 +53,7 @@ Papers/ | Projects/ | Foundations/
 | [量化](Papers/08_Quantization/index.md) | 10 | 0 | 10 |
 
 <details>
-<summary>Attention（42 篇；已读 14，待读 28）</summary>
+<summary>Attention（42 篇；已读 15，待读 27）</summary>
 
 ### LLM Inference / Long Context Inference
 
@@ -90,7 +90,7 @@ Papers/ | Projects/ | Foundations/
 | ⬜ | <a id="pdf-9h6z7sbe"></a>**SpargeAttn: Accurate Sparse Attention Accelerating Any Model Inference** | [ICML'25](https://proceedings.mlr.press/v267/zhang25ch.html) | 两阶段在线过滤与 softmax-aware pruning；理解推理期稀疏化的另一条路线 | [Paper](https://arxiv.org/abs/2502.18137) |
 | ⬜ | **BLASST: Dynamic BLocked Attention Sparsity via Softmax Thresholding** | [MLSys'26](https://proceedings.mlsys.org/paper_files/paper/2026/hash/c6ee784cbe46d854843e4c883a3321ef-Abstract-Conference.html) | 复用 online softmax 统计量跳过低贡献 blocks；无需训练并覆盖 MHA/GQA/MQA/MLA | [Paper](https://proceedings.mlsys.org/paper_files/paper/2026/hash/c6ee784cbe46d854843e4c883a3321ef-Abstract-Conference.html) |
 | ⬜ | <a id="pdf-cmk845zm"></a>**Block Sparse Attention with Log-Linear Complexity** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2609.31093) / [PDF](zotero://open-pdf/library/items/DK2DV9UZ) / [Zotero](zotero://select/library/items/CMK845ZM) |
-| ⬜ 📝 | <a id="pdf-l447a648"></a>**DoSA: Dots Sparse Attention** | arXiv · 2026 | 主体已读，附录细节待深入；用安全上界减少 indexer 完整打分，结合候选共享与稀疏写回保持精确 Top-K | [Paper](http://arxiv.org/abs/2610.13990) / [PDF](zotero://open-pdf/library/items/Y75KTIVE) / [Zotero](zotero://select/library/items/L447A648) / [Note](Papers/01_Attention/DoSA/dosa.md) |
+| ✅ 📝 | <a id="pdf-l447a648"></a>**DoSA: Dots Sparse Attention** | arXiv · 2026 | 用安全上界减少 indexer 完整打分，结合候选共享与稀疏写回保持精确 Top-K | [Paper](http://arxiv.org/abs/2610.13990) / [PDF](zotero://open-pdf/library/items/Y75KTIVE) / [Zotero](zotero://select/library/items/L447A648) / [Note](Papers/01_Attention/DoSA/dosa.md) |
 | ⬜ | <a id="pdf-yugv34kq"></a>**FSA: An Alternative Efficient Implementation of Native Sparse Attention Kernel** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2508.18224) / [PDF](zotero://open-pdf/library/items/ZUQSHLJQ) / [Zotero](zotero://select/library/items/YUGV34KQ) |
 | ✅ 📝 | <a id="pdf-ehqb8nyq"></a>**PageWeaver: KV-Guided Query Unions for Sparse Attention** | arXiv · 2026 | 根据 KV page 重叠在线重组 Query，以双 CTA Union8 共享搬运，并计入分组开销 | [Paper](http://arxiv.org/abs/2610.11201) / [PDF](zotero://open-pdf/library/items/SBISCM3P) / [Zotero](zotero://select/library/items/EHQB8NYQ) / [Note](Papers/01_Attention/PageWeaver/pageweaver.md) |
 
