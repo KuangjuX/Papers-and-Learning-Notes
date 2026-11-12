@@ -4,7 +4,7 @@ import { mkdtemp, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { generateKeyPairSync, verify } from 'node:crypto';
-import { buildPrompt, enqueue, marker, newState, parseMention, readJson, replyBody, saveJson } from './core.mjs';
+import { buildPrompt, commentsBeforeJob, enqueue, enqueueIssues, marker, newState, parseMention, readJson, replyBody, saveJson } from './core.mjs';
 import { appJwt, GitHub } from './github.mjs';
 import { codexArgs, childEnvironment } from './codex.mjs';
 import { acquireLock, Worker } from './worker.mjs';
@@ -22,6 +22,34 @@ const comment = (id = 101, overrides = {}) => ({
   created_at: '2026-11-08T02:00:00Z', updated_at: '2026-11-08T02:00:00Z',
   issue_url: 'https://api.github.com/repos/owner/notes/issues/3',
   html_url: `https://github.com/owner/notes/issues/3#issuecomment-${id}`, ...overrides,
+});
+const issueBody = (overrides = {}) => ({
+  ...comment(), number: 3, url: 'https://api.github.com/repos/owner/notes/issues/3',
+  html_url: 'https://github.com/owner/notes/issues/3', ...overrides,
+});
+
+test('Issue bodies have independent IDs and reject PRs, foreign repos, old issues and other authors', () => {
+  const state = newState('2026-11-08T01:00:00Z');
+  enqueue(state, [comment()], baseConfig);
+  enqueueIssues(state, [issueBody(), issueBody(),
+    issueBody({ id: 102, pull_request: {} }),
+    issueBody({ id: 103, user: { id: 43, type: 'User' } }),
+    issueBody({ id: 104, user: { id: 42, type: 'Bot' } }),
+    issueBody({ id: 105, url: 'https://api.github.com/repos/other/repo/issues/3' }),
+    issueBody({ id: 106, created_at: '2026-01-01T00:00:00Z' }),
+    issueBody({ id: 107, body: '> @paper-reader quoted' }),
+  ], baseConfig);
+  assert.deepEqual(Object.keys(state.jobs), ['101', 'issue-101']);
+  assert.equal(state.jobs['issue-101'].url, issueBody().html_url);
+});
+
+test('Issue body context includes earlier discussion and excludes later comments', () => {
+  const job = { id: 'issue-101', source: 'issue', createdAt: '2026-11-08T03:00:00Z', request: { question: 'Question' } };
+  const comments = [comment(), comment(102, { created_at: '2026-11-08T04:00:00Z', body: 'LATER_SECRET' })];
+  assert.deepEqual(commentsBeforeJob(comments, job).map(c => c.id), [101]);
+  const prompt = buildPrompt(issueBody(), comments, job);
+  assert.ok(prompt.includes('Explain figure 2'));
+  assert.ok(!prompt.includes('LATER_SECRET'));
 });
 
 test('only an exact bot mention at the start of a non-code, unquoted line triggers', () => {
@@ -121,6 +149,7 @@ async function fixture(t, options = {}) {
   const calls = { run: 0, create: 0, update: 0, threads: [], posted: [] };
   const github = {
     comments: async () => comments,
+    issues: async () => [],
     issue: async () => ({ title: 'Paper', body: 'PDF source', html_url: 'https://github.com/owner/notes/issues/3', ...options.issue }),
     comment: async () => ({ ...source, ...options.trigger }),
     issueComments: async () => comments,
@@ -156,6 +185,62 @@ test('a complete question becomes one reply and stores the per-Issue session', a
   assert.equal(calls.run, 1); assert.equal(calls.create, 1);
   assert.equal(worker.state.jobs[101].status, 'done');
   assert.equal(worker.state.threads[3], 'thread-for-issue-3');
+});
+
+test('upgrade discovers missed Issue bodies and restart/edits do not duplicate the reply', async t => {
+  const { worker, config, github, runner, calls, comments } = await fixture(t, { losePostResponse: true });
+  comments.length = 0;
+  let body = issueBody();
+  const cursors = [];
+  github.issues = async since => { cursors.push(since); return [body]; };
+  github.issue = async () => body;
+  github.comment = async () => assert.fail('Issue IDs must not be fetched as comments');
+  worker.state.since = '2026-11-12T00:00:00Z';
+  await assert.rejects(worker.tick());
+  assert.equal(cursors[0], worker.state.activatedAt);
+  const restarted = new Worker(config, { github, runner });
+  await restarted.load(); restarted.state.jobs['issue-101'].retryAfter = 0;
+  await restarted.tick();
+  body = { ...body, body: '@paper-reader edited after completion' };
+  await restarted.tick();
+  assert.equal(calls.create, 1); assert.equal(calls.run, 1);
+  assert.equal(restarted.state.jobs['issue-101'].status, 'done');
+  assert.equal(restarted.state.threads[3], 'thread-for-issue-3');
+  assert.ok(calls.posted[0].includes(`(${body.html_url})`));
+});
+
+test('Issue body is revalidated before execution', async t => {
+  for (const changed of [{ body: '@paper-reader changed' }, { pull_request: {} }, { user: { id: 43, type: 'User' } }]) {
+    const { worker, github, comments, calls } = await fixture(t);
+    comments.length = 0;
+    github.issues = async () => [issueBody()];
+    github.issue = async () => issueBody(changed);
+    await worker.tick();
+    assert.equal(worker.state.jobs['issue-101'].status, 'skipped');
+    assert.equal(calls.create, 0); assert.equal(calls.run, 0);
+  }
+});
+
+test('a failed Issue poll preserves both cursors for retry', async t => {
+  const { worker, github } = await fixture(t);
+  const before = worker.state.since;
+  github.issues = async () => { throw new Error('Network down'); };
+  await assert.rejects(worker.poll());
+  assert.equal(worker.state.since, before);
+  assert.equal(worker.state.issuesSince, undefined);
+  assert.deepEqual(worker.state.jobs, {});
+});
+
+test('Issue body /note uses the note worker with a namespaced task ID', async t => {
+  const { worker, github, comments, calls } = await fixture(t);
+  comments.length = 0;
+  const body = issueBody({ body: '@paper-reader /note 整理讨论' });
+  github.issues = async () => [body]; github.issue = async () => body;
+  let runs = 0;
+  worker.notes = { run: async ({ job }) => { runs++; assert.equal(job.id, 'issue-101'); return 'PR ready'; } };
+  await worker.tick(); await worker.tick();
+  assert.equal(runs, 1); assert.equal(calls.run, 0);
+  assert.equal(worker.state.jobs['issue-101'].status, 'done');
 });
 
 test('a second question in the same Issue resumes its own session', async t => {

@@ -69,6 +69,29 @@ export function enqueue(state, comments, config) {
 
 export function marker(id) { return `<!-- reading-bot:comment-${id} -->`; }
 
+export function enqueueIssues(state, issues, config) {
+  for (const issue of issues) {
+    if (issue.pull_request || issue.user?.id !== config.allowedUserId || issue.user?.type !== 'User') continue;
+    if (!Number.isSafeInteger(issue.id) || !Number.isSafeInteger(issue.number) || issue.number < 1) continue;
+    if (issue.url !== `https://api.github.com/repos/${config.repo}/issues/${issue.number}`) continue;
+    if (!(Date.parse(issue.created_at) >= Date.parse(state.activatedAt))) continue;
+    const id = `issue-${issue.id}`;
+    if (state.jobs[id]) continue;
+    const request = parseMention(issue.body ?? '', config.slug);
+    if (!request) continue;
+    state.jobs[id] = {
+      id, source: 'issue', issue: issue.number, body: issue.body, url: issue.html_url,
+      createdAt: issue.updated_at ?? issue.created_at, request, status: 'queued', attempts: 0,
+    };
+  }
+}
+
+export function commentsBeforeJob(comments, job) {
+  return comments.filter(c => job.source === 'issue'
+    ? Date.parse(c.created_at) <= Date.parse(job.createdAt)
+    : c.id <= job.id);
+}
+
 export function replyBody(job, text) {
   const header = `${marker(job.id)}\n回复 [这条提问](${job.url})\n\n`;
   const suffix = '\n\n---\n由本机 Codex 阅读助手生成；论文中的结论与 AI 推断应依据所附来源区分。';
@@ -82,7 +105,7 @@ export function replyBody(job, text) {
 }
 
 export function buildPrompt(issue, comments, job, { contextPath } = {}) {
-  const history = comments.filter(c => c.id <= job.id && !c.body?.includes(marker(job.id)))
+  const history = commentsBeforeJob(comments, job).filter(c => !c.body?.includes(marker(job.id)))
     .map(c => ({ author: c.user?.login, url: c.html_url, body: c.body }));
   let historyText = JSON.stringify(history);
   if (historyText.length > 140000) historyText = `较早内容已省略。以下是最近讨论：\n${historyText.slice(-140000)}`;

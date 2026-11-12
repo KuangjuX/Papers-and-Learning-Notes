@@ -3,7 +3,7 @@ import { promisify } from 'node:util';
 import { mkdir, readFile, writeFile, lstat, realpath, access } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
 import { createHash } from 'node:crypto';
-import { buildPrompt, saveJson, readJson } from './core.mjs';
+import { buildPrompt, commentsBeforeJob, saveJson, readJson } from './core.mjs';
 import { childEnvironment, runCodex } from './codex.mjs';
 import { GitHub } from './github.mjs';
 
@@ -202,7 +202,7 @@ export class Notes {
       // Keep an immutable full snapshot on retries, rather than truncating the source for editing.
       let context = await readJson(contextPath, null);
       if (!context) {
-        context = { issue, comments: comments.filter(c => c.id <= job.id), trigger: job.url };
+        context = { issue, comments: commentsBeforeJob(comments, job), trigger: job.url };
         await saveJson(contextPath, context);
       }
       let result;

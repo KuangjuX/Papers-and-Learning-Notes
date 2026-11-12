@@ -69,6 +69,7 @@ export class GitHub {
     return repo;
   }
   comments(since) { return this.pages(`${this.base()}/issues/comments?sort=updated&direction=asc&since=${encodeURIComponent(since)}`); }
+  issues(since) { return this.pages(`${this.base()}/issues?state=all&sort=updated&direction=asc&since=${encodeURIComponent(since)}`); }
   issue(number) { return this.request(`${this.base()}/issues/${number}`); }
   issueComments(number) { return this.pages(`${this.base()}/issues/${number}/comments`); }
   comment(id) { return this.request(`${this.base()}/issues/comments/${id}`); }
