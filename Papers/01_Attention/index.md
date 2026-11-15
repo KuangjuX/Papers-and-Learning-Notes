@@ -4,10 +4,11 @@
 
 注意力机制、稀疏 Attention、高效内核、线性 Attention 与记忆。
 
-共 42 个清单条目；已读 15，待读 27。
+共 43 个清单条目；已读 15，待读 28。
 
 ## 本地笔记
 
+- [SparDA：用 Forecast 降低选择开销并提前预取 KV](SparDA/sparda.md)
 - [FlashAttention-3：FP8 数据流、布局转换与精度优化](FlashAttention-3/fp8.md)
 - [PageWeaver：在线 Query 分组与共享 KV 的稀疏 Attention](PageWeaver/pageweaver.md)
 - [DeepSeek Sparse Attention (DSA) 算法流程](DeepSeek-DSA/deepseek-sparse-attention-dsa.md)
@@ -31,6 +32,7 @@
 | ✅ 📝 | **DuoAttention: Efficient Long-Context LLM Inference with Retrieval and Streaming Heads** | [ICLR'25](https://arxiv.org/pdf/2410.10819v1) | 区分 retrieval heads 与 streaming heads，为不同 head 分配不同 KV 保留策略 | [Paper](https://arxiv.org/pdf/2410.10819v1) / [Note](../../Projects/02_Inference_and_KV_Cache/Light-DuoAttention/zhihu-reading.md) |
 | ✅ | <a id="pdf-hzcjag36"></a>**MiniMax Sparse Attention** | [arXiv'26](https://arxiv.org/abs/2606.13392) | 按 GQA group 选择 KV 块并协同设计稀疏 kernel，将块级稀疏转化为长上下文加速 | [Paper](https://arxiv.org/abs/2606.13392) / [Note](MiniMax-MSA/msa.md) |
 | ✅ 📝 | <a id="pdf-xxevr2qa"></a>**IndexCache: Accelerating Sparse Attention via Cross-Layer Index Reuse** | [arXiv'26](https://arxiv.org/abs/2603.12201v1) | 跨层复用 Top-k 位置，用 LM-loss 搜索或多层 KL 蒸馏减少 indexer 计算，并区分索引缓存与主 KV 缓存 | [Paper](https://arxiv.org/abs/2603.12201v1) / [Note](IndexCache/indexcache.md) |
+| ⬜ 📝 | <a id="pdf-c7nbkgn7"></a>**SparDA: Sparse Decoupled Attention for Efficient Long-Context LLM Inference** | [arXiv'26](https://arxiv.org/abs/2606.04511v1) | 每个 GQA group 一个 Forecast head，提前一层选择 KV blocks，降低选择开销并重叠 CPU→GPU 预取 | [Paper](https://arxiv.org/abs/2606.04511v1) / [PDF](zotero://open-pdf/library/items/4LYAAACV) / [Zotero](zotero://select/library/items/C7NBKGN7) / [Note](SparDA/sparda.md) |
 | ⬜ | <a id="pdf-ny88ejjb"></a>**Efficient Context Scaling with LongCat ZigZag Attention** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2512.23966) / [PDF](zotero://open-pdf/library/items/2VJX3AWK) / [Zotero](zotero://select/library/items/NY88EJJB) |
 
 ## Deep Learning / Attention Mechanisms & Variants
