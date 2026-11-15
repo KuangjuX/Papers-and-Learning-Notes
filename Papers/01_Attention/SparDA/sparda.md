@@ -9,11 +9,7 @@ aliases:
   - "Sparse Decoupled Attention for Efficient Long-Context LLM Inference"
 ---
 
-# SparDA：用 Forecast 降低选择开销并提前预取 KV
-
-SparDA 在已有 block-sparse attention 上增加轻量的 Forecast 投影，将“选择哪些 KV blocks”与“用 Query 计算 attention”解耦：每个 GQA group 使用一个 Forecast head，并提前一层预测访问需求。前者减少 selector 计算，后者让 decode 的 CPU→GPU KV 传输与当前层计算重叠。[论文 v1，§4](https://arxiv.org/html/2606.04511v1#S4)
-
-KuangjuX 的[原始判断](https://github.com/KuangjuX/Papers-and-Learning-Notes/issues/91)抓住了“减少打分 head 数，从而降低 prefill/decode 的 indexer 开销”。其中“一个 Forecast head”应理解为**每个 GQA group 各一个**；Forecast 投影在推理时也执行，而 decode 的收益还取决于提前选择所支持的异步预取。
+# SparDA: Sparse Decoupled Attention for Efficient Long-Context LLM Inference
 
 ## 稀疏 attention 为什么还需要更便宜的 selector？
 
@@ -40,26 +36,31 @@ $\widetilde K$ 表示 compressed keys；$f_{\mathrm{top}}$ 将压缩位置的分
 
 Decode 能提前选择，是因为下一层的历史 compressed-key cache 常驻 GPU，并随生成增量更新；动态 top-k 排除初始和局部区域，新追加的 Key 属于局部区域，不必等待它产生才能选远端 blocks。首层没有前一层 Forecast，使用额外的同层 Forecast 投影，其 KV cache 留在 GPU；从后续层开始预取。[§4.1；附录 A，算法 2](https://arxiv.org/html/2606.04511v1#A1)
 
-Prefill 时，所需 K、V 已在 GPU 上，主要收益来自更便宜的 selector。Decode offload 时，runtime 在独立 CUDA stream 上用 persistent UVA Triton kernel 搬运选中 KV blocks，使传输与当前层执行重叠。这需要占用部分 GPU 计算资源，收益取决于传输量和可供重叠的计算时间。[§4.3](https://arxiv.org/html/2606.04511v1#S4.SS3)
+Prefill 时，所需 K、V 已在 GPU 上。Decode offload 时，runtime 在独立 CUDA stream 上用 persistent UVA Triton kernel 从 pinned CPU memory 搬运选中 KV blocks，使传输与当前层执行重叠；预取 kernel 的 CTAs 占用原本可供 attention 和 FFN 使用的 SM 资源。[§4.1、§4.3](https://arxiv.org/html/2606.04511v1#S4.SS3)
 
 ## 用原 selector 监督更小、提前一层的预测器
 
 作者冻结原模型，只训练新增 Forecast 投影；两个实验模型各增加约 33.5M 参数，占 0.41%。监督目标取自原 selector 的组内聚合分数，位于最终 block max-pooling 之前。KL 损失保留教师 top-k 位置各自的概率，并将其余位置的概率质量合成一个 rest bucket 后归一化，因此也约束未选区域的总概率质量。[§4.2，式 (6)–(7)](https://arxiv.org/html/2606.04511v1#S4.SS2)
 
-教师采用更细的压缩窗口与步长 `(2, 1)`，预测分支及推理使用 `(32, 16)`，教师分数再池化到预测分支的网格。作者认为较细的教师提供了更有区分度的监督，附录表 6 显示两个模型的总体平均分均受益。[§4.2；附录 D，表 6](https://arxiv.org/html/2606.04511v1#A4)
+教师采用更细的压缩窗口与步长 `(2, 1)`，预测分支及推理使用 `(32, 16)`，教师分数再通过 max-pooling 对齐到预测分支的网格。[§4.2](https://arxiv.org/html/2606.04511v1#S4.SS2) 在固定预测分支窗口的消融中，教师窗口从 `(32, 16)` 改为 `(2, 1)` 后，MiniCPM4.1-8B 的四类基准平均分由 60.4 变为 61.7，NOSA-8B 由 50.1 变为 51.7。[附录 D，表 6](https://arxiv.org/html/2606.04511v1#A4)
 
-**AI 解读：**这是学习近似原 selector 的重要性分布，不能据此保证逐次 top-k 完全相同。作者在 MiniCPM4.1-8B 和 NOSA-8B 上报告总体平均精度持平或改善，但并非所有指标都提升：MiniCPM4.1-8B 的 HELMET 平均分下降 0.6。验证对象是已有稀疏预训练的 8B backbone，并非任意 dense 模型的无损替换。[§5.1–5.2，表 1](https://arxiv.org/html/2606.04511v1#S5.SS2)
+实验使用已有稀疏预训练的 MiniCPM4.1-8B 和 NOSA-8B。表 1 中，HELMET、LongBench、RULER 和 Reasoning 四类基准的平均分，MiniCPM4.1-8B 从 Sparse 的 61.4 变为 SparDA 的 61.7，NOSA-8B 从 49.4 变为 51.7；其中 MiniCPM4.1-8B 的 HELMET 平均分从 38.9 变为 38.3。[§5.1–5.2，表 1](https://arxiv.org/html/2606.04511v1#S5.SS2)
 
-## 性能证据：选择成本与预取重叠分别贡献什么？
+## 公开性能与预取消融
 
-下表为作者在 NVIDIA H100 上报告的结果。`Sparse` 使用 CPU offload，`Sparse†` 不 offload；它们与 SparDA 的比较口径不能混用。[§5.3，表 3–4](https://arxiv.org/html/2606.04511v1#S5.SS3)
+下表为作者在 NVIDIA H100 上报告的结果。测试使用 80 GB HBM3、PCIe Gen5 ×16 CPU–GPU 连接和 2 TB CPU 内存，每项设置预热一次后取两次测量的平均值。[附录 C](https://arxiv.org/html/2606.04511v1#A3) `Sparse` 使用 CPU offload，`Sparse†` 不 offload。[§5.3，表 3–4](https://arxiv.org/html/2606.04511v1#S5.SS3)
 
 | 结果 | 条件与比较口径 |
 | --- | --- |
-| Prefill 最高约 1.25 倍 | MiniCPM4.1-8B，128K，batch 4，相对 Sparse；主要减少选择开销 |
+| Prefill 最高约 1.25 倍 | MiniCPM4.1-8B，128K，batch 4，相对 Sparse |
 | Decode 最高约 1.7 倍 | 相对同 batch 的 Sparse offload baseline；例如 MiniCPM4.1-8B，128K，batch 8：471.2 对 279.5 tok/s |
-| Decode 吞吐最高约 5.3 倍 | MiniCPM4.1-8B，128K：SparDA 在 batch 64 为 1000.1 tok/s，Sparse† 在 batch 4 为 189.5 tok/s，更大测试 batch 的 Sparse† OOM；包含可运行 batch 扩大的收益 |
+| Decode 吞吐最高约 5.3 倍 | MiniCPM4.1-8B，128K：SparDA 在 batch 64 为 1000.1 tok/s，Sparse† 在 batch 4 为 189.5 tok/s，更大测试 batch 的 Sparse† OOM；此项使用不同 batch 比较 |
 
-附录消融更直接说明预取的作用：H100、128K、MiniCPM4.1-8B、batch 64 下，Sparse、仅使用 Forecast 而同步取 KV、完整 SparDA 分别为 **788.9、696.9、1000.1 tok/s**。仅减少 selector head 数在此配置下反而较慢，异步预取才带来最终优势；作者解释为大 batch 下选择延迟节省减小，而 Forecast 投影成本仍在。相反，batch 4 时，无预取的版本为 247.3 tok/s，略高于完整版本的 240.2 tok/s，说明预取本身也有开销。[附录 D，表 10，PDF 第 16 页](https://arxiv.org/pdf/2606.04511v1#page=16)
+附录表 10 比较了使用 Forecast、但同步获取 KV 的 `SparDA (no prefetch)` 与完整 SparDA。以下为 H100、128K、MiniCPM4.1-8B 的 decode 吞吐，单位为 tok/s。[附录 D，表 10，PDF 第 16 页](https://arxiv.org/pdf/2606.04511v1#page=16)
 
-**AI 推论：**在固定压缩步长下，减少 head 数降低的是 selector 的常数开销；prefill 仍需让各 query 对随上下文增长的 compressed keys 打分，不能由此推断选择复杂度已经变为线性。[§3.1、§4.1](https://arxiv.org/html/2606.04511v1#S4.SS1) 对 DSA 等 token-level selector 的效果尚无本文实验支持，作者明确将迁移到 DSA/CSA 模型列为未来工作。[§6](https://arxiv.org/html/2606.04511v1#S6)
+| Batch | Sparse | SparDA (no prefetch) | SparDA |
+| --- | ---: | ---: | ---: |
+| 4 | 167.8 | 247.3 | 240.2 |
+| 64 | 788.9 | 696.9 | 1000.1 |
+
+对 DSA/CSA 模型的迁移效果尚无本文实验支持，作者将其列为未来工作。[§6](https://arxiv.org/html/2606.04511v1#S6)

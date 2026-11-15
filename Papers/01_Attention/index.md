@@ -8,7 +8,7 @@
 
 ## 本地笔记
 
-- [SparDA：用 Forecast 降低选择开销并提前预取 KV](SparDA/sparda.md)
+- [SparDA: Sparse Decoupled Attention for Efficient Long-Context LLM Inference](SparDA/sparda.md)
 - [FlashAttention-3：FP8 数据流、布局转换与精度优化](FlashAttention-3/fp8.md)
 - [PageWeaver：在线 Query 分组与共享 KV 的稀疏 Attention](PageWeaver/pageweaver.md)
 - [DeepSeek Sparse Attention (DSA) 算法流程](DeepSeek-DSA/deepseek-sparse-attention-dsa.md)

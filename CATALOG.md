@@ -6,7 +6,7 @@
 
 ### Attention
 
-- [SparDA：用 Forecast 降低选择开销并提前预取 KV](Papers/01_Attention/SparDA/sparda.md)
+- [SparDA: Sparse Decoupled Attention for Efficient Long-Context LLM Inference](Papers/01_Attention/SparDA/sparda.md)
 - [DeepSeek Sparse Attention (DSA) 算法流程](Papers/01_Attention/DeepSeek-DSA/deepseek-sparse-attention-dsa.md)
 - [IndexCache：跨层复用稀疏索引，以及它为什么能被训练](Papers/01_Attention/IndexCache/indexcache.md)
 - [MiniMax Sparse Attention (MSA)](Papers/01_Attention/MiniMax-MSA/msa.md)
