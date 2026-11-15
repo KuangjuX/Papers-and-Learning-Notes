@@ -36,14 +36,14 @@ Papers/ | Projects/ | Foundations/
 <!-- paper-reading-list:start -->
 ## Paper 阅读清单
 
-共 **344 个分类条目**：已读 77，待读 267。
+共 **345 个分类条目**：已读 77，待读 268。
 
 ✅ 已读 · ⬜ 待读 · 📝 有笔记。
 
 | 主题 | 条目 | 已读 | 待读 |
 | --- | ---: | ---: | ---: |
 | [待分类](Papers/00_Inbox/index.md) | 0 | 0 | 0 |
-| [Attention](Papers/01_Attention/index.md) | 42 | 15 | 27 |
+| [Attention](Papers/01_Attention/index.md) | 43 | 15 | 28 |
 | [推理与 KV Cache](Papers/02_Inference_and_KV_Cache/index.md) | 48 | 7 | 41 |
 | [分布式训练与 MoE](Papers/03_Distributed_Training_and_MoE/index.md) | 54 | 8 | 46 |
 | [GPU 编译与性能](Papers/04_GPU_Compiler_and_Performance/index.md) | 64 | 29 | 35 |
@@ -53,7 +53,7 @@ Papers/ | Projects/ | Foundations/
 | [量化](Papers/08_Quantization/index.md) | 10 | 0 | 10 |
 
 <details>
-<summary>Attention（42 篇；已读 15，待读 27）</summary>
+<summary>Attention（43 篇；已读 15，待读 28）</summary>
 
 ### LLM Inference / Long Context Inference
 
@@ -63,6 +63,7 @@ Papers/ | Projects/ | Foundations/
 | ✅ 📝 | **DuoAttention: Efficient Long-Context LLM Inference with Retrieval and Streaming Heads** | [ICLR'25](https://arxiv.org/pdf/2410.10819v1) | 区分 retrieval heads 与 streaming heads，为不同 head 分配不同 KV 保留策略 | [Paper](https://arxiv.org/pdf/2410.10819v1) / [Note](Projects/02_Inference_and_KV_Cache/Light-DuoAttention/zhihu-reading.md) |
 | ✅ | <a id="pdf-hzcjag36"></a>**MiniMax Sparse Attention** | [arXiv'26](https://arxiv.org/abs/2606.13392) | 按 GQA group 选择 KV 块并协同设计稀疏 kernel，将块级稀疏转化为长上下文加速 | [Paper](https://arxiv.org/abs/2606.13392) / [Note](Papers/01_Attention/MiniMax-MSA/msa.md) |
 | ✅ 📝 | <a id="pdf-xxevr2qa"></a>**IndexCache: Accelerating Sparse Attention via Cross-Layer Index Reuse** | [arXiv'26](https://arxiv.org/abs/2603.12201v1) | 跨层复用 Top-k 位置，用 LM-loss 搜索或多层 KL 蒸馏减少 indexer 计算，并区分索引缓存与主 KV 缓存 | [Paper](https://arxiv.org/abs/2603.12201v1) / [Note](Papers/01_Attention/IndexCache/indexcache.md) |
+| ⬜ 📝 | <a id="pdf-c7nbkgn7"></a>**SparDA: Sparse Decoupled Attention for Efficient Long-Context LLM Inference** | [arXiv'26](https://arxiv.org/abs/2606.04511v1) | 每个 GQA group 一个 Forecast head，提前一层选择 KV blocks，降低选择开销并重叠 CPU→GPU 预取 | [Paper](https://arxiv.org/abs/2606.04511v1) / [PDF](zotero://open-pdf/library/items/4LYAAACV) / [Zotero](zotero://select/library/items/C7NBKGN7) / [Note](Papers/01_Attention/SparDA/sparda.md) |
 | ⬜ | <a id="pdf-ny88ejjb"></a>**Efficient Context Scaling with LongCat ZigZag Attention** | arXiv · 2026 | 标签：Attention / 稀疏 Attention | [Paper](http://arxiv.org/abs/2512.23966) / [PDF](zotero://open-pdf/library/items/2VJX3AWK) / [Zotero](zotero://select/library/items/NY88EJJB) |
 
 ### Deep Learning / Attention Mechanisms & Variants
