@@ -42,7 +42,7 @@ async function fixture(t, options = {}) {
   await mkdir(join(workspace, 'scripts'));
   await writeFile(join(workspace, notePath), '# Paper\n\nUser judgment remains.\n');
   await writeFile(join(workspace, 'scripts/check.mjs'), '// trusted check\n');
-  await writeFile(join(workspace, '.gitignore'), 'node_modules/\n.vitepress/dist/\n');
+  await writeFile(join(workspace, '.gitignore'), 'node_modules/\n.vitepress/dist/\n' + (options.ignoreJson ? '*.json\n' : ''));
   for (const path of AUTHORING_FILES) {
     await mkdir(join(workspace, path, '..'), { recursive: true });
     await writeFile(join(workspace, path), `# Trusted ${path}\nNo invented conclusions.\n`);
@@ -405,4 +405,23 @@ test('an approved semantic review cannot bypass duplicate-paper publication chec
   await assert.rejects(f.run(), /自动修订后检查仍未通过/);
   assert.equal(f.calls.run, 3); assert.equal(f.calls.check, 0); assert.equal(f.calls.reviews, 0);
   assert.equal(f.calls.create, 0); assert.equal(f.calls.refs, 0);
+});
+
+test('updating an old PR publishes approved redirect data despite its old JSON ignore rule', async t => {
+  const f = await fixture(t, { ignoreJson: true }); await f.run();
+  delete f.job.note; f.job.id++;
+  const dataPath = '.vitepress/paper-redirects.json';
+  const redirects = { 'Papers/01_Attention/Paper/old.md': { target: notePath } };
+  f.notes.runner = async args => {
+    await mkdir(join(args.config.workspace, '.vitepress'), { recursive: true });
+    await writeFile(join(args.config.workspace, dataPath), JSON.stringify(redirects));
+    await writeFile(join(args.config.workspace, 'private.json'), '{"not":"for publication"}');
+    await writeFile(join(args.config.workspace, notePath), '# Paper\n\nUpdated mechanism.\n');
+    return { text: 'Updated one paper and its old URL.' };
+  };
+  await f.run();
+  const remote = f.job.note.remoteCommit;
+  assert.deepEqual(JSON.parse(await git(f.workspace, ['show', `${remote}:${dataPath}`])), redirects);
+  await assert.rejects(git(f.workspace, ['show', `${remote}:private.json`]));
+  assert.equal(f.calls.create, 1); assert.equal(f.calls.updates, 1);
 });

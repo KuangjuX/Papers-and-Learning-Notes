@@ -2,6 +2,7 @@
 .venv/*
 tmp/*
 *.json
+!.vitepress/paper-redirects.json
 !package.json
 !scripts/imported-translations.json
 !scripts/archive-layout.json

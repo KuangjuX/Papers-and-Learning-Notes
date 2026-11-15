@@ -45,6 +45,12 @@ export async function collectChanges(worktree, base) {
   const changed = (await git(worktree, ['diff', '--name-only', '--no-renames', '-z', base, '--'])).split('\0');
   const staged = (await git(worktree, ['diff', '--cached', '--name-only', '--no-renames', '-z', base, '--'])).split('\0');
   const untracked = (await git(worktree, ['ls-files', '--others', '--exclude-standard', '-z'])).split('\0');
+  // Older PR branches ignore every JSON file. This one explicitly authorized
+  // data file must still be reviewed and included in the immutable candidate.
+  if (!(await git(worktree, ['ls-files', '--', PAPER_REDIRECTS])).trim()) {
+    try { await lstat(join(worktree, PAPER_REDIRECTS)); untracked.push(PAPER_REDIRECTS); }
+    catch (error) { if (error.code !== 'ENOENT') throw error; }
+  }
   const paths = [...new Set([...changed, ...staged, ...untracked].filter(Boolean))].sort();
   if (paths.length > 60) throw new NoteError('本次改动超过 60 个文件，已保留工作区，请缩小整理范围。');
   const root = await realpath(worktree);
@@ -154,7 +160,9 @@ export class Notes {
     // Compare-and-swap the local branch only after the durable commit object is saved.
     if (!note.localCommit) {
       await this.assertHead(note, note.base);
-      await git(note.worktree, ['add', '--', ...files.map(f => f.path)]);
+      const regular = files.filter(f => f.path !== PAPER_REDIRECTS);
+      if (regular.length) await git(note.worktree, ['add', '--', ...regular.map(f => f.path)]);
+      if (files.some(f => f.path === PAPER_REDIRECTS)) await git(note.worktree, ['add', '-f', '--', PAPER_REDIRECTS]);
       note.tree = (await git(note.worktree, ['write-tree'])).trim();
       note.message = `整理 Issue #${job.issue} 的阅读讨论\n\nRefs #${job.issue}\n`;
       note.date = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');

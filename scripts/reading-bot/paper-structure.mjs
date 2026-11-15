@@ -54,7 +54,7 @@ export const PAPER_REDIRECTS = '.vitepress/paper-redirects.json';
 const safePaperPath = value => typeof value === 'string' && /^Papers\/.+\.md$/.test(value)
   && !value.split('/').some(part => !part || part.startsWith('.')) && !/[\\\x00-\x1f?#]/.test(value);
 
-export async function checkPaperStructure(root, { changedPaths } = {}) {
+export async function checkPaperStructure(root, { changedPaths, requireRedirects = false } = {}) {
   const notes = await readPaperNotes(root);
   const changed = changedPaths && new Set(changedPaths);
   const touched = note => !changed || changed.has(note.path);
@@ -85,7 +85,10 @@ export async function checkPaperStructure(root, { changedPaths } = {}) {
   }
   let redirects = {};
   try { redirects = JSON.parse(await readFile(join(root, PAPER_REDIRECTS), 'utf8')); }
-  catch (error) { if (error.code !== 'ENOENT') problems.push(`${PAPER_REDIRECTS}：无效 JSON。`); }
+  catch (error) {
+    if (error.code !== 'ENOENT') problems.push(`${PAPER_REDIRECTS}：无效 JSON。`);
+    else if (requireRedirects) problems.push(`${PAPER_REDIRECTS}：缺少站点需要的重定向数据文件。`);
+  }
   if (!redirects || Array.isArray(redirects) || typeof redirects !== 'object') {
     problems.push(`${PAPER_REDIRECTS} 必须是重定向对象。`);
   } else {

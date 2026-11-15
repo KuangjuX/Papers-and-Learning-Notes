@@ -89,3 +89,9 @@ test('historical redirects resolve through renames, preserving section hashes an
   }
   assert.throws(() => resolveRedirect('a', { a: 'b', b: 'a' }), /cycle/);
 });
+
+test('the repository check requires the redirect data that its site configuration imports', async t => {
+  const root = await fixture(t, { [paper]: title });
+  assert.ok((await checkPaperStructure(root, { requireRedirects: true })).problems.some(p => p.includes('缺少站点')));
+  assert.deepEqual((await checkPaperStructure(root, { changedPaths: [paper] })).problems, []);
+});
