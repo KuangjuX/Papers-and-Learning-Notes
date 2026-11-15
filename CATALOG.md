@@ -25,6 +25,7 @@
 
 ### 分布式训练与 MoE
 
+- [FlashNext-RL: A System Optimization Study for Long-Horizon Agentic RL of Qwen3.8-Flash-Next](Papers/03_Distributed_Training_and_MoE/FlashNext-RL/flashnext-rl.md)
 - [MegaMoE：把 MoE 前向路径压进一个通信计算融合核](Papers/03_Distributed_Training_and_MoE/MegaMoE/megamoe.md)
 - [PithTrain: A Compact and Agent-Native MoE Training System](Papers/03_Distributed_Training_and_MoE/PithTrain/pithtrain.md)
 - [PockEngine: Sparse and Efficient Fine-tuning in a Pocket：阅读笔记](Papers/03_Distributed_Training_and_MoE/PockEngine/github-reading.md)

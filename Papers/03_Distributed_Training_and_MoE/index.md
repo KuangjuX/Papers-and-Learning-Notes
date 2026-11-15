@@ -4,10 +4,11 @@
 
 训练系统、并行策略、专家路由、通信计算重叠与训练数值。
 
-共 54 个清单条目；已读 8，待读 46。
+共 55 个清单条目；已读 8，待读 47。
 
 ## 本地笔记
 
+- [FlashNext-RL: A System Optimization Study for Long-Horizon Agentic RL of Qwen3.8-Flash-Next](FlashNext-RL/flashnext-rl.md)
 - [Efficient LLM Training Survey：训练数据、checkpoint 与存储系统分工](Efficient-LLM-Training-Survey/index.md)
 - [MegaMoE：把 MoE 前向路径压进一个通信计算融合核](MegaMoE/megamoe.md)
 - [PithTrain: A Compact and Agent-Native MoE Training System](PithTrain/pithtrain.md)
@@ -76,6 +77,7 @@
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
+| ⬜ 📝 | <a id="pdf-auvhlq3v"></a>**FlashNext-RL: A System Optimization Study for Long-Horizon Agentic RL of Qwen3.8-Flash-Next** | arXiv · 2026 | 阅读中；QSA 的 GQA 分组、反向 gather 与 CuTe 流水线，及 Top-K 重叠的证据边界 | [Paper](https://arxiv.org/abs/2610.28998v1) / [Zotero](zotero://select/library/items/AUVHLQ3V) / [Note](FlashNext-RL/flashnext-rl.md) |
 | ✅ 📝 | <a id="pdf-lv4qk9kg"></a>**Seer: Online Context Learning for Fast Synchronous LLM Reinforcement Learning** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/qin) | 利用同一 prompt 下响应长度和模式的相似性，减少同步 RL rollout 长尾与资源浪费 | [Paper](https://arxiv.org/pdf/2511.14617) / [Note](Seer/zhihu-reading.md) |
 | ⬜ | <a id="pdf-i3m9y4v9"></a>**DeepSeek Elastic Compute (DSec): A Sandbox Infrastructure for Effective Agentic Training at Scale** | arXiv · 2026 | 标签：分布式训练与 MoE | [Paper](http://arxiv.org/abs/2609.22978) / [PDF](zotero://open-pdf/library/items/XBZEVX2N) / [Zotero](zotero://select/library/items/I3M9Y4V9) |
 
