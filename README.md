@@ -36,7 +36,7 @@ Papers/ | Projects/ | Foundations/
 <!-- paper-reading-list:start -->
 ## Paper 阅读清单
 
-共 **344 个分类条目**：已读 77，待读 267。
+共 **345 个分类条目**：已读 77，待读 268。
 
 ✅ 已读 · ⬜ 待读 · 📝 有笔记。
 
@@ -45,7 +45,7 @@ Papers/ | Projects/ | Foundations/
 | [待分类](Papers/00_Inbox/index.md) | 0 | 0 | 0 |
 | [Attention](Papers/01_Attention/index.md) | 42 | 15 | 27 |
 | [推理与 KV Cache](Papers/02_Inference_and_KV_Cache/index.md) | 48 | 7 | 41 |
-| [分布式训练与 MoE](Papers/03_Distributed_Training_and_MoE/index.md) | 54 | 8 | 46 |
+| [分布式训练与 MoE](Papers/03_Distributed_Training_and_MoE/index.md) | 55 | 8 | 47 |
 | [GPU 编译与性能](Papers/04_GPU_Compiler_and_Performance/index.md) | 64 | 29 | 35 |
 | [模型架构与推理能力](Papers/05_Model_Architecture_and_Reasoning/index.md) | 108 | 4 | 104 |
 | [计算基础](Papers/06_Computing_Foundations/index.md) | 18 | 14 | 4 |
@@ -203,7 +203,7 @@ Papers/ | Projects/ | Foundations/
 </details>
 
 <details>
-<summary>分布式训练与 MoE（54 篇；已读 8，待读 46）</summary>
+<summary>分布式训练与 MoE（55 篇；已读 8，待读 47）</summary>
 
 ### LLM Inference / MegaKernel
 
@@ -265,6 +265,7 @@ Papers/ | Projects/ | Foundations/
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
+| ⬜ 📝 | <a id="pdf-auvhlq3v"></a>**FlashNext-RL: A System Optimization Study for Long-Horizon Agentic RL of Qwen3.8-Flash-Next** | arXiv · 2026 | 阅读中；QSA 的 GQA 分组、反向 gather 与 CuTe 流水线，及 Top-K 重叠的证据边界 | [Paper](https://arxiv.org/abs/2610.28998v1) / [Zotero](zotero://select/library/items/AUVHLQ3V) / [Note](Papers/03_Distributed_Training_and_MoE/FlashNext-RL/flashnext-rl.md) |
 | ✅ 📝 | <a id="pdf-lv4qk9kg"></a>**Seer: Online Context Learning for Fast Synchronous LLM Reinforcement Learning** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/qin) | 利用同一 prompt 下响应长度和模式的相似性，减少同步 RL rollout 长尾与资源浪费 | [Paper](https://arxiv.org/pdf/2511.14617) / [Note](Papers/03_Distributed_Training_and_MoE/Seer/zhihu-reading.md) |
 | ⬜ | <a id="pdf-i3m9y4v9"></a>**DeepSeek Elastic Compute (DSec): A Sandbox Infrastructure for Effective Agentic Training at Scale** | arXiv · 2026 | 标签：分布式训练与 MoE | [Paper](http://arxiv.org/abs/2609.22978) / [PDF](zotero://open-pdf/library/items/XBZEVX2N) / [Zotero](zotero://select/library/items/I3M9Y4V9) |
 
