@@ -8,7 +8,7 @@
 
 ## 本地笔记
 
-- [FlashNext-RL：QSA kernel 的 GQA 分组、反向 gather 与跨 query 复用](FlashNext-RL/flashnext-rl.md)
+- [FlashNext-RL: A System Optimization Study for Long-Horizon Agentic RL of Qwen3.8-Flash-Next](FlashNext-RL/flashnext-rl.md)
 - [Efficient LLM Training Survey：训练数据、checkpoint 与存储系统分工](Efficient-LLM-Training-Survey/index.md)
 - [MegaMoE：把 MoE 前向路径压进一个通信计算融合核](MegaMoE/megamoe.md)
 - [PithTrain: A Compact and Agent-Native MoE Training System](PithTrain/pithtrain.md)
