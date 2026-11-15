@@ -80,11 +80,16 @@ test('publication normalizes every reply and truncates before a giant math block
   assert.equal(markdownPrefix('First\n\n```math\nx\n\n' + 'y'.repeat(30) + '\n```', 25), 'First');
 });
 
-test('ask, resumed ask and note prompts all specify GitHub math syntax', () => {
+test('ask uses GitHub math while note editing uses VitePress math', () => {
   for (const mode of [undefined, 'note']) {
     const prompt = buildPrompt({ title: 'Paper', html_url: 'https://example.org' }, [],
       { id: 1, url: 'https://example.org/comment', request: { mode, question: 'Explain' } }, { contextPath: '/tmp/context' });
-    assert.ok(prompt.includes('行内公式使用 $`S_t`$'));
-    assert.ok(prompt.includes('```math'));
+    if (mode === 'note') {
+      assert.ok(prompt.includes('仓库正文使用 VitePress'));
+      assert.ok(!prompt.includes('行内公式使用 $`S_t`$'));
+    } else {
+      assert.ok(prompt.includes('行内公式使用 $`S_t`$'));
+      assert.ok(prompt.includes('```math'));
+    }
   }
 });

@@ -6,6 +6,7 @@ import { createHash } from 'node:crypto';
 import { buildPrompt, commentsBeforeJob, saveJson, readJson } from './core.mjs';
 import { childEnvironment, runCodex } from './codex.mjs';
 import { GitHub } from './github.mjs';
+import { loadAuthoringContext, reviewNotes } from './authoring.mjs';
 
 const execute = promisify(execFile);
 export const NOTE_CHECKS = [
@@ -89,25 +90,29 @@ export function pullBody(issue, job, note, files) {
 }
 
 export class Notes {
-  constructor(config, { github = new GitHub(config, { notes: true }), reader = new GitHub(config), runner = runCodex, checker = checkNotes, fetchBase } = {}) {
-    Object.assign(this, { config, github, reader, runner, checker, fetchBase });
+  constructor(config, { github = new GitHub(config, { notes: true }), reader = new GitHub(config), runner = runCodex, checker = checkNotes, reviewer = reviewNotes, fetchBase } = {}) {
+    Object.assign(this, { config, github, reader, runner, checker, reviewer, fetchBase });
   }
   async existing(issue, branch) {
     const pulls = await this.github.pulls(branch ? `state=all&head=${encodeURIComponent(`${this.config.repo.split('/')[0]}:${branch}`)}` : 'state=open');
-    return pulls.find(pr => pr.user?.login === `${this.config.slug}[bot]`
+    const matches = pulls.filter(pr => pr.user?.login === `${this.config.slug}[bot]`
       && pr.head?.repo?.id === this.config.repositoryId && pr.base?.repo?.id === this.config.repositoryId
       && pr.body?.includes(noteMarker(issue)));
+    if (matches.length > 1) throw new NoteError('同一 Issue 对应多个 bot PR，无法唯一确定修改目标；请先消除重复 PR。');
+    return matches[0];
   }
-  async prepare(job, save, signal) {
+  async prepare(job, save, signal, previous) {
     if (!job.note) {
       const repo = await this.reader.repository();
-      const branch = `codex/reading-issue-${job.issue}-${job.id}`;
+      const localBranch = `codex/reading-issue-${job.issue}-${job.id}`;
+      const branch = previous?.head.ref ?? localBranch;
+      const sourceBranch = previous?.head.ref ?? repo.default_branch;
       const baseRef = `refs/reading-bot/base/${job.id}`;
-      if (this.fetchBase) await this.fetchBase(baseRef, repo.default_branch);
+      if (this.fetchBase) await this.fetchBase(baseRef, sourceBranch);
       else {
         const token = await this.reader.token();
         await git(this.config.workspace, ['fetch', '--no-tags', '--no-write-fetch-head',
-          `https://github.com/${this.config.repo}.git`, `+refs/heads/${repo.default_branch}:${baseRef}`], {
+          `https://github.com/${this.config.repo}.git`, `+refs/heads/${sourceBranch}:${baseRef}`], {
           signal, env: { GIT_TERMINAL_PROMPT: '0', GIT_CONFIG_COUNT: '2',
             GIT_CONFIG_KEY_0: 'http.https://github.com/.extraheader',
             GIT_CONFIG_VALUE_0: `AUTHORIZATION: basic ${Buffer.from(`x-access-token:${token}`).toString('base64')}`,
@@ -115,7 +120,9 @@ export class Notes {
         });
       }
       const base = (await git(this.config.workspace, ['rev-parse', baseRef])).trim();
-      job.note = { branch, baseRef, base, defaultBranch: repo.default_branch,
+      if (previous && base !== previous.head.sha) throw new NoteError('PR 分支在准备期间发生变化，请重试；尚未编辑或发布。');
+      job.note = { branch, localBranch, baseRef, base, defaultBranch: previous?.base.ref ?? repo.default_branch,
+        update: Boolean(previous), pr: previous ? { number: previous.number, url: previous.html_url } : undefined,
         worktree: join(this.config.stateDirectory, 'worktrees', String(job.id)),
         directory: join(this.config.stateDirectory, 'notes', String(job.id)), stage: 'planned' };
       await save();
@@ -127,7 +134,7 @@ export class Notes {
       try { await access(note.worktree); }
       catch (error) {
         if (error.code !== 'ENOENT') throw error;
-        await git(this.config.workspace, ['worktree', 'add', '-b', note.branch, note.worktree, note.base], { signal });
+        await git(this.config.workspace, ['worktree', 'add', '-b', note.localBranch ?? note.branch, note.worktree, note.base], { signal });
       }
       await this.assertHead(note, note.base);
       note.stage = 'prepared'; await save();
@@ -137,7 +144,7 @@ export class Notes {
   async assertHead(note, expected) {
     const branch = (await git(note.worktree, ['branch', '--show-current'])).trim();
     const head = (await git(note.worktree, ['rev-parse', 'HEAD'])).trim();
-    if (branch !== note.branch || head !== expected) throw new NoteError('独立工作区的分支或提交已被更改；为保留这些改动，本次任务停止。');
+    if (branch !== (note.localBranch ?? note.branch) || head !== expected) throw new NoteError('独立工作区的分支或提交已被更改；为保留这些改动，本次任务停止。');
   }
   async commit(note, job, save) {
     const files = await readJson(join(note.directory, 'candidate.json'));
@@ -157,14 +164,17 @@ export class Notes {
       await save();
     }
     const head = (await git(note.worktree, ['rev-parse', 'HEAD'])).trim();
-    if (head === note.base) await git(note.worktree, ['update-ref', `refs/heads/${note.branch}`, note.localCommit, note.base]);
+    if (head === note.base) await git(note.worktree, ['update-ref', `refs/heads/${note.localBranch ?? note.branch}`, note.localCommit, note.base]);
     await this.assertHead(note, note.localCommit);
     note.stage = 'committed'; await save();
     return files;
   }
   async publish(note, job, issue, save) {
     const existing = await this.existing(job.issue, note.branch);
-    if (existing) { note.pr = { number: existing.number, url: existing.html_url }; note.stage = 'published'; await save(); return; }
+    if (existing && !note.update) { note.pr = { number: existing.number, url: existing.html_url }; note.stage = 'published'; await save(); return; }
+    if (note.update && (!existing || existing.number !== note.pr.number || existing.state !== 'open' || existing.merged_at)) {
+      throw new NoteError('目标 PR 已关闭、合并或不再匹配本次任务；未更新远端分支。');
+    }
     await this.assertHead(note, note.localCommit);
     if ((await git(note.worktree, ['status', '--porcelain'])).trim()) throw new NoteError('提交后工作区出现新改动；已保留改动，本次不继续发布。');
     const files = await readJson(join(note.directory, 'candidate.json'));
@@ -182,6 +192,17 @@ export class Notes {
       note.remoteCommit = commit.sha; await save();
     }
     const ref = await this.github.branchRef(note.branch);
+    if (note.update) {
+      if (!ref || ![note.base, note.remoteCommit].includes(ref.object.sha)) throw new NoteError('远端 PR 分支已被更新；未覆盖现有提交，请基于最新版本重试。');
+      if (ref.object.sha !== note.remoteCommit) {
+        // Fast-forward only: concurrent commits cannot be overwritten. A lost response
+        // is recovered by recognizing remoteCommit on the next attempt.
+        await this.github.request(`${this.github.base()}/git/refs/heads/${note.branch}`, {
+          method: 'PATCH', body: { sha: note.remoteCommit, force: false },
+        });
+      }
+      note.stage = 'published'; await save(); return;
+    }
     if (ref && ref.object.sha !== note.remoteCommit) throw new NoteError('远端工作分支已被更新；未覆盖现有提交，请人工检查。');
     if (!ref) await this.github.gitObject('refs', { ref: `refs/heads/${note.branch}`, sha: note.remoteCommit });
     const pr = await this.github.createPull({ title: `阶段性整理阅读笔记（Issue #${job.issue}）`,
@@ -192,44 +213,57 @@ export class Notes {
     if (!this.config.notesEnabled) return '笔记整理模式尚未启用。请完成 GitHub App 的 Contents / Pull requests 写权限配置，并运行 enable-notes 后重新发送 /note。';
     if (issue.state === 'closed') return '这个 Issue 已关闭。按仓库约定，新一轮笔记更新应先新建对应主题的 Issue，再在新 Issue 中发送 /note。';
     if (!await this.github.notePermissions()) throw new NoteError('GitHub App 尚未获得 Contents 和 Pull requests 写权限；请更新安装权限后重新发送 /note。');
-    if (!job.note) {
-      const previous = await this.existing(job.issue);
-      if (previous) return `这个 Issue 已有待审阅的整理 PR：[PR #${previous.number}](${previous.html_url})。本次没有叠加新的修改；请先审阅该 PR，合并或关闭后再发新的 /note。`;
+    const previous = job.note ? undefined : await this.existing(job.issue);
+    const requestedPr = job.request.question.match(/\bPR\s*#(\d+)/i)?.[1];
+    if (!job.note && requestedPr && Number(requestedPr) !== previous?.number) {
+      throw new NoteError('指定 PR 不是本 Issue 的开放 bot PR；未修改其他分支。');
     }
-    const note = await this.prepare(job, save, signal);
-    if (note.stage === 'prepared') {
+    const note = await this.prepare(job, save, signal, previous);
+    if (['prepared', 'edited'].includes(note.stage)) {
       const contextPath = join(note.directory, 'discussion.json');
-      // Keep an immutable full snapshot on retries, rather than truncating the source for editing.
       let context = await readJson(contextPath, null);
       if (!context) {
         context = { issue, comments: commentsBeforeJob(comments, job), trigger: job.url };
         await saveJson(contextPath, context);
       }
-      let result;
-      try {
-        result = await this.runner({ config: { ...this.config, workspace: note.worktree }, mode: 'note',
-          prompt: buildPrompt(context.issue, context.comments, job, { contextPath }),
-          directory: join(note.directory, `codex-${job.attempts}`), signal });
-      } catch (error) {
-        if (signal?.aborted) throw error;
-        throw new NoteError('本机 Codex 整理未完成。已有差异和日志保留在独立工作区，未创建 PR；请检查日志后再发 /note。');
+      // Read the current trusted checkout, not potentially stale rules in a PR branch.
+      const authoring = await loadAuthoringContext(this.config.workspace);
+      await saveJson(join(note.directory, 'authoring.json'), authoring);
+      const prompt = buildPrompt(context.issue, context.comments, job, { contextPath, authoring });
+      while (['prepared', 'edited'].includes(note.stage)) {
+        if (note.stage === 'prepared') {
+          const result = await this.runner({ config: { ...this.config, workspace: note.worktree }, mode: 'note',
+            prompt: prompt + (note.feedback ? `\n本轮必须修复的检查结果：\n${note.feedback}` : ''),
+            directory: join(note.directory, `codex-${job.attempts}-${note.repairs ?? 0}`), signal });
+          note.summary = result.text; note.stage = 'edited'; await save();
+        }
+        await this.assertHead(note, note.base);
+        const files = await collectChanges(note.worktree, note.base);
+        if (!files.length) { note.stage = 'no-change'; await save(); break; }
+        try {
+          await this.checker(note.worktree, note.directory, signal);
+          // Build scripts may update indexes; review the exact post-build files.
+          const candidate = await collectChanges(note.worktree, note.base);
+          const review = await this.reviewer({ config: { ...this.config, workspace: note.worktree },
+            note, job, authoring, contextPath, files: candidate, signal });
+          await saveJson(join(note.directory, `review-${note.repairs ?? 0}.json`), review);
+          if (!review.approved) throw new NoteError(`笔记规范复核未通过：\n${review.findings.join('\n')}`);
+          if (!sameFiles(candidate, await collectChanges(note.worktree, note.base))) throw new NoteError('复核期间文件发生变化，需要重新检查。');
+          await git(note.worktree, ['diff', '--check', note.base]);
+          await saveJson(join(note.directory, 'candidate.json'), candidate);
+          note.stage = 'validated'; await save();
+        } catch (error) {
+          if (signal?.aborted || !error.publicMessage) throw error;
+          if ((note.repairs ?? 0) >= 2) throw new NoteError('自动修订后检查仍未通过；未发布变更，差异和复核日志已保留在独立工作区。');
+          note.feedback = `${error.publicMessage}\n检查日志位于 ${note.directory}/check-*.log。读取失败日志，修复正文或公式，不得修改检查脚本、降低检查要求或绕过规范。`;
+          note.repairs = (note.repairs ?? 0) + 1; note.stage = 'prepared'; await save();
+        }
       }
-      note.summary = result.text; note.stage = 'edited'; await save();
-    }
-    if (note.stage === 'edited') {
-      await this.assertHead(note, note.base);
-      const files = await collectChanges(note.worktree, note.base);
-      if (!files.length) { note.stage = 'no-change'; await save(); return `没有产生笔记差异，未创建 PR。\n\n${note.summary}`; }
-      await this.checker(note.worktree, note.directory, signal);
-      const candidate = await collectChanges(note.worktree, note.base);
-      await git(note.worktree, ['diff', '--check', note.base]);
-      await saveJson(join(note.directory, 'candidate.json'), candidate);
-      note.stage = 'validated'; await save();
     }
     if (note.stage === 'validated') await this.commit(note, job, save);
     if (note.stage === 'committed') await this.publish(note, job, issue, save);
-    if (note.stage === 'no-change') return `没有产生笔记差异，未创建 PR。\n\n${note.summary}`;
-    return `已整理主笔记并创建 [PR #${note.pr.number}](${note.pr.url})，仓库文档检查已通过。PR 留待审阅，阅读 Issue 保持原状态。\n\n${note.summary}`;
+    if (note.stage === 'no-change') return `没有产生笔记差异，未发布新提交。${note.pr ? `现有 PR：[PR #${note.pr.number}](${note.pr.url})。` : ''}\n\n${note.summary}`;
+    return `已整理主笔记并${note.update ? '更新' : '创建'} [PR #${note.pr.number}](${note.pr.url})，仓库文档检查与笔记规范复核已通过。PR 留待审阅，阅读 Issue 保持原状态。\n\n${note.summary}`;
   }
   async cleanup(job, save) {
     const note = job.note;
@@ -253,9 +287,9 @@ export class Notes {
       await git(this.config.workspace, ['worktree', 'remove', note.worktree]);
     }
     // Squash merge may not retain the original commit as an ancestor; identity and clean state were checked above.
-    const branch = (await git(this.config.workspace, ['for-each-ref', '--format=%(objectname)', `refs/heads/${note.branch}`])).trim();
+    const branch = (await git(this.config.workspace, ['for-each-ref', '--format=%(objectname)', `refs/heads/${note.localBranch ?? note.branch}`])).trim();
     if (branch && branch !== note.localCommit) return;
-    if (branch) await git(this.config.workspace, ['branch', '-D', note.branch]);
+    if (branch) await git(this.config.workspace, ['branch', '-D', note.localBranch ?? note.branch]);
     await git(this.config.workspace, ['update-ref', '-d', note.baseRef]);
     note.cleaned = true; await save();
   }
