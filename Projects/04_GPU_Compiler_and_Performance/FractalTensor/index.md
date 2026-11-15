@@ -24,13 +24,15 @@ Tensor 是一个形状规则的高维度数组。嵌套的 FractalTensor 把一�
 
 - 0-7 是第二层第一个元素，8-12 是第二层第二个元素，13-22 是第二层第三个元素。
 
-## 使用 FractalTensors 组织神经网络计算
+<a id="使用-fractaltensors-组织神经网络计算"></a>
+
+## Recurrent Networks
 
 嵌套结构上的操作分成 parallel patterns 与 access patterns：前者描述 map、fold、scan 等迭代结构，后者描述访问与重排；叶子 Tensor 内仍有普通数组计算。名称里的 parallel 不保证每次迭代独立：map 可表达互不依赖的计算，fold/scan 则可能携带状态依赖。
 
-### General recurrence
+<a id="general-recurrence"></a>
 
-#### A simplified RNN layer
+<a id="a-simplified-rnn-layer"></a>
 
 ![](figures/figure2.png)
 
@@ -46,7 +48,7 @@ Figure 3 中一个序列沿时间递推，当前 cell 消费前一时刻状态�
 
 ![](figures/listing3.png)
 
-#### A simplified stacked RNN network
+<a id="a-simplified-stacked-rnn-network"></a>
 
 ![](figures/figure5.png)
 
@@ -60,9 +62,11 @@ Stacked RNN network 总是被一批次的 sequences 所训练。Figure 6 展示�
 
 ![](figures/Listing5.png)
 
-## Program Analysis for the Motivating Example: Stacked LSTM
+<a id="program-analysis-for-the-motivating-example-stacked-lstm"></a>
 
-### User program and program representation
+## Program Analysis
+
+<a id="user-program-and-program-representation"></a>
 
 Listing 9 是 stacked LSTM network 的用户代码。
 
@@ -76,21 +80,21 @@ Listing 9 是 stacked LSTM network 的用户代码。
 
 ![](figures/figure8.png)
 
-### Program analysis and IR transformations
+<a id="program-analysis-and-ir-transformations"></a>
 
-#### Convert conditional branches to dataflow edges
+<a id="convert-conditional-branches-to-dataflow-edges"></a>
 
 为了将状态分支变得更为直觉，Listing 9 给出了 FractalTensor program 的同等描述。
 
 ![](figures/listing11.png)
 
-由于 fold，scan 和其他步骤的数据访问不同，由 map，fold，scan 组成的完美并行模式实际上有四个状态分支。后续代码生成的复杂度在于这四个控制区域有不同的访问行为并且携带不同的数据依赖。
+由于 fold，scan 和其他步骤的数据访问不同，由 map、fold、scan 组成的嵌套模式实际上有四个状态分支。后续代码生成的复杂度在于这四个控制区域有不同的访问行为并且携带不同的数据依赖。
 
 ![](figures/figure9.png)
 
 ![](figures/figure10.png)
 
-#### Restructure data to expose maximal data-parallelism
+<a id="restructure-data-to-expose-maximal-data-parallelism"></a>
 
 ![](figures/figure11.png)
 

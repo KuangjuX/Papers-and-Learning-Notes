@@ -1,8 +1,12 @@
 # Virtualizing I/O
 
-## Device virtualization techniques
+<a id="device-virtualization-techniques"></a>
 
-### Direct access：VM 对于设备有所有权，排外访问
+## Device Virtualization
+
+<a id="direct-access-vm-对于设备有所有权-排外访问"></a>
+
+### Direct Assignment
 
 ![](io-virtualizing/direct-access.jpg)
 
@@ -20,7 +24,9 @@
 
 - 需要相当多的设备（假设有 100 个 VMs）
 
-### Device emulation：VMM 在软件中模拟设备
+<a id="device-emulation-vmm-在软件中模拟设备"></a>
+
+### Device Emulation
 
 - 使用纯软件实现一个裸机上的设备
 
@@ -40,7 +46,9 @@
 
 - 可能比较慢（因为是软件模拟）
 
-### Para-virtualization：把驱动分成 guest 部分和 host 部分
+<a id="para-virtualization-把驱动分成-guest-部分和-host-部分"></a>
+
+### Paravirtualization
 
 - VMM 提供新型设备
 
@@ -52,7 +60,9 @@
 
 ![](io-virtualizing/virtio.jpg)
 
-### Hardware assisted: 硬件设备提供隔离的 "virtual interfaces"
+<a id="hardware-assisted-硬件设备提供隔离的-virtual-interfaces"></a>
+
+### Hardware-assisted I/O
 
 - 支持虚拟化的设备可以配置为在 PCI 配置空间中显示多个虚拟功能
 
@@ -60,18 +70,18 @@
 
 ![](io-virtualizing/sr-iov.jpg)
 
-## Storage virtualization
+## Storage Virtualization
 
-### Virtual Disk
+<a id="virtual-disk"></a>
 
 - Virtual disk 实际上就是在 host file system 中的一个文件
 
 - Hypervisor 映射 disk blocks 到 file offsets
-  
+
   - Flat file(fix sized virtual disk)
-  
+
   - Indexed file(virtual disk can grow demand)
 
-## Network virtualization
+## Network Virtualization
 
 

@@ -13,7 +13,9 @@ Attention backend 把模型产生的 Q/K/V 和请求调度器维护的缓存状�
 
 两条路径固定于 SGLang 提交 [`7152c143`](https://github.com/sgl-project/sglang/tree/7152c143841df01cb8f5d27dd059fd338f958576)。DualChunk 文件随后在 [`c0b790cf`](https://github.com/sgl-project/sglang/commit/c0b790cf7fe6dc1516c3ec1f23de9b37baca654a) 中删除，因此这里解释的是保留两种 backend 的历史实现，不能作为当前主线仍支持 DualChunk 的依据。源码阅读未包含 GPU 运行验证。
 
-## 共同入口：先准备批次 metadata，再执行各层
+<a id="共同入口-先准备批次-metadata-再执行各层"></a>
+
+## Backend Interface
 
 ```text
 ForwardBatch：请求归属、序列长度、新 token 的 cache 位置
@@ -28,9 +30,9 @@ ForwardBatch：请求归属、序列长度、新 token 的 cache 位置
 
 metadata 与模型层权重的生命周期不同：一次批次的长度和页表可以在多层之间复用，每层仍读取自己的 KV buffer。CUDA Graph 路径另有 capture/replay 的 metadata 更新入口，不能假定普通 Python 初始化会在每次 replay 中重新执行。
 
-## FlashAttention：用页表描述每个请求的历史 KV {#flashattention}
+## FlashAttention
 
-### 核心 metadata
+<a id="核心-metadata"></a>
 
 [`FlashAttentionMetadata`](https://github.com/sgl-project/sglang/blob/7152c143841df01cb8f5d27dd059fd338f958576/python/sglang/srt/layers/attention/flashattention_backend.py#L63) 把变长请求和分页缓存分开描述：
 
@@ -48,7 +50,9 @@ metadata 与模型层权重的生命周期不同：一次批次的长度和页�
 
 例如两条请求本轮分别产生 10 和 1 个 query，`cu_seqlens_q=[0,10,11]`。第一条历史长度为 100 并不改变第二条 query 在扁平化 Q 中的起点；历史长度由 cache metadata 单独表达。
 
-### Extend：写 cache、选择计算范围、调用 kernel
+<a id="extend-写-cache、选择计算范围、调用-kernel"></a>
+
+### Extend
 
 [`forward_extend`](https://github.com/sgl-project/sglang/blob/7152c143841df01cb8f5d27dd059fd338f958576/python/sglang/srt/layers/attention/flashattention_backend.py#L1224) 沿以下步骤执行：
 
@@ -60,7 +64,9 @@ metadata 与模型层权重的生命周期不同：一次批次的长度和页�
 
 关键参数组装见 [causal、窗口和 cascade 条件](https://github.com/sgl-project/sglang/blob/7152c143841df01cb8f5d27dd059fd338f958576/python/sglang/srt/layers/attention/flashattention_backend.py#L1300)，分页调用见 [MHA 主路径](https://github.com/sgl-project/sglang/blob/7152c143841df01cb8f5d27dd059fd338f958576/python/sglang/srt/layers/attention/flashattention_backend.py#L1494)。
 
-### Decode 与 cascade attention
+<a id="decode-与-cascade-attention"></a>
+
+### Decode
 
 [`forward_decode`](https://github.com/sgl-project/sglang/blob/7152c143841df01cb8f5d27dd059fd338f958576/python/sglang/srt/layers/attention/flashattention_backend.py#L1785) 同样完成新 KV 写入、metadata 选择和 attention 调用。通常 decode 每个请求只有一个新 query，但投机分支仍会引入额外的选择条件。
 
@@ -68,9 +74,11 @@ metadata 与模型层权重的生命周期不同：一次批次的长度和页�
 
 普通 cascade 路径将公共 prefix 与各分支 suffix 分开计算，分别得到输出和 LSE，再用 `merge_state_v2_wrapper` 合并。该固定提交还包含满足额外条件时的 UNO fused suffix merge，不能笼统地说每次 cascade 都恰好发起两次相同 API 调用。见 [suffix 分派与合并](https://github.com/sgl-project/sglang/blob/7152c143841df01cb8f5d27dd059fd338f958576/python/sglang/srt/layers/attention/flashattention_backend.py#L1516)。
 
-## DualChunk：按 chunk 关系组织多份 Query {#dual-chunk}
+<a id="dual-chunk"></a>
 
-### 配置和 metadata
+## Dual Chunk Attention
+
+<a id="配置和-metadata"></a>
 
 [`DualChunkFlashAttentionBackend.__init__`](https://github.com/sgl-project/sglang/blob/7152c143841df01cb8f5d27dd059fd338f958576/python/sglang/srt/layers/attention/dual_chunk_flashattention_backend.py#L106) 从模型配置读取 `dual_chunk_attention_config`，其中 `chunk_size` 默认 8192、`local_size` 默认 1024，并要求本地 Q-head 数可被 KV-head 数整除。
 
@@ -86,7 +94,9 @@ metadata 与模型层权重的生命周期不同：一次批次的长度和页�
 
 Decode metadata 中 `chunk_len=chunk_size-local_size`，以 `(cache_seq_len-1)//chunk_len` 确定当前 chunk，再建立 intra/succ/inter 视图。例如 `chunk_len=7168`、历史长度 8000 时，当前 chunk 编号为 1，intra 长度为 832，紧邻的前一 chunk 长度为 7168，更早的 inter 部分为空。这里的数字由源码长度计算推得，不是 profile 结果。见 [decode metadata 构造](https://github.com/sgl-project/sglang/blob/7152c143841df01cb8f5d27dd059fd338f958576/python/sglang/srt/layers/attention/dual_chunk_flashattention_backend.py#L278)。
 
-### Extend：五份 Query 与 chunked prefill
+<a id="extend-五份-query-与-chunked-prefill"></a>
+
+### Extend
 
 [`forward_extend`](https://github.com/sgl-project/sglang/blob/7152c143841df01cb8f5d27dd059fd338f958576/python/sglang/srt/layers/attention/dual_chunk_flashattention_backend.py#L335) 将模型传来的 Q 沿最后一维等分为五份：
 
@@ -100,13 +110,17 @@ query, query_succ, query_inter, query_succ_critical, query_inter_critical = (
 
 正常缓存路径按条件写入新 KV，取得分页缓存后进入 `_dual_chunk_flash_attn_prefill`，同时传入五份 Q、query offsets、原始长度和 block table。后者继续按请求、chunk 与配置组织子计算。`save_kv_cache=False` 的 profile 分支直接调用普通 varlen attention，不能把它的执行路径当作完整 DualChunk prefill。
 
-### Decode：消费三种主要 Query 与分区页表
+<a id="decode-消费三种主要-query-与分区页表"></a>
+
+### Decode
 
 [`forward_decode`](https://github.com/sgl-project/sglang/blob/7152c143841df01cb8f5d27dd059fd338f958576/python/sglang/srt/layers/attention/dual_chunk_flashattention_backend.py#L446) 也拆分五份 Q，并按条件保存 KV；但交给 `_dual_chunk_flash_attn_decoding` 的是 `query`、`query_succ`、`query_inter` 三种主要 Query。两份 critical Query 没有通过这个 decode 接口继续传入。
 
 Decode helper 分别处理 intra、存在时的 succ 和 inter，并按 LSE 合并。它要求外层 `causal=True`，且 `chunk_len` 可被 cache block size 整除；子调用可设 `causal=False`，因为各分区的可见范围已由 metadata 描述。外层语义和单次子调用的 mask 参数不能混为一谈。见 [decode helper](https://github.com/sgl-project/sglang/blob/7152c143841df01cb8f5d27dd059fd338f958576/python/sglang/srt/layers/attention/dual_chunk_flashattention_backend.py#L1467)。
 
-## 多部分 Attention 为什么需要 LSE 合并
+<a id="多部分-attention-为什么需要-lse-合并"></a>
+
+## LSE Merge
 
 设同一 query/head 在不重叠的可见子集上分别计算出输出 $O_s$ 和 $L_s=\log\sum_j\exp z_j$。整体输出需要按各子集的归一化质量加权：
 

@@ -27,7 +27,7 @@ function walk(items, parent, depth = 0) {
       const hash = item.link.split('#')[1]
       if (hash) {
         const source = readFileSync(join(root, file), 'utf8')
-        assert(source.includes(`id="${hash}"`), `Missing explicit sidebar anchor: ${item.link}`)
+        assert(source.includes(`id="${decodeURIComponent(hash)}"`), `Missing explicit sidebar anchor: ${item.link}`)
       }
       siblings.add(item.link)
       links.add(path)
@@ -58,42 +58,37 @@ assert.deepEqual(math.items.map((item) => item.text), [
   'Adam 优化器前置知识',
   'CuTe Layouts：范畴基础',
 ])
-const cute = nodes.filter((item) => item.link === '/Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/')
-assert.equal(cute.length, 2, 'CuTe Layouts should be reachable under both GPU papers and mathematics')
-for (const group of cute) assert.equal(group.items.filter((item) => item.link.includes('/Translation-')).length, 12)
-const paperSidebar = sidebars['/Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/']
-assert(paperSidebar, 'CuTe Layouts must use the original paper navigation on every page')
-for (const [route, items] of Object.entries(sidebars)) if (route !== '/') walk(items)
-for (const group of paperSidebar.filter((item) => item.text === 'CuTe Layouts')) {
-  const base = '/Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/'
-  const original = readFileSync(join(root, base, 'Translation-00-Front-Matter.md'), 'utf8')
-  const expected = [...original.matchAll(/^\| ([\dA.]+) \| \[[^\]]+\]\(([^)]+)\)/gm)]
-    .map(([, number, href]) => ({ number, link: base + href.replace('.md#', '#') }))
-  assert.equal(expected.length, 54, 'The complete original table of contents must be present')
-  const sections = []
-  const chunks = new Set()
-  function chapterItems(items, parentNumber) {
-    for (const item of items) {
-      if (item.link.includes('/Translation-')) chunks.add(item.link.split('#')[0])
-      const anchor = item.link.split('#paper-section-')[1]
-      if (anchor) {
-        const number = anchor.replaceAll('-', '.')
-        assert.equal(number.includes('.') ? number.slice(0, number.lastIndexOf('.')) : undefined,
-          parentNumber, `Section has the wrong chapter parent: ${number}`)
-        const file = join(root, item.link.split('#')[0] + '.md')
-        const source = readFileSync(file, 'utf8').split(`<a id="paper-section-${anchor}"></a>`)[1]
-        const heading = source?.match(/^### (.+)$/m)?.[1]
-        const expectedHeading = number.includes('.') ? number + ' '
-          : number === 'A' ? '附录 A' : `第 ${number} 章`
-        assert(heading?.startsWith(expectedHeading), `Section target points to the wrong heading: ${item.link}`)
-        sections.push({ number, link: item.link })
-        chapterItems(item.items ?? [], number)
-      }
+const base = '/Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/'
+const route = base + 'categorical-foundations-for-cute-layouts'
+const cute = nodes.filter((item) => item.link === route)
+assert.equal(cute.length, 2, 'The same CuTe paper is reachable from GPU papers and mathematics')
+const paperSidebar = sidebars[route]
+assert(paperSidebar, 'The single CuTe paper must retain original chapter navigation')
+for (const [key, items] of Object.entries(sidebars)) if (key !== '/') walk(items)
+const source = readFileSync(join(root, route + '.md'), 'utf8')
+const expected = [...source.matchAll(/^\| ([\dA.]+) \| \[[^\]]+\]\(([^)]+)\)/gm)]
+  .map(([, number, href]) => ({ number, link: base + href.replace('.md#', '#') }))
+assert.equal(expected.length, 54, 'The complete original table of contents must be present')
+const sections = []
+function chapterItems(items, parentNumber) {
+  for (const item of items) {
+    assert.equal(item.link.split('#')[0], route, 'Every paper chapter stays in the same file')
+    const anchor = item.link.split('#paper-section-')[1]
+    if (anchor) {
+      const number = anchor.replaceAll('-', '.')
+      assert.equal(number.includes('.') ? number.slice(0, number.lastIndexOf('.')) : undefined,
+        parentNumber, `Section has the wrong chapter parent: ${number}`)
+      const text = source.split(`<a id="paper-section-${anchor}"></a>`)[1]
+      const heading = text?.match(/^#### (.+)$/m)?.[1]
+      const expectedHeading = number.includes('.') ? number + ' ' : number === 'A' ? '附录 A' : `第 ${number} 章`
+      assert(heading?.startsWith(expectedHeading), `Section points to the wrong heading: ${item.link}`)
+      sections.push({ number, link: item.link })
+      chapterItems(item.items ?? [], number)
     }
   }
-  chapterItems(group.items)
-  assert.equal(chunks.size, 12, 'Every translation chunk must remain reachable')
-  assert.deepEqual(sections, expected, 'Sidebar order and nesting must match the original contents')
 }
+chapterItems(paperSidebar[0].items)
+assert.deepEqual(sections, expected, 'Sidebar order and nesting must match the original contents')
+for (let page = 1; page <= 163; page++) assert(source.includes(`id="pdf-page-${page}"`), `Missing PDF page ${page}`)
 
 console.log(`Sidebar check passed: ${nodes.length} entries, ${links.size} unique pages; all content pages are reachable.`)

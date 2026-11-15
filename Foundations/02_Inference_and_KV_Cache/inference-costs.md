@@ -1,6 +1,8 @@
 # 推理的计算、访存与复用成本
 
-## Prefill 与 Decode 如何影响矩阵形状
+<a id="prefill-与-decode-如何影响矩阵形状"></a>
+
+## Prefill and Decode
 
 Prefill 处理输入 prompt，通常有多个 query token；逐步自回归 Decode 通常每个活跃请求在每一步处理一个新 token，并复用已有 KV。Decode 不需要重新加载全部历史 token 的原始输入来计算，而是读取相应层的历史 K/V。Chunked prefill、混合调度和投机解码会改变单次执行形状，不能把所有推理都简化为两种固定 batch。
 
@@ -18,7 +20,9 @@ $$
 
 若权重流量占主导且 K、N 足够大，上式可近似 I≈2M/b。例：FP16/BF16 的 b=2，则 I≈M；M=1 对应约 1，M=128 近似 128，而精确模型为 120.47，差异来自输入输出流量已经不可忽略。
 
-## “小 batch 访存受限”需要说明是哪条路径
+<a id="小-batch-访存受限-需要说明是哪条路径"></a>
+
+## Memory Traffic
 
 Roofline 可用下面的理想时间下界帮助定位：
 
@@ -38,7 +42,9 @@ $$
 
 所以 Prefill 常有更大的矩阵、更容易发挥算力；Decode 常更依赖内存带宽。但大 batch Decode 也能提高线性层权重复用，小 prompt Prefill 也可能受 launch 或带宽影响，应按算子和形状分别判断。背景参考：[NVIDIA Matrix Multiplication Background](https://docs.nvidia.com/deeplearning/performance/dl-performance-matrix-multiplication/index.html)。
 
-## Grouped GEMM：把多个独立问题交给一次调度
+<a id="grouped-gemm-把多个独立问题交给一次调度"></a>
+
+## Grouped GEMM
 
 Grouped GEMM 处理一组可能不同形状的矩阵乘法，而 strided batched GEMM 通常针对相同形状与规则地址间隔。MoE 中各专家接收到的 token 数不同，产生不同 M 的 GEMM，正是典型使用场景；前置关系见 [MoE 计算成本](../03_Distributed_Training_and_MoE/MoE/moe-math-and-cost.md)。
 
@@ -55,9 +61,11 @@ Grouped GEMM 处理一组可能不同形状的矩阵乘法，而 strided batched
 
 两者都不保证更快。应比较相同输入、精度与总工作量，并记录单个/总时延、有效吞吐和 GPU 利用率。
 
-## Prefix Caching：复用已计算的前缀 KV
+<a id="prefix-caching-复用已计算的前缀-kv"></a>
 
-原 Notion 这里只留了“了解 Prefix Caching”题目。整理补充：在 causal Transformer、模型及计算配置一致时，若请求共享完全相同的 token 前缀，对应层的前缀 KV 可以复用，减少重复 Prefill。共享前缀的 token 数决定可复用范围；输出文本相似不等于 token 前缀相同。
+## Prefix Caching
+
+在 causal Transformer、模型及计算配置一致时，若请求共享完全相同的 token 前缀，对应层的前缀 KV 可以复用，减少重复 Prefill。共享前缀的 token 数决定可复用范围；输出文本相似不等于 token 前缀相同。
 
 例：两次请求的 token 分别为 `[A,B,C,D]` 与 `[A,B,C,E]`，前三个 token 的 KV 可以成为复用候选，最后一个分支各自计算。若只是后缀相同，前面的上下文不同，通常不能这样复用。
 

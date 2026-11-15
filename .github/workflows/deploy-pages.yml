@@ -53,6 +53,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Verify unique paper filenames
+        run: pnpm docs:check-paper-notes
+
       - name: Verify local links
         run: pnpm docs:check-links
 

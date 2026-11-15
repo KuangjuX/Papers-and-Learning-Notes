@@ -9,15 +9,19 @@ aliases:
 date: 2026-10-20
 ---
 
-# DoSA：用安全上界减少 Indexer 的完整打分
+<a id="dosa-用安全上界减少-indexer-的完整打分"></a>
+
+# DoSA: Dots Sparse Attention
 
 > [DoSA: Dots Sparse Attention，v1](https://arxiv.org/abs/2610.13990v1)。
 >
-> [Zotero](zotero://select/library/items/L447A648) · [整体流程高亮（第 2 页）](zotero://open-pdf/library/items/Y75KTIVE?page=2&annotation=LBKERZAW) · [DSA 前置笔记](../DeepSeek-DSA/deepseek-sparse-attention-dsa.md)
+> [Zotero](zotero://select/library/items/L447A648) · [整体流程高亮（第 2 页）](zotero://open-pdf/library/items/Y75KTIVE?page=2&annotation=LBKERZAW) · [DSA 前置笔记](../DeepSeek-DSA/deepseek-v3-2-exp.md)
 >
 > 源码对照：[dots-sparse-attention，`8c578e0`](https://github.com/KuangjuX/dots-sparse-attention/tree/8c578e0e94e392dece8394489ff957b7e27b7a02)。预算与 seed 策略取自此版本代码。
 
-## 1. 目标：减少“为了选少量 token 而给全部 token 完整打分”的成本
+<a id="_1-目标-减少-为了选少量-token-而给全部-token-完整打分-的成本"></a>
+
+## Background
 
 DSA 的主 attention 只访问选中的 token，但 indexer 仍可能给每个可见 key 计算全部 head 的分数。DoSA 改变这段执行流程：先证明哪些 key 不可能入选，仅为尚不能排除的候选完整打分，最终仍按原始 scorer 选择 Top-K。
 
@@ -25,7 +29,7 @@ DSA 的主 attention 只访问选中的 token，但 indexer 仍可能给每个�
 
 以下流程针对 prefill。论文 §3 的 decoding 路径保留完整 FP8 打分，主要用近期选择的 key 建立门槛以减少写回和选择工作，不能直接套用 prefill 的省略 head 筛选描述。
 
-### 1.1 为什么上下文越长，indexer 占比越高
+<a id="_1-1-为什么上下文越长-indexer-占比越高"></a>
 
 DSA 的 indexer 从全部可见历史 token 中选候选，主 attention 只访问选中的固定数量 token。固定处理 4K 个新 query、每个 query 选择 Top-2048 时：
 
@@ -35,11 +39,13 @@ DSA 的 indexer 从全部可见历史 token 中选候选，主 attention 只访�
 | 512K | 约 512K | 2048 |
 | 1M | 约 1M | 2048 |
 
-固定 query chunk 下，全 head indexer 的工作随历史长度增长，主 attention 的计算规模基本稳定。对整个长度为 $L$ 的 causal prefill，省略 head 数和维度等常数，indexer 的候选对数约为 $L(L+1)/2$，主 attention 的访问对数至多约为 $LK$。例如长度从 128K 增到 1M，前者约增加 64 倍，后者约增加 8 倍；这是逻辑工作量比例，不是延迟预测。
+固定 query chunk 下，全 head indexer 的工作随历史长度增长，主 attention 的计算规模基本稳定。对整个长度为 $L$ 的 causal prefill，省略 head 数和维度等常数，indexer 的候选对数约为 $L(L+1)/2$，主 attention 的访问对数至多约为 $LK$。
 
 attention 的绝对耗时并非不增加，而是 indexer 增长更快。GLM-5.2 的 indexer 占 prefill GPU 时间从 128K 的 23.6% 增到约 1M 的 73.0%（§4.3、Figure 1）；这个比例不包含 CPU tokenization 和请求传输，不能直接当作 TTFT 占比。
 
-## 2. 完整流程
+<a id="_2-完整流程"></a>
+
+## DoSA Design
 
 1. **用 seed 建立门槛。**  
    选至少 K 个不同、可见的 key，按原始全部 head 完整打分，取第 K 高分作为门槛 $\tau$，并保留 seed 的 Top-K 结果。门槛在本次扫描和精算期间固定。
@@ -64,7 +70,9 @@ attention 的绝对耗时并非不增加，而是 indexer 增长更快。GLM-5.2
 
 原论文 Figure 2，第 3 页。图中省略了 seed 初始化和最终 Top-K，可结合上述三步阅读。[查看原图所在页](zotero://open-pdf/library/items/Y75KTIVE?page=3)。
 
-## 3. 正、负权重究竟作用在哪里
+<a id="_3-正、负权重究竟作用在哪里"></a>
+
+## Score Bounds
 
 固定一个 query，DSA 的 indexer score 为：
 
@@ -76,7 +84,9 @@ $$
 
 例如两项激活值分别为 4、3，权重分别为 2、−1，则总分为 $2\times4-1\times3=5$。负权重与负点积不同：负点积先经过 ReLU 变为零，即使权重为负也不会扣分。
 
-### 3.1 正权重：复用已算结果，加上残差最多可能贡献的量
+<a id="_3-1-正权重-复用已算结果-加上残差最多可能贡献的量"></a>
+
+### Positive-weight Bounds
 
 对省略的正权重 head，选一个保留 head 作为锚点，分解为：
 
@@ -95,9 +105,11 @@ $$
 
 **例子：** 已保留 $q_j=(1,0)$，省略 $q_h=(2,1)$，取 $\beta_h=2$，则 $d_h=(0,1)$。对于 $k=(3,4)$，已知锚点点积为 3，残差范数为 1，key 范数为 5，所以省略 head 激活的上界为 $2\times3+1\times5=11$；真实激活为 10。若该 head 权重为 2，则其加分上界为 22，实际加分为 20。
 
-这是单锚点范数界的直观解释。论文还用联合残差界利用多个省略正 head 的几何关系，使总余量更紧（§2.3、附录 A.1）；这里不展开其推导。
+这是单锚点范数界的直观解释。论文还用联合残差界利用多个省略正 head 的几何关系，使总余量更紧（§2.3、附录 A.1）。
 
-### 3.2 负权重：合并 query，安全地少扣一点
+<a id="_3-2-负权重-合并-query-安全地少扣一点"></a>
+
+### Negative-weight Bounds
 
 令 $N$ 为省略的负权重 head 集合，选其中的子集 $A$，在 query 准备阶段合并：
 
@@ -120,9 +132,11 @@ $$
 
 为减少这种抵消，论文使用 seed 样本估计激活频率，选激活频率至少一半的省略负 head 进入 $A$。这是提高界紧度的启发式；即使新 key 的激活模式不同，下界仍安全。
 
-**统一理解：加分往多了算，扣分往少了算，因此最终得到总分上界。** 所谓“负 head 取下界”，准确地说是取非负扣分量的下界；带上负号后，它是该部分带符号贡献的上界。
+所谓“负 head 取下界”，准确地说是取非负扣分量的下界；带上负号后，它是该部分带符号贡献的上界。
 
-### 3.3 保留哪些 head
+<a id="_3-3-保留哪些-head"></a>
+
+### Head Selection
 
 论文 §2.2 先给定保留预算 $r$，再按当前 query 的 head 权重选择集合。保留只意味着在筛选阶段直接计算，不修改模型参数或删除其余 head。
 
@@ -143,7 +157,7 @@ $p_h$ 是 seed 样本中该 head 的点积大于零的比例。频率接近 0 �
 
 例如三个负 head 的强度均为 10，激活频率为 0.95、0.50、0.05，则优先级为 0.5、5、0.5；只有一个名额时选中间那个。附录 B.2 证明的是优化样本归一化松弛界的替代目标，并未证明实际幸存者最少或延迟最低。[原文批注](zotero://open-pdf/library/items/Y75KTIVE?page=3&annotation=ZBI26MRW)
 
-### 3.4 增加保留数量是否划算
+<a id="_3-4-增加保留数量是否划算"></a>
 
 增加保留 head，让所有被筛选 key 多做点积，但可能省下更多候选的全 head 精算。固定初始化和辅助行数时，附录 B.3 的逻辑点积模型给出：
 
@@ -155,7 +169,9 @@ $$
 
 这个模型不包含准备、访存、Tensor Core 填充、候选整理和 recovery，也不保证更换锚点与聚合集合后淘汰率单调提高。它说明小 head 数下可节省的空间较小，而不是直接预测 kernel 延迟。
 
-## 4. 本地实现怎样对应这个流程
+<a id="_4-本地实现怎样对应这个流程"></a>
+
+## Implementation
 
 以下对应固定提交的 [backend.py](https://github.com/KuangjuX/dots-sparse-attention/blob/8c578e0e94e392dece8394489ff957b7e27b7a02/src/dosa/backend.py)，属于源码事实。
 
@@ -181,9 +197,11 @@ $$
 
 每个 query 再在组预算内选择具体 head。例如一个 H32 组使用预算 14，只有 10 个正 head 的 query 会保留 10 正、4 负。正 head 超过最高档时，也不再增加预算，而是对部分正 head 构造上界。128 个 seed 样本用于激活频率估计，不用于在线搜索最优预算。
 
-## 5. Figure 2 与 Figure 3：把剪枝变成 GPU 收益
+<a id="_5-figure-2-与-figure-3-把剪枝变成-gpu-收益"></a>
 
-### 5.1 四个阶段的计算分工
+## DoSA Kernel Design
+
+<a id="_5-1-四个阶段的计算分工"></a>
 
 Figure 2 只画 seed 初始化与最终 Top-K 之间的执行主体。
 
@@ -204,7 +222,7 @@ $$
 
 随后按 query 划分结果，SIMT 为每个 query-key 对形成一个上界。例如 $G=2,r=2,a=1,D=128,B=64$，逻辑乘法为 $[6,128]\times[128,64]$，结果分成 $[2,3,64]$，形成 $[2,64]$ 个上界。这是一行辅助向量的教学形状；实际 FP8 路径有两行辅助向量并存在 tile 填充，不能将它当作 launch 配置。
 
-### 5.2 数据流与流水线
+<a id="_5-2-数据流与流水线"></a>
 
 ![DoSA 筛选、精算与稀疏写回的数据流](images/figure-3.png)
 
@@ -220,7 +238,7 @@ $$
 
 论文将异步加载/MMA 发起和消费结果的上界计算分给不同 warp 角色，利用缓冲重叠后续 tile 的加载与当前 tile 的计算。异步工作仍有就绪和同步依赖；图中横向位置及方框宽度不代表实测耗时，也不足以确定具体 warp 数、barrier 协议或 kernel 边界。
 
-### 5.3 候选整理与共享精算
+<a id="_5-3-候选整理与共享精算"></a>
 
 初次筛选仍按 tile 扫描剩余 key，输出紧凑位图。例如 ID 为 0–4 的 key，保留位为 [0,1,0,1,1]，压缩后得到候选 ID [1,3,4]。compact 是候选任务整理，不是删除或压缩 KV cache 本体。
 
@@ -228,17 +246,17 @@ $$
 
 为保持规则执行，可能多算 q3-B，随后仍按 q3 的真实分数和门槛过滤。复用的是 key 数据，不是不同 query 的分数。**最少点积不一定对应最低延迟：共享搬运和矩阵利用率也影响性能。**
 
-### 5.4 精算后过滤和紧凑记录
+<a id="_5-4-精算后过滤和紧凑记录"></a>
 
 门槛为 6 时，上界 9、真实分数 4 的候选仍必须精算才能排除，但可以省掉其分数写回和后续选择；真实分数为 7 的候选则写出记录。
 
 记录使用紧凑的单调分数编码与精确 key ID。编码可能将不同原始分数合并为同一码，因此选择边界处需要使用原始分数区分候选。最终还要合并 seed 记录；粗编码与筛选上界都不能直接替代原始 score 的最终排名。
 
-## 6. 少算多少，以及如何理解实验
+<a id="_6-少算多少-以及如何理解实验"></a>
 
-DoSA 仍读取并扫描全部 key，只是多数 key 不再计算全部 head。假设 100 个 key 原本都计算 32 个 head，基线为 3,200 次点积；若筛选按每 key 16 次点积估算，5 个幸存者再完整计算 32 个 head，则是 $100\times16+5\times32=1760$ 次。**这是教学估算**，未计 seed、准备、压缩、数值保护和数据搬运，不是实际测速。
+## Evaluation
 
-因此“筛掉约 97% 的候选”不等于“少做约 97% 的总计算”。收益还来自减少分数写回和最终选择输入。
+DoSA 仍扫描全部 key，并为幸存者执行完整打分；筛选、seed 准备和候选压缩也有成本。因此候选剪枝率不能直接解释为总计算量或延迟的降幅。
 
 以下为论文作者报告，未在本机复测：
 
@@ -250,7 +268,7 @@ DoSA 仍读取并扫描全部 key，只是多数 key 不再计算全部 head。�
 
 短上下文、seed 门槛低、head 之间难以复用、负 head 激活模式不一致时，省下的精算可能不足以抵消筛选开销。DoSA 的精确选择保证与它能否显著加速，是两个需要分别检验的问题。
 
-### 6.1 哪些 workload 更容易受益
+<a id="_6-1-哪些-workload-更容易受益"></a>
 
 论文最充分的证据来自**长上下文 prefill、较多 indexer head、固定 token Top-K**：GLM-5.2 使用 32 个 head，DeepSeek-V3.2 使用 64 个 head，K 为 2,048。完整 indexer 微基准使用真实模型激活，覆盖英文、中文和代码，key 长度为 128K、256K、512K、768K、约 1M，query chunk 为 4K、8K、16K、32K。
 
@@ -266,7 +284,7 @@ $$
 
 例如真实门槛 10、seed 门槛 8，候选真实分数 3、上界 6，间隔 7 大于上界松弛 3 与门槛差距 2 之和，可以排除。**更好的 seed 缩小 $b$，更紧的界缩小 $\delta$；大量分数挤在 Top-K 边界附近时，即便两者都不错，也可能保留较多候选。**
 
-### 6.2 测量口径限制了结论范围
+<a id="_6-2-测量口径限制了结论范围"></a>
 
 完整 indexer 微基准包含 query/key 准备，使用真实激活回放与预热后的 CUDA event 计时。端到端 TTFT 则测量清空 prefix cache 后的单请求，TP8，GLM-5.2 与 DeepSeek-V3.2 的 chunk 分别为 32K、16K。因此论文的 TTFT 数字不能直接解释为并发吞吐、prefix cache 命中场景或 decode TPOT 的改善。
 
@@ -274,7 +292,7 @@ Decode 实验让等长请求共同填满约 1M 的 cache；每请求 256K、512K
 
 附录 D.4 的逐层回放排除了 query/key 准备，不能与完整 indexer 表直接混用。该附录还披露了候选容量修复后的局部重测与约 1M 配置下额外 9.94 GiB 的 workspace；完整矩阵没有全部重跑。候选暂存空间和溢出处理因此也是部署成本的一部分。超出模型声明上下文长度的实验可以说明计算扩展性，不能独立证明任务质量。
 
-### 6.3 收益不只来自剪枝
+<a id="_6-3-收益不只来自剪枝"></a>
 
 §4.4 的 LOFT SciFact 消融采用 16K query、896K key，并对 21 个 indexer 层取平均：
 
@@ -289,7 +307,9 @@ Decode 实验让等长请求共同填满约 1M 的 cache；每请求 256K、512K
 
 附录 D.2 中，移除负聚合不仅令幸存率从 2.65% 升到 95.06%，相对延迟还升到 9.507×，其中包含候选容量溢出引发的 recovery。不能把这解释成仅仅多做点积的线性代价。把所有负 head 都加入聚合也不如按激活概率筛选：幸存率为 4.06%，相对延迟为 1.120×。
 
-## 7. 推广到 token 打分后做 block-max 的选择
+<a id="_7-推广到-token-打分后做-block-max-的选择"></a>
+
+## Block Selection Extension
 
 本节是基于安全界的推论，不是论文已验证的 blockwise 实现。此前核对的 WeLM 实现版本为 ed6355f82e6bd65fedc683fbf8a7cd3a067f9b6e，其路径先计算 token 分数，再对可见 token 做 page/block max，最后选择 block。
 
@@ -309,10 +329,12 @@ $$
 
 性能取决于幸存者的分布：一个 token 的上界过大就会让整个 block 幸存。整块精算可能多做很多无用点积，token 级精算则增加不规则 gather 与任务整理。WeLM 示例中的 H8/H16、BF16、64-token page、Top-32 block，也不同于论文 H32/H64、FP8、Top-2048 token 的路径。**可证明筛选安全，不等于可以直接复用现有 kernel 或取得同样加速。**
 
-## 8. 精确性依赖数值保护与完整的候选管理
+<a id="_8-精确性依赖数值保护与完整的候选管理"></a>
+
+## Numerical Correctness
 
 实数公式保证安全界，还需要实现中的浮点误差保护。例如真实分数 6.1、门槛 6，理论上界 6.2；若计算误差将上界降到 5.9，就会错误排除应保留的候选。因此保护量必须覆盖当前 FP8、缩放与累加路径的误差，不能仅凭公式称实现无损。
 
 异常缩放、非有限值、候选缓冲区容量不足等情况，都不能静默丢弃记录。需要 recovery 时，必须覆盖可能错误排除的完整可见域，不能只对当前候选缓冲区重新排序。紧凑分数编码的边界也需要回到原始分数处理。
 
-若真实分数相同，多个集合都可能是合法 Top-K；要求与基线返回完全相同的 ID，还需要一致的 tie-breaking 规则。（原文附录数值保护与实现讨论；相关代码入口见第 4 节。）
+若真实分数相同，多个集合都可能是合法 Top-K；要求与基线返回完全相同的 ID，还需要一致的 tie-breaking 规则。（原文附录数值保护与实现讨论；相关代码入口见 [Implementation](#_4-本地实现怎样对应这个流程)。）

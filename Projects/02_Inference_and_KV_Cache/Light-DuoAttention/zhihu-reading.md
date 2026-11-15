@@ -6,7 +6,9 @@
 
 在 SGLang 中支持 DuoAttention 运行 NIAH 测试（原文章的 9 秒演示）。
 
-## 长上下文的成本来自哪些头
+<a id="长上下文的成本来自哪些头"></a>
+
+## Background
 
 Dense attention 的 prefill 对长度 N 的序列处理二次量级的 Q–K 配对；有 KV cache 时，decode 每步只有新 query，对历史的扫描则随 N 线性增长。减少 prefill 计算、decode 读取量和持久 KV 容量，是三个相关但不同的目标。
 
@@ -20,9 +22,11 @@ DuoAttention 的选择落在 head 维度：部分头需要检索远处内容，�
 
 上图展示了 Full Attention，DuoAttention 与 StreamingLLM 等其他不同稀疏注意力方法在 Needle-in-a-Haystack 上的准确率测试。这张论文图支持头划分能够改善检索质量的判断；它不是下文 H800 kernel 的性能测量。
 
-## DuoAttention：混合注意力机制
+<a id="duoattention-混合注意力机制"></a>
 
-### 核心思想
+## DuoAttention
+
+<a id="核心思想"></a>
 
 DuoAttention 的关键洞察是，LLM 能够被识别为两种类型的头，分别被称为**检索头（Retrieval Heads）**和**流式头（Streaming Heads）**，检索头仅占一小部分，但需要对全部上下文进行处理；而流式头仅仅需要关注最近的词元（recent tokens）和注意力汇聚词元（attention sink）。DuoAttention 通过针对检索头和流式头的二分性，针对不同头使用不同的注意力，从而显著加速 LLM Inference 的 Prefill Decode 过程，并减少内存占用。
 
@@ -43,11 +47,13 @@ DuoAttention 针对 Prefill 阶段和 Decode 阶段有不同的处理：
 
 最终 DuoAttention 通过总损失函数 $L_{distill}+\lambda L_{reg}$ 来进行训练。通过调节 $\lambda$ 的值来对训练目标进行选择，当$\lambda$ 小的时候，意味着更重要的目标是应当是准确度，当$\lambda$ 大的时候意味着牺牲一定准确度来维持稀疏性。
 
-## Light-DuoAttention：用 CuTeDSL 实现
+<a id="light-duoattention-用-cutedsl-实现"></a>
+
+## Light-DuoAttention Kernel Design
 
 [Light-DuoAttention `e1d9e4d2`](https://github.com/KuangjuX/Light-DuoAttention/tree/e1d9e4d21de7a46ecec17fa33d84006a34f70d15) 基于 Hopper 的 CuTeDSL attention 实现 streaming mask，并提供 SGLang prefill 接入示例。原实验在 H800 上使用 Llama-3-8B 和 DuoAttention 官方头划分参数。这里的实现证据是 streaming kernel 与 prefill 路径；论文的 decode 双缓存、流式 KV 驱逐及完整端到端内存收益，不能由这条接线推得。
 
-### 先定义可见集合，再决定哪些块可以跳过
+<a id="先定义可见集合-再决定哪些块可以跳过"></a>
 
 PyTorch reference 用掩码明确语义：query 只能看到因果范围内的初始 `sink_size` 个位置，以及包含自身的最近 `local_size` 个位置。Sink 的作用是保留注意力归一化所需的初始位置，不要求这些 token 在语义上重要；序列开头的 query 也不能看到尚未出现的 sink token。
 
@@ -80,11 +86,13 @@ if not allowed:
 
 例如 query 的绝对位置为 1000，sink_size=128、local_size=256，则可见区间是 `[0,127]` 与 `[745,1000]`。两段之间的完整块可以跳过；跨越 127 或 745 的块仍需逐元素 mask。短序列时两段可能重合，块遍历不能重复累计同一 KV。
 
-### 支持 Chunked Prefill
+<a id="支持-chunked-prefill"></a>
 
 为了支持 Chunked Prefill，我们需要额外引入一个名为 `position_ids` 的变量，含义为当前 Query 中的位置编号。这是由于，当我们计算 Chunked Prefill 的时候，每次处理只能拿到 Query 的相对位置而不是绝对位置，这样当我们去计算要不要为 Attention Sink 支持，我们无法通过相对位置来判断当前结果是否在 Attention Sink 的区域内。因此，我们需要 `position_ids` 来去首先找到当前结果所在的绝对位置，随后再去进行掩码处理。
 
-### 在 SGLang 中支持 DuoAttention
+<a id="在-sglang-中支持-duoattention"></a>
+
+## SGLang Integration
 
 最后，我们需要在 SGLang 中支持 DuoAttention 并运行 LLama-3-8B 模型，当前我们使用 DuoAttention 代替了原生 SGLang 的 Prefill 阶段，原生 SGLang 的 Prefill 实现在 `FlashAttentionBackend` 中的 `forward_extend` 中，我们需要定义一个新的参数 `enable_duo_attn`，当开启这个参数的时候，我们执行 DuoAttention。我们需要从 Query，Key，Value 中对多头进行检索头和流式头的切片，并在最终进行连接（Concat）结果并获得最终结果。
 
@@ -158,7 +166,9 @@ for i, layer in enumerate(layers):
 
 GQA 中同一 KV head 对应的 Q heads 通过 `repeat_interleave` 一起重排，因此 KV 组是这里的分配单位。片段假定投影矩阵可按完整 head reshape；TP 分片和量化权重需要另行满足相应布局，不能直接原样套用。
 
-### 实验与性能评估
+<a id="实验与性能评估"></a>
+
+## Evaluation
 
 在 **Kernel 层面**我们验证了 Streaming Attention 在各种情况下的正确性，包括 Chunked Prefill，Paged Attention 以及在 GQA 情况下的正确性。
 
@@ -168,7 +178,7 @@ GQA 中同一 KV head 对应的 Q heads 通过 `repeat_interleave` 一起重排�
 
 ![](images/duoattention-03.jpg)
 
-原图配置为单卡 H800，`sink_size=128`、`recent_token=256`，比较 streaming kernel 与 FlashAttention。它度量的是局部 attention 实现；没有在这里给出头划分、两分支调用、拼接及整个模型的分项消融，因而不能把 kernel 曲线直接换算成 SGLang 请求加速比。本次整理未重新运行这些 GPU 实验。
+原图配置为单卡 H800，`sink_size=128`、`recent_token=256`，比较 streaming kernel 与 FlashAttention。它度量的是局部 attention 实现；没有在这里给出头划分、两分支调用、拼接及整个模型的分项消融，因而不能把 kernel 曲线直接换算成 SGLang 请求加速比。
 
 ## 参考
 

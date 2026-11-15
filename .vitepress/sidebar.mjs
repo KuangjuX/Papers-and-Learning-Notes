@@ -166,6 +166,12 @@ export function buildSidebar(repositoryRoot, paperSidebars = {}) {
       const path = join(directory, entry.name)
       if (entry.isFile() && entry.name.endsWith('.md') && entry.name !== 'index.md') {
         candidates.set(path, { text: titleFor(path), link: linkFor(path) })
+        const chapters = structuredIndexItems(path)
+        if (chapters) paperSidebars[linkFor(path)] = [
+          { text: labels[basename(directory)] ?? titleFor(path), link: linkFor(path), items: chapters },
+          { text: '笔记库', items: [{ text: '返回所属主题', link: linkFor(join(dirname(directory), 'index.md')) },
+            { text: '全部笔记目录', link: '/CATALOG' }] },
+        ]
       } else if (entry.isDirectory()) {
         const item = directoryItem(path, visited)
         if (item) candidates.set(path, item)

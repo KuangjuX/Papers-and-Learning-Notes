@@ -1,6 +1,8 @@
 # CUDA 内存与同步
 
-## 先区分地址空间、缓存和共享范围
+<a id="先区分地址空间、缓存和共享范围"></a>
+
+## Memory Hierarchy
 
 | 名称 | 主要用途与范围 | 易错点 |
 | --- | --- | --- |
@@ -12,7 +14,9 @@
 
 L1、L2 是缓存层次，不应与上述地址空间并列成完全互斥的“几种内存”。具体缓存路径依架构、指令与配置而定。
 
-## 合并访问和向量化分别改善什么
+<a id="合并访问和向量化分别改善什么"></a>
+
+## Global Memory Access
 
 合并访问关注**一个 warp 的地址集合**能否落在较少的内存事务中。向量化关注**单线程每条指令**加载几个元素。向量化可以减少指令数，但不自动减少总字节，也不能修复不合理的跨线程地址分布。
 
@@ -20,7 +24,9 @@ L1、L2 是缓存层次，不应与上述地址空间并列成完全互斥的“
 
 搬运优化通常依次考虑减少数据量、融合避免中间落盘、连续访问、复用，再考虑向量化和流水线。Host↔Device 搬运还要考虑 pinned buffer、传输粒度和异步 overlap。已有 [合并访问](Memory/coalescing.md)、[向量化](vec.md) 可继续展开。
 
-## bank conflict：按一次 shared memory 请求分析
+<a id="bank-conflict-按一次-shared-memory-请求分析"></a>
+
+## Shared Memory Banks
 
 对于现代 NVIDIA GPU 常用的 32 个 bank、连续 32-bit word 交错映射，分析标量 FP32 请求时可写为：
 
@@ -32,7 +38,9 @@ $$
 
 这个例子针对特定访问宽度；向量访问会被拆成事务，不能只按源码中一个“128-bit load”判断冲突阶数。Padding 与 [swizzle](Memory/swizzle.md) 都是布局手段，需同时满足消费者的索引与指令约束。依据：[Best Practices §10.2.3](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#shared-memory)。
 
-## Stream 是顺序与依赖的表达
+<a id="stream-是顺序与依赖的表达"></a>
+
+## Streams
 
 通常的 stream 内操作按入队顺序执行；不同 stream 可以并发，但没有天然先后关系，也不保证实际重叠。资源不足、隐式依赖和调度都可能导致串行。特殊的 programmatic dependent launch 等机制有额外规则，不用于推翻普通 stream 的依赖模型。
 
@@ -57,7 +65,9 @@ consume<<<grid, block, 0, stream_b>>>(x);
 
 Legacy default stream 会与普通 blocking stream 产生隐式同步；`cudaStreamNonBlocking` 的名字是相对 legacy default stream 的同步行为，不是“所有调用都不阻塞 CPU”的承诺。Per-thread default stream 是另一种模式。Host buffer 使用 pageable memory 时，`cudaMemcpyAsync` 的实际 Host 异步行为可能受 staging 等因素影响；要可靠争取拷贝与计算重叠，应使用 pinned memory，并确认设备与复制引擎支持、stream 依赖和 buffer 生命周期。依据：[CUDA Programming Guide 13.3：Asynchronous Execution §2.5](https://docs.nvidia.com/cuda/cuda-programming-guide/02-basics/asynchronous-execution.html)。
 
-## 三种同步不能互相替代
+<a id="三种同步不能互相替代"></a>
+
+## Synchronization
 
 - warp shuffle / warp 同步只涵盖指定 warp 内参与线程，不能跨 warp 广播。
 - `__syncthreads()` 协调一个 block 的线程及相应内存可见性，不是跨 block 全局栅栏；条件分支中的参与必须正确。

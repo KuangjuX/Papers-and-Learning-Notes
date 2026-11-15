@@ -1,6 +1,8 @@
 # GPU 执行、编译与排错
 
-## 从 Host launch 到指令执行
+<a id="从-host-launch-到指令执行"></a>
+
+## GPU Execution
 
 1. 编译器生成设备代码与 launch 所需元数据；CUDA C++、Triton 的前端和编译时机不同。
 2. Host 通过 Runtime / Driver 提交 kernel、grid、block、参数和 shared memory 需求。通常是异步提交到某个 stream，CPU 返回不表示 GPU 完成。
@@ -10,13 +12,17 @@
 
 例：grid=100、block=256，共有 25,600 个线程、每个 block 8 个 warp。100 个 block 是逻辑任务数，不代表 GPU 同时运行 100 个 block，也不保证 `blockIdx.x=0` 首先完成。具体驻留上限应查询目标架构和编译资源信息。依据：[CUDA Programming Guide 13.3：Programming Model](https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html)。
 
-## Active 不等于当前正在发射
+<a id="active-不等于当前正在发射"></a>
+
+## Warp Scheduling
 
 原文将 Active、Eligible、Stalled、Done 列为四个状态。NCU 调度分析中的 Active 指分配给调度器的活动 warp，Eligible 是其中准备好发射下一条指令的子集，Issued 是本轮被选择的 warp。没有被选中不等于依赖阻塞；“Done”也不应与前三者并列为通用性能指标状态机。
 
 例：假设某周期有 8 个 active warp，3 个 eligible，选中其中 1 个发射；另 2 个 eligible 只是没有被选中，其余 5 个可能因不同依赖未就绪。Occupancy 高也不保证 eligible 足够多。观察 stall 时应同时看 issue 是否存在空洞，避免把所有等待都当成性能损失。依据：[Nsight Compute 2026.2.1：Scheduler Statistics 与 Warp State Statistics](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html#sections-and-rules)。
 
-## Hopper TMA 的关键是异步搬运和完成协议
+<a id="hopper-tma-的关键是异步搬运和完成协议"></a>
+
+## TMA
 
 TMA 为 tensor tile 的异步数据搬运提供硬件路径。这里讨论 Global→Shared tensor load：tensor map 描述全局 tensor 的形状、步长、格式及布局信息，指令还要指定目标 shared 地址和 tile 坐标，不能将全部参数都笼统说成“一个描述符”。
 
@@ -31,7 +37,9 @@ TMA 为 tensor tile 的异步数据搬运提供硬件路径。这里讨论 Globa
 
 TMA 适合可用 tensor map 描述的块状访问、可摊销设置成本且能与计算重叠的场景。很小的 tile、低复用、描述符/同步开销、受限布局或没有可重叠工作时，未必优于其他搬运路径。对齐、swizzle、box 维度等按具体指令和架构核对；Shared→Global store 的完成协议也不能直接套用上述 load 流程。依据：[CUDA Asynchronous Data Copies 的 TMA 章节](https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/async-copies.html)。
 
-## Triton 的表示逐步引入硬件约束
+<a id="triton-的表示逐步引入硬件约束"></a>
+
+## Triton Compilation
 
 原文 `Python → TTIR → TTGIR → LLVM IR → Binary` 是高层概览。NVIDIA backend 的普通 Triton 路径可细化为：
 
@@ -51,11 +59,13 @@ TTIR 仍是程序 IR，不应简单当成无控制流的静态图；TTGIR 的 la
 
 Triton 教程版本为 `b575c0c38d428a609e25487db64051a5fa7bfab8`；上述 backend 阶段对应另行引用的官方移动分支，不代表该教程版本的固定调用链。不同 IR 抽象可对照 [FractalTensor](../../../Projects/04_GPU_Compiler_and_Performance/FractalTensor/index.md)。
 
-## Segmentation fault 与 Illegal Memory Access 分开定位
+<a id="segmentation-fault-与-illegal-memory-access-分开定位"></a>
+
+## Error Diagnosis
 
 Host segmentation fault 先看 CPU 堆栈、对象生命期、指针与并发；device illegal access 则检查索引、stride、分配大小、设备归属、对齐和异步释放。异步错误可能在后续同步点才被报告，报错 API 不一定是最初出错的位置。
 
-CUDA 排查可先缩小输入与 launch，分别检查 launch 错误和执行错误，再运行合适的工具。下面是命令模板，不代表本次运行结果：
+CUDA 排查可先缩小输入与 launch，分别检查 launch 错误和执行错误，再运行合适的工具。排错命令模板：
 
 ```bash
 compute-sanitizer --tool memcheck ./repro

@@ -1,0 +1,448 @@
+{
+  "Papers/01_Attention/DeepSeek-DSA/deepseek-sparse-attention-dsa.md": {
+    "target": "Papers/01_Attention/DeepSeek-DSA/deepseek-v3-2-exp.md"
+  },
+  "Papers/01_Attention/FlashAttention-3/fp8.md": {
+    "target": "Papers/01_Attention/FlashAttention-3/flashattention3.md"
+  },
+  "Papers/01_Attention/FlashAttention/github-reading.md": {
+    "target": "Papers/01_Attention/FlashAttention/flashattention.md"
+  },
+  "Papers/01_Attention/Kimi-Linear/zhihu-reading.md": {
+    "target": "Papers/01_Attention/Kimi-Linear/kimi-linear.md"
+  },
+  "Papers/01_Attention/MiniMax-MSA/msa.md": {
+    "target": "Papers/01_Attention/MiniMax-MSA/minimax-sparse-attention.md"
+  },
+  "Papers/01_Attention/MQA/fast-transformer-decoding-mqa.md": {
+    "target": "Papers/01_Attention/MQA/fast-transformer-decoding.md"
+  },
+  "Papers/01_Attention/Surveys/efficient_attention_survey.md": {
+    "target": "Papers/01_Attention/Surveys/a-survey-of-efficient-attention-methods.md"
+  },
+  "Papers/01_Attention/Transformer/github-reading.md": {
+    "target": "Papers/01_Attention/Transformer/attention-is-all-you-need.md"
+  },
+  "Papers/02_Inference_and_KV_Cache/Dual-Chunk-Attention/DCA.md": {
+    "target": "Papers/02_Inference_and_KV_Cache/Dual-Chunk-Attention/training-free-long-context-scaling-of-large-language-models.md"
+  },
+  "Papers/02_Inference_and_KV_Cache/GPU-Preemption/github-reading.md": {
+    "target": "Papers/02_Inference_and_KV_Cache/GPU-Preemption/microsecond-scale-preemption-for-concurrent-gpu-accelerated-dnn-inferences.md"
+  },
+  "Papers/02_Inference_and_KV_Cache/ReplaySSM/index.md": {
+    "target": "Papers/02_Inference_and_KV_Cache/ReplaySSM/replayssm.md"
+  },
+  "Papers/02_Inference_and_KV_Cache/Surveys/llm_inference_survey.md": {
+    "target": "Papers/02_Inference_and_KV_Cache/Surveys/a-survey-of-llm-inference-systems.md"
+  },
+  "Papers/03_Distributed_Training_and_MoE/Efficient-LLM-Training-Survey/index.md": {
+    "target": "Papers/03_Distributed_Training_and_MoE/Efficient-LLM-Training-Survey/efficient-training-of-large-language-models-on-distributed-infrastructures.md"
+  },
+  "Papers/03_Distributed_Training_and_MoE/PockEngine/github-reading.md": {
+    "target": "Papers/03_Distributed_Training_and_MoE/PockEngine/pockengine.md"
+  },
+  "Papers/03_Distributed_Training_and_MoE/Seer/zhihu-reading.md": {
+    "target": "Papers/03_Distributed_Training_and_MoE/Seer/seer.md"
+  },
+  "Papers/04_GPU_Compiler_and_Performance/Compiler/AMOS/github-reading.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/Compiler/AMOS/amos.md"
+  },
+  "Papers/04_GPU_Compiler_and_Performance/Compiler/AStitch/github-reading.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/Compiler/AStitch/astitch.md"
+  },
+  "Papers/04_GPU_Compiler_and_Performance/Compiler/BOLT/github-reading.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/Compiler/BOLT/bolt.md"
+  },
+  "Papers/04_GPU_Compiler_and_Performance/Compiler/Chimera/github-reading.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/Compiler/Chimera/chimera.md"
+  },
+  "Papers/04_GPU_Compiler_and_Performance/Compiler/Cocktailer/github-reading.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/Compiler/Cocktailer/cocktailer.md"
+  },
+  "Papers/04_GPU_Compiler_and_Performance/Compiler/Graphene/github-reading.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/Compiler/Graphene/graphene.md"
+  },
+  "Papers/04_GPU_Compiler_and_Performance/Compiler/Papers/MLIR-Scaling-Compiler-Infrastructure-for-Domain-Specific-Computation.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/Compiler/Papers/mlir.md"
+  },
+  "Papers/04_GPU_Compiler_and_Performance/Compiler/Papers/The-Deep-Learning-Compiler-A-Comprehensive-Survey.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/Compiler/Papers/the-deep-learning-compiler.md"
+  },
+  "Papers/04_GPU_Compiler_and_Performance/Compiler/Rammer/github-reading.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/Compiler/Rammer/rammer.md"
+  },
+  "Papers/04_GPU_Compiler_and_Performance/Compiler/ROLLER/github-reading.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/Compiler/ROLLER/roller.md"
+  },
+  "Papers/04_GPU_Compiler_and_Performance/Compiler/Tawa/zhihu-reading.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/Compiler/Tawa/tawa.md"
+  },
+  "Papers/04_GPU_Compiler_and_Performance/Compiler/Welder/github-reading.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/Compiler/Welder/welder.md"
+  },
+  "Papers/04_GPU_Compiler_and_Performance/Kernel-Generation/CAKE.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/Kernel-Generation/cake.md"
+  },
+  "Papers/04_GPU_Compiler_and_Performance/Megakernels/zhihu-reading.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/Megakernels/look-ma-no-bubbles-designing-a-low-latency-megakernel-for-llama1b.md"
+  },
+  "Papers/04_GPU_Compiler_and_Performance/MPK/zhihu-reading.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/MPK/mirage-persistent-kernel.md"
+  },
+  "Papers/05_Model_Architecture_and_Reasoning/Agents/SkVM/skvm.md": {
+    "target": "Papers/05_Model_Architecture_and_Reasoning/Agents/SkVM/skillrt.md"
+  },
+  "Papers/06_Computing_Foundations/Compiler/Loop-Transformation/github-reading.md": {
+    "target": "Papers/06_Computing_Foundations/Compiler/Loop-Transformation/a-loop-transformation-theory-and-an-algorithm-to-maximize-parallelism.md"
+  },
+  "Papers/06_Computing_Foundations/Operating-Systems/Demikernel.md": {
+    "target": "Papers/06_Computing_Foundations/Operating-Systems/the-demikernel-datapath-os-architecture-for-microsecond-scale-datacenter-systems.md"
+  },
+  "Papers/06_Computing_Foundations/Operating-Systems/RedLeaf.md": {
+    "target": "Papers/06_Computing_Foundations/Operating-Systems/redleaf.md"
+  },
+  "Papers/06_Computing_Foundations/Virtualization/Benchmarks/Hyperbench-A-Benchmark-Suite-for-Virtualization-Capabilities.md": {
+    "target": "Papers/06_Computing_Foundations/Virtualization/Benchmarks/hyperbench.md"
+  },
+  "Papers/06_Computing_Foundations/Virtualization/DuVisor/duvisor.md": {
+    "target": "Papers/06_Computing_Foundations/Virtualization/DuVisor/security-and-performance-in-the-delegated-user-level-virtualization.md"
+  },
+  "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/Layout.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/categorical-foundations-for-cute-layouts.md",
+    "anchors": {
+      "categorical-foundations-for-cute-layouts": "categorical-foundations-for-cute-layouts",
+      "全文目录": "全文目录",
+      "layout-and-their-algebra": "layout-and-their-algebra",
+      "术语约定": "术语约定"
+    }
+  },
+  "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/Translation-00-Front-Matter.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/categorical-foundations-for-cute-layouts.md",
+    "fragment": "translation-00-front-matter-扉页、摘要与目录",
+    "anchors": {
+      "扉页、摘要与目录": "translation-00-front-matter-扉页、摘要与目录",
+      "pdf-第-1-页": "translation-00-front-matter-pdf-第-1-页",
+      "cute-布局的范畴基础": "translation-00-front-matter-cute-布局的范畴基础",
+      "colfax-research": "translation-00-front-matter-colfax-research",
+      "_2025-年-9-月": "translation-00-front-matter-_2025-年-9-月",
+      "pdf-第-2-页": "translation-00-front-matter-pdf-第-2-页",
+      "pdf-第-3-页-·-原书第-1-页": "translation-00-front-matter-pdf-第-3-页-·-原书第-1-页",
+      "pdf-第-4-页-·-原书第-2-页": "translation-00-front-matter-pdf-第-4-页-·-原书第-2-页"
+    }
+  },
+  "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/Translation-01-Introduction.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/categorical-foundations-for-cute-layouts.md",
+    "fragment": "translation-01-introduction-第-1-章-引言",
+    "anchors": {
+      "第-1-章-引言": "translation-01-introduction-第-1-章-引言",
+      "pdf-第-5-页-·-原书第-3-页": "translation-01-introduction-pdf-第-5-页-·-原书第-3-页",
+      "第-1-章": "translation-01-introduction-第-1-章",
+      "引言": "translation-01-introduction-引言",
+      "pdf-第-6-页-·-原书第-4-页": "translation-01-introduction-pdf-第-6-页-·-原书第-4-页",
+      "pdf-第-7-页-·-原书第-5-页": "translation-01-introduction-pdf-第-7-页-·-原书第-5-页",
+      "pdf-第-8-页-·-原书第-6-页": "translation-01-introduction-pdf-第-8-页-·-原书第-6-页",
+      "_1-1-主要结果概述": "translation-01-introduction-_1-1-主要结果概述",
+      "pdf-第-9-页-·-原书第-7-页": "translation-01-introduction-pdf-第-9-页-·-原书第-7-页",
+      "pdf-第-10-页-·-原书第-8-页": "translation-01-introduction-pdf-第-10-页-·-原书第-8-页",
+      "_1-2-文章结构": "translation-01-introduction-_1-2-文章结构",
+      "pdf-第-11-页-·-原书第-9-页": "translation-01-introduction-pdf-第-11-页-·-原书第-9-页",
+      "pdf-第-12-页-·-原书第-10-页": "translation-01-introduction-pdf-第-12-页-·-原书第-10-页",
+      "_1-3-实现": "translation-01-introduction-_1-3-实现",
+      "pdf-第-13-页-·-原书第-11-页": "translation-01-introduction-pdf-第-13-页-·-原书第-11-页",
+      "pdf-第-14-页-·-原书第-12-页": "translation-01-introduction-pdf-第-14-页-·-原书第-12-页",
+      "pdf-第-15-页-·-原书第-13-页": "translation-01-introduction-pdf-第-15-页-·-原书第-13-页",
+      "pdf-第-16-页-·-原书第-14-页": "translation-01-introduction-pdf-第-16-页-·-原书第-14-页",
+      "pdf-第-17-页-·-原书第-15-页": "translation-01-introduction-pdf-第-17-页-·-原书第-15-页",
+      "pdf-第-18-页-·-原书第-16-页": "translation-01-introduction-pdf-第-18-页-·-原书第-16-页",
+      "_1-4-记号": "translation-01-introduction-_1-4-记号"
+    }
+  },
+  "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/Translation-02-Flat-Layouts.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/categorical-foundations-for-cute-layouts.md",
+    "fragment": "translation-02-flat-layouts-第-2-1-节-平坦布局的基本定义与运算",
+    "anchors": {
+      "第-2-1-节-平坦布局的基本定义与运算": "translation-02-flat-layouts-第-2-1-节-平坦布局的基本定义与运算",
+      "pdf-第-19-页-·-原书第-17-页": "translation-02-flat-layouts-pdf-第-19-页-·-原书第-17-页",
+      "第-2-章": "translation-02-flat-layouts-第-2-章",
+      "布局及其代数": "translation-02-flat-layouts-布局及其代数",
+      "_2-1-平坦布局": "translation-02-flat-layouts-_2-1-平坦布局",
+      "_2-1-1-元组": "translation-02-flat-layouts-_2-1-1-元组",
+      "pdf-第-20-页-·-原书第-18-页": "translation-02-flat-layouts-pdf-第-20-页-·-原书第-18-页",
+      "_2-1-2-基本定义": "translation-02-flat-layouts-_2-1-2-基本定义",
+      "pdf-第-21-页-·-原书第-19-页": "translation-02-flat-layouts-pdf-第-21-页-·-原书第-19-页",
+      "pdf-第-22-页-·-原书第-20-页": "translation-02-flat-layouts-pdf-第-22-页-·-原书第-20-页",
+      "pdf-第-23-页-·-原书第-21-页": "translation-02-flat-layouts-pdf-第-23-页-·-原书第-21-页",
+      "pdf-第-24-页-·-原书第-22-页": "translation-02-flat-layouts-pdf-第-24-页-·-原书第-22-页",
+      "pdf-第-25-页-·-原书第-23-页": "translation-02-flat-layouts-pdf-第-25-页-·-原书第-23-页",
+      "pdf-第-26-页-·-原书第-24-页": "translation-02-flat-layouts-pdf-第-26-页-·-原书第-24-页",
+      "pdf-第-27-页-·-原书第-25-页": "translation-02-flat-layouts-pdf-第-27-页-·-原书第-25-页",
+      "pdf-第-28-页-·-原书第-26-页": "translation-02-flat-layouts-pdf-第-28-页-·-原书第-26-页",
+      "_2-1-3-基本运算": "translation-02-flat-layouts-_2-1-3-基本运算",
+      "pdf-第-29-页-·-原书第-27-页": "translation-02-flat-layouts-pdf-第-29-页-·-原书第-27-页",
+      "pdf-第-30-页-·-原书第-28-页": "translation-02-flat-layouts-pdf-第-30-页-·-原书第-28-页",
+      "pdf-第-31-页-·-原书第-29-页": "translation-02-flat-layouts-pdf-第-31-页-·-原书第-29-页",
+      "pdf-第-32-页-·-原书第-30-页": "translation-02-flat-layouts-pdf-第-32-页-·-原书第-30-页",
+      "pdf-第-33-页-·-原书第-31-页": "translation-02-flat-layouts-pdf-第-33-页-·-原书第-31-页",
+      "pdf-第-34-页-·-原书第-32-页": "translation-02-flat-layouts-pdf-第-34-页-·-原书第-32-页",
+      "pdf-第-35-页-·-原书第-33-页": "translation-02-flat-layouts-pdf-第-35-页-·-原书第-33-页",
+      "pdf-第-36-页-·-原书第-34-页": "translation-02-flat-layouts-pdf-第-36-页-·-原书第-34-页"
+    }
+  },
+  "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/Translation-03-Flat-Layout-Algebra.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/categorical-foundations-for-cute-layouts.md",
+    "fragment": "translation-03-flat-layout-algebra-第-2-1-节-合并、紧致性、补布局与可处理性",
+    "anchors": {
+      "第-2-1-节-合并、紧致性、补布局与可处理性": "translation-03-flat-layout-algebra-第-2-1-节-合并、紧致性、补布局与可处理性",
+      "pdf-第-37-页-·-原书第-35-页": "translation-03-flat-layout-algebra-pdf-第-37-页-·-原书第-35-页",
+      "_2-1-4-平坦合并": "translation-03-flat-layout-algebra-_2-1-4-平坦合并",
+      "pdf-第-38-页-·-原书第-36-页": "translation-03-flat-layout-algebra-pdf-第-38-页-·-原书第-36-页",
+      "pdf-第-39-页-·-原书第-37-页": "translation-03-flat-layout-algebra-pdf-第-39-页-·-原书第-37-页",
+      "pdf-第-40-页-·-原书第-38-页": "translation-03-flat-layout-algebra-pdf-第-40-页-·-原书第-38-页",
+      "pdf-第-41-页-·-原书第-39-页": "translation-03-flat-layout-algebra-pdf-第-41-页-·-原书第-39-页",
+      "pdf-第-42-页-·-原书第-40-页": "translation-03-flat-layout-algebra-pdf-第-42-页-·-原书第-40-页",
+      "_2-1-5-紧致平坦布局": "translation-03-flat-layout-algebra-_2-1-5-紧致平坦布局",
+      "pdf-第-43-页-·-原书第-41-页": "translation-03-flat-layout-algebra-pdf-第-43-页-·-原书第-41-页",
+      "pdf-第-44-页-·-原书第-42-页": "translation-03-flat-layout-algebra-pdf-第-44-页-·-原书第-42-页",
+      "pdf-第-45-页-·-原书第-43-页": "translation-03-flat-layout-algebra-pdf-第-45-页-·-原书第-43-页",
+      "_2-1-6-补布局": "translation-03-flat-layout-algebra-_2-1-6-补布局",
+      "pdf-第-46-页-·-原书第-44-页": "translation-03-flat-layout-algebra-pdf-第-46-页-·-原书第-44-页",
+      "pdf-第-47-页-·-原书第-45-页": "translation-03-flat-layout-algebra-pdf-第-47-页-·-原书第-45-页",
+      "pdf-第-48-页-·-原书第-46-页": "translation-03-flat-layout-algebra-pdf-第-48-页-·-原书第-46-页",
+      "pdf-第-49-页-·-原书第-47-页": "translation-03-flat-layout-algebra-pdf-第-49-页-·-原书第-47-页",
+      "pdf-第-50-页-·-原书第-48-页": "translation-03-flat-layout-algebra-pdf-第-50-页-·-原书第-48-页",
+      "pdf-第-51-页-·-原书第-49-页": "translation-03-flat-layout-algebra-pdf-第-51-页-·-原书第-49-页",
+      "pdf-第-52-页-·-原书第-50-页": "translation-03-flat-layout-algebra-pdf-第-52-页-·-原书第-50-页",
+      "pdf-第-53-页-·-原书第-51-页": "translation-03-flat-layout-algebra-pdf-第-53-页-·-原书第-51-页",
+      "pdf-第-54-页-·-原书第-52-页": "translation-03-flat-layout-algebra-pdf-第-54-页-·-原书第-52-页",
+      "pdf-第-55-页-·-原书第-53-页": "translation-03-flat-layout-algebra-pdf-第-55-页-·-原书第-53-页",
+      "_2-1-7-进一步的运算": "translation-03-flat-layout-algebra-_2-1-7-进一步的运算",
+      "pdf-第-56-页-·-原书第-54-页": "translation-03-flat-layout-algebra-pdf-第-56-页-·-原书第-54-页",
+      "pdf-第-57-页-·-原书第-55-页": "translation-03-flat-layout-algebra-pdf-第-57-页-·-原书第-55-页",
+      "_2-1-8-可处理平坦布局": "translation-03-flat-layout-algebra-_2-1-8-可处理平坦布局",
+      "pdf-第-58-页-·-原书第-56-页": "translation-03-flat-layout-algebra-pdf-第-58-页-·-原书第-56-页"
+    }
+  },
+  "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/Translation-04-Nested-Tuples.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/categorical-foundations-for-cute-layouts.md",
+    "fragment": "translation-04-nested-tuples-第-2-2-节-嵌套元组",
+    "anchors": {
+      "第-2-2-节-嵌套元组": "translation-04-nested-tuples-第-2-2-节-嵌套元组",
+      "pdf-第-59-页-·-原书第-57-页": "translation-04-nested-tuples-pdf-第-59-页-·-原书第-57-页",
+      "_2-2-嵌套元组": "translation-04-nested-tuples-_2-2-嵌套元组",
+      "_2-2-1-轮廓": "translation-04-nested-tuples-_2-2-1-轮廓",
+      "pdf-第-60-页-·-原书第-58-页": "translation-04-nested-tuples-pdf-第-60-页-·-原书第-58-页",
+      "pdf-第-61-页-·-原书第-59-页": "translation-04-nested-tuples-pdf-第-61-页-·-原书第-59-页",
+      "_2-2-2-基本定义": "translation-04-nested-tuples-_2-2-2-基本定义",
+      "pdf-第-62-页-·-原书第-60-页": "translation-04-nested-tuples-pdf-第-62-页-·-原书第-60-页",
+      "pdf-第-63-页-·-原书第-61-页": "translation-04-nested-tuples-pdf-第-63-页-·-原书第-61-页",
+      "pdf-第-64-页-·-原书第-62-页": "translation-04-nested-tuples-pdf-第-64-页-·-原书第-62-页",
+      "_2-2-3-代入": "translation-04-nested-tuples-_2-2-3-代入",
+      "pdf-第-65-页-·-原书第-63-页": "translation-04-nested-tuples-pdf-第-65-页-·-原书第-63-页",
+      "_2-2-4-细化": "translation-04-nested-tuples-_2-2-4-细化",
+      "pdf-第-66-页-·-原书第-64-页": "translation-04-nested-tuples-pdf-第-66-页-·-原书第-64-页",
+      "pdf-第-67-页-·-原书第-65-页": "translation-04-nested-tuples-pdf-第-67-页-·-原书第-65-页"
+    }
+  },
+  "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/Translation-05-Layouts.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/categorical-foundations-for-cute-layouts.md",
+    "fragment": "translation-05-layouts-第-2-3-节-布局",
+    "anchors": {
+      "第-2-3-节-布局": "translation-05-layouts-第-2-3-节-布局",
+      "pdf-第-68-页-·-原书第-66-页": "translation-05-layouts-pdf-第-68-页-·-原书第-66-页",
+      "_2-3-布局": "translation-05-layouts-_2-3-布局",
+      "_2-3-1-基本定义": "translation-05-layouts-_2-3-1-基本定义",
+      "pdf-第-69-页-·-原书第-67-页": "translation-05-layouts-pdf-第-69-页-·-原书第-67-页",
+      "pdf-第-70-页-·-原书第-68-页": "translation-05-layouts-pdf-第-70-页-·-原书第-68-页",
+      "pdf-第-71-页-·-原书第-69-页": "translation-05-layouts-pdf-第-71-页-·-原书第-69-页",
+      "_2-3-2-基本运算": "translation-05-layouts-_2-3-2-基本运算",
+      "pdf-第-72-页-·-原书第-70-页": "translation-05-layouts-pdf-第-72-页-·-原书第-70-页",
+      "pdf-第-73-页-·-原书第-71-页": "translation-05-layouts-pdf-第-73-页-·-原书第-71-页",
+      "_2-3-3-合并": "translation-05-layouts-_2-3-3-合并",
+      "pdf-第-74-页-·-原书第-72-页": "translation-05-layouts-pdf-第-74-页-·-原书第-72-页",
+      "pdf-第-75-页-·-原书第-73-页": "translation-05-layouts-pdf-第-75-页-·-原书第-73-页",
+      "_2-3-4-相对合并": "translation-05-layouts-_2-3-4-相对合并",
+      "pdf-第-76-页-·-原书第-74-页": "translation-05-layouts-pdf-第-76-页-·-原书第-74-页",
+      "pdf-第-77-页-·-原书第-75-页": "translation-05-layouts-pdf-第-77-页-·-原书第-75-页",
+      "pdf-第-78-页-·-原书第-76-页": "translation-05-layouts-pdf-第-78-页-·-原书第-76-页",
+      "_2-3-5-紧致布局": "translation-05-layouts-_2-3-5-紧致布局",
+      "pdf-第-79-页-·-原书第-77-页": "translation-05-layouts-pdf-第-79-页-·-原书第-77-页",
+      "_2-3-6-补布局": "translation-05-layouts-_2-3-6-补布局",
+      "pdf-第-80-页-·-原书第-78-页": "translation-05-layouts-pdf-第-80-页-·-原书第-78-页",
+      "pdf-第-81-页-·-原书第-79-页": "translation-05-layouts-pdf-第-81-页-·-原书第-79-页",
+      "_2-3-7-复合": "translation-05-layouts-_2-3-7-复合",
+      "pdf-第-82-页-·-原书第-80-页": "translation-05-layouts-pdf-第-82-页-·-原书第-80-页",
+      "_2-3-8-逻辑除法": "translation-05-layouts-_2-3-8-逻辑除法",
+      "pdf-第-83-页-·-原书第-81-页": "translation-05-layouts-pdf-第-83-页-·-原书第-81-页",
+      "pdf-第-84-页-·-原书第-82-页": "translation-05-layouts-pdf-第-84-页-·-原书第-82-页",
+      "pdf-第-85-页-·-原书第-83-页": "translation-05-layouts-pdf-第-85-页-·-原书第-83-页",
+      "_2-3-9-逻辑乘积": "translation-05-layouts-_2-3-9-逻辑乘积",
+      "pdf-第-86-页-·-原书第-84-页": "translation-05-layouts-pdf-第-86-页-·-原书第-84-页",
+      "_2-3-10-可处理布局": "translation-05-layouts-_2-3-10-可处理布局",
+      "pdf-第-87-页-·-原书第-85-页": "translation-05-layouts-pdf-第-87-页-·-原书第-85-页"
+    }
+  },
+  "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/Translation-06-Tuple.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/categorical-foundations-for-cute-layouts.md",
+    "fragment": "translation-06-tuple-第-3-1-节-tuple-范畴、编码与具象化",
+    "anchors": {
+      "第-3-1-节-tuple-范畴、编码与具象化": "translation-06-tuple-第-3-1-节-tuple-范畴、编码与具象化",
+      "pdf-第-88-页-·-原书第-86-页": "translation-06-tuple-pdf-第-88-页-·-原书第-86-页",
+      "第-3-章": "translation-06-tuple-第-3-章",
+      "布局范畴": "translation-06-tuple-布局范畴",
+      "_3-1-tuple-范畴": "translation-06-tuple-_3-1-tuple-范畴",
+      "_3-1-1-基本定义": "translation-06-tuple-_3-1-1-基本定义",
+      "pdf-第-89-页-·-原书第-87-页": "translation-06-tuple-pdf-第-89-页-·-原书第-87-页",
+      "pdf-第-90-页-·-原书第-88-页": "translation-06-tuple-pdf-第-90-页-·-原书第-88-页",
+      "pdf-第-91-页-·-原书第-89-页": "translation-06-tuple-pdf-第-91-页-·-原书第-89-页",
+      "pdf-第-92-页-·-原书第-90-页": "translation-06-tuple-pdf-第-92-页-·-原书第-90-页",
+      "_3-1-2-从元组态射到平坦布局": "translation-06-tuple-_3-1-2-从元组态射到平坦布局",
+      "pdf-第-93-页-·-原书第-91-页": "translation-06-tuple-pdf-第-93-页-·-原书第-91-页",
+      "pdf-第-94-页-·-原书第-92-页": "translation-06-tuple-pdf-第-94-页-·-原书第-92-页",
+      "pdf-第-95-页-·-原书第-93-页": "translation-06-tuple-pdf-第-95-页-·-原书第-93-页",
+      "pdf-第-96-页-·-原书第-94-页": "translation-06-tuple-pdf-第-96-页-·-原书第-94-页",
+      "pdf-第-97-页-·-原书第-95-页": "translation-06-tuple-pdf-第-97-页-·-原书第-95-页",
+      "pdf-第-98-页-·-原书第-96-页": "translation-06-tuple-pdf-第-98-页-·-原书第-96-页",
+      "pdf-第-99-页-·-原书第-97-页": "translation-06-tuple-pdf-第-99-页-·-原书第-97-页",
+      "pdf-第-100-页-·-原书第-98-页": "translation-06-tuple-pdf-第-100-页-·-原书第-98-页",
+      "_3-1-3-例子": "translation-06-tuple-_3-1-3-例子",
+      "pdf-第-101-页-·-原书第-99-页": "translation-06-tuple-pdf-第-101-页-·-原书第-99-页",
+      "pdf-第-102-页-·-原书第-100-页": "translation-06-tuple-pdf-第-102-页-·-原书第-100-页",
+      "pdf-第-103-页-·-原书第-101-页": "translation-06-tuple-pdf-第-103-页-·-原书第-101-页",
+      "pdf-第-104-页-·-原书第-102-页": "translation-06-tuple-pdf-第-104-页-·-原书第-102-页",
+      "_3-1-4-元组态射的具象化": "translation-06-tuple-_3-1-4-元组态射的具象化",
+      "pdf-第-105-页-·-原书第-103-页": "translation-06-tuple-pdf-第-105-页-·-原书第-103-页",
+      "pdf-第-106-页-·-原书第-104-页": "translation-06-tuple-pdf-第-106-页-·-原书第-104-页"
+    }
+  },
+  "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/Translation-07-Tuple-Operations.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/categorical-foundations-for-cute-layouts.md",
+    "fragment": "translation-07-tuple-operations-第-3-1-节-元组态射上的运算",
+    "anchors": {
+      "第-3-1-节-元组态射上的运算": "translation-07-tuple-operations-第-3-1-节-元组态射上的运算",
+      "pdf-第-107-页-·-原书第-105-页": "translation-07-tuple-operations-pdf-第-107-页-·-原书第-105-页",
+      "_3-1-5-元组态射上的运算": "translation-07-tuple-operations-_3-1-5-元组态射上的运算",
+      "pdf-第-108-页-·-原书第-106-页": "translation-07-tuple-operations-pdf-第-108-页-·-原书第-106-页",
+      "pdf-第-109-页-·-原书第-107-页": "translation-07-tuple-operations-pdf-第-109-页-·-原书第-107-页",
+      "pdf-第-110-页-·-原书第-108-页": "translation-07-tuple-operations-pdf-第-110-页-·-原书第-108-页",
+      "pdf-第-111-页-·-原书第-109-页": "translation-07-tuple-operations-pdf-第-111-页-·-原书第-109-页",
+      "pdf-第-112-页-·-原书第-110-页": "translation-07-tuple-operations-pdf-第-112-页-·-原书第-110-页",
+      "pdf-第-113-页-·-原书第-111-页": "translation-07-tuple-operations-pdf-第-113-页-·-原书第-111-页",
+      "pdf-第-114-页-·-原书第-112-页": "translation-07-tuple-operations-pdf-第-114-页-·-原书第-112-页",
+      "pdf-第-115-页-·-原书第-113-页": "translation-07-tuple-operations-pdf-第-115-页-·-原书第-113-页",
+      "pdf-第-116-页-·-原书第-114-页": "translation-07-tuple-operations-pdf-第-116-页-·-原书第-114-页",
+      "pdf-第-117-页-·-原书第-115-页": "translation-07-tuple-operations-pdf-第-117-页-·-原书第-115-页",
+      "pdf-第-118-页-·-原书第-116-页": "translation-07-tuple-operations-pdf-第-118-页-·-原书第-116-页",
+      "pdf-第-119-页-·-原书第-117-页": "translation-07-tuple-operations-pdf-第-119-页-·-原书第-117-页",
+      "pdf-第-120-页-·-原书第-118-页": "translation-07-tuple-operations-pdf-第-120-页-·-原书第-118-页",
+      "pdf-第-121-页-·-原书第-119-页": "translation-07-tuple-operations-pdf-第-121-页-·-原书第-119-页",
+      "pdf-第-122-页-·-原书第-120-页": "translation-07-tuple-operations-pdf-第-122-页-·-原书第-120-页",
+      "pdf-第-123-页-·-原书第-121-页": "translation-07-tuple-operations-pdf-第-123-页-·-原书第-121-页",
+      "pdf-第-124-页-·-原书第-122-页": "translation-07-tuple-operations-pdf-第-124-页-·-原书第-122-页"
+    }
+  },
+  "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/Translation-08-Nest.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/categorical-foundations-for-cute-layouts.md",
+    "fragment": "translation-08-nest-第-3-2-节-nest-范畴与细化",
+    "anchors": {
+      "第-3-2-节-nest-范畴与细化": "translation-08-nest-第-3-2-节-nest-范畴与细化",
+      "pdf-第-125-页-·-原书第-123-页": "translation-08-nest-pdf-第-125-页-·-原书第-123-页",
+      "_3-2-nest-范畴": "translation-08-nest-_3-2-nest-范畴",
+      "_3-2-1-基本定义": "translation-08-nest-_3-2-1-基本定义",
+      "pdf-第-126-页-·-原书第-124-页": "translation-08-nest-pdf-第-126-页-·-原书第-124-页",
+      "_3-2-2-从嵌套元组态射到布局": "translation-08-nest-_3-2-2-从嵌套元组态射到布局",
+      "pdf-第-127-页-·-原书第-125-页": "translation-08-nest-pdf-第-127-页-·-原书第-125-页",
+      "pdf-第-128-页-·-原书第-126-页": "translation-08-nest-pdf-第-128-页-·-原书第-126-页",
+      "pdf-第-129-页-·-原书第-127-页": "translation-08-nest-pdf-第-129-页-·-原书第-127-页",
+      "_3-2-3-例子": "translation-08-nest-_3-2-3-例子",
+      "pdf-第-130-页-·-原书第-128-页": "translation-08-nest-pdf-第-130-页-·-原书第-128-页",
+      "pdf-第-131-页-·-原书第-129-页": "translation-08-nest-pdf-第-131-页-·-原书第-129-页",
+      "_3-2-4-嵌套元组态射的具象化": "translation-08-nest-_3-2-4-嵌套元组态射的具象化",
+      "pdf-第-132-页-·-原书第-130-页": "translation-08-nest-pdf-第-132-页-·-原书第-130-页",
+      "_3-2-5-细化": "translation-08-nest-_3-2-5-细化",
+      "pdf-第-133-页-·-原书第-131-页": "translation-08-nest-pdf-第-133-页-·-原书第-131-页",
+      "pdf-第-134-页-·-原书第-132-页": "translation-08-nest-pdf-第-134-页-·-原书第-132-页",
+      "pdf-第-135-页-·-原书第-133-页": "translation-08-nest-pdf-第-135-页-·-原书第-133-页",
+      "pdf-第-136-页-·-原书第-134-页": "translation-08-nest-pdf-第-136-页-·-原书第-134-页",
+      "pdf-第-137-页-·-原书第-135-页": "translation-08-nest-pdf-第-137-页-·-原书第-135-页",
+      "pdf-第-138-页-·-原书第-136-页": "translation-08-nest-pdf-第-138-页-·-原书第-136-页",
+      "pdf-第-139-页-·-原书第-137-页": "translation-08-nest-pdf-第-139-页-·-原书第-137-页"
+    }
+  },
+  "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/Translation-09-Nest-Operations.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/categorical-foundations-for-cute-layouts.md",
+    "fragment": "translation-09-nest-operations-第-3-2-节-嵌套元组态射上的运算",
+    "anchors": {
+      "第-3-2-节-嵌套元组态射上的运算": "translation-09-nest-operations-第-3-2-节-嵌套元组态射上的运算",
+      "pdf-第-140-页-·-原书第-138-页": "translation-09-nest-operations-pdf-第-140-页-·-原书第-138-页",
+      "_3-2-6-嵌套元组态射上的运算": "translation-09-nest-operations-_3-2-6-嵌套元组态射上的运算",
+      "pdf-第-141-页-·-原书第-139-页": "translation-09-nest-operations-pdf-第-141-页-·-原书第-139-页",
+      "pdf-第-142-页-·-原书第-140-页": "translation-09-nest-operations-pdf-第-142-页-·-原书第-140-页",
+      "pdf-第-143-页-·-原书第-141-页": "translation-09-nest-operations-pdf-第-143-页-·-原书第-141-页",
+      "pdf-第-144-页-·-原书第-142-页": "translation-09-nest-operations-pdf-第-144-页-·-原书第-142-页",
+      "pdf-第-145-页-·-原书第-143-页": "translation-09-nest-operations-pdf-第-145-页-·-原书第-143-页",
+      "pdf-第-146-页-·-原书第-144-页": "translation-09-nest-operations-pdf-第-146-页-·-原书第-144-页",
+      "pdf-第-147-页-·-原书第-145-页": "translation-09-nest-operations-pdf-第-147-页-·-原书第-145-页"
+    }
+  },
+  "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/Translation-10-Computations.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/categorical-foundations-for-cute-layouts.md",
+    "fragment": "translation-10-computations-第-4-章-计算",
+    "anchors": {
+      "第-4-章-计算": "translation-10-computations-第-4-章-计算",
+      "pdf-第-148-页-·-原书第-146-页": "translation-10-computations-pdf-第-148-页-·-原书第-146-页",
+      "第-4-章": "translation-10-computations-第-4-章",
+      "计算": "translation-10-computations-计算",
+      "_4-1-复合": "translation-10-computations-_4-1-复合",
+      "pdf-第-149-页-·-原书第-147-页": "translation-10-computations-pdf-第-149-页-·-原书第-147-页",
+      "_4-1-1-共同细化": "translation-10-computations-_4-1-1-共同细化",
+      "pdf-第-150-页-·-原书第-148-页": "translation-10-computations-pdf-第-150-页-·-原书第-148-页",
+      "pdf-第-151-页-·-原书第-149-页": "translation-10-computations-pdf-第-151-页-·-原书第-149-页",
+      "pdf-第-152-页-·-原书第-150-页": "translation-10-computations-pdf-第-152-页-·-原书第-150-页",
+      "算法-4-1-1-续-共同细化算法": "translation-10-computations-算法-4-1-1-续-共同细化算法",
+      "pdf-第-153-页-·-原书第-151-页": "translation-10-computations-pdf-第-153-页-·-原书第-151-页",
+      "_4-1-2-从共同细化到可复合态射": "translation-10-computations-_4-1-2-从共同细化到可复合态射",
+      "pdf-第-154-页-·-原书第-152-页": "translation-10-computations-pdf-第-154-页-·-原书第-152-页",
+      "_4-1-3-复合算法": "translation-10-computations-_4-1-3-复合算法",
+      "pdf-第-155-页-·-原书第-153-页": "translation-10-computations-pdf-第-155-页-·-原书第-153-页",
+      "_4-1-4-例子": "translation-10-computations-_4-1-4-例子",
+      "pdf-第-156-页-·-原书第-154-页": "translation-10-computations-pdf-第-156-页-·-原书第-154-页",
+      "pdf-第-157-页-·-原书第-155-页": "translation-10-computations-pdf-第-157-页-·-原书第-155-页",
+      "pdf-第-158-页-·-原书第-156-页": "translation-10-computations-pdf-第-158-页-·-原书第-156-页"
+    }
+  },
+  "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/Translation-11-Appendix.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/categorical-foundations-for-cute-layouts.md",
+    "fragment": "translation-11-appendix-附录-a-范畴入门与参考文献",
+    "anchors": {
+      "附录-a-范畴入门与参考文献": "translation-11-appendix-附录-a-范畴入门与参考文献",
+      "pdf-第-159-页-·-原书第-157-页": "translation-11-appendix-pdf-第-159-页-·-原书第-157-页",
+      "附录-a": "translation-11-appendix-附录-a",
+      "范畴入门": "translation-11-appendix-范畴入门",
+      "a-1-什么是范畴": "translation-11-appendix-a-1-什么是范畴",
+      "pdf-第-160-页-·-原书第-158-页": "translation-11-appendix-pdf-第-160-页-·-原书第-158-页",
+      "pdf-第-161-页-·-原书第-159-页": "translation-11-appendix-pdf-第-161-页-·-原书第-159-页",
+      "pdf-第-162-页-·-原书第-160-页": "translation-11-appendix-pdf-第-162-页-·-原书第-160-页",
+      "a-2-什么是函子": "translation-11-appendix-a-2-什么是函子",
+      "pdf-第-163-页-·-原书第-161-页": "translation-11-appendix-pdf-第-163-页-·-原书第-161-页",
+      "参考文献": "translation-11-appendix-参考文献"
+    }
+  },
+  "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/Proofreading.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/categorical-foundations-for-cute-layouts.md",
+    "fragment": "proofreading-全文译文校对记录",
+    "anchors": {
+      "全文译文校对记录": "proofreading-全文译文校对记录",
+      "本轮校对范围": "proofreading-本轮校对范围",
+      "影响数学陈述的边界问题": "proofreading-影响数学陈述的边界问题",
+      "逐页校注索引": "proofreading-逐页校注索引"
+    }
+  },
+  "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/index.md": {
+    "target": "Papers/04_GPU_Compiler_and_Performance/CuTe-Layouts/categorical-foundations-for-cute-layouts.md",
+    "anchors": {
+      "cute-layouts": "collection-cute-layouts",
+      "阅读入口": "collection-阅读入口",
+      "原论文章节目录": "collection-原论文章节目录"
+    }
+  }
+}

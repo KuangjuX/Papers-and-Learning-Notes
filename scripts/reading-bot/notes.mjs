@@ -7,6 +7,7 @@ import { buildPrompt, commentsBeforeJob, saveJson, readJson } from './core.mjs';
 import { childEnvironment, runCodex } from './codex.mjs';
 import { GitHub } from './github.mjs';
 import { loadAuthoringContext, reviewNotes } from './authoring.mjs';
+import { checkPaperStructure, PAPER_REDIRECTS } from './paper-structure.mjs';
 
 const execute = promisify(execFile);
 export const NOTE_CHECKS = [
@@ -31,6 +32,7 @@ export async function git(cwd, args, { env = {}, signal, input } = {}) {
 }
 
 export function allowedNotePath(path) {
+  if (path === PAPER_REDIRECTS) return true;
   if (/[\x00-\x1f\x7f`]/.test(path)) return false;
   const parts = path.split('/');
   if (parts.some(part => !part || part.startsWith('.') || part === 'node_modules') || path.includes('\\')) return false;
@@ -43,6 +45,12 @@ export async function collectChanges(worktree, base) {
   const changed = (await git(worktree, ['diff', '--name-only', '--no-renames', '-z', base, '--'])).split('\0');
   const staged = (await git(worktree, ['diff', '--cached', '--name-only', '--no-renames', '-z', base, '--'])).split('\0');
   const untracked = (await git(worktree, ['ls-files', '--others', '--exclude-standard', '-z'])).split('\0');
+  // Older PR branches ignore every JSON file. This one explicitly authorized
+  // data file must still be reviewed and included in the immutable candidate.
+  if (!(await git(worktree, ['ls-files', '--', PAPER_REDIRECTS])).trim()) {
+    try { await lstat(join(worktree, PAPER_REDIRECTS)); untracked.push(PAPER_REDIRECTS); }
+    catch (error) { if (error.code !== 'ENOENT') throw error; }
+  }
   const paths = [...new Set([...changed, ...staged, ...untracked].filter(Boolean))].sort();
   if (paths.length > 60) throw new NoteError('本次改动超过 60 个文件，已保留工作区，请缩小整理范围。');
   const root = await realpath(worktree);
@@ -86,7 +94,7 @@ export async function checkNotes(worktree, directory, signal) {
 
 export function pullBody(issue, job, note, files) {
   // Model text is not interpolated into PR metadata, preventing accidental auto-close directives.
-  return `${noteMarker(issue.number)}\n\n将 [用户要求](${job.url}) 指定的 Issue 讨论整理到主笔记，保留来源、个人判断和未解决疑问。\n\n改动文件：\n${files.map(f => `- \`${f.path}\``).join('\n')}\n\n验证：${NOTE_CHECKS.map(s => `\`${s}\``).join('、')} 均通过。\n\nRefs #${issue.number}\n\n本次是阶段性整理，PR 留待审阅，不代表论文阅读完成。\n\n<!-- reading-bot-job:${job.id}; base:${note.base} -->`;
+  return `${noteMarker(issue.number)}\n\n将 [用户要求](${job.url}) 指定的 Issue 讨论整理到主笔记，保留来源、个人判断和未解决疑问。\n\n改动文件：\n${files.map(f => `- \`${f.path}\``).join('\n')}\n\n验证：论文命名与唯一性检查通过；${NOTE_CHECKS.map(s => `\`${s}\``).join('、')} 均通过。\n\nRefs #${issue.number}\n\n本次是阶段性整理，PR 留待审阅，不代表论文阅读完成。\n\n<!-- reading-bot-job:${job.id}; base:${note.base} -->`;
 }
 
 export class Notes {
@@ -152,7 +160,9 @@ export class Notes {
     // Compare-and-swap the local branch only after the durable commit object is saved.
     if (!note.localCommit) {
       await this.assertHead(note, note.base);
-      await git(note.worktree, ['add', '--', ...files.map(f => f.path)]);
+      const regular = files.filter(f => f.path !== PAPER_REDIRECTS);
+      if (regular.length) await git(note.worktree, ['add', '--', ...regular.map(f => f.path)]);
+      if (files.some(f => f.path === PAPER_REDIRECTS)) await git(note.worktree, ['add', '-f', '--', PAPER_REDIRECTS]);
       note.tree = (await git(note.worktree, ['write-tree'])).trim();
       note.message = `整理 Issue #${job.issue} 的阅读讨论\n\nRefs #${job.issue}\n`;
       note.date = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
@@ -241,6 +251,10 @@ export class Notes {
         const files = await collectChanges(note.worktree, note.base);
         if (!files.length) { note.stage = 'no-change'; await save(); break; }
         try {
+          // Trusted runtime code also checks old PR branches which do not yet
+          // contain the new package script. Unrelated legacy notes stay scoped out.
+          const structure = await checkPaperStructure(note.worktree, { changedPaths: files.map(f => f.path) });
+          if (structure.problems.length) throw new NoteError(`论文文件规范检查未通过：\n${structure.problems.join('\n')}`);
           await this.checker(note.worktree, note.directory, signal);
           // Build scripts may update indexes; review the exact post-build files.
           const candidate = await collectChanges(note.worktree, note.base);
@@ -263,7 +277,7 @@ export class Notes {
     if (note.stage === 'validated') await this.commit(note, job, save);
     if (note.stage === 'committed') await this.publish(note, job, issue, save);
     if (note.stage === 'no-change') return `没有产生笔记差异，未发布新提交。${note.pr ? `现有 PR：[PR #${note.pr.number}](${note.pr.url})。` : ''}\n\n${note.summary}`;
-    return `已整理主笔记并${note.update ? '更新' : '创建'} [PR #${note.pr.number}](${note.pr.url})，仓库文档检查与笔记规范复核已通过。PR 留待审阅，阅读 Issue 保持原状态。\n\n${note.summary}`;
+    return `已整理主笔记并${note.update ? '更新' : '创建'} [PR #${note.pr.number}](${note.pr.url})，论文文件检查、仓库文档检查与笔记规范复核已通过。PR 留待审阅，阅读 Issue 保持原状态。\n\n${note.summary}`;
   }
   async cleanup(job, save) {
     const note = job.note;

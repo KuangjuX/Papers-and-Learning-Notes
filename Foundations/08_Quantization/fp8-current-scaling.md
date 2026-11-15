@@ -2,7 +2,9 @@
 
 [量化专题](index.md)
 
-## 为什么要量化
+<a id="为什么要量化"></a>
+
+## Quantization
 
 模型中的权重是学习得到的参数，激活值是各层产生的中间结果，梯度用于计算参数更新。这些数字组成的多维数组称为张量，入门时可以先把张量理解为一组数字。
 
@@ -10,7 +12,9 @@
 
 代价是舍入误差。例如，把 1.23456 按“保留两位小数”处理，得到 1.23。FP8 的实际规则是二进制浮点舍入，不能把它等同于固定保留几位小数。
 
-## FP8 的两种格式
+<a id="fp8-的两种格式"></a>
+
+## FP8 Formats
 
 | 格式 | 符号位 / 指数位 / 尾数位 | 最大有限值的绝对值 | 文档中的默认用途 |
 | --- | --- | ---: | --- |
@@ -25,7 +29,9 @@ E4M3 支持 NaN；E5M2 还支持正负无穷。默认混合策略称为 `Format.
 
 *[Figure 1](https://docs.nvidia.com/deeplearning/transformer-engine/features/low_precision_training/fp8_current_scaling/fp8_current_scaling.html#fp8-data-type)：不同格式表示同一个目标值 0.3952 时，位分配和得到的近似值不同；可直观看到尾数减少带来的精度取舍。*
 
-## Current Scaling：先看当前数据，再决定比例
+<a id="current-scaling-先看当前数据-再决定比例"></a>
+
+## Current Scaling
 
 [Transformer Engine 2.20.2](https://docs.nvidia.com/deeplearning/transformer-engine/features/low_precision_training/fp8_current_scaling/fp8_current_scaling.html#scaling-factors) 的 current scaling 每次量化先计算当前张量的最大绝对值 `amax`，再缩放并转换为 FP8。每个张量共享一个 FP32 缩放因子；不是整个模型共用一个因子，也不依赖历史 `amax`。转换采用就近舍入，恰好处于中点时选择尾数最低位为偶数的表示，即 RTNE。
 
@@ -54,7 +60,9 @@ $x_i$ 是原始元素，$q_i$ 是 FP8 数值，$\hat{x}_i$ 是还原的近似值
 
 误差来自 44.8 舍入为 44；反量化回高精度也不能找回丢失的信息。实际实现还需处理全零张量等边界，不能直接将上面的简化公式用于除零情形。
 
-## 缩放会不会把误差放大
+<a id="缩放会不会把误差放大"></a>
+
+## Quantization Error
 
 暂时忽略缩放因子自身的浮点误差。令 $y=x/s$，FP8 舍入后得到 $q=y+\varepsilon$，则：
 
@@ -72,7 +80,9 @@ $$
 - **同一张量内的跨度过大。** 例如 $[0.001,0.002,1000]$ 乘以 0.448 后变为 $[0.000448,0.000896,448]$，小值可能下溢为零。小数本身不必然精度差，关键是缩放后处于哪段表示范围。
 - **中间数值误差不等于任务指标损失。** 例如真实的 $1000-999=1$，若两个输入量化成相同的近似值，结果会变成 0。输入误差小，也可能产生很大的结果相对误差；误差能否被模型容忍需要实验验证。
 
-## 成本与多 GPU 使用
+<a id="成本与多-gpu-使用"></a>
+
+## Distributed Scaling
 
 - 量化通常读张量两遍：先求 `amax`，再缩放和转换，存在额外访存开销。
 - 硬件支持范围为 Ada 及以后，SM 8.9+。Ada / Hopper 的列向使用需要物理转置；Blackwell 的对应行向、列向使用可共享物理存储。见[转置处理](https://docs.nvidia.com/deeplearning/transformer-engine/features/low_precision_training/fp8_current_scaling/fp8_current_scaling.html#transpose-handling)。
@@ -88,7 +98,9 @@ All-gather 是让参与设备都拿到汇集数据。例如两张卡分别有 $[
 
 *[Figure 7](https://docs.nvidia.com/deeplearning/transformer-engine/features/low_precision_training/fp8_current_scaling/fp8_current_scaling.html#distributed-training)：注意顺序：Compute Amax → Synchronize Amax → Scale + Cast → All-Gather；应在量化前确定参与汇集的数据共享的比例。*
 
-## 实现接口与精度边界
+<a id="实现接口与精度边界"></a>
+
+## Implementation
 
 PyTorch 中，`Float8CurrentScaling` 配置 recipe，`te.autocast` 配合 TE 层使用；`Float8CurrentScalingQuantizer` 可单独量化张量，返回值支持 `dequantize()`。见[Quantizer 示例](https://docs.nvidia.com/deeplearning/transformer-engine/features/low_precision_training/fp8_current_scaling/fp8_current_scaling.html#examples)；示例未经 GPU 运行验证。
 

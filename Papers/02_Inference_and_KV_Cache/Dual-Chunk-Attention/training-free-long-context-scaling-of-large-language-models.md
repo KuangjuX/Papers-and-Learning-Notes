@@ -1,0 +1,33 @@
+<a id="dual-chunk-attention-在训练窗口内重映射相对位置"></a>
+
+# Training-Free Long-Context Scaling of Large Language Models
+
+Dual Chunk Attention（DCA）在不继续训练的情况下扩展上下文：把长序列分块，对块内、相邻块与远端块使用不同的 query 位置编码。它保留局部位置精度，以远端距离的粗化换取相对位置落在预训练范围内。[Training-Free Long-Context Scaling of Large Language Models，§2–3](https://arxiv.org/html/2402.17463v2)
+
+RoPE 的点积依赖相对位置。超过预训练长度后，模型会遇到训练中未覆盖的相对距离；问题不能简单归结为单个 token 的旋转角度“过大”。位置插值压缩所有距离，DCA 则按交互区域分别处理，尽量保留近邻关系。
+
+<a id="先给-key-使用周期位置-再选择-query-的映射"></a>
+
+## Dual Chunk Attention Design
+
+令序列长度为 $l$，预训练窗口为 $c$，块大小为 $s<c$，query/key 的绝对位置为 $i,j$，且 $j\le i$。所有 key 使用 $P_k(j)=j\bmod s$；query 的映射由它与 key 的块关系决定。[§3.1–3.3、Figure 2](https://arxiv.org/html/2402.17463v2#S3)
+
+| 交互区域 | 条件 | Query 位置 $P_q(i)$ | 相对距离 |
+|---|---|---|---|
+| 块内 | $\lfloor i/s\rfloor=\lfloor j/s\rfloor$ | $i\bmod s$ | $i-j$ |
+| 相邻前块 | 块编号相差 1 | $\min(s+(i\bmod s),c-1)$ | $P_q(i)-(j\bmod s)$ |
+| 更早的块 | 块编号相差大于 1 | $c-1$ | $c-1-(j\bmod s)$ |
+
+以论文示例 $c=10,s=6,w=c-s=4$ 为例：
+
+1. **块内保留精确距离。** $q_8$ 与 $k_7$ 的映射位置是 2、1，距离仍为 1。
+2. **相邻块修复边界局部性。** $q_6$ 与 $k_5$ 若都取模，距离会变成 $0-5=-5$；若直接使用远端映射，则为 $9-5=4$。相邻块映射让 $q_6$ 使用位置 6，恢复距离 1。块开头使用 $s,s+1,\ldots,s+w-1$，后续 query 饱和到 $c-1$。
+3. **远端块保留方向，放弃精确距离。** $q_{12}$ 与 $k_5$ 的距离映射为 $9-5=4$，而真实距离为 7。更早块中相同块内位置会获得相同映射，无法区分它们究竟相隔多少块。
+
+<a id="合并三个区域时仍需统一归一化"></a>
+
+三种映射改变的是 attention logits 的位置语义。各区域可以分别计算，但必须按各自 softmax 分母合并输出，不能直接平均三个局部 attention 结果；论文 §3.4 与附录 A.3 说明了与 FlashAttention 的衔接。[归一化与实现](https://arxiv.org/html/2402.17463v2#S3.SS4)
+
+例如两个区域在同一指数尺度下的指数和分别为 1、3，局部归一化输出分别为 2、4，则合并输出为 $(1\cdot2+3\cdot4)/(1+3)=3.5$，不是 3。实际实现通过统一最大值的 online-softmax 状态处理数值尺度。
+
+位置映射只约束外推距离，不保证任意长度和任务都保持原有质量，也不减少需要保存的历史 KV。远距离顺序信息被压缩是方法本身的代价，质量收益需要结合论文的语言建模、检索与实际任务评测判断。

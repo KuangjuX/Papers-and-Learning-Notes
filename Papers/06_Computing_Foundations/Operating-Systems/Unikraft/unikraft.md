@@ -1,8 +1,12 @@
-# Unikraft：模块化 library OS 与专用内核
+<a id="unikraft-模块化-library-os-与专用内核"></a>
+
+# Unikraft: Fast, Specialized Unikernels the Easy Way
 
 Unikraft 针对单个应用构建专用内核：把操作系统功能拆成 micro-libraries，只选择所需组件，并与应用静态链接。减少无用代码、系统调用边界和资源占用是其设计动机，实际性能与隔离能力仍取决于组件、平台和威胁模型。[论文](https://dl.acm.org/doi/10.1145/3447786.3456248)；[原始讨论](../../../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/zhihu-reading.md)
 
-## 用组件接口连接应用、库与平台
+<a id="用组件接口连接应用、库与平台"></a>
+
+## Unikraft Design
 
 - **核心库**提供分配器、调度器、文件系统、网络栈与驱动。
 - **外部库与应用**接入 libc、OpenSSL、musl、Protobuf，以及 Redis、SQLite 等已有软件。
@@ -13,7 +17,9 @@ Unikraft 针对单个应用构建专用内核：把操作系统功能拆成 micr
 
 ![Unikraft 模块结构](../../../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/images/unikraft-01.jpg)
 
-## 专用化带来的收益与约束
+<a id="专用化带来的收益与约束"></a>
+
+## Specialization
 
 单应用通常运行于单地址空间、单保护级别，避免传统 user/kernel 边界的切换；这也意味着不能直接沿用通用操作系统的进程隔离假设。不同实例可以通过网络通信，组件内的其他隔离方式则需要单独设计。
 

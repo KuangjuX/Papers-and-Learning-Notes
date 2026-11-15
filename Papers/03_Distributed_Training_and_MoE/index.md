@@ -9,13 +9,13 @@
 ## 本地笔记
 
 - [FlashNext-RL: A System Optimization Study for Long-Horizon Agentic RL of Qwen3.8-Flash-Next](FlashNext-RL/flashnext-rl.md)
-- [Efficient LLM Training Survey：训练数据、checkpoint 与存储系统分工](Efficient-LLM-Training-Survey/index.md)
-- [MegaMoE：把 MoE 前向路径压进一个通信计算融合核](MegaMoE/megamoe.md)
+- [Efficient LLM Training Survey：训练数据、checkpoint 与存储系统分工](Efficient-LLM-Training-Survey/efficient-training-of-large-language-models-on-distributed-infrastructures.md)
+- [MegaMoE](MegaMoE/megamoe.md)
 - [PithTrain: A Compact and Agent-Native MoE Training System](PithTrain/pithtrain.md)
-- [PockEngine: Sparse and Efficient Fine-tuning in a Pocket：阅读笔记](PockEngine/github-reading.md)
+- [PockEngine: Sparse and Efficient Fine-tuning in a Pocket](PockEngine/pockengine.md)
 
-- [Seer：同步 RL 的 rollout 切分、调度与分组投机](Seer/zhihu-reading.md)
-- [SonicMoE：梯度重排、异步 IO 与 tile 感知路由](SonicMoE/sonicmoe.md)
+- [Seer: Online Context Learning for Fast Synchronous LLM Reinforcement Learning](Seer/seer.md)
+- [SonicMoE: Accelerating MoE with IO and Tile-aware Optimizations](SonicMoE/sonicmoe.md)
 
 ## LLM Inference / MegaKernel
 
@@ -38,7 +38,7 @@
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ⬜ 📝 | <a id="pdf-3faca9qb"></a>**Efficient Training of Large Language Models on Distributed Infrastructures: A Survey** | [arXiv'24](https://arxiv.org/abs/2407.20018v1) | 从训练数据供给、checkpoint 恢复与存储分工理解训练基础设施的约束 | [Paper](https://arxiv.org/abs/2407.20018v1) / [Note](Efficient-LLM-Training-Survey/index.md) |
+| ⬜ 📝 | <a id="pdf-3faca9qb"></a>**Efficient Training of Large Language Models on Distributed Infrastructures: A Survey** | [arXiv'24](https://arxiv.org/abs/2407.20018v1) | 从训练数据供给、checkpoint 恢复与存储分工理解训练基础设施的约束 | [Paper](https://arxiv.org/abs/2407.20018v1) / [Note](Efficient-LLM-Training-Survey/efficient-training-of-large-language-models-on-distributed-infrastructures.md) |
 | ⬜ | **PyTorch Distributed: Experiences on Accelerating Data Parallel Training** | [VLDB'20](https://www.vldb.org/pvldb/vol13/p3005-li.pdf) | 剖析 DDP 梯度分桶、通信计算重叠与同步机制，理解数据并行的实际扩展瓶颈 | [Paper](https://www.vldb.org/pvldb/vol13/p3005-li.pdf) |
 | ⬜ | **GPipe: Efficient Training of Giant Neural Networks using Pipeline Parallelism** | [NeurIPS'19](https://arxiv.org/abs/1811.06965) | 用 microbatch 和重计算搭建同步流水线训练，理解大模型分层切分与 bubble 开销 | [Paper](https://arxiv.org/abs/1811.06965) |
 | ⬜ | **PipeDream: Generalized Pipeline Parallelism for DNN Training** | [SOSP'19](https://dl.acm.org/doi/10.1145/3341301.3359646) | 通过流水线调度和权重版本管理提高训练利用率，理解流水线并行中的参数一致性取舍 | [Paper](https://dl.acm.org/doi/10.1145/3341301.3359646) |
@@ -78,7 +78,7 @@
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ⬜ 📝 | <a id="pdf-auvhlq3v"></a>**FlashNext-RL: A System Optimization Study for Long-Horizon Agentic RL of Qwen3.8-Flash-Next** | arXiv · 2026 | 阅读中；QSA 的 GQA 分组、反向 gather 与 CuTe 流水线，及 Top-K 重叠的证据边界 | [Paper](https://arxiv.org/abs/2610.28998v1) / [Zotero](zotero://select/library/items/AUVHLQ3V) / [Note](FlashNext-RL/flashnext-rl.md) |
-| ✅ 📝 | <a id="pdf-lv4qk9kg"></a>**Seer: Online Context Learning for Fast Synchronous LLM Reinforcement Learning** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/qin) | 利用同一 prompt 下响应长度和模式的相似性，减少同步 RL rollout 长尾与资源浪费 | [Paper](https://arxiv.org/pdf/2511.14617) / [Note](Seer/zhihu-reading.md) |
+| ✅ 📝 | <a id="pdf-lv4qk9kg"></a>**Seer: Online Context Learning for Fast Synchronous LLM Reinforcement Learning** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/qin) | 利用同一 prompt 下响应长度和模式的相似性，减少同步 RL rollout 长尾与资源浪费 | [Paper](https://arxiv.org/pdf/2511.14617) / [Note](Seer/seer.md) |
 | ⬜ | <a id="pdf-i3m9y4v9"></a>**DeepSeek Elastic Compute (DSec): A Sandbox Infrastructure for Effective Agentic Training at Scale** | arXiv · 2026 | 标签：分布式训练与 MoE | [Paper](http://arxiv.org/abs/2609.22978) / [PDF](zotero://open-pdf/library/items/XBZEVX2N) / [Zotero](zotero://select/library/items/I3M9Y4V9) |
 
 ## LLM Training / Compute-Communication Overlap
@@ -108,7 +108,7 @@
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ✅ | **On-Device Training Under 256KB Memory** | [NeurIPS'22](https://proceedings.neurips.cc/paper_files/paper/2022/hash/90c56c77c6df45fc8e556a096b7a2b2e-Abstract-Conference.html) | 通过量化感知梯度缩放、稀疏更新与编译期反向图裁剪，在 256KB 内存下训练模型 | [Paper](https://arxiv.org/pdf/2206.15472.pdf) |
-| ✅ 📝 | <a id="pdf-fayd7t8v"></a>**PockEngine: Sparse and Efficient Fine-tuning in a Pocket** | [MICRO'23](https://hanlab.mit.edu/projects/pockengine ; https://hanlab.mit.edu/projects/tinyml) | 把稀疏反向传播与完整训练图编译结合，降低边缘设备微调的内存和运行时开销 | [Paper](https://hanlab.mit.edu/projects/pockengine ; https://hanlab.mit.edu/projects/tinyml) / [Note](PockEngine/github-reading.md) |
+| ✅ 📝 | <a id="pdf-fayd7t8v"></a>**PockEngine: Sparse and Efficient Fine-tuning in a Pocket** | [MICRO'23](https://hanlab.mit.edu/projects/pockengine ; https://hanlab.mit.edu/projects/tinyml) | 把稀疏反向传播与完整训练图编译结合，降低边缘设备微调的内存和运行时开销 | [Paper](https://hanlab.mit.edu/projects/pockengine ; https://hanlab.mit.edu/projects/tinyml) / [Note](PockEngine/pockengine.md) |
 
 ## 分布式训练与 MoE / 分布式运行时
 

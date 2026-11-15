@@ -2,7 +2,9 @@
 
 GPU kernel 要把数据写到其他 GPU，除了远端地址，还需要知道通信参与者、内存分配关系以及何时可以复用缓冲区。[NVSHMEM-Tutorial](https://github.com/KuangjuX/NVSHMEM-Tutorial/tree/e6c64f4f148ccb20ae5ec428420ef25ba4788715) 用 DeepEP-like Buffer 实验这些通信基础，不包含 MoE 路由和专家计算；原文见[初始化教程](https://zhuanlan.zhihu.com/p/1943366512783098660)。
 
-## 用本地对称地址与 PE 编号定位远端对象
+<a id="用本地对称地址与-pe-编号定位远端对象"></a>
+
+## Symmetric Memory
 
 NVSHMEM 使用 PGAS（分区全局地址空间）模型。每个 PE（Processing Element）持有本地内存，远端对象通过“本地对称地址 + 目标 PE”定位。对称堆由 NVSHMEM 管理，`nvshmem_malloc` 等集合分配接口在参与 PE 上建立相应对象；对称性要求匹配的分配关系，**不要求各 PE 返回的指针数值相同**，也不能把一个 PE 的普通指针值直接交给另一个 PE 解引用。
 
@@ -10,7 +12,9 @@ NVSHMEM 使用 PGAS（分区全局地址空间）模型。每个 PE（Processing
 
 PGAS 简化了远端寻址，却没有把分布式显存变成普通缓存一致的共享内存。程序仍须遵守集合分配、访问有效期和同步约束。
 
-## 单边传输省去匹配 receive，数据就绪仍需要协议
+<a id="单边传输省去匹配-receive-数据就绪仍需要协议"></a>
+
+## One-sided Communication
 
 ```cpp
 void nvshmem_putmem(void *dest, const void *source, size_t nelems, int pe);
@@ -25,7 +29,9 @@ void nvshmem_getmem(void *dest, const void *source, size_t nelems, int pe);
 
 因此一次 `put` 之后的典型问题有两个：发送方何时能复用 source，接收方何时能消费 dest。全局 barrier 容易建立共同边界，却使无关 PE 也参与等待；更细粒度的信号与等待可缩小同步范围，但必须由协议正确维护数据先于信号可见的顺序。
 
-## 初始化：先建立参与者，再分配对称内存
+<a id="初始化-先建立参与者-再分配对称内存"></a>
+
+## Initialization
 
 Unique ID 负责让各进程加入同一通信实例，不负责为应用广播数据。根进程生成 ID，借助 PyTorch distributed 等已有通道分发；各进程再用相同 ID、各自 rank 和总 rank 数初始化 NVSHMEM。教程 [`csrc/nvshmem.hpp`](https://github.com/KuangjuX/NVSHMEM-Tutorial/blob/e6c64f4f148ccb20ae5ec428420ef25ba4788715/csrc/nvshmem.hpp) 中的两个关键步骤如下。
 
@@ -70,7 +76,9 @@ int init(const std::vector<uint8_t> &root_unique_id_val, int rank, int num_ranks
 }
 ```
 
-## Team：同步范围与物理通信路径是两件事
+<a id="team-同步范围与物理通信路径是两件事"></a>
+
+## Teams
 
 Team 是 PE 的有序子集，成员在 Team 内具有本地 rank。例如将 16 个 PE 分成两个 8-PE Team 后，集合操作可以只覆盖所需的 8 个参与者。`nvshmem_broadcastmem` 从组内根节点广播，`nvshmem_alltoallmem` 让每个 PE 与其他成员交换相应的数据块。缩小参与集合可以避免不相关 PE 等待，但是否更快仍取决于拓扑、数据量和算法，创建 Team 不会自动选择全局最优路径。
 

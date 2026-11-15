@@ -1,16 +1,22 @@
-# SonicMoE：用梯度重排、异步 IO 和 tile 感知路由优化 MoE
+<a id="sonicmoe-用梯度重排、异步-io-和-tile-感知路由优化-moe"></a>
+
+# SonicMoE: Accelerating MoE with IO and Tile-aware Optimizations
 
 [个人笔记](../../../Foundations/03_Distributed_Training_and_MoE/MoE/zhihu-reading.md)、[SonicMoE 原论文](https://arxiv.org/html/2512.14080v1)。
 
 先修：[MoE 路由、Grouped GEMM、梯度与成本](../../../Foundations/03_Distributed_Training_and_MoE/MoE/moe-math-and-cost.md)。
 
-## 从细粒度专家带来的三个成本开始
+<a id="从细粒度专家带来的三个成本开始"></a>
+
+## Background
 
 在总 FLOPs 可比的设置下，专家变细意味着每个专家中间宽度 $n$ 变小、每 token 的激活专家数 $K$ 相应增加。某些实现会保存 $TKd$ 规模的专家输入与输出，导致跨层保存的激活随 $K$ 增长。另一方面，专家越多，每个专家收到的 token 越少，Grouped GEMM 的权重复用和 tile 利用率也会下降。
 
 SonicMoE 分别处理这三个问题：重新组织梯度计算来减少激活缓存；用融合和异步流水线控制 IO；在高稀疏场景用 token rounding 调整路由。前两者可以保持原来的路由，第三项会改变训练时的 token–expert 分配，实验必须分开看。
 
-## 重排路由权重梯度，解除对专家输出缓存的依赖
+<a id="重排路由权重梯度-解除对专家输出缓存的依赖"></a>
+
+## Activation Memory
 
 前向可写成专家输入 $X_e$ → 第一层投影 $H$ → SwiGLU 激活 $A$ → 第二层输出 $Y$ → 加权聚合 $O$。先确定反向真正需要哪些量，再决定哪些激活值得跨层保存。
 
@@ -34,7 +40,9 @@ $$
 
 **数值检查。** $T=1024,d=2048,K=4,n=512$ 时，$X$ 占 4 MiB，$H$ 占 8 MiB，共 12 MiB。改成 $K=8,n=256$ 后仍是 12 MiB；而单独保存 gathered $X_e$ 的代价会从 16 MiB 增到 32 MiB。
 
-## 把前向与反向映射成八个计算核
+<a id="把前向与反向映射成八个计算核"></a>
+
+## SonicMoE Kernel Design
 
 ![原个人文章转载的 SonicMoE 计算流程](../../../Foundations/03_Distributed_Training_and_MoE/MoE/images/moe-notes-03.jpg)
 
@@ -53,25 +61,27 @@ $$
 
 这是一组协同设计的 fused kernels，而非把整个 MoE 前反向放进一个 kernel。
 
-## 融合加载和尾声，但保留单独的聚合核
+<a id="融合加载和尾声-但保留单独的聚合核"></a>
 
-### Gather 与输入加载融合
+<a id="gather-与输入加载融合"></a>
 
 Grouped GEMM 既可能接收专家连续布局，也可能按索引收集输入。后者将 token 索引读取与输入加载放进生产者路径，用 `cp.async` 获取所需数据，避免另起核生成完整副本。附录 D 还区分了 varlen-$M$ 与 varlen-$K$ 的索引预取策略：前者可由线程提前取入寄存器，后者由生产者协作预取到共享缓冲。
 
 ![原文章的 Gather／索引获取示意](../../../Foundations/03_Distributed_Training_and_MoE/MoE/images/moe-notes-05.jpg)
 
-### Epilogue 融合
+<a id="epilogue-融合"></a>
 
 前向把 SwiGLU 放入 up-projection 的 epilogue；反向在 down-projection 的激活梯度 epilogue 中合并 $dH,dS$ 等计算。融合既避免额外读写，也为与其他 warpgroup 的 MMA 重叠创造条件。
 
-### 为什么保留单独的聚合核
+<a id="为什么保留单独的聚合核"></a>
 
 在原文讨论的 Hopper 路径中，直接 scatter-store 会增加地址处理与同步存储成本，干扰 PingPong 的 MMA／epilogue 重叠。SonicMoE 可以先连续地 TMA store，再用单独的聚合核回到原 token 布局。核的数量增加，仍可能缩短总时间；判断依据是整条执行路径，不是“融合越多越快”。具体后端会演进，不能把这一选择泛化成所有 GPU 上都禁止 scatter 融合。
 
 ![原文章中的异步 IO 与 MMA 重叠](../../../Foundations/03_Distributed_Training_and_MoE/MoE/images/moe-notes-07.jpg)
 
-## 用 token rounding 改善 tile 利用率
+<a id="用-token-rounding-改善-tile-利用率"></a>
+
+## Token Rounding
 
 Top-k 核针对较小专家维度优化：原笔记记录了 $E\le4096,K\le16$ 的适用范围、bitonic sort、稳定索引与寄存器／warp shuffle 等实现点。这是所读版本的优化范围，不代表 MoE 数学定义的限制。
 
@@ -81,7 +91,9 @@ Token rounding 先做 token-choice Top-k，得到每个专家的 token 数，再
 
 ![原文章中的 Token rounding 算法截图](../../../Foundations/03_Distributed_Training_and_MoE/MoE/images/moe-notes-08.jpg)
 
-## 分别检查缓存、吞吐与模型质量
+<a id="分别检查缓存、吞吐与模型质量"></a>
+
+## Evaluation
 
 | 问题 | 主要设置与基线 | 已有记录与可引用范围 |
 | --- | --- | --- |

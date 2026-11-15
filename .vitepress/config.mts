@@ -3,9 +3,13 @@ import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitepress'
 import { buildSidebars, sectionLabels } from './sidebar.mjs'
-import redirects from './redirects'
+import legacyRedirects from './redirects'
+import paperRedirects from './paper-redirects.json'
+import { resolveRedirect, redirectPage } from './redirect-page.mjs'
 import { installImportedTranslations } from './imported-translations.mjs'
 import { installPaperImageSizes } from './paper-images.mjs'
+
+const redirects = { ...legacyRedirects, ...paperRedirects }
 
 const repositoryRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
 
@@ -24,7 +28,8 @@ export default defineConfig({
     const slidesPath = 'Foundations/01_Attention/Blackwell-Sparse-Attention/Slides'
     cpSync(join(repositoryRoot, slidesPath), join(site.outDir, slidesPath), { recursive: true })
 
-    for (const [oldPath, newPath] of Object.entries(redirects)) {
+    for (const oldPath of Object.keys(redirects)) {
+      const { target: newPath, steps } = resolveRedirect(oldPath, redirects)
       const output = join(site.outDir, oldPath.replace(/\.md$/, '.html'))
       // Case-only aliases already resolve on a case-insensitive filesystem.
       // Do not overwrite the canonical page with a redirect to itself.
@@ -40,7 +45,7 @@ export default defineConfig({
         continue
       }
       const destination = site.site.base + newPath.replace(/\.md$/, '.html')
-      writeFileSync(output, `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>笔记新地址</title><link rel="canonical" href="${destination}"><meta http-equiv="refresh" content="0;url=${destination}"><script>location.replace(${JSON.stringify(destination)} + location.search + location.hash)</script><a href="${destination}">阅读笔记</a></html>`)
+      writeFileSync(output, redirectPage(destination, steps))
     }
 
     // Static imported HTML keeps its original relative image and media URLs.

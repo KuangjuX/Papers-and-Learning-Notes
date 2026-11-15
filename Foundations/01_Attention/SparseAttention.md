@@ -10,7 +10,7 @@
 
 ![](SparseAttention/fig1.png)
 
-每个元素只跟大约 $n/k$ 个元素相关，这样运行效率和显存占用都变成了 $O(n^2 / k)$，也就是说能直接降低到原来的 $1/k$。
+每个元素只跟大约 $n/k$ 个元素相关，因此需要计算的 token 对数约为 $O(n^2/k)$。这描述的是稀疏模式的逻辑计算规模，不保证 kernel 延迟或模型总显存同比下降；完整历史 KV 是否保留取决于后续访问需求。
 
 ### Local Self Attention
 
@@ -18,7 +18,7 @@
 
 ![](SparseAttention/fig2.png)
 
-Local Self Attention 保留一个 $2k+1$ 大小的滑动窗口，然后只保留窗口内的自注意力。每个元素只和 $2k+1$ 个元素有关，这样显存占用和计算量变为 $O((2k+1)n) ~ O(kn)$。但是直接牺牲了长程关联性。
+Local Self Attention 保留一个 $2k+1$ 大小的滑动窗口，然后只保留窗口内的自注意力。每个元素只和 $2k+1$ 个元素有关，需要计算的 token 对数变为 $O((2k+1)n)\sim O(kn)$。但是直接牺牲了长程关联性。
 
 ### Sparse Attention
 
@@ -40,7 +40,7 @@ BigBird 所关注的问题：
 
 BigBird 可以由三部分组成：Random Attention + Window Attention + Global Attention。
 
-对于 Global Attention，每一个 query 都和其他所有 tokens 关联，并且也被其他所有 tokens 关联。
+对于 Global Attention，被指定为 global 的 token 访问所有位置，也被其他 token 访问。下面以首尾两个 token 为 global 的示例说明这种连接，不代表每个 query 都具有全局访问。
 
 ```
 # pseudo code
@@ -58,7 +58,7 @@ K[n-1] x [Q[0], Q[1], Q[2], ......, Q[n-1]]
 
 ```
 
-对于 Sliding Attention，关键词元被拷贝两次，向右拷贝一次，向左拷贝一次，计算复杂度为 $O(3 \times n)$。
+对于窗口宽度为 3 的 Sliding Attention，可以用偏移的 K 视图计算相邻位置的点积，token 对数为 $O(3n)$。下面只是索引示意：边界必须屏蔽，不能让首尾因循环移位而互相可见；实际实现也不要求物理复制两份 K。
 
 ```
 # what we want to do
@@ -77,11 +77,11 @@ Q[i] x [K[i-1], K[i], K[i+1]] for i = 1:-1
 
 ```
 # r1, r2, r are some random indices; Note: r1, r2, r3 are different for each row 👇
-Q[1] x [Q[r1], Q[r2], ......, Q[r]]
+Q[1] x [K[r1], K[r2], ......, K[r]]
 .
 .
 .
-Q[n-2] x [Q[r1], Q[r2], ......, Q[r]]
+Q[n-2] x [K[r1], K[r2], ......, K[r]]
 
 # leaving 0th & (n-1)th token since they are already global
 

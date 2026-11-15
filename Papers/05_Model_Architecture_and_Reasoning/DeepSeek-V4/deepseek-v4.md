@@ -6,13 +6,17 @@ aliases:
 date: 2026
 ---
 
-# DeepSeek-V4: 迈向高效百万级上下文智能
+<a id="deepseek-v4-迈向高效百万级上下文智能"></a>
+
+# DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence
 
 百万级上下文有两个不同的成本：dense attention 的 prefill 需要处理平方级的 token 对；decode 每生成一个 token，要读取随历史长度增长的 KV。KV 缓存本身通常随序列长度线性增长，不能与 prefill 的平方级计算量混为一谈。
 
 DeepSeek-V4 用 CSA 的温和压缩与稀疏选择、HCA 的重压缩与密集覆盖，降低历史 KV 的保存与读取成本；再通过 MoE 通信重叠、缓存管理和训练系统实现这些架构收益。[技术报告（预览版）](https://arxiv.org/html/2606.19348v1)。
 
-## 先明确模型规模与比较对象
+<a id="先明确模型规模与比较对象"></a>
+
+## Model Configuration
 
 DeepSeek-V4 包含两个版本：
 
@@ -35,7 +39,9 @@ DeepSeek-V4 包含两个版本：
 
 ![Fig. 1 左：V4-Pro-Max 与 Opus-4.6、GPT-5.4、Gemini-3.1-Pro 的基准对比；右：推理 FLOPs 和 KV Cache 效率曲线](images/fig01_benchmark_and_efficiency.png)
 
-## 从一个 Transformer block 连接各个组件
+<a id="从一个-transformer-block-连接各个组件"></a>
+
+## Model Architecture
 
 DeepSeek-V4 保留了 Transformer 的基本框架和 Multi-Token Prediction（MTP）模块，但联合调整了网络结构与训练方法：
 
@@ -55,7 +61,9 @@ DeepSeek-V4 保留了 Transformer 的基本框架和 Multi-Token Prediction（MT
 6. **Post-Block Mixing** → 融合回残差流
 7. **Residual Mixing**（$B_l$ 变换）→ 双随机矩阵约束的残差变换
 
-## CSA：先压缩 KV，再选择候选
+<a id="csa-先压缩-kv-再选择候选"></a>
+
+### Compressed Sparse Attention
 
 仅减少本步读取的位置，并不会减少完整历史的存储量。CSA 先减少记录数，再从这些记录中选择；这同时引入压缩的信息损失和漏选的风险。[报告 §2.3.1](https://arxiv.org/html/2606.19348v1#S2.SS3.SSS1)。
 
@@ -82,7 +90,9 @@ $$I_{t,s} = \sum_{h=1}^{n_h^I} w_{t,h}^I \cdot \text{ReLU}(q_{t,h}^I \cdot K_s^{
 
 ![Fig. 3 CSA 核心架构：token 级压缩器 → 闪电索引器 → top-k 稀疏选择 → 共享 KV 多查询注意力](images/fig03_csa_architecture.png)
 
-## HCA：用更高压缩率换取全局覆盖
+<a id="hca-用更高压缩率换取全局覆盖"></a>
+
+### Heavily Compressed Attention
 
 HCA 与 CSA 的压缩机制类似，但在两个方面截然不同：
 
@@ -99,7 +109,7 @@ HCA 与 CSA 的压缩机制类似，但在两个方面截然不同：
 
 ![Fig. 4 HCA 核心架构：以 m'=128 的压缩率做重压缩，保持密集注意力 + 滑动窗口补充](images/fig04_hca_architecture.png)
 
-## 补足位置、局部窗口与归一化语义
+<a id="补足位置、局部窗口与归一化语义"></a>
 
 **部分旋转位置编码（Partial RoPE）**：仅对查询和 KV 条目的最后 64 维应用 RoPE。由于 KV 同时充当键和值，注意力输出会携带绝对位置编码，因此对输出也应用**反向 RoPE** 使其转为相对位置编码。
 
@@ -113,7 +123,9 @@ $$s_{h,i,j} = \frac{\exp(z_{h,i,j})}{\sum_k \exp(z_{h,i,k}) + \exp(z'_h)}$$
 
 例如真实条目只有两个，logit 都为 0，sink logit 也为 0，则两个条目各得到 $1/3$ 的权重，总和为 $2/3$；另外 $1/3$ 质量分配给 sink。这说明 sink 改变的是归一化，不能把真实条目的权重和默认成 1。
 
-## 检查长上下文成本下降的口径
+<a id="检查长上下文成本下降的口径"></a>
+
+### Attention Cost
 
 在 100 万 token 上下文下的效率对比：
 
@@ -125,7 +137,9 @@ $$s_{h,i,j} = \frac{\exp(z_{h,i,j})}{\sum_k \exp(z_{h,i,k}) + \exp(z'_h)}$$
 
 这些是报告 §2.3.4 的架构成本比较：包含压缩、共享 KV 和存储精度的共同影响，不能把全部下降归因于 Top-k，也不能把 FLOPs 比例当作实测延迟比例。
 
-## mHC：约束扩展后的残差混合
+<a id="mhc-约束扩展后的残差混合"></a>
+
+### Manifold-constrained Hyper-connections
 
 标准残差连接为 $y=f(x)+x$。Hyper-Connections 将残差流扩展 $n_\text{hc}$ 倍（V4 中为 4），用可学习映射混合各条流；多层映射连续相乘也带来数值放大的风险。
 
@@ -141,7 +155,9 @@ $$B_l \in \mathcal{M} = \{M \in \mathbb{R}^{n \times n} \mid M\mathbf{1}_n = \ma
 
 例如 $B=\left[\begin{smallmatrix}0.75&0.25\\0.25&0.75\end{smallmatrix}\right]$，行列和都为 1；输入残差流 $[2,6]^T$ 被混合为 $[3,5]^T$，常数分量保持、差异分量收缩。这个例子只解释残差混合的非扩张性质。
 
-## Muon：矩阵更新如何进入大规模训练
+<a id="muon-矩阵更新如何进入大规模训练"></a>
+
+### Muon
 
 优化器决定参数如何随梯度更新。Muon 对矩阵动量做近似正交化，改变更新方向的奇异值分布；这种矩阵运算也增加了分布式训练中的聚合与执行成本，ZeRO 适配见下文。
 
@@ -161,11 +177,15 @@ $$O'_t = \text{HybridNewtonSchulz}(\mu M_t + G_t)$$
 - Muon 在 BF16 矩阵乘法下保持稳定，无需更高精度
 - 注意力架构允许直接对 Q 和 KV 应用 RMSNorm，无需 QK-Clip 技巧
 
-## 把架构落到通信、kernel 与缓存管理
+<a id="把架构落到通信、kernel-与缓存管理"></a>
+
+## Infrastructure
 
 压缩注意力改变了 KV 的布局，细粒度 MoE 改变了通信粒度。系统需要让这些结构变化在设备上真正减少等待、搬运与存储。
 
-### MoE 细粒度通信-计算重叠
+<a id="moe-细粒度通信-计算重叠"></a>
+
+### MoE Communication
 
 专家分布在不同 GPU 上，需要通过网络通信将 token 发送到正确的专家（Dispatch），计算完再收集回来（Combine）。这个通信开销很大。
 
@@ -179,7 +199,9 @@ V4 将 MoE 层分解为五个阶段：Dispatch（通信）、Linear-1（计算�
 
 ---
 
-### TileLang 领域专用语言
+<a id="tilelang-领域专用语言"></a>
+
+### TileLang
 
 V4 复杂的模型架构本应产生数百个细粒度的 Torch ATen 算子。团队使用 TileLang（一种领域专用语言 DSL）开发了一组融合内核来替代它们。
 
@@ -191,7 +213,9 @@ V4 复杂的模型架构本应产生数百个细粒度的 Torch ATen 算子。�
 
 ---
 
-### 批次不变性与确定性内核
+<a id="批次不变性与确定性内核"></a>
+
+### Deterministic Kernels
 
 DeepSeek-V4 实现了端到端的 **bitwise 可复现性**——这对于调试、稳定性分析和一致的后训练行为至关重要。
 
@@ -206,7 +230,9 @@ DeepSeek-V4 实现了端到端的 **bitwise 可复现性**——这对于调试�
 
 ---
 
-### FP4 量化感知训练（QAT）
+<a id="fp4-量化感知训练-qat"></a>
+
+### FP4 QAT
 
 在后训练阶段引入 FP4（MXFP4）量化感知训练，应用于两个组件：
 
@@ -221,22 +247,24 @@ DeepSeek-V4 实现了端到端的 **bitwise 可复现性**——这对于调试�
 
 ---
 
-### 训练框架
+<a id="训练框架"></a>
 
-#### Muon 与 ZeRO 的适配
+### Training Framework
+
+<a id="muon-与-zero-的适配"></a>
 
 Muon 要求完整梯度矩阵来计算更新，但 ZeRO 将参数分片到多 rank 上。解决方案：
 - **密集参数**：用背包算法将参数矩阵分配到有限数量的 ZeRO rank，确保负载均衡，填充开销 <10%
 - **MoE 参数**：按专家独立优化，展平所有同类投影矩阵后均匀分配，无需限制 ZeRO 并行度
 
-#### mHC 的高效实现
+<a id="mhc-的高效实现"></a>
 
 mHC 增加了激活内存和流水线通信量。三项优化将其墙钟开销控制在 6.7%：
 1. 训练和推理的融合内核
 2. 选择性检查点重计算策略（重计算层间隐状态和归一化输入，避免重计算计算密集型操作）
 3. 调整 DualPipe 1F1B 方案以适应增加的流水线通信
 
-#### 长上下文的上下文并行
+<a id="长上下文的上下文并行"></a>
 
 传统 Context Parallelism 将序列维度分片，但压缩注意力带来两个挑战：
 - 压缩后的 KV 长度在各 rank 间不一致
@@ -246,15 +274,17 @@ mHC 增加了激活内存和流水线通信量。三项优化将其墙钟开销�
 1. 第一阶段：rank $i$ 将最后 $m$ 个未压缩 KV 条目发送给 rank $i+1$，后者将其与本地条目一起压缩
 2. 第二阶段：all-gather 收集所有本地压缩条目，然后用融合 select-and-pad 算子重组为完整的压缩 KV
 
-#### 张量级激活检查点
+<a id="张量级激活检查点"></a>
 
 传统的激活检查点在模块粒度上工作（要么保存要么重计算整个模块输出）。V4 实现了**张量级**检查点——开发者只需在前向传播中标注需要检查点的张量，框架通过 TorchFX 自动追踪计算图，对每个标注张量反向遍历找到最小重计算子图，无需手动实现反向传播逻辑。
 
 ---
 
-### 推理框架
+<a id="推理框架"></a>
 
-#### 异构 KV 缓存管理
+### Inference Framework
+
+<a id="异构-kv-缓存管理"></a>
 
 混合注意力机制产生了多种类型的 KV 条目（CSA 压缩、HCA 压缩、索引器、滑动窗口），大小和更新规则各不相同。这打破了 PagedAttention 的基本假设。
 
@@ -265,7 +295,7 @@ V4 将 KV 缓存分为两个主要组件：
 
 ![Fig. 6 DeepSeek-V4 KV Cache 布局：状态缓存（SWA + 未压缩尾部）+ 经典 KV 缓存（CSA/HCA 压缩条目）](images/fig06_kv_cache_layout.png)
 
-#### 磁盘 KV 缓存存储
+<a id="磁盘-kv-缓存存储"></a>
 
 为消除共享前缀请求的重复 prefilling，设计了三种 SWA KV 条目的磁盘缓存策略：
 
@@ -277,9 +307,11 @@ V4 将 KV 缓存分为两个主要组件：
 
 CSA/HCA 的压缩 KV 条目直接存储到磁盘；命中前缀时读取压缩条目复用，仅对尾部不完整 block 的 token 需要重计算。
 
-## 预训练：数据、长度扩展与稳定性
+<a id="预训练-数据、长度扩展与稳定性"></a>
 
-### 数据构建
+## Pre-training
+
+<a id="数据构建"></a>
 
 在 DeepSeek-V3 预训练数据基础上多维度增强：
 
@@ -292,7 +324,7 @@ CSA/HCA 的压缩 KV 条目直接存储到磁盘；命中前缀时读取压缩�
 
 总预训练语料超过 **32T tokens**。
 
-### 训练配置
+<a id="训练配置"></a>
 
 **序列长度调度**：4K → 16K → 64K → 1M，逐步扩展。
 
@@ -304,7 +336,7 @@ CSA/HCA 的压缩 KV 条目直接存储到磁盘；命中前缀时读取压缩�
 
 **MTP 损失**：权重 0.3（大部分训练），学习率衰减开始后降至 0.1。
 
-### 训练稳定性的两个实用技巧
+<a id="训练稳定性的两个实用技巧"></a>
 
 万亿参数 MoE 模型的训练稳定性是重大挑战，DeepSeek-V4 发现 loss 尖峰总是与 MoE 层的异常值相关，且路由机制会加剧这些异常值。
 
@@ -320,7 +352,7 @@ CSA/HCA 的压缩 KV 条目直接存储到磁盘；命中前缀时读取压缩�
 
 > 论文坦承这两个技巧虽有效但"理论机制尚未充分理解"。
 
-### 预训练评估结果
+<a id="预训练评估结果"></a>
 
 | 类别 | 代表基准 | V3.2-Base | V4-Flash-Base | V4-Pro-Base |
 |------|----------|-----------|---------------|-------------|
@@ -336,9 +368,11 @@ CSA/HCA 的压缩 KV 条目直接存储到磁盘；命中前缀时读取压缩�
 - V4-Flash-Base 仅用 284B/13B 参数（V3.2 为 671B/37B）就在多数基准上超越 V3.2-Base
 - V4-Pro-Base 在知识密集型评估上实现跃升级提升
 
-## 后训练：领域专家如何合并为统一模型
+<a id="后训练-领域专家如何合并为统一模型"></a>
 
-### 后训练流程总览
+## Post-training
+
+<a id="后训练流程总览"></a>
 
 后训练分为**两阶段范式**：
 
@@ -356,7 +390,7 @@ CSA/HCA 的压缩 KV 条目直接存储到磁盘；命中前缀时读取压缩�
 
 关键创新：用**多教师 On-Policy Distillation（OPD）完全替代了混合 RL 阶段**。
 
-### 专家独立培养
+<a id="专家独立培养"></a>
 
 每个领域专家依次经过 SFT（监督微调）和 GRPO 强化学习。
 
@@ -378,7 +412,7 @@ Think Max 模式会在系统提示中注入特殊指令，要求模型"详尽分
 
 **Quick Instruction**：在聊天机器人场景中，搜索触发、意图识别等辅助任务通常需要单独的小模型处理。V4 通过在输入序列末尾追加特殊 token（如 `<|action|>`、`<|query|>`、`<|domain|>`），直接复用已计算的 KV 缓存，避免重复 prefilling，显著降低首 token 延迟（TTFT）。
 
-### On-Policy Distillation（OPD）
+<a id="on-policy-distillation-opd"></a>
 
 OPD 的目标函数：
 
@@ -394,7 +428,7 @@ $$\mathcal{L}_\text{OPD}(\theta) = \sum_{i=1}^{N} w_i \cdot D_\text{KL}(\pi_\the
 3. **教师调度**：训练样本按教师索引排序，确保每个 mini-batch 中每个教师 head 只加载一次
 4. **KL 计算**：使用 TileLang 专用内核加速精确 KL 散度计算
 
-### RL/OPD 基础设施
+<a id="rl-opd-基础设施"></a>
 
 **可抢占容错 Rollout 服务**：实现了 token 粒度的 Write-Ahead Log（WAL），被抢占时保存 KV 缓存和已生成 token，恢复时从断点继续。直接丢弃并重新生成未完成请求可能改变采样分布——因为较短的回复更可能完整生存，重新生成会引入长度偏差。
 
@@ -402,9 +436,11 @@ $$\mathcal{L}_\text{OPD}(\theta) = \sum_{i=1}^{N} w_i \cdot D_\text{KL}(\pi_\the
 
 **DSec 沙箱平台**：用于智能体后训练和评估的生产级沙箱平台。由三个 Rust 组件构成（API 网关、节点代理、集群监控），管理**数十万并发沙箱实例**。提供四种执行基底（Function Call / Container / microVM / fullVM），统一 API 接口。
 
-## 评估：质量是否支持效率收益
+<a id="评估-质量是否支持效率收益"></a>
 
-### 标准基准评估
+## Evaluation
+
+<a id="标准基准评估"></a>
 
 **知识与推理**：
 
@@ -447,7 +483,7 @@ V4-Pro 在 MRCR 1M 上（83.5 MMR）超越 Gemini-3.1-Pro（76.3），但落后�
 
 ![Fig. 10 HLE 和 Terminal Bench 2.0 随推理努力的性能变化：V4-Pro 展示出比 V3.2 更高的 token 效率](images/fig10_reasoning_effort.png)
 
-### 真实世界任务评估
+<a id="真实世界任务评估"></a>
 
 **中文写作**：与 Gemini-3.1-Pro 对比，V4-Pro 在功能性写作上以 62.7% vs 34.1% 的胜率大幅领先（Gemini 偶尔会让自身风格偏好覆盖用户的明确要求）。创意写作上指令跟随 60.0% 胜率，写作质量 77.5% 胜率。但在最具挑战性的高复杂度约束或多轮场景中，Claude Opus 4.5 仍以 52.0% vs 45.9% 的胜率保持优势。
 
@@ -459,7 +495,9 @@ V4-Pro 在 MRCR 1M 上（83.5 MMR）超越 Gemini-3.1-Pro（76.3），但落后�
 
 **编程智能体**：在内部 R&D 编程基准（200+ 真实任务，涵盖 PyTorch、CUDA、Rust、C++）上，V4-Pro-Max 达到 **67% 通过率**，显著超越 Claude Sonnet 4.5（47%），接近 Opus 4.5（70%）。内部调查中 **91% 的开发者**认为 V4-Pro 可以作为日常主力编程模型。
 
-## 设计取舍与证据边界
+<a id="设计取舍与证据边界"></a>
+
+## Limitations
 
 **个人理解。** OPD 的完整词汇表分布与教师隐状态缓存、Muon 的矩阵更新与 ZeRO 分片、混合注意力与异构 KV 管理，都体现了算法选择对系统设计的直接要求。这些对应关系比脱离设置比较一个总加速比更有复用价值。
 
@@ -469,7 +507,9 @@ V4-Pro 在 MRCR 1M 上（83.5 MMR）超越 Gemini-3.1-Pro（76.3），但落后�
 4. **评估中的缺失对比**：部分基准上未获得竞争模型的完整结果；GPT-5.4 的长上下文评估因 API 问题缺失
 5. **组件级消融不足**：CSA vs HCA 的独立贡献、mHC vs 标准残差连接、Muon vs AdamW 的消融尚不足以由这些整体结果独立识别
 
-## 论文提出的未来方向
+<a id="论文提出的未来方向"></a>
+
+## Future Work
 
 1. 进行更全面和原则性的架构调查，精简至最本质的设计
 2. 深入研究训练稳定性的理论基础，建立更可预测的稳定训练方法
@@ -479,7 +519,9 @@ V4-Pro 在 MRCR 1M 上（83.5 MMR）超越 Gemini-3.1-Pro（76.3），但落后�
 6. 加入多模态能力
 7. 发展更好的数据策划和合成策略
 
-## 相关工作
+<a id="相关工作"></a>
+
+## Related Work
 
 - DeepSeek-AI (2024). DeepSeek-V3 Technical Report.
 - DeepSeek-AI (2025). DeepSeek-V3.2: Pushing the Frontier of Open Large Language Models.
