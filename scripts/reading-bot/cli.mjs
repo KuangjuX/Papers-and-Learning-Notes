@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { access, mkdir, rm, writeFile } from 'node:fs/promises';
 import { readJson, saveJson } from './core.mjs';
 import { GitHub } from './github.mjs';
-import { runWorker } from './worker.mjs';
+import { runWorker, concurrencyLimit } from './worker.mjs';
 import { runCodex } from './codex.mjs';
 import { setup } from './setup.mjs';
 
@@ -20,6 +20,7 @@ const plistPath = join(homedir(), 'Library', 'LaunchAgents', `${label}.plist`);
 const xml = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[c]);
 
 export function validateConfig(config) {
+  concurrencyLimit(config);
   if (config.notesEnabled !== undefined && typeof config.notesEnabled !== 'boolean') throw new Error('notesEnabled must be a boolean');
   if (config.version !== 1 || !/^[\w.-]+\/[\w.-]+$/.test(config.repo) || !/^[a-z0-9-]+$/.test(config.slug)) throw new Error('Invalid bot configuration');
   for (const key of ['allowedUserId', 'appId', 'installationId', 'repositoryId']) {
@@ -111,10 +112,12 @@ async function main() {
     const state = await readJson(join(config.stateDirectory, 'state.json'), null);
     console.log(`Bot: @${config.slug}; repository: ${config.repo}`);
     console.log(`Note-to-PR mode: ${Boolean(config.notesEnabled)}`);
+    console.log(`Concurrent Issues: ${concurrencyLimit(config)}; requests within each Issue stay ordered.`);
     if (!state) { console.log('Worker has not started yet.'); return; }
     const counts = {};
     for (const job of Object.values(state.jobs)) counts[job.status] = (counts[job.status] ?? 0) + 1;
-    console.log(JSON.stringify({ activatedAt: state.activatedAt, since: state.since, jobs: counts, issueSessions: Object.keys(state.threads).length }, null, 2));
+    console.log(JSON.stringify({ activatedAt: state.activatedAt, since: state.since, jobs: counts, issueSessions: Object.keys(state.threads).length,
+      agentClaims: Object.values(state.jobs).filter(job => job.claim).map(job => ({ agent: job.claim.agent, issue: job.issue, job: job.id, status: job.status })) }, null, 2));
     console.log(`Private logs: ${config.stateDirectory}`);
   } else if (command === 'install-service') {
     if (process.platform !== 'darwin') throw new Error('Service helper currently supports macOS only');

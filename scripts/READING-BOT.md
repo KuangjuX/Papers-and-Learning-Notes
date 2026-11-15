@@ -32,7 +32,7 @@ node scripts/reading-bot/cli.mjs install-service
 
 `doctor` 验证 GitHub App、仓库身份和 Codex 登录，报告 Zotero MCP 是否已配置。`smoke` 实际调用两轮 Codex，检查创建与续接会话，会使用当前 Codex 额度，但不发 GitHub 评论。`install-service` 安装 macOS 用户级 LaunchAgent，登录后自动运行。
 
-需要前台查看时使用 `start`，不要同时运行后台与前台两个实例。`start --once` 执行一次轮询并最多处理一个任务。
+需要前台查看时使用 `start`，不要同时运行后台与前台两个实例。`start --once` 执行一次轮询并等待当前一批任务完成，每个 Issue 最多取一个任务，总数不超过并发上限。
 
 ## 启用主笔记整理与 PR
 
@@ -115,7 +115,9 @@ node scripts/reading-bot/cli.mjs status
 node scripts/reading-bot/cli.mjs uninstall-service
 ```
 
-服务每 30 秒轮询一次，串行运行 Codex，单次任务默认最多 20 分钟。Mac 休眠、关机或退出登录时不能工作；恢复后从各自的持久游标继续获取 Issue 和评论。任务执行中断后会重新排队；回答已生成但尚未发布时，只重试发布。通过区分来源的任务 ID 和回复标记恢复丢失的网络响应，避免重复生成回复；旧版本的评论任务和会话无需迁移。
+服务每 30 秒轮询一次，后台 Agent Pool 默认同时处理最多 3 个不同 Issue；长任务执行期间继续轮询，空闲名额立即认领已排队的下一个 Issue。同一 Issue 的问答、`/reset` 与 `/note` 按顺序执行，前一个任务处于重试等待时，后续请求也不会越过它。单次任务默认最多 20 分钟。Mac 休眠、关机或退出登录时不能工作；恢复后从各自的持久游标继续获取 Issue 和评论。任务执行中断后会重新排队；回答已生成但尚未发布时，只重试发布。通过区分来源的任务 ID 和回复标记恢复丢失的网络响应，避免重复生成回复；旧版本的评论任务和会话无需迁移。
+
+在本机配置 JSON 中设置 `"maxConcurrentJobs": 3` 可调整池大小（1–8，省略时为 3；1 表示串行）。修改后重启服务。Agent 名额只控制并发数，Codex 会话属于 Issue，而不是名额；不同 Issue 可以乱序完成。`status` 显示池上限和当前持久化认领记录。具体调度、状态持久化和恢复设计见 [Agent Pool Design](reading-bot/DESIGN.md)。
 
 默认本机文件位置：
 
@@ -142,6 +144,6 @@ Codex 通过参数和标准输入启动，评论不会拼接为 shell 命令。�
 node --test scripts/reading-bot/*.test.mjs
 ```
 
-测试覆盖提及解析、身份校验、评论分页、JWT、会话续接、回复恢复，以及在隔离 Git 仓库中的工作区编辑、检查失败、文件范围、提交与远端文件树一致性、网络丢包后的分支/PR 恢复、合并后清理。GitHub App 注册、安装及真实评论闭环仍需使用实际账号联调；单元测试或 Codex smoke 通过不代表 bot 已上线。
+测试还覆盖并发上限、跨 Issue 并行、同 Issue 顺序、认领释放、长任务期间轮询、重试隔离、并发状态保存与退出恢复。测试覆盖提及解析、身份校验、评论分页、JWT、会话续接、回复恢复，以及在隔离 Git 仓库中的工作区编辑、检查失败、文件范围、提交与远端文件树一致性、网络丢包后的分支/PR 恢复、合并后清理。GitHub App 注册、安装及真实评论闭环仍需使用实际账号联调；单元测试或 Codex smoke 通过不代表 bot 已上线。
 
 接口依据：[GitHub App manifest 注册](https://docs.github.com/en/apps/sharing-github-apps/registering-a-github-app-from-a-manifest)、[Issue 评论 API](https://docs.github.com/en/rest/issues/comments)、[Codex 非交互执行与会话续接](https://learn.chatgpt.com/docs/non-interactive-mode)。
