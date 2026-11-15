@@ -34,9 +34,10 @@ export async function runCodex({ config, prompt, threadId, directory, signal, mo
   await writeFile(join(directory, 'prompt.txt'), prompt, { mode: 0o600 });
   const env = childEnvironment();
   const { stdout } = await execute(config.codexPath, ['mcp', 'list', '--json'], {
-    cwd: config.workspace, env, timeout: 30000, maxBuffer: 1024 * 1024,
+    cwd: config.workspace, env, timeout: 30000, maxBuffer: 1024 * 1024, signal,
   });
   const names = JSON.parse(stdout).map(server => server.name);
+  signal?.throwIfAborted();
   const output = join(directory, 'answer.md');
   const child = spawn(config.codexPath, codexArgs(config, threadId, output, names, mode), {
     cwd: config.workspace, env, detached: true, stdio: ['pipe', 'pipe', 'pipe'],

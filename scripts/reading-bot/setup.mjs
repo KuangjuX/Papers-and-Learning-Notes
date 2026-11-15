@@ -89,7 +89,7 @@ export async function setup({ configPath, workspace, codexPath, port = 8765 }) {
           ...pending, version: 1, installationId: installation.id,
           repositoryId: repository.id, workspace, codexPath,
           stateDirectory: join(homedir(), '.local', 'state', 'codex-reading-bot', repo.replace('/', '--')),
-          pollSeconds: 30, taskTimeoutSeconds: 1200,
+          pollSeconds: 30, taskTimeoutSeconds: 1200, maxConcurrentJobs: 3,
         };
         await new GitHub(config).verify();
         await saveJson(configPath, config);
