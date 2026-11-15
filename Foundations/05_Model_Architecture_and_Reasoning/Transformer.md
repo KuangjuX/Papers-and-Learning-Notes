@@ -4,7 +4,7 @@
 
 ## Token Representation
 
-Transformer 可以用于机器翻译，也可以构成自回归语言模型。原论文的 encoder–decoder 结构与 decoder-only 语言模型需要区分，前者包含读取 encoder 输出的交叉注意力。[Attention Is All You Need](../../Papers/01_Attention/Transformer/github-reading.md)
+Transformer 可以用于机器翻译，也可以构成自回归语言模型。原论文的 encoder–decoder 结构与 decoder-only 语言模型需要区分，前者包含读取 encoder 输出的交叉注意力。[Attention Is All You Need](../../Papers/01_Attention/Transformer/attention-is-all-you-need.md)
 
 Tokenizer 将输入转为 token IDs，embedding 矩阵将 ID 映射为向量。随着 attention 与前馈层处理，向量逐步包含上下文信息。语言模型的输出投影把隐藏向量映射为词表 logits；是否与 embedding 共享权重属于模型设计，并非必然只是将同一个矩阵转置。
 

@@ -13,7 +13,7 @@ date: 2026-09-20
 # Attention Sink、Learnable Sink 与 dsink：从输出含义到反向梯度
 
 > 关联论文：[Efficient Streaming Language Models with Attention Sinks](https://arxiv.org/abs/2309.17453)，ICLR 2024，v4。
-> 相关笔记：[Sparse Attention](../SparseAttention.md)、[DSA 算法流程](../../../Papers/01_Attention/DeepSeek-DSA/deepseek-sparse-attention-dsa.md)。
+> 相关笔记：[Sparse Attention](../SparseAttention.md)、[DSA 算法流程](../../../Papers/01_Attention/DeepSeek-DSA/deepseek-v3-2-exp.md)。
 
 <a id="_1-先分清-score、概率和-attention-输出"></a>
 

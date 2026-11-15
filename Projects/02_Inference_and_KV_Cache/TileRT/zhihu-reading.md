@@ -16,7 +16,7 @@
 
 **个人理解（2026-01）：** TileRT 是我喜欢的工作之一。
 
-TileRT 相比于 [MPK](../../../Papers/04_GPU_Compiler_and_Performance/MPK/zhihu-reading.md) 和 [Llama-1B Megakernel](../../../Papers/04_GPU_Compiler_and_Performance/Megakernels/zhihu-reading.md)，可能更聚焦于某一类场景，比如在低延迟以及小批量的实时交互场景。如果说 MPK 和 Megakernels 则是针对技术创新的尝试，而 TileRT 则更进一步想将这类技术为 LLM 推理打造一个端到端的系统。
+TileRT 相比于 [MPK](../../../Papers/04_GPU_Compiler_and_Performance/MPK/mirage-persistent-kernel.md) 和 [Llama-1B Megakernel](../../../Papers/04_GPU_Compiler_and_Performance/Megakernels/look-ma-no-bubbles-designing-a-low-latency-megakernel-for-llama1b.md)，可能更聚焦于某一类场景，比如在低延迟以及小批量的实时交互场景。如果说 MPK 和 Megakernels 则是针对技术创新的尝试，而 TileRT 则更进一步想将这类技术为 LLM 推理打造一个端到端的系统。
 
 ![](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/images/work-summary-07.jpg)
 

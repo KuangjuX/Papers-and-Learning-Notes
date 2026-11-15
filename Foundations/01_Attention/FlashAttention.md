@@ -2,7 +2,7 @@
 
 ## Standard Self-Attention
 
-对 $Q,K,V\in\mathbb R^{N\times d}$，令 $S=QK^T/\sqrt d$、$P=\operatorname{softmax}(S)$、$O=PV$，其中 softmax 按行进行。FlashAttention 将计算分块，避免把完整 $N\times N$ 的中间矩阵写入 HBM。[FlashAttention 原论文与算法](../../Papers/01_Attention/FlashAttention/github-reading.md)
+对 $Q,K,V\in\mathbb R^{N\times d}$，令 $S=QK^T/\sqrt d$、$P=\operatorname{softmax}(S)$、$O=PV$，其中 softmax 按行进行。FlashAttention 将计算分块，避免把完整 $N\times N$ 的中间矩阵写入 HBM。[FlashAttention 原论文与算法](../../Papers/01_Attention/FlashAttention/flashattention.md)
 
 ### Safe Softmax
 

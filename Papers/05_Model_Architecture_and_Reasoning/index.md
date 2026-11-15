@@ -9,7 +9,7 @@
 ## 本地笔记
 
 - [Agent 系统](Agents/index.md)
-- [SkillRT: Compiling Skills for Efficient Execution Everywhere](Agents/SkVM/skvm.md)
+- [SkillRT: Compiling Skills for Efficient Execution Everywhere](Agents/SkVM/skillrt.md)
 - [DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence](DeepSeek-V4/deepseek-v4.md)
 - [Distilling the Knowledge in a Neural Network](Knowledge-Distillation/distilling-the-knowledge-in-a-neural-network.md)
 
@@ -164,4 +164,4 @@
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ✅ 📝 | **SkillRT（SkVM）：让技能适配不同模型与执行框架** | [arXiv'26](https://arxiv.org/abs/2604.03088) | 按模型与 harness 能力编译 skills，并用运行时代码固化和自适应重编译提高可移植性与执行效率 | [Paper](https://arxiv.org/abs/2604.03088) / [Note](Agents/SkVM/skvm.md) |
+| ✅ 📝 | **SkillRT（SkVM）：让技能适配不同模型与执行框架** | [arXiv'26](https://arxiv.org/abs/2604.03088) | 按模型与 harness 能力编译 skills，并用运行时代码固化和自适应重编译提高可移植性与执行效率 | [Paper](https://arxiv.org/abs/2604.03088) / [Note](Agents/SkVM/skillrt.md) |

@@ -58,4 +58,4 @@ $$
 
 因此，一个 token 在一层的压缩 cache 是 $[c_t^{KV};k_t^R]$。忽略量化元数据、对齐与并行切分，长度为 $N$、共 $L$ 层、每元素 $b$ 字节时，缓存为 $NL(d_c+d_h^R)b$。DeepSeek-V2 的 $d_c=512$、$d_h^R=64$，对应每层每 token 576 个元素；若以 BF16 的 2 字节存储，则为 1,152 字节。[§3.1.2](https://arxiv.org/html/2405.04434v5#S3.SS1.SSS2)
 
-缓存压缩比例取决于比较对象的 head 数、维度和 dtype，不能用单个 head 的维度变化替代总缓存比较。MLA 与稀疏选择结合时，选择名单决定读取哪些 latent entries；对应数据流见 [DSA 的 MLA 表示与执行](../../Papers/01_Attention/DeepSeek-DSA/deepseek-sparse-attention-dsa.md#_5-什么是-latent-kv-entry)。
+缓存压缩比例取决于比较对象的 head 数、维度和 dtype，不能用单个 head 的维度变化替代总缓存比较。MLA 与稀疏选择结合时，选择名单决定读取哪些 latent entries；对应数据流见 [DSA 的 MLA 表示与执行](../../Papers/01_Attention/DeepSeek-DSA/deepseek-v3-2-exp.md#_5-什么是-latent-kv-entry)。

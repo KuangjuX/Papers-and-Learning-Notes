@@ -8,11 +8,11 @@
 
 ## 本地笔记
 
-- [ReplaySSM: Cache SSM Inputs, Not State](ReplaySSM/index.md)
-- [Training-Free Long-Context Scaling of Large Language Models](Dual-Chunk-Attention/DCA.md)
+- [ReplaySSM: Cache SSM Inputs, Not State](ReplaySSM/replayssm.md)
+- [Training-Free Long-Context Scaling of Large Language Models](Dual-Chunk-Attention/training-free-long-context-scaling-of-large-language-models.md)
 - [HiSparse: Scaling Sparse-Attention Decoding with Hierarchical KV Cache Management](HiSparse/hisparse.md)
-- [A Survey of LLM Inference Systems](Surveys/llm_inference_survey.md)
-- [Microsecond-scale Preemption for Concurrent GPU-accelerated DNN Inferences](GPU-Preemption/github-reading.md)
+- [A Survey of LLM Inference Systems](Surveys/a-survey-of-llm-inference-systems.md)
+- [Microsecond-scale Preemption for Concurrent GPU-accelerated DNN Inferences](GPU-Preemption/microsecond-scale-preemption-for-concurrent-gpu-accelerated-dnn-inferences.md)
 
 ## LLM Inference / Decoding Algorithms
 
@@ -20,7 +20,7 @@
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ✅ 📝 | **ReplaySSM: Cache SSM Inputs, Not State** | arXiv · 2026 | 以 checkpoint 与输入缓存减少 SSM 状态写回，支持 output-only 验证、投机回滚和精度分离 | [Paper](https://arxiv.org/abs/2610.13778) / [Note](ReplaySSM/index.md) / [Zotero](zotero://select/library/items/YV8FP7TL) |
+| ✅ 📝 | **ReplaySSM: Cache SSM Inputs, Not State** | arXiv · 2026 | 以 checkpoint 与输入缓存减少 SSM 状态写回，支持 output-only 验证、投机回滚和精度分离 | [Paper](https://arxiv.org/abs/2610.13778) / [Note](ReplaySSM/replayssm.md) / [Zotero](zotero://select/library/items/YV8FP7TL) |
 | ⬜ | **The Curious Case of Neural Text Degeneration** | [ICLR'20](https://pubs.cs.uct.ac.za/1407/1/the_curious_case_of_neural_text_degeneration.pdf) | 系统比较 greedy、beam、top-k 与 nucleus sampling，理解生成质量、随机性和退化 | [Paper](https://arxiv.org/abs/1904.09751) |
 | ⬜ | <a id="pdf-3d2kg559"></a>**Fast Inference from Transformers via Speculative Decoding** | [ICML'23](https://proceedings.mlr.press/v202/leviathan23a.html) | draft–verify 与拒绝采样；在保持目标分布不变的前提下并行生成多个 token | [Paper](https://proceedings.mlr.press/v202/leviathan23a.html) / [Zotero](zotero://select/library/items/3D2KG559) |
 | ⬜ | **Accelerating Large Language Model Decoding with Speculative Sampling** | [arXiv'23](https://arxiv.org/abs/2302.01318) | speculative sampling 的独立推导与工程验证，适合和上一论文对照阅读 | [Paper](https://arxiv.org/abs/2302.01318) |
@@ -46,7 +46,7 @@
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ✅ | **Training-Free Long-Context Scaling of Large Language Models** | [ICML'24](https://arxiv.org/pdf/2402.17463) | 用 Dual Chunk Attention 调整位置关系，无继续训练地扩展模型可处理的上下文长度 | [Paper](https://arxiv.org/pdf/2402.17463) / [Note](Dual-Chunk-Attention/DCA.md) |
+| ✅ | **Training-Free Long-Context Scaling of Large Language Models** | [ICML'24](https://arxiv.org/pdf/2402.17463) | 用 Dual Chunk Attention 调整位置关系，无继续训练地扩展模型可处理的上下文长度 | [Paper](https://arxiv.org/pdf/2402.17463) / [Note](Dual-Chunk-Attention/training-free-long-context-scaling-of-large-language-models.md) |
 | ✅ | <a id="pdf-cuxi564s"></a>**Efficient Streaming Language Models with Attention Sinks** | [ICLR'24](https://arxiv.org/pdf/2309.17453) | 保留 attention sink 与滑动窗口，实现有界 KV 缓存的流式生成并明确历史信息保留边界 | [Paper](https://arxiv.org/pdf/2309.17453) / [讨论笔记](../../Foundations/01_Attention/Attention-Sinks/attention-sink-and-dsink.md) |
 | ✅ 📝 | <a id="pdf-bbqs6dzt"></a>**HiSparse: Scaling Sparse-Attention Decoding with Hierarchical KV Cache Management** | [arXiv'26](https://arxiv.org/abs/2608.07009v1) | 将完整 KV 放在主存、热点放在有界 GPU 缓存，并用跨层预取隐藏稀疏解码缺页开销 | [Paper](https://arxiv.org/abs/2608.07009v1) / [Note](HiSparse/hisparse.md) |
 | ⬜ | **Unifying Sparse Attention with Hierarchical Memory for Scalable Long-Context LLM Serving (SPIN)** | [arXiv'26](https://arxiv.org/abs/2604.26837) | 统一不同稀疏粒度与分层 KV 存储，通过局部性感知缓存和元数据设计降低 GPU–CPU 传输开销 | [Paper](https://arxiv.org/abs/2604.26837) |
@@ -82,7 +82,7 @@
 | ⬜ | <a id="pdf-ff3ujclj"></a>**Jenga: Effective Memory Management for Serving LLM with Heterogeneity** | arXiv · 2025 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2503.18292) / [PDF](zotero://open-pdf/library/items/DGM8PGQI) / [Zotero](zotero://select/library/items/FF3UJCLJ) |
 | ⬜ | <a id="pdf-8jjabzda"></a>**SparseEngine: Sparse-First Inference Engine** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2609.39068) / [PDF](zotero://open-pdf/library/items/I8VMS8D4) / [Zotero](zotero://select/library/items/8JJABZDA) |
 | ⬜ | <a id="pdf-en4xe3zy"></a>**TensorCast: The Missing Tensor Management Layer in Large Language Model Infrastructure** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2608.06007) / [PDF](zotero://open-pdf/library/items/4AYH4XIP) / [Zotero](zotero://select/library/items/EN4XE3ZY) |
-| ⬜ 📝 | **Microsecond-scale Preemption for Concurrent GPU-accelerated DNN Inferences** | [OSDI'22](https://www.usenix.org/conference/osdi22/presentation/han) | REEF；仅有摘要摘记，抢占机制、并发调度和实验尚未整理 | [Paper](https://www.usenix.org/system/files/osdi22-han.pdf) / [Note](GPU-Preemption/github-reading.md) |
+| ⬜ 📝 | **Microsecond-scale Preemption for Concurrent GPU-accelerated DNN Inferences** | [OSDI'22](https://www.usenix.org/conference/osdi22/presentation/han) | REEF；仅有摘要摘记，抢占机制、并发调度和实验尚未整理 | [Paper](https://www.usenix.org/system/files/osdi22-han.pdf) / [Note](GPU-Preemption/microsecond-scale-preemption-for-concurrent-gpu-accelerated-dnn-inferences.md) |
 
 <a id="llm-inference-quantization-compression"></a>
 

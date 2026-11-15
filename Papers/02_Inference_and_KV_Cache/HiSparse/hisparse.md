@@ -16,7 +16,7 @@ date: 2026-09-14
 
 > 论文：[HiSparse: Scaling Sparse-Attention Decoding with Hierarchical KV Cache Management](https://arxiv.org/abs/2608.07009v1)，Zhiqiang Xie 等，2026-08-07，arXiv v1。
 >
-> 关联笔记：[DSA](../../01_Attention/DeepSeek-DSA/deepseek-sparse-attention-dsa.md) · [MiniMax MSA](../../01_Attention/MiniMax-MSA/msa.md) · [MSA 与 DSA Indexer 对比](../../01_Attention/MiniMax-MSA/msa.md#msa-vs-dsa) · [IndexCache / IndexShare：跨层复用位置及 indexer K cache](../../01_Attention/IndexCache/indexcache.md)
+> 关联笔记：[DSA](../../01_Attention/DeepSeek-DSA/deepseek-v3-2-exp.md) · [MiniMax MSA](../../01_Attention/MiniMax-MSA/minimax-sparse-attention.md) · [MSA 与 DSA Indexer 对比](../../01_Attention/MiniMax-MSA/minimax-sparse-attention.md#msa-vs-dsa) · [IndexCache / IndexShare：跨层复用位置及 indexer K cache](../../01_Attention/IndexCache/indexcache.md)
 
 <a id="_1-核心结论-少读-kv-不等于可以少存历史-kv"></a>
 

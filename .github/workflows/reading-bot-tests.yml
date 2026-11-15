@@ -4,11 +4,19 @@ on:
   pull_request:
     paths:
       - 'scripts/reading-bot/**'
+      - 'scripts/check-paper-notes.mjs'
+      - '.vitepress/redirect-page.mjs'
+      - '.vitepress/paper-redirects.json'
+      - 'Papers/**'
       - '.github/workflows/reading-bot-tests.yml'
   push:
     branches: [main]
     paths:
       - 'scripts/reading-bot/**'
+      - 'scripts/check-paper-notes.mjs'
+      - '.vitepress/redirect-page.mjs'
+      - '.vitepress/paper-redirects.json'
+      - 'Papers/**'
       - '.github/workflows/reading-bot-tests.yml'
 
 permissions:
@@ -23,3 +31,4 @@ jobs:
         with:
           node-version: 22
       - run: node --test scripts/reading-bot/*.test.mjs
+      - run: node scripts/check-paper-notes.mjs

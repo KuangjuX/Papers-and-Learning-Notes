@@ -9,7 +9,7 @@ import { codexArgs } from './codex.mjs';
 import { AUTHORING_FILES, loadAuthoringContext, parseReview } from './authoring.mjs';
 import { Worker } from './worker.mjs';
 
-const notePath = 'Papers/01_Attention/Paper/index.md';
+const notePath = 'Papers/01_Attention/Paper/paper.md';
 test('only explicit /note opens note mode; normal prose and /ask stay read-only', () => {
   assert.equal(parseMention('@reader /note 整理讨论', 'reader').mode, 'note');
   assert.ok(parseMention('@reader /note', 'reader').question);
@@ -40,7 +40,7 @@ async function fixture(t, options = {}) {
   await git(workspace, ['init', '-b', 'main']);
   await mkdir(join(workspace, 'Papers/01_Attention/Paper'), { recursive: true });
   await mkdir(join(workspace, 'scripts'));
-  await writeFile(join(workspace, notePath), '# Original\n\nUser judgment remains.\n');
+  await writeFile(join(workspace, notePath), '# Paper\n\nUser judgment remains.\n');
   await writeFile(join(workspace, 'scripts/check.mjs'), '// trusted check\n');
   await writeFile(join(workspace, '.gitignore'), 'node_modules/\n.vitepress/dist/\n');
   for (const path of AUTHORING_FILES) {
@@ -123,7 +123,7 @@ async function fixture(t, options = {}) {
       assert.notEqual(args.config.workspace, workspace);
       for (const path of AUTHORING_FILES) assert.ok(args.prompt.includes(`# Trusted ${path}`));
       if (options.edit) await options.edit(args.config.workspace, args);
-      else await writeFile(join(args.config.workspace, notePath), `# Original\n\nUser judgment remains.\n\nNew mechanism with evidence. Revision ${calls.run}.\n`);
+      else await writeFile(join(args.config.workspace, notePath), `# Paper\n\nUser judgment remains.\n\nNew mechanism with evidence. Revision ${calls.run}.\n`);
       return { text: 'Summary; Closes #31 must never enter PR metadata.', threadId: 'isolated-editor-thread' };
     },
     checker: async worktree => { calls.check++; if (options.check) await options.check(worktree); },
@@ -139,7 +139,7 @@ test('real Git worktree, immutable commit and PR preserve the current workspace'
   assert.equal(f.job.note.stage, 'published');
   assert.equal(await git(f.workspace, ['status', '--porcelain']), '');
   assert.equal((await git(f.workspace, ['rev-parse', 'HEAD'])).trim(), f.base);
-  assert.equal(await readFile(join(f.workspace, notePath), 'utf8'), '# Original\n\nUser judgment remains.\n');
+  assert.equal(await readFile(join(f.workspace, notePath), 'utf8'), '# Paper\n\nUser judgment remains.\n');
   assert.equal((await git(f.job.note.worktree, ['status', '--porcelain'])), '');
   const pr = f.calls.pulls[0];
   assert.ok(pr.body.includes('Refs #31')); assert.ok(!/Closes|Fixes|Resolves/i.test(pr.body));
@@ -221,7 +221,7 @@ test('explicit update edits the existing PR head, preserves its content and publ
 test('multiple successive requests keep appending to one PR and retain a human commit', async t => {
   const f = await fixture(t); await f.run();
   const first = f.job.note;
-  await writeFile(join(first.worktree, notePath), '# Human correction\n');
+  await writeFile(join(first.worktree, notePath), '# Paper\n\nHuman correction\n');
   await git(first.worktree, ['add', notePath]);
   await git(first.worktree, ['-c', 'user.name=Human', '-c', 'user.email=human@example.com', '-c', 'commit.gpgsign=false', 'commit', '-m', 'human edit']);
   const humanHead = (await git(first.worktree, ['rev-parse', 'HEAD'])).trim();
@@ -376,4 +376,33 @@ test('cleanup after PR amendment removes only the amendment local branch', async
   assert.equal(f.job.note.cleaned, true);
   assert.equal((await git(first.worktree, ['rev-parse', 'HEAD'])).trim(), first.localCommit);
   assert.equal(f.calls.remote.size, 0);
+});
+
+test('filename violations enter the repair loop before checks or publication, including existing PR updates', async t => {
+  const f = await fixture(t); await f.run();
+  delete f.job.note; f.job.id++;
+  let edits = 0;
+  f.notes.runner = async args => {
+    edits++;
+    const duplicate = join(args.config.workspace, 'Papers/01_Attention/Paper/fp8.md');
+    if (edits === 1) await writeFile(duplicate, '# Paper: FP8 details\n');
+    else {
+      assert.ok(args.prompt.includes('论文文件规范检查未通过'));
+      await rm(duplicate);
+      await writeFile(join(args.config.workspace, notePath), '# Paper\n\nMerged FP8 details with evidence.\n');
+    }
+    return { text: 'Updated existing paper.' };
+  };
+  await f.run();
+  assert.equal(edits, 2); assert.equal(f.calls.check, 2); assert.equal(f.calls.create, 1); assert.equal(f.calls.updates, 1);
+  assert.equal(f.job.note.repairs, 1);
+});
+
+test('an approved semantic review cannot bypass duplicate-paper publication checks', async t => {
+  const f = await fixture(t, { edit: async directory => {
+    await writeFile(join(directory, 'Papers/01_Attention/Paper/fp8.md'), '# Paper: Other topic\n');
+  } });
+  await assert.rejects(f.run(), /自动修订后检查仍未通过/);
+  assert.equal(f.calls.run, 3); assert.equal(f.calls.check, 0); assert.equal(f.calls.reviews, 0);
+  assert.equal(f.calls.create, 0); assert.equal(f.calls.refs, 0);
 });

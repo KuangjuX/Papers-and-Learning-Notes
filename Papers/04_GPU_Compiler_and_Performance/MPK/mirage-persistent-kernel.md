@@ -30,4 +30,4 @@ MPK 基于 Mirage 编译器，将模型转为由 Task 和 Event 组成的 tGraph
 
 ![MPK 性能评估](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/images/work-summary-05.jpg)
 
-原始讨论记录了约 1–1.7× 的性能范围，并指出小 batch、多 GPU 场景的收益。该范围没有在文字中统一绑定模型、硬件和基线，不能作为一般加速比。与 [Llama-1B Megakernel](../Megakernels/zhihu-reading.md) 的设计相似性可以用于对照，但是否存在直接借鉴关系仍需作者或引用证据。
+原始讨论记录了约 1–1.7× 的性能范围，并指出小 batch、多 GPU 场景的收益。该范围没有在文字中统一绑定模型、硬件和基线，不能作为一般加速比。与 [Llama-1B Megakernel](../Megakernels/look-ma-no-bubbles-designing-a-low-latency-megakernel-for-llama1b.md) 的设计相似性可以用于对照，但是否存在直接借鉴关系仍需作者或引用证据。

@@ -19,7 +19,7 @@ date: 2026
 >
 > MLA 来源：[DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model](https://arxiv.org/abs/2405.04434)
 >
-> 对比笔记：[MSA Indexer 与 DSA Lightning Indexer 的差别](../MiniMax-MSA/msa.md#msa-vs-dsa)
+> 对比笔记：[MSA Indexer 与 DSA Lightning Indexer 的差别](../MiniMax-MSA/minimax-sparse-attention.md#msa-vs-dsa)
 
 > Kernel 实现：[DSA Sparse Attention：Kernel 实现与公开性能](../../../Projects/01_Attention/FlashMLA/dsa-sparse-attention.md)
 
@@ -581,6 +581,6 @@ DSA 的 2048 个位置可能高度离散，所选位置越分散，地址处理�
 
 ## 相关笔记
 
-- [MSA Indexer 与 DSA Lightning Indexer 的差别](../MiniMax-MSA/msa.md#msa-vs-dsa)
-- [MiniMax Sparse Attention (MSA)](../MiniMax-MSA/msa.md)
-- [MSA 中的 KL 对齐与局部知识蒸馏](../MiniMax-MSA/msa.md#msa-kl)
+- [MSA Indexer 与 DSA Lightning Indexer 的差别](../MiniMax-MSA/minimax-sparse-attention.md#msa-vs-dsa)
+- [MiniMax Sparse Attention (MSA)](../MiniMax-MSA/minimax-sparse-attention.md)
+- [MSA 中的 KL 对齐与局部知识蒸馏](../MiniMax-MSA/minimax-sparse-attention.md#msa-kl)

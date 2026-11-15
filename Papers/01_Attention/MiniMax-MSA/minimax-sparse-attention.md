@@ -560,7 +560,7 @@ I_{t,s}=\sum_{j=1}^{H_I}w_{t,j}^I\,\operatorname{ReLU}
 \mathcal S_t=\operatorname{TopK}_s(I_{t,s},2048).
 $$
 
-例如两个 index heads 的内积为 $[2,-1]$、权重为 $[0.5,1]$，汇总分数为 $0.5\times2+1\times0=1$。这些 scorer heads 最终合成一份清单，所有主 query heads 共用选中的 MLA latent KV entries，各自计算 attention 权重。[DeepSeek-V3.2 §2.1、附录 A](https://arxiv.org/abs/2512.02556)；投影细节见 [DSA 主笔记](../DeepSeek-DSA/deepseek-sparse-attention-dsa.md)。
+例如两个 index heads 的内积为 $[2,-1]$、权重为 $[0.5,1]$，汇总分数为 $0.5\times2+1\times0=1$。这些 scorer heads 最终合成一份清单，所有主 query heads 共用选中的 MLA latent KV entries，各自计算 attention 权重。[DeepSeek-V3.2 §2.1、附录 A](https://arxiv.org/abs/2512.02556)；投影细节见 [DSA 主笔记](../DeepSeek-DSA/deepseek-v3-2-exp.md)。
 
 | 维度 | MSA | DeepSeek-V3.2 的 DSA |
 |---|---|---|

@@ -13,7 +13,7 @@ aliases:
 
 ## DSA Kernel Design
 
-DeepSeek-V3.2 的 DSA 为每个 query 选择 2048 个 KV tokens，所有 query heads 共用这份索引和 MLA latent KV。[算法笔记](../../../Papers/01_Attention/DeepSeek-DSA/deepseek-sparse-attention-dsa.md)
+DeepSeek-V3.2 的 DSA 为每个 query 选择 2048 个 KV tokens，所有 query heads 共用这份索引和 MLA latent KV。[算法笔记](../../../Papers/01_Attention/DeepSeek-DSA/deepseek-v3-2-exp.md)
 
 FlashMLA 的 Hopper（SM90）sparse prefill 在提交 [`ba89a34`][revision] 中采用以下实现：
 

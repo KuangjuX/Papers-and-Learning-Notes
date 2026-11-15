@@ -424,4 +424,4 @@ direct 不代表固定使用某个硬件引擎，也不能仅凭名字断言总�
 
 同一 PR 的 Mooncake 修改处理 PD 分离中取消、状态发布和源页回收的竞争。它与 Host L2 都涉及异步传输的生命周期，但该固定版本拒绝 PD + HiCache，不能将两条修改拼成一条可运行的端到端链路。
 
-[Mooncake：GPU-source 传输取消与资源回收](../Disaggregation/mooncake-gpu-source-lifetime.md) 独立讨论通用 PD 并发正确性。算法背景见 [DSA](../../../../Papers/01_Attention/DeepSeek-DSA/deepseek-sparse-attention-dsa.md)、[MSA 与 DSA 的比较](../../../../Papers/01_Attention/MiniMax-MSA/msa.md#msa-vs-dsa)，主注意力接口见 [SGLang Attention backend](../Layers/flashattention_backend.md)。
+[Mooncake：GPU-source 传输取消与资源回收](../Disaggregation/mooncake-gpu-source-lifetime.md) 独立讨论通用 PD 并发正确性。算法背景见 [DSA](../../../../Papers/01_Attention/DeepSeek-DSA/deepseek-v3-2-exp.md)、[MSA 与 DSA 的比较](../../../../Papers/01_Attention/MiniMax-MSA/minimax-sparse-attention.md#msa-vs-dsa)，主注意力接口见 [SGLang Attention backend](../Layers/flashattention_backend.md)。
