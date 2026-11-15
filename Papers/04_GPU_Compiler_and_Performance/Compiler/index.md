@@ -6,7 +6,7 @@
 - [HIDA: A Hierarchical Dataflow Compiler for High-Level Synthesis](HIDA/hida.md)
 - [MLIR: Scaling Compiler Infrastructure for Domain Specifific Computation](Papers/MLIR-Scaling-Compiler-Infrastructure-for-Domain-Specific-Computation.md)
 - [The Deep Learning Compiler: A Comprehensive Survey](Papers/The-Deep-Learning-Compiler-A-Comprehensive-Survey.md)
-- [TIRAMISU: A Polyhedral Compiler for Expressing Fast and Portable Code](TIRAMISU-CGO/tiramisu.md)
+- [Tiramisu: A Polyhedral Compiler for Expressing Fast and Portable Code](TIRAMISU-CGO/tiramisu.md)
 
 ## 编译优化与调度
 
@@ -22,4 +22,4 @@
 
 [循环变换理论：未完成摘记](../../06_Computing_Foundations/Compiler/Loop-Transformation/github-reading.md)。
 
-- [Tawa：用异步引用自动生成 warp specialization](Tawa/zhihu-reading.md)
+- [Tawa: Automatic Warp Specialization for Modern GPUs with Asynchronous References](Tawa/zhihu-reading.md)

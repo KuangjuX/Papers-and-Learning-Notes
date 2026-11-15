@@ -2,115 +2,64 @@
 
 ## Standard Self-Attention
 
-$$
-S = QK^T,(N \times N) \\
-P = softmax(S), (N \times N) \\
-O = PV, (N \times d)
-$$
+对 $Q,K,V\in\mathbb R^{N\times d}$，令 $S=QK^T/\sqrt d$、$P=\operatorname{softmax}(S)$、$O=PV$，其中 softmax 按行进行。FlashAttention 将计算分块，避免把完整 $N\times N$ 的中间矩阵写入 HBM。[FlashAttention 原论文与算法](../../Papers/01_Attention/FlashAttention/github-reading.md)
 
 ### Safe Softmax
 
-$$
-safe-softmax = \frac{e^{x_i -m}}{\sum_{j=1}^{N}e^{x_j-m}}
-$$
-
-计算 safe-softmax 的时候需要对 [1, N] 重复三次，需要访问 Q 和 K 三次， 并实时重新计算 x，很低效，现在希望将计算进行合并。
-
-现在定义 
+对一行分数 $x_1,\ldots,x_N$，稳定 softmax 为：
 
 $$
-d_{i}^{'} = \sum_{j=1}^{i}e^{x_j - m_i}
+p_i=\frac{e^{x_i-m}}{\ell},\qquad
+m=\max_j x_j,\qquad \ell=\sum_j e^{x_j-m}.
 $$
 
-当 i = N 的时候，有：
+独立实现可以先求最大值、再求指数和、最后归一化；这涉及对分数的遍历，不代表必须读取 Q/K 三遍。Online softmax 将前两项统计合在一次扫描中。定义前缀状态 $m_i=\max_{j\le i}x_j$、$\ell_i=\sum_{j\le i}e^{x_j-m_i}$，则：
 
 $$
-d_N = d_{N}^{'} = \sum_{j=1}^{i}e^{x_j - m_N}
+\ell_i
+=\left(\sum_{j=1}^{i-1}e^{x_j-m_{i-1}}\right)e^{m_{i-1}-m_i}+e^{x_i-m_i}
+=\ell_{i-1}e^{m_{i-1}-m_i}+e^{x_i-m_i}.
 $$
 
-$d_{i}^{'}$ 和 $d_{i-1}^{'}$ 有如下递归关系：
-
-$$
-d_{i}^{'} = \sum_{j=1}^{i}e^{x_j - m_i} \\
-= (\sum_{j=1}^{i-1}e^{x_j - m_i}) + e^{x_i - m_i} \\
-= (\sum_{j=1}^{i-1}e^{x_j - m_{i-1}})e^{m_{i-1} - m_i} + e^{x_i - m_i} \\
-= d_{i-1}^{'}e^{m_{i-1} - m_i} + e^{x_i - m_i}
-$$
-
-递归关系只依赖 $m_{i-1}$ 和 $m_i$，于是可以把 $d_i^{'}$ 和 $m_i$ 放在同一个循环中。
+例如 $x=[0,\ln2]$，第一步 $(m_1,\ell_1)=(0,1)$，第二步得到 $(\ln2,1.5)$，概率为 $[1/3,2/3]$。最终概率需要完整分母；可以再次读取输入，也可以保留输入后归一化，不能无条件声称独立 softmax 不存在单次读取输入的实现。
 
 ## FlashAttention V1
 
-online softmax 最多只有一个 2-pass 的算法，不存在 1-pass 算法，但是 Attention 可以有 1-pass 算法。基于上述的 online softmax 可以得到一个 1-pass 的 Attention 算法。
-
-重点在第二个循环：
+Attention 只需概率对 V 的加权和，不必逐项输出全部概率。令前缀归一化结果为：
 
 $$
-a_i = \frac{e^{x_i - m_N}}{d_N^{'}} \\
-o_i = o_{i-1} + a_i V[i,:]
+o_i=\frac{\sum_{j=1}^{i}e^{x_j-m_i}V_j}{\ell_i}.
 $$
 
-推导 1-pass 版本的 FlashAttention:
+将历史项统一到新的指数尺度，得到：
 
 $$
-o_i^{'} = (\sum_{j=1}^i (\frac{e^{x_j - m_i}}{d_i^{'}})V[j,:]) \\
-当 i= N 时有：\\
-o_N^{'} = o_N = (\sum_{j=1}^i (\frac{e^{x_j - m_N}}{d_N^{'}})V[j,:]) \\
+o_i=\frac{\ell_{i-1}e^{m_{i-1}-m_i}o_{i-1}+e^{x_i-m_i}V_i}{\ell_i}.
 $$
 
-推导 $o_{i}{'}$ 和 $o_{i-1}{'}$ 之间的关系：
+继续使用 $x=[0,\ln2]$，取 $V=[2,5]$，则 $o_1=2$，$o_2=(1\times\tfrac12\times2+1\times5)/1.5=4$。这与完整 softmax 的 $\tfrac13\times2+\tfrac23\times5$ 相同。
 
-$$
-o_i^{'} = (\sum_{j=1}^i (\frac{e^{x_j - m_i}}{d_i^{'}})V[j,:]) \\
-= (\sum_{j=1}^{i-1} (\frac{e^{x_j - m_i}}{d_i^{'}})V[j,:]) + (\frac{e^{x_i - m_i}}{d_i^{'}})V[i,:] \\
-= (\sum_{j=1}^{i-1} (\frac{e^{x_j - m_{i-1}}}{d_i^{'}})\frac{e^{x_j-m_i}}{e^{x_j-m_{i-1}}}\frac{d_{i-1}^{'}}{d_{i}^{'}}V[j,:]) + (\frac{e^{x_i - m_i}}{d_i^{'}})V[i,:] \\
-= o_{i-1}^{'}\frac{d_{i-1}^{'}e^{m_{i-1} - m_i}}{d_i^{'}} + (\frac{e^{x_i - m_i}}{d_i^{'}})V[i,:] \\
-$$
-
-可以看到 $o_i^{'}$ 和 $o_{i-1}^{'}$ 递归关系不依赖 $m_n$，因此可以将第二个循环完全合并到第一个循环中去。
+也可维护未归一化向量和 $u_i=\ell_i o_i$，每次只做重缩放与累加，最后计算 $O=u_N/\ell_N$。分块版本将单元素的更新推广到 tile；其数值状态相同，具体循环顺序与并行划分由 kernel 决定。
 
 ## FlashAttention V2
 
-主要做了工程上的优化：
-- 减少大量非矩阵乘的冗余计算，增加 Tensor Core 的计算比例
-- forward pass/backward pass 均增加 seqlen 维度的并行，forward pass 交替 Q，K，V 循环顺序
-- 更好的 Warp Partitioning 策略，避免 Split-K
+FlashAttention-2 减少非矩阵乘运算，沿 query 序列划分更多线程块，并调整 warp 工作分配以减少共享内存通信。前向中的 sliced-Q 划分让不同 warp 负责不同 query 行；这不是对所有阶段、所有实现一概“禁止 Split-K”。[论文](https://arxiv.org/abs/2307.08691)
 
-在 Tri Dao 的 FlashAttention 的 [Triton 实现](https://github.com/Dao-AILab/flash-attention/blob/main/flash_attn/flash_attn_triton.py)中，使用了 LSE(LogSumExp) 来做 smooth maximum。
+旧 Triton 示例使用 LSE 保存分母信息：
 
 $$
-softmax = \frac{exp(x_i - c)}{\sum_i exp(x_i -c)} \\ 
-c = max(x_1,...,x_n)
+L_i=\log\sum_{j\le i}e^{x_j}=m_i+\log\ell_i.
 $$
 
-
-LSE 可以被用于作为 approximation of max。
-
-$$
-LSE(x_1, ..., x_n) = log(exp(x_1)+...+exp(x_n)) \\ 
-= c + log \sum_n exp(x_i - c) \\
-c = max(x_1,...,x_n)
-$$
-
-Triton 中的算法可以被描述为:
-
-![](FlashAttention/triton_flash_attn.png)
-
-等式 $(2)$ 中 `lse_i` 被用于作为最大值的一个近似。
-
-在等式 $(9)$ 中：
+LSE 在这里是精确的 log-normalizer，不能只把它当作最大值的近似。切换到新尺度 $m_{new}$ 时，历史分母的贡献是：
 
 $$
-exp(lse_i - m_{ij}) = exp(c_{old} + log \sum_n exp(x_i - c_{old}) - c_{new}) + l_{ij} \\ 
-= exp((c_{old} - c_{new} + log \sum_n exp(x_i - c_{old}))) \\
-= exp(c_{old} - c_{new})\sum_n exp(x_i - c_{old})
+e^{L_{old}-m_{new}}
+=e^{m_{old}-m_{new}}\ell_{old}.
 $$
 
-在等式 $(11)$ 中的 `o_scale` 作为 softmax 函数的分母：
+例如历史状态为 $m_{old}=0,\ell_{old}=2$，新尺度为 $\ln2$，历史分母贡献是 $e^{\ln2-\ln2}=1$。与新 tile 的指数和相加后，才能得到完整的新分母。
 
-$$
-m_i - lse_i = exp(c - c - log \sum_n exp(x_i - c)) \\
-= exp(-log \sum_n exp(x_i - c)) \\ 
-= exp(log \frac{1}{\sum_n exp(x_i - c)}) \\ 
-= \frac{1}{\sum_n exp(x_i - c)}
-$$
+![旧 Triton FlashAttention 的 LSE 更新过程](FlashAttention/triton_flash_attn.png)
+
+最终缩放因子为 $e^{m-L}=1/\ell$，不是 $m-L$ 本身。例如 $m=\ln2,\ell=1.5$，则 $L=\ln3$，缩放为 $2/3$。这一恒等式说明图中的输出归一化；不能仅凭旧实现截图把它归为 FlashAttention-2 的完整 kernel。[Triton 示例源码](https://github.com/Dao-AILab/flash-attention/blob/main/flash_attn/flash_attn_triton.py)

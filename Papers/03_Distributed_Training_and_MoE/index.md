@@ -10,12 +10,12 @@
 
 - [FlashNext-RL: A System Optimization Study for Long-Horizon Agentic RL of Qwen3.8-Flash-Next](FlashNext-RL/flashnext-rl.md)
 - [Efficient LLM Training Survey：训练数据、checkpoint 与存储系统分工](Efficient-LLM-Training-Survey/index.md)
-- [MegaMoE：把 MoE 前向路径压进一个通信计算融合核](MegaMoE/megamoe.md)
+- [MegaMoE](MegaMoE/megamoe.md)
 - [PithTrain: A Compact and Agent-Native MoE Training System](PithTrain/pithtrain.md)
-- [PockEngine: Sparse and Efficient Fine-tuning in a Pocket：阅读笔记](PockEngine/github-reading.md)
+- [PockEngine: Sparse and Efficient Fine-tuning in a Pocket](PockEngine/github-reading.md)
 
-- [Seer：同步 RL 的 rollout 切分、调度与分组投机](Seer/zhihu-reading.md)
-- [SonicMoE：梯度重排、异步 IO 与 tile 感知路由](SonicMoE/sonicmoe.md)
+- [Seer: Online Context Learning for Fast Synchronous LLM Reinforcement Learning](Seer/zhihu-reading.md)
+- [SonicMoE: Accelerating MoE with IO and Tile-aware Optimizations](SonicMoE/sonicmoe.md)
 
 ## LLM Inference / MegaKernel
 

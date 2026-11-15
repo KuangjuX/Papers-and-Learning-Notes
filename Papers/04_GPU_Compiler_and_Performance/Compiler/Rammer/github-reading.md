@@ -1,10 +1,14 @@
-# Rammer: Enabling Holistic Deep Learning Compiler Optimizations with rTasks：阅读笔记
+<a id="rammer-enabling-holistic-deep-learning-compiler-optimizations-with-rtasks-阅读笔记"></a>
+
+# Rammer: Enabling Holistic Deep Learning Compiler Optimizations with rTasks
 
 [所属主题](../../index.md)
 
 - 论文：[原文](https://www.usenix.org/system/files/osdi20-ma.pdf)
 
-## 两层独立调度遗漏了哪些并行性
+<a id="两层独立调度遗漏了哪些并行性"></a>
+
+## Background
 
 当前深度学习框架都将神经网络计算抽象成算子数据流图，然后将其拓扑排序后交给硬件执行。而在此之下又存在另一层调度器（block dispatcher, warp scheduler）负责充分发掘单个算子中的并行性（intra operator parallelism）并将计算任务映射给更小粒度的处理单元（SMs, CUDA Cores）。
 
@@ -14,7 +18,9 @@
 
 为了解决两层调度带来的开销，本篇文章提出新的抽象，分别是 **rOperator** 和 **rTask**，这样可以将算子内的操作细化为更细粒度的 **rTask** 从而将调度空间扩大以便进行更好的优化。
 
-## 用 rTask 与 vEU 表达统一执行计划
+<a id="用-rtask-与-veu-表达统一执行计划"></a>
+
+## Rammer Design
 
 RAMMER 是一个能够同时管理算子内和算子外调度的 DNN 编译器，下图展示了 RAMMER 和其他深度学习框架的不同：
 
@@ -22,7 +28,7 @@ RAMMER 是一个能够同时管理算子内和算子外调度的 DNN 编译器�
 
 RAMMER 将生成一个静态的 execution plan 供运行执行，由于在单个加速器设备上进行计算不够有效率，因此会生成多个 **rPrograms**。除此之外还在编译时引入了 **vDevice** 和 **vEU** 并在运行时将其映射到对应的物理设备。
 
-### rOperator
+<a id="roperator"></a>
 
 rOperator 是一组 rTasks 的集合，rTask 是能够在加速器设备上进行并行执行的最小任务。rOperator 依赖于外部工具将其分成 rTasks（例如，TVM）。
 
@@ -32,11 +38,11 @@ rOperator 是一组 rTasks 的集合，rTask 是能够在加速器设备上进�
 
 传统的 Operator 只有 `compute()` 一个方法，在 rOpertaor 中通过 `rTask_id` 来索引 rTask 并执行。rOperator 抽象允许 RAMMER 暴露算子内和算子外的并行，打开了新的 DNN 计算的优化空间。
 
-### Virtualized Parallel Device
+<a id="virtualized-parallel-device"></a>
 
 普通 kernel launch 不暴露逐个 rTask 到执行单元的指定映射。为了解决这个挑战，RAMMER 设计了一个叫做 vDevice（virtualized parallel device）的概念。一个 vDevice 中含有多个 vEUs(virtual execution units)。因此 RAMMER 可以将 rProgram 组织成一个二维数组，`prog[vEU_id][order]`，order 表示在一个 vEU 中的任务的执行顺序。为了确保互相有依赖的任务正确进行执行，RAMMER 添加了一个 **barrier-rTask**。barrier-rTask 接受一系列 `<vEU_id, order>` 的任务。barrier-rTask 会等待每一个 rTask 完成后才会继续执行。
 
-### rTask-aware DFG Compiler
+<a id="rtask-aware-dfg-compiler"></a>
 
 ![截屏2023-08-11 12 47 55](images/issue-22-04.png)
 
@@ -46,7 +52,9 @@ rOperator 是一组 rTasks 的集合，rTask 是能够在加速器设备上进�
 
 ![](images/issue-22-05.png)
 
-## 用持久线程块执行计划并同步依赖
+<a id="用持久线程块执行计划并同步依赖"></a>
+
+## Runtime
 
 ![截屏2023-08-11 22 09 42](images/issue-22-06.png)
 
@@ -64,7 +72,9 @@ rOperator 是一组 rTasks 的集合，rTask 是能够在加速器设备上进�
 
 ![截屏2023-08-13 22 09 12](images/issue-22-09.png)
 
-## 分别评估执行时间、利用率与调度开销
+<a id="分别评估执行时间、利用率与调度开销"></a>
+
+## Evaluation
 
 下图分别比较执行时间、GPU 资源利用率与调度开销；三个指标对应整体收益、并行执行效果及运行时成本。
 

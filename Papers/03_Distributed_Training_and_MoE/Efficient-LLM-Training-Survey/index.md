@@ -10,13 +10,17 @@ zotero: "3FACA9QB"
 
 # Efficient Training of Large Language Models on Distributed Infrastructures: A Survey
 
-## Checkpoint 与训练恢复
+<a id="checkpoint-与训练恢复"></a>
+
+## Checkpoint
 
 Checkpoint 是某个训练时刻的状态快照。恢复训练通常需要模型权重、优化器状态、step 和学习率调度状态；需要续接数据顺序与随机过程时，还要保存采样器和随机数状态。仅恢复权重会丢失 Adam 等优化器的历史统计，不能等同于从原来的训练状态继续。[PyTorch checkpoint 教程][checkpoint]
 
 在参数更新结束后保存时，通常不需要保留上一轮的中间激活。持久化可以分成快照与写入两个阶段：先取得一致状态，再异步写入存储，减少训练停顿；快照完成和可靠副本写完是两个不同的时刻。[论文 §8.3][recovery]
 
-## 训练数据与 checkpoint 的存储需求
+<a id="训练数据与-checkpoint-的存储需求"></a>
+
+## Storage Requirements
 
 - **Training Data Storage** 保存训练输入，训练期间持续读取 batch，重点是稳定供给与缓存预取，避免 GPU 等待数据。
 - **Checkpoint Storage** 周期性集中写入训练状态，恢复时大量读取，重点是保存开销、恢复速度和完整性。
@@ -34,7 +38,9 @@ Checkpoint 是某个训练时刻的状态快照。恢复训练通常需要模型
 
 Lustre 通过将文件数据条带化到多个存储目标上提供并行 I/O；JuiceFS 将文件接口与对象存储后端连接起来。两者的数据组织方式不同，不能只按挂载路径判断其性能。[Lustre 架构][lustre]、[JuiceFS 架构][juicefs]
 
-## Lustre、JuiceFS、CephFS 的混用
+<a id="lustre、juicefs、cephfs-的混用"></a>
+
+## Storage Systems
 
 三者可以通过不同挂载点并列服务于训练任务，也可以存在上下层组合。**CephFS 是 RADOS 上的 POSIX 文件系统；Ceph RGW 提供对象接口。** JuiceFS 使用 Ceph 对象后端时，并不经过 CephFS。[CephFS 架构][cephfs]、[RGW 文档][rgw]
 

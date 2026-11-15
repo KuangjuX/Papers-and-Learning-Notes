@@ -2,7 +2,9 @@
 
 应用级 benchmark 会把指令陷入、页表管理和 I/O 通知的成本混在一起。HyperBench 用可控微基准分别触发这些事件，再比较 guest 与 native 的时间，定位虚拟化开销来自事件频率还是单次处理成本。[论文与实现](https://github.com/DCSec/HyperBench)
 
-## 从事件次数分解虚拟化成本
+<a id="从事件次数分解虚拟化成本"></a>
+
+## Background
 
 - $GNR(Guest Native Ratio) = \frac{T_{guest}}{T_{native}}$
 
@@ -18,19 +20,27 @@
 
 这里 $GNR>1$ 表示 guest 更慢，$T_{direct}$ 是直接执行部分，$\eta$ 收纳其他开销。各 $C_*$ 表示相应事件次数，$T_*$ 表示单次成本；乘法写法是可加、单次成本固定时的近似。下文的批量 IPI 会打破一条逻辑事件对应一次 VM exit 的假设，因此不能直接用单次结果外推完整应用。
 
-## 让微基准分别触发 CPU、内存与 I/O 事件
+<a id="让微基准分别触发-cpu、内存与-i-o-事件"></a>
 
-### 敏感指令
+## Microbenchmarks
+
+<a id="敏感指令"></a>
+
+### Sensitive Instructions
 
 - 非特权指令：在硬件辅助虚拟化中，VM 执行这些指令和 OS 相同，对于二进制翻译来说会触发翻译流程。
 
 - 特权指令：除了硬件辅助虚拟化技术允许特权级指令直接运行在物理 CPU 上；对于 trap & emulate 策略，特权指令会触发 trap；对于动态二进制翻译，特权指令将会被翻译成一系列 Shadow Structures 相关的正常指令。
 
-### 异常
+<a id="异常"></a>
+
+### Exceptions
 
 异常 benchmarks 需要触发特定的虚拟化异常指令，包括：Hypercall、虚拟核间中断（IPI）。
 
-### 内存
+<a id="内存"></a>
+
+### Memory
 
 内存 benchmarks 主要需要触发从 GVA 到 HPA 的翻译进程和相关的操作，例如 hypervisor-level 的页表的创建，同步 guest 页表和 hypervisor-level 页表。做不同模式的内存访问最直接的方式是触发这些事件。
 
@@ -45,13 +55,13 @@
 IO benchmarks 主要用来测试 host 和 guest  的通信机制。hypervisor 可以通过模拟、半虚拟化、分配和 IO 设备共享等方式来支持 IO 请求。这些模型中的一个标准测试接口是应用程序和操作系统之间的接口。然后，应用程序的层级很高，应用程序的复杂测试用例可能会掩盖性能差距。任何模型都会通过 PIO 或者 MMIO 来访问真实物理设备。
 
 - IN: 轮询和中断是 host 向 guest 通知的两个主要方式。benchmark 不断重复读取 serial port 寄存器用来模拟轮询 IO。对于 QEMU 来说，IO 指令被自己模拟。对于 QEMU/KVM 来说，在 QEMU 模拟 IO 指令之前，VM 会 trap 到 host kernel 然后交由 QEMU 来控制。对于 Xen 来说，IN benchmark 触发以下行为
-  
+
   - VM trap 到 Xen
-  
+
   - Xen 向 Dom0 发送 IPI
-  
+
   - 将控制权交给 QEMU 并且模拟 IO 指令
-  
+
   - 返回 VM
 
 - OUT：作为 IN, OUT benchmark 的一部分，OUT benchmark 向串口寄存器不断输出字符。这个 benchmark 关注于从 guest 到 host 的通知机制的延迟。
@@ -60,11 +70,13 @@ IO benchmarks 主要用来测试 host 和 guest  的通信机制。hypervisor �
 
 ![](Hyperbench-A-Benchmark-Suite-for-Virtualization-Capabilities/figure-7.png)
 
-## 内外两种计时路径如何控制扰动
+<a id="内外两种计时路径如何控制扰动"></a>
+
+## Measurement
 
 ![](Hyperbench-A-Benchmark-Suite-for-Virtualization-Capabilities/figure2.png)
 
-### Architecture
+<a id="architecture"></a>
 
 在 native 环境中，HyperBench 直接运行在硬件上。benchmark 的行为在 HyperBench kernel 中进行测量，成为内部测量。在虚拟化环境中，HyperBench kernel 运行作为 test VM。在独立的裸机 hypervisor 中（例如 Xen），计时程序运行在特权级 VM 中；在 host hypervisor 中，计时程序作为常规的应用程序运行在 host OS 中。benchmark 既可以实现为内部测量也可以实现为计时程序，后者被称为外部测量。对于外部测量来说，HyperBench 在 benchmark 前后向 UART 发送计时信号，UART 重定向到外部计时程序通过 pipe。对于 QEMU 来说，时钟信号输出到模拟的 serial port 并被重定向到 console(如果使用了 `-nographic` 选项)。一旦读取到时钟信号，计时应用程序将读取当前 counter 的值。对于虚拟化环境来说，常规用户经常使用内部测量，因为它们没有使用时钟应用程序的权限。
 
@@ -89,13 +101,13 @@ uint64_t iteration_count;
 } benchmark_t;
 ```
 
-### Measurement
-
 有两种测量 benchmark 的方式，分别为内部测量和外部测量。但是无论哪一种都不完美。HyperBench 中的定时器可能不准确或者未完全校准；尽管 host 中的计时器更为准确，但从 HyperBench 到通知计时应用程序也有一定程度的变化。HyperBench 内核发送计时信号到计时应用程序完成读取硬件计数器之间的时间的稳定性决定了测量结果的准确性。 为了解决这个问题，HyperBench 设计了一个空闲基准测试，它执行两次连续的计数器读取。根据 Idle 的结果，相同或者更高次数的迭代可以抵消波动。
 
 在测量多核系统性能的情况下，由中断和调度引起的变化会使测量结果偏移数千个周期。进一步提高外部测量、乱序执行和多核调度干扰的准确性被考虑在内。HyperBench 通过 grub 和将 VCPU 到 PCPU 进行映射来隔离 CPU。在获取时间前后使用指令屏障避免乱序执行或流水线扭曲测量结果。
 
-## 事件开销与平台配置的对应
+<a id="事件开销与平台配置的对应"></a>
+
+## Evaluation
 
 ![](Hyperbench-A-Benchmark-Suite-for-Virtualization-Capabilities/figure-5.png)
 
@@ -105,7 +117,7 @@ uint64_t iteration_count;
 
 根据上表的推论，可以推断出 hypervisor 优化的一个措施是减少虚拟化敏感事件。将硬件虚拟化和软件虚拟化技术合并会破坏 VMM 中退出和其发生次数之间的一一映射关系。另一个例子是半虚拟化 IPI，它使用 Hypercall 向多个 VCPUs 发送 IPI。一批 IPI 仅需要一个VM退出。因此，cost model 中表示 C 和 T 之间关系的未确定运算符是虚拟化程序的重要特征。为了验证测试的虚拟化程序是否具有类似的特征，作者在主机与虚拟化环境中改变迭代次数运行 HyperBench。
 
-### Effectiveness
+<a id="effectiveness"></a>
 
 - Idle Benchmark: physical machine 比虚拟化环境表现更好因为 host 直接读取硬件 `counter`。
 

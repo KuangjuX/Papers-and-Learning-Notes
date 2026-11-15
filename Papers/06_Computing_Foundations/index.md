@@ -14,9 +14,9 @@
 - [Security and Performance in the Delegated User-level Virtualization](Virtualization/DuVisor/duvisor.md)
 - [Honeycomb: Secure and Efficient GPU Executions via Static Validation](Virtualization/Honeycomb/honeycomb.md)
 - [Nephele: Extending Virtualization Environments for Cloning Unikernel-based VMs](Virtualization/Nephele/nephele.md)
-- [A Loop Transformation Theory and an Algorithm to Maximize Parallelism：未完成摘记](Compiler/Loop-Transformation/github-reading.md)
+- [A Loop Transformation Theory and an Algorithm to Maximize Parallelism](Compiler/Loop-Transformation/github-reading.md)
 
-- [Unikraft：模块化 library OS 与专用内核](Operating-Systems/Unikraft/unikraft.md)
+- [Unikraft: Fast, Specialized Unikernels the Easy Way](Operating-Systems/Unikraft/unikraft.md)
 
 ## Compiler
 

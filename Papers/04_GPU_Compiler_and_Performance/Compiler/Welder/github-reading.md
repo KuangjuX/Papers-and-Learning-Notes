@@ -1,20 +1,26 @@
-# Welder: Scheduling Deep Learning Memory Access via Tile-graph：阅读笔记
+<a id="welder-scheduling-deep-learning-memory-access-via-tile-graph-阅读笔记"></a>
+
+# Welder: Scheduling Deep Learning Memory Access via Tile-graph
 
 [所属主题](../../index.md)
 
 - 论文：[原文](https://www.usenix.org/system/files/osdi23-shi.pdf)
 
-## 中间张量的搬运为何成为瓶颈
+<a id="中间张量的搬运为何成为瓶颈"></a>
+
+## Background
 
 算子边界使中间张量反复经过寄存器、共享内存与全局内存。Welder 用 tile-graph 表达相邻算子在哪一级内存复用数据，再联合选择 tile 大小，以减少搬运。
 
 ![截屏2023-11-01 15 07 28](images/issue-25-01.png)
 
-## 先连接 reuse tile，再搜索子图的 tiling
+<a id="先连接-reuse-tile-再搜索子图的-tiling"></a>
+
+## Tile-graph
 
 Welder 提出了 tile-graph 的概念，采取先连接后融合。首先猜测两个相邻的算子是否可以在某个内存层级进行数据 tile 重用，然后获得最通用的 tile shape 查看是否可以减少内存流量。抽象了 **SetConnect**, **Propagate** 两个接口。设计了两步算法，图连接和子图调度。
 
-### Operator-tile and Tile-graph
+<a id="operator-tile-and-tile-graph"></a>
 
 ![截屏2023-10-31 20 44 38](images/issue-25-02.png)
 Conv 算子计算 1x1xC 大小的 tile，输入是一个 3x3xC 的 data tile，MaxPool 输入一个 2x2xF，输出 1x1xF。为了提高内存利用资源，Welder 允许两个相邻的算子 tile 通过中间 tile 进行连接，也叫做 **reuse-tile**。
@@ -22,7 +28,7 @@ Conv 算子计算 1x1xC 大小的 tile，输入是一个 3x3xC 的 data tile，M
 - Tile propagation. 连接后在 tile-graph 中的大部分 tile 相互关联，可以通过自动推断传播到整个图。输入的 region 可能包含不规整模式例如系数矩阵或者不连续访问（Gather 或者带步长的卷积），分析中会有一个 input tile shape 的上界。
 - Memory traffic and footprint. 传播后，内存带宽和足迹可以被确定。单独的 tile-graph 的内存带宽可以累加输入和输出 tile size。最小的内存可以使用例如 bestfit 等内存分配算法进行分配通过拓扑排序进行分配。
 
-### Tile-graph Scheduling
+<a id="tile-graph-scheduling"></a>
 
 ![截屏2023-10-31 21 08 48](images/issue-25-03.png)
 在 Figure 5 中 Conv 和 ReLu 在 L0 进行融合并形成了一个 tile-graph。同时它们在 L1 级别被视为一个虚拟节点。ReLU 的输出被 spill 到 L1 中并且作为 MaxPool 的输入。这允许三个算子在 L1 形成一个单 tile-graph。
@@ -43,22 +49,24 @@ Conv 算子计算 1x1xC 大小的 tile，输入是一个 3x3xC 的 data tile，M
     - 在得到输出的 tile shapes 之后，我们可以推断所有的 tile 配置使用 Propagate 接口并且检查是否超过了内存容量通过使用 MemFootprint 接口。
     - 最后我们选择 topK 种最高内存层级的配置，然后提取子图。
 
-### Mapping to Hardware Accelerator
+<a id="mapping-to-hardware-accelerator"></a>
 
 ![截屏2023-10-31 23 17 30](images/issue-25-06.png)
 为了实际在硬件加速器生成代码，Welder 提出了几个内存相关的抽象。Figure 8 展示了一个执行多层次 tile-graph 使用这些接口的流程。
 
 ![截屏2023-10-31 23 19 33](images/issue-25-07.png)
 
-## 将 tile-graph 映射为内存与线程操作
+<a id="将-tile-graph-映射为内存与线程操作"></a>
 
-### Hardware-aligned Tile Search
+## Scheduling and Code Generation
+
+<a id="hardware-aligned-tile-search"></a>
 
 - Enumerate efficient data tile size. Welder 考虑了多种硬件相关的特性，同时引入惩罚因子来进行衡量。例如对于内存访问没有进行合并访问将添加惩罚。最终 Welder 仅搜索效果最好的 top K 个输出 tile 大小。
 - Decide aligned compution parallelism. 在 GPU 中在最上层的算子的 block 大小，即线程数量必须是一样的。首先强制将 thread block 与硬件并行度对齐，例如在 Nividia V100 中 tile 数必须大于 128，这是所读实现使用的并行度对齐选择，不能解释成每个 SM 最多驻留 4 个 warp。如果算子 tiles 的最大公约数在 128 和 1024（每个 block 最多的线程数）就用最大公约数，否则用 hardware parallesim。
 - Support TensorCore. Welder 使用 TensorCore 用来加速 GEMM、BatchMatMul 和 Conv 等算子。
 
-### Code Generation and Compilation
+<a id="code-generation-and-compilation"></a>
 
 TVM: `compute_inline` 调度原语用来实现寄存器级别 tile 连接。对于 shared memory 级别仅仅生成单个 kernel 并使用几个额外的 passes 去将这些单独的 kernels 压缩成一个融合内核。
 

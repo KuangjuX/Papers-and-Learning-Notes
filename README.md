@@ -36,7 +36,7 @@ Papers/ | Projects/ | Foundations/
 <!-- paper-reading-list:start -->
 ## Paper 阅读清单
 
-共 **345 个分类条目**：已读 77，待读 268。
+共 **346 个分类条目**：已读 77，待读 269。
 
 ✅ 已读 · ⬜ 待读 · 📝 有笔记。
 

@@ -1,20 +1,26 @@
-# BOLT: BRIDGING THE GAP BETWEEN AUTO-TUNERS AND HARDWARE-NATIVE PERFORMANCE：阅读笔记
+<a id="bolt-bridging-the-gap-between-auto-tuners-and-hardware-native-performance-阅读笔记"></a>
+
+# BOLT: BRIDGING THE GAP BETWEEN AUTO-TUNERS AND HARDWARE-NATIVE PERFORMANCE
 
 [所属主题](../../index.md)
 
 - 论文：[原文](https://proceedings.mlsys.org/paper_files/paper/2022/file/1f8053a67ec8e0b57455713cefdd8218-Paper.pdf)
 
-## 用硬件原生模板缩小调优空间
+<a id="用硬件原生模板缩小调优空间"></a>
+
+## Background
 
 BOLT 从硬件原生模板库中选择可复用、可参数化的计算原语，缩小 auto-tuning 搜索空间。图级优化扩展融合范围，例如 Conv2D + BiasAdd + Hardswish；算子级优化则搜索模板参数并生成代码。两者分别处理跨算子数据移动和单 kernel 的硬件效率。
 
 ![](images/issue-28-01.png)
 
-## 先划分子图，再融合与搜索模板
+<a id="先划分子图-再融合与搜索模板"></a>
+
+## BOLT Design
 
 Bolt 追随 BYOC 的路径，对张量程序绘制合适子图并将其卸载到 Bolt 进行优化。首先从流行框架的 DNN model 开始，Bolt 首先复用 TVM 前端将其解析为 relay graph。在图上进行计算图优化（deeper operator fusion）和 graph partition。Bolt 接下来执行 hardware-native profilling 去搜索最好的 kernel。最终 Bolt 生成高性能的 CUDA 代码。
 
-### Enabling deeper operator fusion
+<a id="enabling-deeper-operator-fusion"></a>
 
 ![](images/issue-28-02.png)
 ![](images/issue-28-03.png)
@@ -34,7 +40,7 @@ Figure4(b) 展示了 persistent kernel fusion 在 kernel 级别的视角。
 - 在列上广播向量
 - 在列上进行部分 reducation
 
-#### Persistent kernel (GEMM/Conv) fusion
+<a id="persistent-kernel-gemm-conv-fusion"></a>
 
 Persistent kernel 允许将多个 GEMMs 和 Conv 融合到一个算子用来提升性能。
 
@@ -47,9 +53,9 @@ Persistent kernel 允许将多个 GEMMs 和 Conv 融合到一个算子用来提�
 
 ![](images/issue-28-05.png)
 
-### Automating templated code generation
+<a id="automating-templated-code-generation"></a>
 
-#### Light-weight performance profiler
+<a id="light-weight-performance-profiler"></a>
 
 Bolt 设计了一个轻量级的 performance profiler 用于搜索最好的模版参数。具体来说，Bolt 首先提取 CUTLASS 模版相关的性能参数，包括 threadblock，warp 和 instruction shape, swizzling functor 和 stages 等等。随后确定它们可能的值通过具体的 GPU 体系结构和 Auto-tunner。Hardware-specific guideline 包含以下几个方面：
 
@@ -57,11 +63,13 @@ Bolt 设计了一个轻量级的 performance profiler 用于搜索最好的模�
 - 每个 threadblock 使用 4 个 或 8 个 warptile 可以在 Nvidia 上取得更好的性能
 - 小的问题规模需要小的 threadblock size 从而启动足够的 threadblock 保持 SM 忙碌
 
-#### Templated code generation
+<a id="templated-code-generation"></a>
 
 - **Layout Transformation.** 论文所用 CUTLASS 卷积路径采用 NHWC 布局，但不是所有模型都是都使用期待的 layout。代替在 Conv 之前和之后都插入 Layout transformation 算子，Bolt 直接把所有 Conv 算子全部改成 NHWC layout。将输入和最终的输出改成 NCHW。
 - **Kernel padding.** 尽管 CUTLASS 支持 8，4，2，1 的对齐，性能在不同的对齐间依然有巨大差距。论文 §3.2.3 使用 128-bit 向量化 load/store 作为该路径的对齐依据。所以对于 FP 16 最有效的方式是使用 8 个 FP16 元素对齐（16 字节）（128/16）。因此 Bolt 自动将未对齐的张量填充为 8 个 FP16 元素对齐（16 字节）。
 
-## 用模型中的 GEMM 与卷积检查性能
+<a id="用模型中的-gemm-与卷积检查性能"></a>
+
+## Evaluation
 
 从 BERT 和 ResNet-50 这些模型中提取了一些内部算子做 micro benchmark，和 Ansor 的性能做对比。

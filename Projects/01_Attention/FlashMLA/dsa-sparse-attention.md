@@ -9,7 +9,9 @@ aliases:
 
 # DSA Sparse Attention：Kernel 实现与公开性能
 
-## DSA 如何优化 tokenwise sparse attention
+<a id="dsa-如何优化-tokenwise-sparse-attention"></a>
+
+## DSA Kernel Design
 
 DeepSeek-V3.2 的 DSA 为每个 query 选择 2048 个 KV tokens，所有 query heads 共用这份索引和 MLA latent KV。[算法笔记](../../../Papers/01_Attention/DeepSeek-DSA/deepseek-sparse-attention-dsa.md)
 

@@ -1,10 +1,14 @@
-# AStitch: Enabling a New Multi-dimensional Optimization Space for Memory-Intensive ML Training and Inference on Modern SIMT Architectures：阅读笔记
+<a id="astitch-enabling-a-new-multi-dimensional-optimization-space-for-memory-intensive-ml-training-and-inference-on-modern-simt-architectures-阅读笔记"></a>
+
+# AStitch: Enabling a New Multi-dimensional Optimization Space for Memory-Intensive ML Training and Inference on Modern SIMT Architectures
 
 [所属主题](../../index.md)
 
 - 论文：[原文](https://dl.acm.org/doi/10.1145/3503222.3507723)
 
-## 融合内存密集型子图的目标
+<a id="融合内存密集型子图的目标"></a>
+
+## Background
 
 机器学习模型包含两种算子，计算密集型和内存密集型。计算密集型通常包含许多计算 kernel（例如 GEMM/GEMV 和卷积操作），内存密集型经常受限于带宽（例如 element-wise，reduction）。
 ![](images/issue-26-01.png)
@@ -19,9 +23,9 @@ AStitch 用分层数据重用处理两级依赖，用自适应线程映射适配
 
 ![](images/issue-26-02.png)
 
-## 两级依赖与不规则形状带来的困难
+<a id="两级依赖与不规则形状带来的困难"></a>
 
-### Essential Memory-Intensive Ops in Current Models
+<a id="essential-memory-intensive-ops-in-current-models"></a>
 
 在现代框架中经常把机器学习 workload 表示为一组计算图。在图中大部分计算密集型算子是分离的。它们把图划分成一系列子图，每个子图中有数十甚至数百个内存密集型算子。有两种广泛使用的算子覆盖了大部分内存密集型运算：element-wise 和 redece。
 Element-wise 更进一步被分成轻量级算子和重量计算子，轻量级包括 add，sub 等，重量级包括 tanh，pow，log 等。广播操作也经常被认为是 element-wise。
@@ -30,17 +34,17 @@ Element-wise 更进一步被分成轻量级算子和重量计算子，轻量级�
 
 一个 reduce 操作接收一个 tensor 作为输入并 reduce 一个或多个维度，在连续内存进行 reduce 的叫 row-reduce，否则叫 column-reduce。Row-reduce 总是组织在一个 thread block 内部，在这里邻近的 thread 读取内存更加有效率。Column-reduce 经常需要几个线程并需要原子操作以保证其正确性。
 
-### Memory-Intensive Op Fusion
+<a id="memory-intensive-op-fusion"></a>
 
 最先进的工作（XLA，TVM）可以支持一般内存密集型操作的内核融合，以减少频繁内核启动引起的 off-chip 内存访问、CPU-GPU 上下文切换和框架级算子调度开销。
 
 fusion 最根本的技术之一是代码生成技术。ML Compiler 经常根据能否生成高效的代码来决定 fusion 策略。例如，TVM/XLA的代码生成器通过将每个元素的输入内联处理来处理所有数据依赖关系，将生产者与消费者合并在一起。然而，在第2.3节中已经确定了这种代码生成方法的一些限制。简单地修改融合决策逻辑（例如，扩大融合范围）可能会导致TVM/XLA性能不佳。
 
-### Major Limitations of the State-Of-The-Arts
+<a id="major-limitations-of-the-state-of-the-arts"></a>
 
 在内存密集型算子中有一系列新的挑战。
 
-#### Challenge I: Complex Two-Level Dependencies Combined With Just-In-Time Demand Exacerbates Training/Inference Inefficiency.
+<a id="challenge-i-complex-two-level-dependencies-combined-with-just-in-time-demand-exacerbates-training-inference-inefficiency"></a>
 
 ![](images/issue-26-04.png)
 有两种级别的依赖，一种是算子级别的，例如图 4 中 A，B 对 C 的依赖；另一种是元素级别的，例如图 3 中 9 对 1，4，4 的依赖。算子级别，在子图中经常出现复杂的算子依赖关系；在元素级别，reduce 和 broadcast 经常会造成 one-to-many 的依赖。此外，机器学习模型的结构各不相同，变种也不计其数，需要针对给定的任意模型结构进行即时优化，而不是临时解决方案。机器学习从业者通常需要通过频繁的调整和执行来定制模型结构，这要求每次运行时都进行自动优化（即即时优化），而不是在每次试验之前手动调整融合。这也增加了设计优化的整体复杂性。因此，与JIT需求相结合的两级依赖关系使得对现代内存密集型机器学习模型进行融合优化变得极其具有挑战性。
@@ -62,7 +66,7 @@ fusion 最根本的技术之一是代码生成技术。ML Compiler 经常根据�
 
 在运算符级别，一对多的依赖关系，即一个算子作为多个算子的生产者，也可能导致冗余计算。例如，在图4中，算子B和C将在现代机器学习编译器中分为两个不同的 kernel，而算子A则会在这两个内核中重复内联。
 
-#### Challenge II: Irregular Tensor Shapes in Real-World Production Workloads.
+<a id="challenge-ii-irregular-tensor-shapes-in-real-world-production-workloads"></a>
 
 本篇文章也观察到在生产环境中 tensor 的维度是高度不规则的，这被称为 irregular tensor shapes，这需要在事先未知的情况下进行 JIT 优化，目前现代编译器在这方面做得较差。
 
@@ -72,48 +76,56 @@ fusion 最根本的技术之一是代码生成技术。ML Compiler 经常根据�
 
 ![](images/issue-26-06.png)
 
-## 分层重用与自适应线程映射
+<a id="分层重用与自适应线程映射"></a>
+
+## AStitch Design
 
 分层重用决定中间值保存在哪里；线程映射决定消费者能否高效访问它，以及能否满足同步所需的驻留约束。
 
-### Operator-Stitching Scheme Abstraction
+<a id="operator-stitching-scheme-abstraction"></a>
+
+### Operator Stitching
 
 ![](images/issue-26-07.png)
 基于图一，**Independent** 指的是没有任何依赖关系的算子；**Local** 指的是 one-to-one 依赖关系的算子，每个线程都会将中间结果存储在 pre-thread buffer 中，这里保留 TVM，XLA 等 AI 编译器的做法。**Regional** 表示的是 one-to-many 的元素依赖，中间数据应当被存储在 shared buffer 中。thread mapping 应当保证 thread-block 级别的局部性，例如 图 5 中的 power 的结果可以存储在 shared buffer 中。**Global** 用来处理任何复杂的算子依赖关系，中间数据被缓冲在全局内存中。由于这是一个面向并行性的方案，因此没有局部性的需要。在局部性与并行性的权衡将在之后的章节讨论。
 
-### Hierarchical Data Reuse Illustration
+<a id="hierarchical-data-reuse-illustration"></a>
 
 多种运算符拼接方案实现了分层数据重用，通过这种方式，我们可以高效地将任何运算符进行拼接，避免了大量的计算冗余。它有助于突破挑战I中的困境。
 
-#### Data Reuse.
+<a id="data-reuse"></a>
 
 根据表1中的拼接方案，AStitch实现了跨内存层次（即寄存器、共享内存和全局内存）的两级数据重用，以消除融合困境。
 **Element-level data reuse.** 在 AStitch 中，对于一对多的元素级依赖，结果可以保存在 shared/global buffer 中从而消费者可以从 buffer 中重用。
 **Operator-level data reuse.** 对于一对多的算子级依赖，，AStitch 只处理一次生产者并且将结果缓冲到 buffer 为多个消费者使用。请注意当前的消费者可能并不是一个 kernel，这会导致冗余计算。
 
-#### Kernel Form Illustration.
+<a id="kernel-form-illustration"></a>
 
 ![](images/issue-26-08.png)
 reduce.1 是 regional，power.1 和 reduce.2 是 global，multiply.1 是 independent，图 7 展示了 XLA 和 AStitch 生成的 kernel。
 
-#### Global Barrier
+<a id="global-barrier"></a>
 
 全局拼接方案要求在以下约束条件下，为所有GPU线程设置一个全局屏障：GPU线程块的总数量不应超过每个波（wave）上可以同时执行的允许数量。否则，活动线程块和非活动线程块之间将会发生死锁。在第3.3节中满足了这个约束条件，这有助于限制线程块的数量，同时保持较高的并行性。与分开的内核相比，全局拼接将内核调用之间的隐式全局线程屏障内联到一个单独的内核中。
 
-### Adaptive Thread Mapping
+<a id="adaptive-thread-mapping"></a>
+
+### Thread Mapping
 
 为了解决第二个挑战，AStitch 引入了 **task packing** 和 **splitting**。
 ![](images/issue-26-09.png)
 
-## 由主导算子确定拼接和线程布局
+<a id="由主导算子确定拼接和线程布局"></a>
 
-### Stitching Scope Identification
+## Compiler Optimization
+
+<a id="stitching-scope-identification"></a>
 
 首先，我们描述了AStitch如何确定在给定的机器学习模型中将哪些运算符进行拼接。为了最小化CPU-GPU上下文切换、框架调度开销和减少芯片外存取访问，AStitch尽可能将内存密集型的运算符（在资源约束下）进行大范围的拼接。请注意，AStitch能够有效地管理硬件资源，防止更大内核的资源爆炸（第4.4节、第4.5节）。给定一个机器学习计算图，AStitch首先应用BFS算法自动识别内存密集型的子图。然后，它用一个新的运算符（称为拼接运算符）替换每个子图。为了进一步扩大拼接范围，AStitch将不相连的拼接运算符分组，并形成一个更大的拼接运算符，我们称之为远程拼接。远程拼接的过程是遍历所有现有的拼接运算符，如果它们之间没有数据依赖关系，则将它们合并在一起。形成拼接运算符的一个约束是不允许有循环依赖。如果合并导致形成一个循环，AStitch不会将计算合并在一起。每个拼接运算符将被编译成一个CUDA内核。
 
-### Automatic Compiler Optimization Design
+<a id="automatic-compiler-optimization-design"></a>
 
-基于上一节的观察，可以首先确定几个关键算子，再由这些关键算子传播到其他算子。
+基于上述依赖分析，可以首先确定几个关键算子，再由这些关键算子传播到其他算子。
 根据 Obversation B，轻量级和昂贵的 element-wise 操作如果后面没有 broadcast 都是 local 级别的。那些不属于 local 级别的算子将被认为是 dominant op 的候选项。因此 reduce 和昂贵的 element-wise 后跟随 broadcast 将是 dominant op 的候选项。如果两个相邻的 dominant op 仅通过 local 相连接，那么将其进行 merge，其中一个作为 dominant op，另一个作为 sub-dominant。最终可以基于 dominant op 规定线程映射方式，并将其传播到 sub dominant。通常将 reduce 算子作为 dominant op，因为将 reduce 用于生成全局调度效果通常会更好。
 最终 AStitch 将生成一个由 dominant op 组成的 group，每个 group 里的 op 都是通过 local 连接，AStitch 将在每个 group 中传播线程映射，并给予 dominant op 和 sub dominant 决定互相之间的通信方式。
 
@@ -122,13 +134,17 @@ reduce.1 是 regional，power.1 和 reduce.2 是 global，multiply.1 是 indepen
 Figure 9 中展示了 AStitch 对于一个计算子图的 Dominant Op 的分组方案。首先先找出 dominant Op 并进行传播，最终对 op 进行分组并决定线程映射模式。
 随后，AStitch 基于已经分好的算子组对其进行线性映射，并使用之前的章节提到的 *Adaptive Thread Mapping* 技术对于张量形状进行重新划分。
 
-## 在 TensorFlow XLA 中替换融合路径
+<a id="在-tensorflow-xla-中替换融合路径"></a>
+
+## Implementation
 
 ![](images/issue-26-11.png)
 
 Figure 10 展示了 AStitch 的总体系统设计。AStitch 将其实现在了 Tensorflow XLA 上，AStitch 接受由 Tensorflow 传递来的计算图，使用 AStitch 策略代替了 XLA 的 kernel fusion 和 codegen 的过程。
 
-## 在 V100 设置下检查优化收益
+<a id="在-v100-设置下检查优化收益"></a>
+
+## Evaluation
 
 AStitch 采用 Nvidia V100 GPU、16GB 内存、CUDA 10.0 以及 cuDNN 7.6 来进行试验性能评估。
 

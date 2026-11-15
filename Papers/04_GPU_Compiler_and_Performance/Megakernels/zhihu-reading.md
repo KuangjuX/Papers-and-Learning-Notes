@@ -1,4 +1,6 @@
-# Look Ma, No Bubbles!：Llama-1B Megakernel 阅读摘记
+<a id="look-ma-no-bubbles-llama-1b-megakernel-阅读摘记"></a>
+
+# Look Ma, No Bubbles! Designing a Low-Latency Megakernel for Llama-1B
 
 Llama-3.2-1B 的单序列解码需要不断加载模型权重。拆成大量小 kernel 后，每次准备、收尾与边界同步都可能让访存停顿。Hazy Research 用 ThunderKittens 将一次前向组织成 Megakernel，以跨算子资源复用和同步减少这些间隙。[原始博文](https://hazyresearch.stanford.edu/blog/2025-05-27-no-bubbles)
 

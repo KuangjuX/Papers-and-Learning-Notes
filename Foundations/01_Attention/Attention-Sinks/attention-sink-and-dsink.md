@@ -15,7 +15,9 @@ date: 2026-09-20
 > 关联论文：[Efficient Streaming Language Models with Attention Sinks](https://arxiv.org/abs/2309.17453)，ICLR 2024，v4。
 > 相关笔记：[Sparse Attention](../SparseAttention.md)、[DSA 算法流程](../../../Papers/01_Attention/DeepSeek-DSA/deepseek-sparse-attention-dsa.md)。
 
-## 1. 先分清 score、概率和 attention 输出
+<a id="_1-先分清-score、概率和-attention-输出"></a>
+
+## Attention
 
 对当前 query 的一个 head，attention 的数据流是：
 
@@ -57,7 +59,9 @@ O = 0.75 × V₁ + 0.25 × V₂ = [1.5, 1]
 
 代码中 `out` 的形状为 `[T, Hq, D]`：每个 packed query、每个 query head 都产生一个长度为 $D$ 的向量。
 
-## 2. Sink 不是“选择重要 token”的同义词
+<a id="_2-sink-不是-选择重要-token-的同义词"></a>
+
+## Attention Sinks
 
 论文观察到：开头 token 即使语义不重要，也可能获得很高 attention，成为 attention sinks。StreamingLLM 主方案在**训练后的推理阶段**保留开头少量 KV 与最近窗口，丢弃中间历史，无需微调；这是利用已有 sink 现象的稀疏访问方式，不是对所有历史做内容重要性排序。[论文 §3.1–3.2](https://arxiv.org/html/2309.17453v4#S3.SS1)
 
@@ -82,13 +86,13 @@ O = 0.75 × V₁ + 0.25 × V₂ = [1.5, 1]
 - `block_indices` 描述稀疏选择的块；窗口、因果关系和样本边界进一步约束可见 token。
 - `learnable_sink` 影响可见 token 的归一化和输出幅度，不执行 Top-k 或选择 block。
 
-## 3. 论文的 sink token 与代码的标量 sink
+<a id="_3-论文的-sink-token-与代码的标量-sink"></a>
 
 论文中的真实 sink token 有 K/V，value 不被规定为零。论文 §3.3 还比较了分母加固定 $1$ 的 **Zero Sink**，以及在训练样本开头加入可学习占位 token 的方案；后者也不是每 head 一个标量。[论文 §3.3、公式 2](https://arxiv.org/html/2309.17453v4#S3.SS3)
 
 当前 Mimikyu 代码采用的是显式标量：每个 query head 有一个可训练 logit $a_h$，数学上对应 value 为零的虚拟位置。
 
-| 对象 | 在本次讨论中的含义 |
+| 对象 | 含义 |
 | --- | --- |
 | 真实 sink token | 序列中吸收较多 attention 的位置，有真实 K/V |
 | `learnable_sink[h]` | 当前实现的参数 $a_h$，是 logit，不是概率 |
@@ -98,7 +102,9 @@ O = 0.75 × V₁ + 0.25 × V₂ = [1.5, 1]
 
 这里仅建立机制和公式上的联系，不据此推断 Mimikyu 实现的设计来源。
 
-## 4. Learnable sink 为什么等价于输出缩放
+<a id="_4-learnable-sink-为什么等价于输出缩放"></a>
+
+## Learnable Sink
 
 对固定的 query 和 head，暂时省略下标，定义：
 
@@ -131,7 +137,7 @@ $$
 
 因此，本实现可以先计算普通 sparse attention，再缩放输出；数学上等价于在 softmax 分母增加 $e^a$。
 
-延续第一节的例子，若 $s=0.2$：
+延续 attention 输出的例子，若 $s=0.2$：
 
 ```text
 原始概率：A 0.75，B 0.25
@@ -140,7 +146,7 @@ $$
 新输出：  [0.3, 0.2] = 0.2 × 原输出
 ```
 
-需要记住：
+该归一化方式有以下性质：
 
 - QK scores 本身没有被 sink 修改；改变的是归一化分母、真实 token 概率及输出。
 - 真实 token 之间的相对概率保持不变。
@@ -148,7 +154,7 @@ $$
 - `learnable_sink=0` 仍贡献 $e^0=1$；当前 Python 接口用 `None` 表示不启用。
 - 固定 $a=0$ 时，分母形式对应 Zero Sink；将其变为可训练 $a_h$ 是数学推广，并不等于训练一个真实 sink token。
 
-## 5. 为什么这不是“中和不同 head 的 score”
+<a id="_5-为什么这不是-中和不同-head-的-score"></a>
 
 每个 head 在自己可见的 token 之间独立做 softmax，不是在不同 head 之间共享一个概率预算。
 
@@ -156,7 +162,7 @@ $$
 
 “允许少输出信息”是理解零值 sink 的功能性解释。是否真的改善训练或推理质量，需要实验；不能仅从公式推导质量收益。
 
-## 6. Head 输出变小，对后续有什么影响
+<a id="_6-head-输出变小-对后续有什么影响"></a>
 
 标准多头 attention 会拼接各 head 输出，再经过输出投影。按 head 分块后可以写成：
 
@@ -177,7 +183,9 @@ Sink 改变的是 attention 分支提供的一份更新，原表示仍通过残�
 
 因此，减弱某个 head 不等于所有词的 logits 或概率一起变小；特征与投影有正负，后续还有非线性运算。具体预测怎样变化由整个网络决定。
 
-## 7. dsink 是什么，公式怎样得到
+<a id="_7-dsink-是什么-公式怎样得到"></a>
+
+## Backward
 
 `dsink` 是损失 $\mathcal L$ 对 `learnable_sink` 的梯度：
 
@@ -219,12 +227,12 @@ dsink = dsink.to(sink_orig_dtype)
 
 用梯度下降解释符号：若某个 query 的 $\Delta>0$，沿当前输出方向增大幅度会增大损失，其 sink 梯度贡献为负；更新 $a\leftarrow a-\eta\,dsink$ 会倾向于增大 sink、减小输出。不同 query 的贡献可以抵消；实际优化器还会使用历史状态。
 
-两个易错点：
+实现梯度时：
 
 1. 使用 `out_new` 时不再额外乘 $s$；若用 `out_orig`，公式必须包含 $s(1-s)$。
 2. 本实现的 sink logit 没有乘 softmax scale，所以 `dsink` 不再额外乘 $\alpha$。
 
-## 8. 为什么 dQ/dK/dV 也能正确包含 sink 的影响
+<a id="_8-为什么-dq-dk-dv-也能正确包含-sink-的影响"></a>
 
 真实 token 的 score 梯度仍是：
 
@@ -235,9 +243,11 @@ $$
 
 因此，现有 backward 若用包含 sink 的 $L_{new}$ 重建 $P=e^{x-L_{new}}$，并用 $O_{new}$ 计算 $\Delta$，其 dQ/dK/dV 就已包含 sink 对归一化的影响。`dsink` 是新增参数的梯度，不是给 dQ/dK/dV 再做一次缩放修正。
 
-## 9. 本地源码核对记录
+<a id="_9-本地源码核对记录"></a>
 
-Mimikyu 检查版本：`83c7cf172`。以下路径相对本机仓库 `/Users/kuangjux/codes/mimikyu-dsa`，行号是本次检查时的定位，不是稳定 API。
+## Mimikyu Implementation
+
+Mimikyu 检查版本：`83c7cf172`。以下路径相对本机仓库 `/Users/kuangjux/codes/mimikyu-dsa`，行号对应此版本。
 
 | 源码 | 位置与确认内容 |
 | --- | --- |
@@ -250,11 +260,13 @@ Mimikyu 检查版本：`83c7cf172`。以下路径相对本机仓库 `/Users/kuan
 | `mmq/mmq/modules/attention/cp_attention.py` | 147–151 行：reduce-scatter 处理 dK/dV，不包括上层单独计算的 `dsink` |
 | `mmq/mmq/modules/block/submodules/mixer.py` | 1717、1775 行：提取 `dsink` 并作为 sink 输入对应的梯度返回 |
 
-**分布式边界：** 该 attention 函数只对本 rank 的 query 归约 `dsink`。共享参数需要合并各 rank 的梯度贡献，但本次未验证训练 reducer 的完整覆盖，不能断言全局同步已正确或遗漏，也不应未经核对就增加一次 all-reduce。
+**分布式边界：** 该 attention 函数只对本 rank 的 query 归约 `dsink`。共享参数需要合并各 rank 的梯度贡献，但现有记录未验证训练 reducer 的完整覆盖，不能断言全局同步已正确或遗漏，也不应未经核对就增加一次 all-reduce。
 
 **数值边界：** 前向将 FP32 `sink_s` 转成输出 dtype 后相乘；反向把已有的 out/dout 转成 FP32 计算。上面的数学等价不意味着 BF16 实现与全 FP32 或融合实现逐位一致。
 
-## 10. TileLang 前后向接口的边界
+<a id="_10-tilelang-前后向接口的边界"></a>
+
+## TileLang Interface
 
 以下为已检查的接口条件，尚未修改或验证 kernel。
 

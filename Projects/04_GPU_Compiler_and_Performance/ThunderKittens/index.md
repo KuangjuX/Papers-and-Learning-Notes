@@ -2,7 +2,9 @@
 
 矩阵运算需要把逻辑 tile 映射到 warp 内各线程的寄存器。ThunderKittens 用布局类型封装这一映射，让 load、逐元素操作与 MMA 消费相容的数据分布；代价是 tile 变大时，每个线程持有的状态和寄存器压力也增加。
 
-## 从标量元素数算到寄存器占用
+<a id="从标量元素数算到寄存器占用"></a>
+
+## Register Layout
 
 下面保留早期 `T2` 向量类型接口的代码，讨论范围是 FP16/BF16/FP32 的 16×16 subtile。较新版本 [`67845f5f`](https://github.com/HazyResearch/ThunderKittens/blob/67845f5fa48d05343dbbc1ba1403f11061f08d2d/include/types/register/rt_base.cuh) 已改为接收标量类型并在内部推导 packed type，还支持其他 tile 类型；旧别名不应直接当作新版 API 使用。
 
@@ -37,7 +39,9 @@ template<typename T2, ducks::rt_layout::all _layout> struct rt_base {
 
 16×16 tile 有 256 个标量，分给 32 个线程后，每线程持有 **8 个标量**。`T2` 将两个标量打包，所以 `data` 有 4 个 packed 元素：BF16/FP16 的 packed 元素为 4 B，占 4 个 32-bit 寄存器；FP32 的 `float2` 为 8 B，占 8 个。元素数、packed 元素数和寄存器数不能混用。
 
-## 组合更大的 tile，同时增加线程私有状态
+<a id="组合更大的-tile-同时增加线程私有状态"></a>
+
+## Tile Composition
 
 RegTile 通过二维 subtile 数组扩展宽高：
 
@@ -100,7 +104,9 @@ template<ducks::rt_layout::all layout=ducks::rt_layout::row> using rt_fl_8x1 = r
 
 例如 `rt_fl_1x8` 表示 16×128 的 FP32 tile，每线程的数据占用为 `8 × 8 = 64` 个 32-bit 寄存器。地址、循环状态和中间结果还会增加寄存器需求，实际分配与 spill 要看编译结果；不能仅由这个类型推断 occupancy 或速度。
 
-## Load 如何把全局坐标映射到线程寄存器
+<a id="load-如何把全局坐标映射到线程寄存器"></a>
+
+## Global Memory Load
 
 这段 row-major `load` 将全局内存读入 **register tile**，没有共享内存中转：
 

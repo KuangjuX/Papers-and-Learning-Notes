@@ -2,24 +2,27 @@
 
 来源：[Unikernel、Unikraft 与 ArceOS](../../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/zhihu-reading.md)。
 
-## 要点与边界
+<a id="要点与边界"></a>
 
 - 版本背景为 2023-04，未记录 commit；文件名、Rust 属性和命令可能随版本变化，不能作为当前版本的运行验证。
 - 构建路径：应用的 `Cargo.toml` 声明 `libax` features；Makefile 汇总配置并调用 Cargo；QEMU 启动镜像后进入平台引导，再进入 `axruntime::rust_main` 和应用入口。
-- 最后关于 hypocaust-2 的模块复用是个人设计思考，不标为已实现。
 
-## 机制与实现
+<a id="机制与实现"></a>
 
-### Arceos
+## Build and Boot
 
-#### 目标：
+<a id="arceos"></a>
+
+<a id="目标"></a>
 
 - 兼容 rust api 和 rust 应用程序
 - 在 unikernel 支持 tokio，提高 IO 性能
 
 ![](../../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/images/unikraft-04.jpg)
 
-#### Arceos 模块
+<a id="arceos-模块"></a>
+
+### Modules
 
 - crate: 一些与 OS 设计的公共模块，也可以在构建其他内核/hypervisor 中使用
 - modules:
@@ -35,7 +38,7 @@
   - axdriver：设备驱动
   - axnet：网络
 
-**当执行了 `make A=apps/net/httpserver ARCH=aarch64 LOG=info NET=y SMP=1 run` 发生了什么？**
+以 `make A=apps/net/httpserver ARCH=aarch64 LOG=info NET=y SMP=1 run` 为例，构建与启动路径如下。
 
 根据 cargo 不同的 feature 来进行条件编译。
 
@@ -130,17 +133,19 @@ unsafe extern "C" fn _start() -> ! {
 
 随后开始执行用户程序，用户程序通过 `libax` 的 API 进行执行，应用程序在内核态执行，无需进行 syscall 与上下文切换，效率更高。
 
-**ArceOS 相比 Unikraft 的优势？**
+## 模块复用与个人理解
+
+个人对 ArceOS 与 Unikraft 的比较：
 
 - 使用 Rust 编写，具有现代化包管理（crate），条件编译和引用更简单。
 - 可以更为轻松扩展模块，例如 hypervisor 可以和 ArceOS 使用相同模块。
-- 原声支持异步，可以在内核重写 tokio runtime 进行调度。
+- 原生支持异步，可以在内核重写 tokio runtime 进行调度。
 
-**问题：ArceOS 中模块之间是否会互相引用状态？如何解决？**
+模块间仍存在状态依赖。
 
 例如：`axsync` 引用了 `axtask`，使用了 `axtask` 中的 WaitQueue（xv6 中 SpinLock 对 Process 的引用）。`axruntime` 中也需要引用 `axtask` 的调度器（需要仔细设计不同模块间的依赖关系）。
 
-**思考：如何将 hypocaust-2 拆分成模块化？**
+我希望将 hypocaust-2 拆成可复用模块；以下是设计思考，尚未实现。
 
 kernel/hypervisor 模块复用：
 

@@ -16,7 +16,9 @@ Kernel agent 每次得到一个报错或延迟数字后，都需要判断应修�
 
 [Zihao Ye 等，CAKE，arXiv:2608.12629](https://arxiv.org/abs/2608.12629)，NVIDIA / CMU。
 
-## 黑盒 kernel 搜索缺少什么反馈
+<a id="黑盒-kernel-搜索缺少什么反馈"></a>
+
+## Background
 
 现有 GPU kernel 智能体通常采用黑盒式循环：生成 CUDA/PTX 或 DSL 代码，编译，检查数值正确性，测量延迟，再根据结果修改。这个流程能够完成局部调优，但反馈粒度不足：
 
@@ -29,9 +31,11 @@ Kernel agent 每次得到一个报错或延迟数字后，都需要判断应修�
 
 CAKE 的目标是在二者之间提供一个适合智能体搜索的表示与反馈环境：保留影响性能的物理调度决策，同时由编译器承担机械性的底层元数据生成和合法性验证。
 
-## Cake IR：显式描述调度，推导机械元数据
+<a id="cake-ir-显式描述调度-推导机械元数据"></a>
 
-### 显式表达物理调度
+## Cake IR
+
+<a id="显式表达物理调度"></a>
 
 Cake IR 记录“如何驱动硬件”，包括：
 
@@ -46,14 +50,14 @@ Cake IR 记录“如何驱动硬件”，包括：
 
 > 调度声明做什么，lowering 推导具体怎么编码。
 
-### 四个关键属性
+<a id="四个关键属性"></a>
 
 - **Type-checked vocabulary**：计算、访存、同步、数学和 warp 控制来自固定操作集合。
 - **Declared resources**：缓冲区、同步对象、warp role 和 pipeline 统一声明。
 - **Explicit roles**：跨 warp role 的数据交接直接出现在程序中。
 - **Auto-derived metadata**：底层地址、phase 和 descriptor 等不由智能体手写。
 
-### 不把 Layout 作为一等抽象
+<a id="不把-layout-作为一等抽象"></a>
 
 与 CuTe layout algebra、Triton linear layout 和 Axe named-axis abstraction 不同，Cake IR 不要求智能体构造独立的 layout 对象。智能体直接写下具体硬件承诺，例如：
 
@@ -65,7 +69,9 @@ Cake IR 记录“如何驱动硬件”，包括：
 
 编译器沿数据流检查这些承诺是否相互一致，并验证它们是否满足目标指令和资源约束。这样既保留硬件控制，又缩小了智能体必须操作的抽象表面。
 
-## Compiler Harness：把候选程序变成可定位的证据
+<a id="compiler-harness-把候选程序变成可定位的证据"></a>
+
+## Compiler Harness
 
 Harness 向智能体暴露以下分析能力：
 
@@ -81,16 +87,18 @@ Harness 向智能体暴露以下分析能力：
 
 静态检查将一部分失败提前到编译前，但只覆盖已建模语义，可能误报或漏报；成本模型用于排序与解释。最终仍需真实 GPU 执行、外部 oracle 和 CUPTI 计时，因此多一层分析并没有取消测试成本。
 
-## 一个失败怎样反馈到 kernel 与编译器
+<a id="一个失败怎样反馈到-kernel-与编译器"></a>
 
-### Kernel 内循环
+## Search Procedure
+
+<a id="kernel-内循环"></a>
 
 1. 生成结构上不同的 Cake IR 候选；
 2. 经过 IR 构造检查、verifier 硬门禁和成本模型排序；
 3. 对幸存候选执行编译、数值验证、benchmark 和 profiling；
 4. 根据证据判断应该修改候选、verifier、成本模型还是 IR 词汇表。
 
-### Compiler-Harness 外循环
+<a id="compiler-harness-外循环"></a>
 
 编译器演化有两条证据来源：
 
@@ -106,7 +114,9 @@ Harness 向智能体暴露以下分析能力：
 
 所有 compiler change 都需要经过 kernel corpus 回归测试和人工 merge gate。论文固定了基础模型与 agent scaffold，演化对象主要是领域编译器环境，而不是智能体模型本身。
 
-## IR 从生产 kernel 中获得哪些先验
+<a id="ir-从生产-kernel-中获得哪些先验"></a>
+
+## IR Design
 
 Cake IR 不是预先完整设计的，而是从生产 kernel 自底向上演化出来：
 
@@ -118,7 +128,9 @@ Cake IR 不是预先完整设计的，而是从生产 kernel 自底向上演化�
 
 这种设计意味着 Cake IR 已经编码了生产 kernel corpus 与专家硬件知识，它并不是知识中立的表示。
 
-## 从单 shape 程序扩展到可分派的算子库
+<a id="从单-shape-程序扩展到可分派的算子库"></a>
+
+## Operator Library
 
 CAKE 将单 shape 优化与通用 library 构建视为两个目标不同的阶段。强单 shape seed 产生后，泛化阶段才会：
 
@@ -131,7 +143,9 @@ CAKE 将单 shape 优化与通用 library 构建视为两个目标不同的阶�
 
 单 shape 的最优程序只回答一个点上的性能问题；组成 library 后还需要证明 dispatcher、边界 shape 和 fallback 的整体行为。
 
-## 实验契约：固定什么，允许智能体看到什么
+<a id="实验契约-固定什么-允许智能体看到什么"></a>
+
+## Evaluation Protocol
 
 每个任务由稳定的 workload contract 约束，包括 shape、正确性 oracle、数值容差、硬件和允许访问的参考资料。论文中的任务统一使用：
 
@@ -142,9 +156,13 @@ CAKE 将单 shape 优化与通用 library 构建视为两个目标不同的阶�
 
 在 clean-start 和 frontier-kernel synthesis 中，智能体可以查看数学描述、评测契约、正确性 oracle 和高层代码，但不能查看已有 CUDA、PTX、SASS 或等价生成代码；外部实现只可作为黑盒性能基线。已知 kernel reproduction 则允许查看参考实现。
 
-## 实验：搜索效率、kernel 时间与 serving 收益
+<a id="实验-搜索效率、kernel-时间与-serving-收益"></a>
 
-### Flash-KMeans Clean Start {#_1-flash-kmeans-clean-start}
+## Evaluation
+
+<a id="_1-flash-kmeans-clean-start"></a>
+
+### Flash-KMeans
 
 目标是 Flash-KMeans 的 `assign` kernel：`B=32, N=65,536, K=1,024, D=128`，BF16 输入、FP32 累加。调优后的 FlashML Triton 基线为 0.938 ms。
 
@@ -159,7 +177,9 @@ CAKE 将单 shape 优化与通用 library 构建视为两个目标不同的阶�
 
 Cake IR 三次运行的平均性能约在 5500 万 token 时越过基线，之后继续提升；CUDA/PTX 组的平均值在 8000 万 token 截止时仍低于基线。结果表明，结构化表示与局部诊断可以减少无效搜索，但实验规模只有一个 workload、一个 shape 和每组三次运行。
 
-### Kimi Delta Attention {#_2-kimi-delta-attention}
+<a id="_2-kimi-delta-attention"></a>
+
+### Kimi Delta Attention
 
 智能体不能查看 FlashKDA 的低层实现，只能将其作为黑盒性能基线：
 
@@ -170,7 +190,9 @@ Cake IR 三次运行的平均性能约在 5500 万 token 时越过基线，之�
 
 KDA 包含需要跨 chunk 保持的 recurrent state，比普通 GEMM + epilogue 更能检验 IR 对复杂状态与调度的表达能力。
 
-### TinyGEMM {#_3-tinygemm}
+<a id="_3-tinygemm"></a>
+
+### TinyGEMM
 
 从 FlashInfer 中 TensorRT-LLM 派生的小 M BF16 kernel 出发，智能体构建了浅/深 pipeline、PDL 变体和 batch size 小于 8 的专门路径：
 
@@ -179,7 +201,9 @@ KDA 包含需要跨 chunk 保持的 recurrent state，比普通 GEMM + epilogue 
 - SGLang GPT-OSS-120B、concurrency 128、TP1 下最高报告 **7.6% output throughput 提升**；
 - TP4 下差异位于测量噪声范围。
 
-### Alpha-MoE Blackwell Rewrite {#_4-alpha-moe-blackwell-rewrite}
+<a id="_4-alpha-moe-blackwell-rewrite"></a>
+
+### Alpha-MoE
 
 智能体把原本面向 Hopper 的 Alpha-MoE W8A8 megakernel 重写到 Blackwell，将 routed gather、两个 projection、activation、requantization 和 route-weighted output accumulation 融入一个设备程序。
 
@@ -190,7 +214,9 @@ KDA 包含需要跨 chunk 保持的 recurrent state，比普通 GEMM + epilogue 
 
 API 与 GPU-span 数字的差距说明，大幅端到端提升还来自减少 GPU activity、调度间隙和 workspace 管理，而不只是 kernel 算术本身更快。
 
-### 已知专家 Kernel 复现 {#_5-已知专家-kernel-复现}
+<a id="_5-已知专家-kernel-复现"></a>
+
+### Expert Kernel Reproduction
 
 论文对比 TensorRT-LLM、CUTLASS、DeepGEMM、FlashAttention-4 和 FlashInfer 的 11 个 LLM 关键 kernel：
 
@@ -202,7 +228,9 @@ API 与 GPU-span 数字的差距说明，大幅端到端提升还来自减少 GP
 
 所有 Cake IR 实现的物理代码行数都少于审计的参考 device code，但作者明确指出语言和统计范围不同，不能据此直接声称更高的开发效率或可读性。
 
-## 算子库与跨形状验证
+<a id="算子库与跨形状验证"></a>
+
+## Cross-shape Validation
 
 有效 shape domain 在调优前声明，dispatcher 不能为了结果临时引入有利的评测 shape。GB200 上的完整 portfolio 结果为：
 
@@ -214,7 +242,9 @@ API 与 GPU-span 数字的差距说明，大幅端到端提升还来自减少 GP
 
 所有输出均正确，KNN recall 为 1.0。论文强调这些结果与 Flash-KMeans 单 shape clean-start 使用不同主机、shape 分布、baseline 和协议，二者差异不能被解释为“泛化成本”。
 
-## 系统覆盖与证据边界
+<a id="系统覆盖与证据边界"></a>
+
+## Limitations
 
 - 超过 400 个静态分析和编译案例；
 - 399 个 GPU correctness case；
@@ -230,7 +260,9 @@ API 与 GPU-span 数字的差距说明，大幅端到端提升还来自减少 GP
 - **“Clean start”不等于环境没有先验**：智能体看不到目标低层实现，但 Cake IR/harness 已从生产 kernel corpus 中演化出来；优势来自表示与环境中累积的领域知识，而不只是语法更简洁。
 - **演化成本高**：Flash-KMeans 每次使用 8000 万 token，KDA 轨迹达到十亿级累计 token；论文较少讨论推理成本和维护 compiler harness 的人力如何摊销。
 
-## 个人理解：可复用的诊断也有维护成本
+<a id="个人理解-可复用的诊断也有维护成本"></a>
+
+## 个人理解
 
 **个人理解。** 把一次失败编码为 verifier 或 lowering 规则，才可能让后续任务免于重复排查；仅保存成功 kernel 不会自动得到这种收益。但新规则也要避免误拒合法调度，并随目标硬件和 IR 扩展维护。论文的 corpus 回归与人工合并门禁正是这项代价的一部分，不能只用最终 kernel 时间衡量整个演化过程的效率。
 

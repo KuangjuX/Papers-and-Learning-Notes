@@ -1,6 +1,8 @@
 # RMSNorm、Softmax 与在线归约
 
-## RMSNorm 归约什么
+<a id="rmsnorm-归约什么"></a>
+
+## RMSNorm
 
 对一行长度 H 的输入 x，本文采用 epsilon 在平方根内、只有 scale 的定义：
 
@@ -13,7 +15,7 @@ $$
 
 一行一个 block 的基本流程：线程分段累加平方和 → warp 内归约 → shared memory 汇总各 warp → block 得到总和 → 所有线程获得同一个 r → 写回自己负责的元素。H 可以大于线程数，但线程数、尾部 mask、索引范围与输入输出别名仍要满足实现约束。
 
-## 原 RMSNorm 草稿的两个关键错误
+<a id="原-rmsnorm-草稿的两个关键错误"></a>
 
 原第二级归约只让 `threadIdx.x < num_warps` 的线程进入，却使用全 warp mask；这些线程又都写 `s_sum[0]`。应让完整第一个 warp 参与、无效项填 0，并只让 lane 0 写最终结果。修改 mask 本身不能自动解决读取未参与 lane 的问题。
 
@@ -56,7 +58,9 @@ __device__ float block_sum(float v) {
 
 对于 max 归约，单位元应为负无穷而不是 0。原普通 Softmax 的 shared scratch 广播也要检查重复调用时读写生命周期，不能因为算法看起来相同就省掉同步证明。完整 kernel 尚需检查头文件、launch、shared memory、精度与特殊值。
 
-## 稳定 Softmax：归一化之前先减最大值
+<a id="稳定-softmax-归一化之前先减最大值"></a>
+
+## Softmax
 
 对一行有限实数 x，令 m=max(x)，则分子分母同时除以 exp(m)：
 
@@ -70,7 +74,9 @@ $$
 
 朴素稳定版本可分成扫描 max、扫描 exp 求和、再次扫描写输出三遍；若整行保留在寄存器或 shared 中，实际 HBM 读取次数会不同。因此不能只数数学循环就宣称某个 kernel 必定节省多少显存访问。输入类型、输出类型与累加类型也要分别说明。
 
-## Online Softmax 为什么要重缩放旧的和
+<a id="online-softmax-为什么要重缩放旧的和"></a>
+
+## Online Softmax
 
 处理前 k−1 个元素后，保存旧最大值 m_old 与相对旧最大值的指数和 ell_old。读到新元素 x_k，先令 m_new=max(m_old,x_k)，再把旧贡献移到新基准：
 
@@ -103,7 +109,7 @@ def online_softmax(xs):
 
 它把 max 与分母统计合到一遍，独立 Softmax 的最终输出仍需遍历输入或保留输入。Online 统计并不意味着所有概率可以在读到各元素时立即最终确定。原 Notion 的 `flash_online_softmax_kernel` 省略了 sum 归约、`combine_stats` 调用和输出写回，属于未完成草稿，不能拿来测性能。
 
-## 从逐元素更新到合并两个 tile
+<a id="从逐元素更新到合并两个-tile"></a>
 
 两块 A、B 分别保存 (m_A,ell_A)、(m_B,ell_B)，则可合并为：
 

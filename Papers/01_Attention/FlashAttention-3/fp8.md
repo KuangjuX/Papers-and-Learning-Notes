@@ -7,13 +7,17 @@ aliases:
   - FA3 FP8
 ---
 
-# FlashAttention-3：FP8 数据流、布局转换与精度优化
+<a id="flashattention-3-fp8-数据流、布局转换与精度优化"></a>
+
+# FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision
 
 FA3 的 FP8 路径同时解决三个问题：让两次矩阵乘使用 FP8 Tensor Core，让中间结果以较低成本满足下一次 WGMMA 的布局要求，以及控制量化误差。**Q、K、P、V 作为矩阵乘操作数可以使用 FP8，但 attention 的整个计算过程不是 FP8。**
 
 [论文 v2](https://arxiv.org/abs/2407.08608v2) · [Zotero](zotero://select/library/items/MNPEHW5Y) · [PDF](zotero://open-pdf/library/items/HTMXSCYS) · [Attention 索引](../index.md)
 
-## 1. FP8 加速了什么，为什么还需要专门优化
+<a id="_1-fp8-加速了什么-为什么还需要专门优化"></a>
+
+## FP8 Dataflow
 
 标准 attention 的两个矩阵乘是 $S=QK^T/\sqrt d$ 和 $O=PV$，中间通过按行 softmax 得到 $P$。FlashAttention 将它们分块融合，通过 online softmax 避免把完整的 $S$、$P$ 写回 HBM。
 
@@ -21,7 +25,7 @@ Hopper 上 FP8 Tensor Core 的理论矩阵乘吞吐是 FP16 的两倍，但 soft
 
 FA3 将 producer warpgroup 的搬运工作与 consumer warpgroup 的计算重叠，并进一步重叠 GEMM 与 softmax；FP8 路径还需要处理 V 的共享内存布局、P 的寄存器布局及量化误差。来源：论文 §3.1–3.3，PDF 第 4–9 页。
 
-### 1.1 QKPV 的精度边界
+<a id="_1-1-qkpv-的精度边界"></a>
 
 下面将数学上的完整概率矩阵记为 $P$，将 online softmax 当前 tile 中、尚待最终归一化的指数值记为 $\widetilde P$。实际 kernel 传给第二次矩阵乘的是后者的低精度表示。
 
@@ -52,7 +56,9 @@ V 的 FP8 tile ──共享内存布局转换───────────�
 
 上图是 AI 教学示意，突出依赖关系；实际执行会将不同 tile 的加载、转换和计算流水化。
 
-## 2. V 为什么需要在 kernel 内转置
+<a id="_2-v-为什么需要在-kernel-内转置"></a>
+
+## FP8 Kernel Design
 
 通常 QKV 的 head dimension 连续存储。对于 $\widetilde P V$，GEMM 的归约维度却是 KV 序列维度，而 FP8 WGMMA 要求相应操作数满足 K-major 布局。这里的 K 指 **GEMM 的归约维度**，不是 Key 张量的名字。
 
@@ -71,7 +77,7 @@ TMA 加载本身不能完成这里所需的连续维度转换。LDSM/STSM 以 16
 
 官方实现中的 `Transpose_V = Is_FP8 && !V_colmajor` 决定是否走该路径；`transpose_V` 中可看到两次 `__byte_perm`，选择器分别为 `0x6420`、`0x7531`。这些是 **V 转置过程**中的字节操作，不能直接当成 P 寄存器重排的指令序列。参见 [mainloop，第 722–739 行](https://github.com/Dao-AILab/flash-attention/blob/1dc8232fe209e2c48b1d3e677f26d68e4b856212/hopper/mainloop_fwd_sm90_tma_gmma_ws.hpp#L722)。
 
-## 3. 两张 WGMMA 图究竟在画什么
+<a id="_3-两张-wgmma-图究竟在画什么"></a>
 
 第一次 WGMMA 的 FP32 输出布局与第二次 WGMMA 的 FP8 A 操作数布局不同。图中的**空间位置表示矩阵坐标**，`T0` 表示拥有该元素的线程，`d0` 或 `a0` 表示该指令对应的线程内片段槽位。
 
@@ -85,7 +91,7 @@ TMA 加载本身不能完成这里所需的连续维度转换。LDSM/STSM 以 16
 
 **d 和 a 是两套独立编号，不是同一批数据的永久名字。** 图 3 的 `d2` 并不因此必须进入图 4 的 `a2`。原图分别描述两种指令接口的布局，所以各自从 0 编号；它们本身不是一张已经标明所有数据流箭头的转换图。
 
-### 3.1 只追踪 T0：原槽位编号不等于矩阵的逐行顺序
+<a id="_3-1-只追踪-t0-原槽位编号不等于矩阵的逐行顺序"></a>
 
 用 $p_i$ 固定表示原 `d_i` 矩阵位置经过 online softmax 后的值。这样可以同时保留“值来自哪里”和“值将进入哪个新槽位”两种信息。
 
@@ -110,7 +116,7 @@ TMA 加载本身不能完成这里所需的连续维度转换。LDSM/STSM 以 16
 
 如果直接按前四个、后四个值打包，每包都会混入两个不同矩阵行的值；而目标 FP8 A 布局要求 T0 的前四个槽位属于行 0，后四个属于行 8。
 
-### 3.2 交换的是槽位内容，矩阵中的行归属不变
+<a id="_3-2-交换的是槽位内容-矩阵中的行归属不变"></a>
 
 在配合 V 置换的路径中，所需取值顺序为：
 
@@ -130,7 +136,7 @@ AI 补充图解，依据论文图 3、4。箭头追踪原位置的值，包含 s
 
 原 `d4,d5` 的值仍属于矩阵行 0，只是进入新接口的 `a2,a3`。实现可以先交换 FP32 片段，也可以直接按 `p0,p1,p4,p5` 与 `p2,p3,p6,p7` 转换打包；必要的是结果排列，具体指令由实现和编译器决定。
 
-### 3.3 列确实变了，为什么 PV 还能保持正确
+<a id="_3-3-列确实变了-为什么-pv-还能保持正确"></a>
 
 图中 T0 的行 0 原来持有列 `0,1,8,9`，目标布局中这些值占据新列 `0,1,2,3`。这是一种 **P 列置换**。在图示的 16 列片段中，新列依次取自以下旧列：
 
@@ -155,11 +161,11 @@ $$
 
 这样可以保留各线程已经持有的 P 值，避免为这一步 P 布局转换进行跨线程交换。代价转移到配套的 V 布局处理上。来源：论文 §3.3，PDF 第 8 页及脚注 9。这里的“不需要 shuffle”仅针对该路径的 P 布局转换，不代表 softmax 或整个 kernel 没有线程间通信。
 
-## 4. 官方源码怎样实现这一步
+<a id="_4-官方源码怎样实现这一步"></a>
 
 以下源码固定于官方仓库提交 [`1dc8232fe209`](https://github.com/Dao-AILab/flash-attention/commit/1dc8232fe209e2c48b1d3e677f26d68e4b856212)，用于解释可复核的实现；它不是论文发表时的历史快照。
 
-### 4.1 `!V_colmajor`：先重排 FP32 片段，再转换 FP8
+<a id="_4-1-v-colmajor-先重排-fp32-片段-再转换-fp8"></a>
 
 在 [mainloop，第 1155–1160 行](https://github.com/Dao-AILab/flash-attention/blob/1dc8232fe209e2c48b1d3e677f26d68e4b856212/hopper/mainloop_fwd_sm90_tma_gmma_ws.hpp#L1155) 中，调用顺序是：
 
@@ -179,7 +185,7 @@ $$
 
 这段逻辑遍历片段中的各组，循环可在编译期展开。只看源码不能断言最终机器码一定有几个寄存器 move；确认指令数量还需要具体实例的编译结果。
 
-### 4.2 `V_colmajor`：不能套用“不需要跨线程交换”的结论
+<a id="_4-2-v-colmajor-不能套用-不需要跨线程交换-的结论"></a>
 
 同一段 mainloop 在 `Is_FP8 && V_colmajor` 时，不调用上述 `permute_Cregs_fp8`，而是在 FP8 转换之后调用 `permute_Aregs_fp8(tOrP)`。
 
@@ -192,9 +198,11 @@ $$
 
 V 转置实现中还可能为减少 bank conflict 而置换其输出通道方向，并在输出阶段恢复；不要把它与这里保持 PV 等价所需的 **P 列／V 行配对置换**混为一件事。
 
-## 5. 如何控制 FP8 量化误差
+<a id="_5-如何控制-fp8-量化误差"></a>
 
-### 5.1 Block quantization：避免一个 outlier 决定整张张量的尺度
+## Quantization
+
+<a id="_5-1-block-quantization-避免一个-outlier-决定整张张量的尺度"></a>
 
 FP8 可表示范围与有效精度有限。若一个张量只用一个 scale，少量大值会迫使普通值使用较粗的量化间隔。论文按计算 tile 对 Q、K、V 使用分块尺度：Q 块为 $B_r\times d$，K、V 块为 $B_c\times d$，每块一个尺度，便于与 FlashAttention 分块计算对齐。来源：论文 §3.3，PDF 第 8–9 页。
 
@@ -210,7 +218,7 @@ V 的尺度也要进入对应的输出贡献：若每个 KV tile 的 $s_V$ 不�
 
 **论文方案与接口能力要分开看。** 上述固定源码的公开 forward API 接受形状为 `(batch_size, num_heads_k)` 的 Q/K/V descale；这不能直接等同于论文的“每个 tile 一个 scale”。参见 [flash_api.cpp，第 1115–1144 行](https://github.com/Dao-AILab/flash-attention/blob/1dc8232fe209e2c48b1d3e677f26d68e4b856212/hopper/flash_api.cpp#L1115)。
 
-### 5.2 Incoherent processing：在量化前打散异常大的通道
+<a id="_5-2-incoherent-processing-在量化前打散异常大的通道"></a>
 
 分块缩放仍可能受块内 outlier 影响。论文对 Q、K 施加相同的正交变换 M，将集中在少数维度的大值扩散到多个维度；具体采用随机符号与归一化 Hadamard 变换，可用 $O(d\log d)$ 的快速变换实现。来源：论文 §3.3，PDF 第 9 页。
 
@@ -230,9 +238,11 @@ $$
 
 这一步在量化前作用于 Q、K 的特征维度，不需要为维持上述恒等式而旋转 V。恒等式也不保证 FP8 量化后没有误差；它说明可以在不改变精确点积的前提下，改善待量化的数据分布。论文提到可将预处理与 RoPE 等前序操作融合，但不能据此声称调用任意 FA3 接口都会自动执行 Hadamard 变换。
 
-## 6. 性能相比 FP16 提升多少
+<a id="_6-性能相比-fp16-提升多少"></a>
 
-论文报告 FP16 attention 吞吐最高约 **740 TFLOPs/s**，FP8 接近 **1.2 PFLOPs/s**。这两个峰值之比约为 $1200/740\approx1.62$，但它们不是一个已控制相同 shape 的端到端计时对，不能直接记成“所有输入快 1.62 倍”。论文中的“1.5–2.0 倍”主要指 FA3 FP16 相对 FA2 的加速，也不是 FP8 相对 FP16 的结论。来源：摘要、§4.1–4.2。
+## Evaluation
+
+论文报告 FP16 attention 吞吐最高约 **740 TFLOPs/s**，FP8 接近 **1.2 PFLOPs/s**。这两个峰值不是相同 shape 的配对计时，不能据此计算 FP8 相对 FP16 的统一加速比。论文中的“1.5–2.0 倍”主要指 FA3 FP16 相对 FA2 的加速，也不是 FP8 相对 FP16 的结论。来源：摘要、§4.1–4.2。
 
 ![论文图 7：head dimension 256 的 FP8 吞吐](images/figure-7.png)
 
@@ -254,7 +264,9 @@ $$
 - 附录说明 FP8 测试在较长序列上采用 4224、8448、16896 等长度，使工作分配适配 132 个 SM；图中相应标签写作 4k、8k、16k。不能直接把这些柱与 FP16 的 4096、8192、16384 当作完全相同的工作量比较延迟。
 - 论文测量版本的 FP16 kernel 有 persistent load balancing，而 FP8 kernel 当时尚未采用。短序列、causal 等场景的收益因此还受到调度与工作分配影响。来源：PDF 第 12 页脚注 10。
 
-## 7. 精度损失多少，怎样读论文中的 RMSE
+<a id="_7-精度损失多少-怎样读论文中的-rmse"></a>
+
+### Accuracy
 
 论文 §4.3 用相对于 FP64 参考输出的 RMSE 衡量误差，并通过合成 outlier 数据检查精度方案：输入包含标准正态项，以及概率为 0.1% 的大方差正态项。论文记为 $\mathcal N(0,1)+\mathcal N(0,100)\cdot\mathrm{Bernoulli}(0.001)$；后一正态分布的方差为 100，即标准差为 10。
 
@@ -272,8 +284,7 @@ $$
 
 这组数据支持以下解读：
 
-- 相对 baseline FP8，FA3 FP8 的 RMSE 降至约 $1/2.64$。
-- 相对 FA3 FP16，FA3 FP8 的 RMSE 仍约为 $47.9$ 倍；降低 FP8 误差不等于达到 FP16 精度。
+- FA3 FP8 的 RMSE 低于 baseline FP8，但仍高于 FA3 FP16；该优化没有达到 FP16 的误差水平。
 - 在该合成分布中，去掉 incoherent processing 的退化更明显；这不是所有真实模型中两项技术贡献大小的通用排序。
 
 RMSE 的 $0.0091$ 是该实验输出的绝对误差指标，**不能解释成模型准确率下降 0.91%**。表 3 没有给出端到端语言模型的困惑度或任务准确率变化，因而不能从它推断部署某个模型的质量损失。

@@ -1,10 +1,14 @@
-# Cocktailer: Analyzing and Optimizing Dynamic Control Flow in Deep Learning：阅读笔记
+<a id="cocktailer-analyzing-and-optimizing-dynamic-control-flow-in-deep-learning-阅读笔记"></a>
+
+# Cocktailer: Analyzing and Optimizing Dynamic Control Flow in Deep Learning
 
 [所属主题](../../index.md)
 
 - 论文：[原文](https://www.usenix.org/system/files/osdi23-zhang-chen.pdf)
 
-## CPU 控制流与 GPU 数据流分离的成本
+<a id="cpu-控制流与-gpu-数据流分离的成本"></a>
+
+## Background
 
 传统的 DNN 通常是 CPU 来执行控制流，加速器（例如 GPU）来执行数据流，但这样会影响程序执行效率：
 
@@ -33,7 +37,9 @@
 
 这一差距来自前述同步、优化边界与并行性损失；将控制流与数据流纳入同一调度空间，才有机会联合安排它们。
 
-## 用 uTask 统一表示数据、分支与循环
+<a id="用-utask-统一表示数据、分支与循环"></a>
+
+## uTask Design
 
 ![](images/issue-21-01.png)
 
@@ -41,7 +47,7 @@
 
 Cocktailer 把并行加速器抽象成三个层级，以 Nvidia GPU 举例，其执行抽象分别对应线程、线程块和 kernel 级别；线程块在 SM 上驻留执行，并不与 SM 一一等同。
 
-### 基于 DNN 程序的 uTask 设计
+<a id="基于-dnn-程序的-utask-设计"></a>
 
 **uTask**:
 ```cpp

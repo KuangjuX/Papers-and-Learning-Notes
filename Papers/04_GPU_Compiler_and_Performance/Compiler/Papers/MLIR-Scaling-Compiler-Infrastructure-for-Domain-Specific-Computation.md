@@ -1,6 +1,8 @@
 # MLIR: Scaling Compiler Infrastructure for Domain-Specific Computation
 
-## Introduction
+<a id="introduction"></a>
+
+## Background
 
 - LLVM IR: roughly  “C with vectors”
 
@@ -16,7 +18,7 @@ MLIR 通过可定义的方言保留领域抽象，并共享编译基础设施：
 
 - 提供大量基础设施，例如文档，调试
 
-### 为什么需要构建 MLIR？
+<a id="为什么需要构建-mlir"></a>
 
 - 如今的深度学习框架生态不一致，许多不同的深度学习框架有不同的编译器，图技术以及运行时，如图一。
 

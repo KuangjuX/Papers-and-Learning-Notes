@@ -9,8 +9,8 @@
 ## 本地笔记
 
 - [Agent 系统](Agents/index.md)
-- [SkillRT（SkVM）：让技能适配不同模型与执行框架](Agents/SkVM/skvm.md)
-- [DeepSeek-V4: 迈向高效百万级上下文智能](DeepSeek-V4/deepseek-v4.md)
+- [SkillRT: Compiling Skills for Efficient Execution Everywhere](Agents/SkVM/skvm.md)
+- [DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence](DeepSeek-V4/deepseek-v4.md)
 - [Distilling the Knowledge in a Neural Network](Knowledge-Distillation/distilling-the-knowledge-in-a-neural-network.md)
 
 ## LLM Training / Fine-Tuning & Alignment

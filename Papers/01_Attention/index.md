@@ -9,20 +9,20 @@
 ## 本地笔记
 
 - [SparDA: Sparse Decoupled Attention for Efficient Long-Context LLM Inference](SparDA/sparda.md)
-- [FlashAttention-3：FP8 数据流、布局转换与精度优化](FlashAttention-3/fp8.md)
-- [PageWeaver：在线 Query 分组与共享 KV 的稀疏 Attention](PageWeaver/pageweaver.md)
-- [DeepSeek Sparse Attention (DSA) 算法流程](DeepSeek-DSA/deepseek-sparse-attention-dsa.md)
-- [DoSA：用安全上界减少 Indexer 的完整打分](DoSA/dosa.md)
-- [IndexCache：跨层复用稀疏索引，以及它为什么能被训练](IndexCache/indexcache.md)
-- [MiniMax Sparse Attention (MSA)](MiniMax-MSA/msa.md)
+- [FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision](FlashAttention-3/fp8.md)
+- [PageWeaver: KV-Guided Query Unions for Sparse Attention](PageWeaver/pageweaver.md)
+- [DeepSeek-V3.2-Exp: Boosting Long-Context Efficiency with DeepSeek Sparse Attention](DeepSeek-DSA/deepseek-sparse-attention-dsa.md)
+- [DoSA: Dots Sparse Attention](DoSA/dosa.md)
+- [IndexCache: Accelerating Sparse Attention via Cross-Layer Index Reuse](IndexCache/indexcache.md)
+- [MiniMax Sparse Attention](MiniMax-MSA/msa.md)
 - [Fast Transformer Decoding: One Write-Head is All You Need](MQA/fast-transformer-decoding-mqa.md)
 - [A Survey of Efficient Attention Methods: Hardware-efficient,  Sparse, Compact, and Linear Attention](Surveys/efficient_attention_survey.md)
 
 稀疏注意力部分包含架构、选择算法与训练方法，MSA 和 DSA 是其中的具体案例。
-- [Attention is all you need：阅读笔记](Transformer/github-reading.md)
-- [FLASHATTENTION: Fast and Memory-Efficient Exact Attention with IO-Awareness：阅读笔记](FlashAttention/github-reading.md)
+- [Attention Is All You Need](Transformer/github-reading.md)
+- [FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness](FlashAttention/github-reading.md)
 
-- [Kimi Linear：状态更新与混合注意力](Kimi-Linear/zhihu-reading.md)
+- [Kimi Linear: An Expressive, Efficient Attention Architecture](Kimi-Linear/zhihu-reading.md)
 
 ## LLM Inference / Long Context Inference
 

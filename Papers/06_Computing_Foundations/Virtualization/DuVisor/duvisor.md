@@ -1,6 +1,8 @@
 # Security and Performance in the Delegated User-level Virtualization
 
-## 内核虚拟化组件的权限与退出开销
+<a id="内核虚拟化组件的权限与退出开销"></a>
+
+## Background
 
 KVM/QEMU 将虚拟化功能分布在内核与用户态，硬件虚拟化减少了指令模拟开销，但内核组件的漏洞仍可能影响整个宿主机。DuVisor 要将每个 VM 的运行时管理（VM plane）下放到用户态，同时将资源分配与隔离留给内核中的小型 DV-driver。[论文 §2–3](https://www.usenix.org/system/files/osdi23-chen.pdf)
 
@@ -14,7 +16,9 @@ KVM/QEMU 将虚拟化功能分布在内核与用户态，硬件虚拟化减少�
 
 ![](table3.png)
 
-## DV-Ext 如何把 VM plane 下放到用户态
+<a id="dv-ext-如何把-vm-plane-下放到用户态"></a>
+
+## DuVisor Design
 
 ![](figure2.png)
 
@@ -32,19 +36,19 @@ HU-mode DuVisor 利用 DV-Ext 暴露的硬件接口控制未修改的 VM。为�
 
 ![](table4.png)
 
-### Delegated Virtualization Extension
+<a id="delegated-virtualization-extension"></a>
+
+### DV-Ext
 
 DV-Ext 将寄存器、指令和 VM exit 交付路径一起扩展到 HU mode；开启委托后，guest 可以直接退出到用户态 DuVisor。
 
 ![](figure3.png)
 
-### Duvisor Design
-
-#### Handling VM Exits
+<a id="handling-vm-exits"></a>
 
 一般情况下 VM exits 会重新陷入到 kernel 态的 hypervisor 进行处理，但在 DuVisor 中，VM exit 直接进入用户态的 Duvisor 进程。在 VM 执行环境中，后端驱动的 IO 线程和 vthreads 会被调度到不同的 CPU cores。分发后 Duvisor 执行 HURET 进入 V mode 并且开始运行 guest code 直到 VM exit。随后根据异常的原因访问 DV-Ext 提供的不同的 HU mode 下的寄存器并执行 VM exit。
 
-#### Restricted Memory Virtualization
+<a id="restricted-memory-virtualization"></a>
 
 DuVisor 在 HU mode 管理 GPA 到 HPA 的第二阶段页表，不必为常规页表更新进入内核。
 
@@ -54,7 +58,7 @@ DuVisor 在 HU mode 管理 GPA 到 HPA 的第二阶段页表，不必为常规�
 
 Figure 4 展示了 GVA 如何翻译到 HPA 并且最终到达物理内存。首先通过 MMU 将 GVA -> GPA，随后通过 Duvisor 的 S2PT 翻译到 HPA，最终 PMC 检查输出的 HPA。如果超出了范围，PMC 将生成异常并唤醒 DV-driver 处理。
 
-#### IO and Interrupt Virtualization
+<a id="io-and-interrupt-virtualization"></a>
 
 Duvisor 的 IO 虚拟化和其他工作类似，都支持 virtio 和模拟设备。但因为不支持 IOMMU 所以不能够进行 passthrough。对于每个 PV 和模拟设备，Duvisor 在 VM 初始化时生成线程，例如对于网卡接收队列在 HU mode 下不断轮询并向 VM 发布虚拟外部中断。
 
@@ -62,20 +66,26 @@ Duvisor 的 IO 虚拟化和其他工作类似，都支持 virtio 和模拟设备
 
 Figure 5 展示了一个 vEXT 是如何使用用户态中断派发的。举例来说，在 core0 上的 IO thread 要往 vCPU0 上发送一个 vEXT，于是写了对应的 `hu_virt`。DV-Ext 然后找到了 vCPU0 在 core2 上然后在 core2 上生成了一个 vEXT。如果发送线程尝试发送一个错误的 VCPUID 或者接收方的 VMID 不匹配，将会触发错误并唤醒 DV-driver 处理。
 
-## RISC-V 原型的验证
+<a id="risc-v-原型的验证"></a>
+
+## Evaluation
 
 以下为论文的安全与性能验证结果。用户态 VM plane 的隔离依赖 DV-Ext 和内核 DV-driver；它不是在现有硬件上单靠软件就能获得的效果。
 
-### 安全验证
+<a id="安全验证"></a>
+
+### Security
 
 ![](table6.png)
 
-### 性能验证
+<a id="性能验证"></a>
 
-#### Micro Benchmarks
+### Performance
+
+<a id="micro-benchmarks"></a>
 
 ![](figure6.png)
 
-#### Real World Benchmarks
+<a id="real-world-benchmarks"></a>
 
 ![](table7.png)

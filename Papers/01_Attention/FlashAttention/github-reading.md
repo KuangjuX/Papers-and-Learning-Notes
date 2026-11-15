@@ -1,4 +1,6 @@
-# FLASHATTENTION: Fast and Memory-Efficient Exact Attention with IO-Awareness：阅读笔记
+<a id="flashattention-fast-and-memory-efficient-exact-attention-with-io-awareness-阅读笔记"></a>
+
+# FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness
 
 [所属主题](../index.md)
 
@@ -6,7 +8,9 @@
 
 原笔记参考：[知乎文章](https://www.zhihu.com/question/611236756/answer/3132304304)。
 
-## 从显式物化注意力矩阵的成本开始
+<a id="从显式物化注意力矩阵的成本开始"></a>
+
+## Background
 
 Self-Attention 的计算过程是：
 三个矩阵 $Q, K, V \in \mathbb{R}^{N \times d}$，Self-Attention 计算如下：
@@ -23,7 +27,9 @@ Self-Attention 中(1) 和 (3) 的计算最密集，(1) 和 (3) 中的矩阵乘�
 
 标准的 Attention 算法对于 (1) 需要从 HBM 读取 2 次，写入 1 次，对于 (2) 需要从 HBM 读取一次，写入一次，对于 (3) 需要从 HBM 读取 2 次写入一次。为了减少对于 HBM 的读写，FlashAttention 分块将数据送入 SRAM。但分块后需要计算 softmax，而 softmax 需要读取一行作为分母，因此难点主要在分块算 softmax。
 
-## 分块后如何保持同一个 softmax
+<a id="分块后如何保持同一个-softmax"></a>
+
+## FlashAttention Design
 
 $softmax(x_i) = \frac{e^{x_i}}{\sum_{j=1}^{B} e^{x_j}}$ (4)
 为了避免溢出，大多数深度学习框架都使用的 softmax 的稳定版本：
@@ -39,7 +45,7 @@ $softmax(x_i) = \frac{e^{x_i}}{\sum_{j=1}^{B} e^{x_j}}$ (4)
 
 完整递推见 [online softmax 与 FlashAttention 版本演进](../../../Foundations/01_Attention/FlashAttention.md)。
 
-## 沿 Algorithm 1 跟踪一次分块计算
+<a id="沿-algorithm-1-跟踪一次分块计算"></a>
 
 论文 Algorithm 1：
 ![](images/issue-33-03.png)

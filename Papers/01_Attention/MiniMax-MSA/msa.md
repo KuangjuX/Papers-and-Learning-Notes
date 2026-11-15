@@ -11,7 +11,9 @@ aliases:
 date: 2026
 ---
 
-# MiniMax Sparse Attention (MSA)
+<a id="minimax-sparse-attention-msa"></a>
+
+# MiniMax Sparse Attention
 
 长上下文 attention 的成本来自越来越多的 query–key 配对。减少配对数可以节省计算，但直接让每个 head 各选少量 token，会把规整矩阵乘变成大量离散读取；如果选择本身也很昂贵，主注意力省下的时间还可能被索引器吃掉。MSA 要解决的是如何同时控制选择成本、保留检索能力，并让稀疏计算适合 GPU 执行。
 
@@ -19,7 +21,9 @@ date: 2026
 
 [Xunhao Lai 等，MiniMax Sparse Attention，v2][paper]；[官方推理内核](https://github.com/MiniMax-AI/MSA)；[MiniMax-M3](https://huggingface.co/MiniMaxAI/MiniMax-M3)。
 
-## 用组内共享和连续块保留 KV 复用
+<a id="用组内共享和连续块保留-kv-复用"></a>
+
+## Background
 
 GQA 用 $H_q$ 个 query heads 和 $H_{kv}$ 个 KV heads，每个 KV head 服务 $G=H_q/H_{kv}$ 个 query heads。同组原本读取同一份 K/V；如果稀疏化后各 head 独立选择，加载的数据就难以继续组内复用。MSA 因而让同组 heads 共用一份选择结果，同时保留组间独立选择，避免所有组只能读取同一批位置。
 
@@ -52,7 +56,7 @@ $$
 
 这一表示同时减少路由元数据和 Top-k 候选数：16 个块编号即可表示最多 2048 个 token，候选数由 $N$ 降到 $B$。代价也很具体：组内 heads 无法各选一份列表，而一个块中即使只有一个 token 相关，也要占用整块预算。块大小是否值得设为 128，需要看同一 token 预算下的质量变化。
 
-### 块大小的质量代价
+<a id="块大小的质量代价"></a>
 
 附录 C.1 保持选中 token 总预算不变，改变 $B_k$；这些实验使用较少训练迭代和部分评测集：
 
@@ -65,9 +69,11 @@ $$
 
 PPL 接近，但 RULER-32K 从 66.1 降至 64.6，说明较大块仍可能损失检索质量。这组消融支持在该设置下采用 128 的质量取舍；它没有单独量化块大小带来的 kernel 加速，硬件收益还需结合后面的执行分析。
 
-## 用轻量打分找出值得读取的块
+<a id="用轻量打分找出值得读取的块"></a>
 
-### 两个投影、逐 token 打分、块内取最大值
+## MSA Design
+
+<a id="两个投影、逐-token-打分、块内取最大值"></a>
 
 固定窗口可能漏掉远处的重要信息，因此 MSA 采用随 query 内容变化的块列表。论文附录 B.6 用相同稀疏预算比较“强制首块加 local window”与动态选择，固定模式在所评测 agent 任务上的 PPL 更高。这支持为内容相关检索支付索引成本，但索引器不能重复一遍昂贵的主注意力。
 
@@ -108,7 +114,7 @@ $$
 
 图为笔记自绘，依据论文 §3.1；其中 $d_{\mathrm{idx}}=128$ 用于形状演算。
 
-### 为什么取 max，而不先平均 key
+<a id="为什么取-max-而不先平均-key"></a>
 
 块内的相关信息可能只集中在一个 token。设两个 128-token 块的打分为：
 
@@ -126,7 +132,7 @@ $$
 
 因此均值方法可以先压缩 key，再打分；max 不具备这种交换性，必须计算 token 级分数后归约。这里的取舍是保留块内强匹配，同时承担更多扫描计算。**在 head 数、维度等条件相同时**，max 路径的打分量约多 $B_k$ 倍；MSA 与 MoBA 的投影和训练方式也不同，不能把这个比例当作两种方法的整体成本差。上面的算例解释了 max 的检索倾向，并不构成 max 在所有任务上更优的实验结论。
 
-### Local block 保留近邻，但块内仍要屏蔽未来位置
+<a id="local-block-保留近邻-但块内仍要屏蔽未来位置"></a>
 
 纯粹依赖内容分数可能漏掉最近邻上下文，尤其在索引器尚未稳定时。MSA 强制保留 query 自身所在的 local block；不过“块被选中”只决定是否读取，并没有解除自回归的可见性约束。取 query $i=5000$，它的 local block 为 $\lfloor5000/128\rfloor=39$。该块覆盖 4992–5119，但只有 4992–5000 的 9 个 token 可见；块 40 以后全部不可见。若选中 15 个完整历史块和 local block，则
 
@@ -140,7 +146,7 @@ $$
 
 首 token 自发成为 attention sink，也不意味着必须引入额外 sink 参数。附录 B.5 为每个 head 加入参与 softmax 竞争的可学习 sink logit：它在部分 heads 吸收了注意力质量，却未完全消除首 token 的 sink，agent 任务 PPL 也没有一致改善。因此最终结构不采用它。“是否增加 sink logit”与“是否强制选择首块”是两种不同的设计问题。
 
-### 主分支只改变支撑集，保留标准注意力
+<a id="主分支只改变支撑集-保留标准注意力"></a>
 
 选块已经解决了读取范围，主分支可以继续使用标准 scaled dot-product attention。这样保留各 head 在已选位置内分配权重的能力，也让后续 kernel 复用 QK、softmax 和 PV 的计算结构。对组 $r$ 中的 head $h$，主分支为
 
@@ -166,9 +172,11 @@ $$
 
 主分支在选中集合上执行标准 softmax；相对 full attention 的近似来自集合筛选。论文 §3.1，式 (8)。
 
-## 用主注意力训练索引器 {#msa-kl}
+<a id="msa-kl"></a>
 
-### Top-k 阻断 LM 梯度，KL 提供局部监督
+## Indexer Training
+
+<a id="top-k-阻断-lm-梯度-kl-提供局部监督"></a>
 
 两个索引投影必须学会哪些位置值得保留，但它们对主分支的影响只经过 Top-k 编号：分数变化而排名未变时，路由不变；跨越排名边界时，路由跳变。因此普通 LM loss 无法沿这条离散选择路径训练索引器。
 
@@ -208,7 +216,7 @@ $$
 
 监督定义在 **token 分数**上，因而可以校准整个支撑集；若只经过块级 max 传梯度，每块只有 argmax token 获得该归约路径的梯度。论文没有对 KL 方向做专项消融，不能凭逐项比较 forward/reverse KL 就推导性能优劣。
 
-### 两处 detach 隔离训练目标
+<a id="两处-detach-隔离训练目标"></a>
 
 辅助 KL 的目标是改进索引器，但不加限制时，优化器也可以通过改变主干来降低 KL。仅 detach 教师概率还不够：KL 仍能经索引投影回到隐藏状态 $X$，再进入主干。MSA 因而同时截断教师路径和索引输入路径：
 
@@ -229,7 +237,7 @@ $$
 
 这种隔离使 LM 与 KL 分别更新主干和索引器，但并没有固定教师：主干仍由 LM loss 更新，索引器仍需持续跟踪变化的注意力分布。它属于层内、位置级自蒸馏；教师在推理时仍负责主计算，不需要额外部署 teacher LLM。移动的教师目标也带来了冷启动问题。
 
-### 先用 dense warmup 建立有效监督
+<a id="先用-dense-warmup-建立有效监督"></a>
 
 训练早期主分支注意力熵迅速下降。若此时让随机索引器控制读取范围，主分支可能只看到无关位置，由它产生的监督也随之变差。Warmup 因而先保持主分支 dense，让索引器在完整因果上下文上对齐教师；之后才启用块选择，将 KL 支撑集缩至 $\mathcal T_i^{(r)}$。论文附录 B.4 的 Figure 10 展示早期熵变化，Figure 11 则报告加入 warmup 后，所测短上下文能力和长上下文检索改善。
 
@@ -246,7 +254,7 @@ Warmup 的成本是一段无法享受主分支稀疏收益的 dense 训练。主
 
 上述训练稳定性证据的规模也需要区分：附录 B 主要使用 10.53B 总参数、1.47B 激活参数的 16 层 pilot，主实验和附录 C.3 的设置不能与之混用。
 
-### 将训练机制接入一层 MSA
+<a id="将训练机制接入一层-msa"></a>
 
 这些机制分别规定了数据路由、参数梯度和训练阶段。Algorithm 1 将它们接成以下依赖：
 
@@ -258,7 +266,7 @@ X ── 主投影 ── Q/K/V ────────────────
 
 训练循环组装 $\mathcal L=\mathcal L_{\mathrm{LM}}+\lambda\sum_{\mathrm{layers}}\mathcal L_{\mathrm{KL}}$；论文未明确给出 $\lambda$。教师只需要 Q/K logits，不需要 V；warmup 的 dense 路由在层外按日程控制。推理保留索引投影与选块，移除 KL。索引 Q/K 的 RoPE/normalization 未在该算法中明确，不能从主分支的 RoPE 配置推定。
 
-### 复用 LSE，避免单独计算 KL forward
+<a id="复用-lse-避免单独计算-kl-forward"></a>
 
 KL 又引入了概率归一化的计算。如果为它重新执行独立 forward，就会重复主 attention 已经做过的部分工作。论文 §4.3 因而让主分支随 forward 写出 LSE，并保存索引器 per-block LSE，再对选中块归约得到索引分支总 LSE。由
 
@@ -271,7 +279,9 @@ $$
 
 这种复用以保存 LSE 标量和选块归约代替单独的 KL-forward kernel，辅助梯度仍在 backward 中计算。Backward 还有另一个不均衡来源：不同 KV tiles 关联的 query 数差异很大。论文用 persistent grid 和全局 atomic work counter 分派工作，避免少量热门 tile 决定完成时间。
 
-## 计算成本：主分支线性，索引分支仍为平方项
+<a id="计算成本-主分支线性-索引分支仍为平方项"></a>
+
+## Complexity
 
 固定块预算控制了主分支成本，但它没有消除“在完整历史里找到这些块”的工作。索引器只用少量 heads 和较小向量降低扫描系数，因此判断收益时必须将两条路径相加。论文 §3.3 的因果注意力 FLOPs 模型为
 
@@ -318,13 +328,15 @@ $$
 
 FLOPs 分析解释了长上下文下的节省空间，但没有回答不规则读取、选择和合并需要多少时间。能否兑现这一节省，取决于 GPU 执行顺序及其额外开销。
 
-## 把计算节省转化为 GPU 执行收益 {#msa-code}
+<a id="msa-code"></a>
+
+## MSA Kernel Design
 
 源码对应 [KuangjuX/MSA-SM90，提交 `80434d7`][code-root]：下面的 forward 路径面向 **SM100**，与论文 H800 实验不是同一硬件实现。它接收调用方生成的 Q/K/V 和 index Q/K，实现打分、选块与稀疏 forward；模型投影、位置编码、KL/backward、warmup 和训练循环不在此 kernel 包中。返回 LSE 不等于实现了完整 KL 训练层。
 
 下文 $T_q,T_k$ 分别表示 batch 内 packed query/KV token 总数，$H_{\mathrm{idx}}$ 表示 index query head 数；匹配论文结构时它等于 $H_{kv}$。
 
-### 选块只需要顺序，省去概率归一化
+<a id="选块只需要顺序-省去概率归一化"></a>
 
 索引器在这里要输出块编号，不需要概率值；计算完整 softmax 只会增加与排序无关的工作。Softmax 保序，且同一 query/group 的所有候选共用归一化常数，因此按 raw score 排序与按 softmax 概率排序得到相同 Top-k。例如 $[2,0,1]$ 与其 softmax 都选择位置 0、2 作为前二名；块内 max 也保留这个排序关系。选块时可跳过 softmax 的 exp/sum，训练 KL 的归一化另行处理。论文 §4.1。
 
@@ -358,13 +370,13 @@ indices = sparse_topk_select(
 
 <a id="411-equations-13-16q-outer-与-kv-outer"></a>
 
-### KV-outer：以 KV 复用换取 query gather {#msa-kv-outer}
+<a id="msa-kv-outer"></a>
 
 选出较少 KV 并不保证每次加载都划算。在 Q-outer 顺序下，每个 query 遍历自己的块列表；多个 query 即使选中同一个块，也会在不同任务中请求相同 K/V，而且单个位置只有 $G=16$ 行 query heads，MMA 的行维较小。
 
 MSA 改为固定 `(KV block,KV head)`，聚集所有选择该块的 queries 后共同计算。同一次 K/V 加载由多个位置复用，共享 operand 的 queries 也可以拼成更大的 MMA。但这个顺序同时引入了两项工作：先从块列表反查 queries，再把分散在不同块上的同一 query 输出合并回来。论文 §4.2 针对 **query/KV 等长的 sparse prefill** 设计这条路径。
 
-### Reverse index：将 q2k 转成 k2q CSR
+<a id="reverse-index-将-q2k-转成-k2q-csr"></a>
 
 Top-k 输出回答“一个 query 选择哪些块”，KV-outer 则需要“一个块被哪些 query 选择”。若在每个 block 开始计算时重新扫描所有列表，索引开销会反复发生，因此先将选择关系反转并压成 CSR。下面用同一组、$k=2$ 的小例子说明：
 
@@ -395,7 +407,7 @@ CSR（压缩稀疏行）把每个 block 的 query 列表存成连续切片：`q_
 
 这次转换需要额外 GPU 工作和元数据存储，换来按块直接找到相关 queries 的入口。[五阶段实现接口][code-builder] 中，`return_schedule=True` 还能同时生成 `scheduler_metadata`、`qsplit_indices` 和 `split_counts`，把反转过程中获得的计数用于后续工作划分。[融合调度输出][code-builder-schedule]。
 
-### 拆开热门块，同时拼接共享 KV 的 queries
+<a id="拆开热门块-同时拼接共享-kv-的-queries"></a>
 
 CSR 让每块的 query 列表连续存放，却没有让各块的工作量相等：sink 等热门块可能被几乎所有 queries 选中。若一个 block 固定交给一个 CTA，少量长 row 就会拖延整体执行。论文沿 gathered-query 维拆分热门块，每 chunk 最多约 $2kB_k$ 个 query positions；源码由 scheduler 选择 `target_q_per_cta`，生成
 
@@ -417,7 +429,7 @@ $$
 
 右侧由 8 个 query positions × 16 heads 组成 128 行，改善 MMA 的行维利用率；不足一个 tile 的部分需要 mask。一般拼接数为 $\lceil128/G\rceil$。Q-outer 下，不同位置通常选择不同 KV 子集，不能直接这样拼接。
 
-### K1/K2：局部 attention 与全局 softmax 合并
+<a id="k1-k2-局部-attention-与全局-softmax-合并"></a>
 
 [K1 `SparseAttentionForwardSm100`][code-k1] 按 work item 加载 KV block、从 CSR gather queries、拼接 MMA rows，再执行 QK → causal mask → online softmax → PV，将结果写入预分配 slot。QK/PV 使用 FP32 accumulator，partial 存储精度由接口参数控制。
 
@@ -450,7 +462,7 @@ $$
 
 代价是将 partial outputs 和 LSE 写入 HBM，再由 K2 读取，以及额外的 kernel 启动。论文使用 Programmatic Dependent Launch 隐藏其中部分启动延迟，但不会消除中间数据流量；这部分成本需要计入 KV 复用的收益比较。
 
-### 复用收益能否覆盖重排与合并成本
+<a id="复用收益能否覆盖重排与合并成本"></a>
 
 KV-outer 没有减少已选 token 上的 QK/PV 计算，而是改变这些计算需要搬运的数据。两种顺序的计算量相同：
 
@@ -482,7 +494,7 @@ $$
 
 约 5.3 倍是这个 IO 模型的算术强度差异。KV-outer 用 query gather、partial buffer 和 combine 换掉按 $B_k$ 放大的 K/V 重读；真实收益还取决于块复用、CTA 切分和缓存命中。
 
-### 模型接口如何连接稀疏执行
+<a id="模型接口如何连接稀疏执行"></a>
 
 模型传入的 Q/K/V、块列表和请求长度，要连接到上述 CSR → scheduler → K1 → K2 执行链。入口分派先决定是否使用这条 prefill 路径：[`fmha_sm100_plan`][code-plan] 在 `kv_block_num>0`，且满足 `mode=="prefill"` 或 `mode=="auto" && max_q_len>32` 时进入 CuTe sparse adapter。其余情况走 csrc JIT，短 Q sparse 会展开为 per-token segments。
 
@@ -504,7 +516,7 @@ Adapter 将 `[Tq,Hkv,k]` 转置为 q2k；若传入 `[Tq,Hq,k]`，则每隔 $G$ �
 
 选择编号需去重，`-1` 位于尾部；`cu_seqlens_q/k` 连接 batch-local 编号与 packed 张量，paged KV 还依赖 `page_table`、`seqused_k` 和 query offset。Causal mask 根据实际位置与有效长度处理块内可见性。[索引格式][code-index-utils]、[mask][code-mask]。
 
-### Decode 与量化对应不同的成本条件
+<a id="decode-与量化对应不同的成本条件"></a>
 
 上述优化依赖足够多 queries 共享 KV。Decode 通常只有少量新 query，反向索引与合并的固定开销可能不再容易摊销，因而不能直接套用 prefill 的复用推导。固定版本也保留了不同的执行路径：
 
@@ -518,7 +530,9 @@ Adapter 将 `[Tq,Hkv,k]` 转置为 q2k；若传入 `[Tq,Hq,k]`，则每隔 $G$ �
 
 SM100 代码还支持 BF16/FP8 主分支、部分 BF16 Q + FP8 KV staging，以及 packed NVFP4 KV。FP4 indexer 使用 E2M1 数值，MXFP4 配 E8M0 group scale、NVFP4 配 E4M3 group scale，输出仍为 FP32 score。这些是部署扩展：量化可能改变 Top-k 排序，不能视为论文实数打分的 bit-exact 实现。[主接口][code-interface]、[FP4 Indexer][code-fp4]、[NVFP4 KV 路径][code-nvfp4]。
 
-## 长上下文下，计算节省兑现了多少
+<a id="长上下文下-计算节省兑现了多少"></a>
+
+## Evaluation
 
 前面的消融分别检查了块大小、局部先验和训练机制；整体实验还需要回答，这些设计组合起来后能保留多少模型能力，并获得多少实际加速。论文 §5 的主模型为 109B 总参数、6B 激活参数的 MoE，41 层，前 3 层使用 dense FFN、后 38 层使用 MoE；隐藏维度 3072，主注意力配置见开头，RoPE 维度 64。比较包含从头训练 MSA-PT 与从 GQA checkpoint 转换的 MSA-CPT。
 
@@ -532,7 +546,9 @@ SM100 代码还支持 BF16/FP8 主分支、部分 BF16 Q + FP8 KV staging，以�
 
 这组整体结果验证了 MSA 执行方案的收益，但没有把每项开销的占比或 KV-outer 单独带来的加速分离出来。Decode 的 7.6× 又属于不同 query 数和复用条件，不能由 prefill 的算术强度比值推算。质量方面，Table 3 支持的是 MSA-CPT 经长上下文扩展后、在所测 HELMET/RULER 设置下接近 full attention，而非所有任务无损。
 
-## 与 DSA 的比较：序列粒度和共享范围 {#msa-vs-dsa}
+<a id="msa-vs-dsa"></a>
+
+## DSA Comparison
 
 MSA 为了块内连续加载而接受较粗的选择粒度；DSA 展示了另一种取舍：保留逐 token 选择，用所有主 heads 共享一份列表来摊薄离散读取。比较二者时，需要同时看序列粒度与共享范围，不能只用“更细粒度”概括。
 

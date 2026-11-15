@@ -8,11 +8,15 @@ aliases:
   - Cache SSM Inputs, Not State
 ---
 
-# ReplaySSM：缓存输入，减少状态写回
+<a id="replayssm-缓存输入-减少状态写回"></a>
+
+# ReplaySSM: Cache SSM Inputs, Not State
 
 SSM 将历史压缩成固定大小的 recurrent state，避免了 Transformer KV Cache 随上下文增长的存储开销。但固定大小并不意味着更新便宜：常规 decode 每一步都要从 HBM 读取状态、更新状态、计算输出，再将整个状态写回。ReplaySSM 保留一个较早的 checkpoint 和最近一小段 SSM 输入，将完整状态的写回推迟到窗口刷新时，并利用这些输入直接计算输出、支持投机回滚。[论文 v1，§2–6](https://arxiv.org/html/2610.13778v1)
 
-## 背景：固定状态为什么仍然限制 decode
+<a id="背景-固定状态为什么仍然限制-decode"></a>
+
+## Background
 
 以一个 Mamba-2 value head 为例，状态矩阵 $S_t\in\mathbb{R}^{d_v\times d_k}$，输入 $v_t\in\mathbb{R}^{d_v}$，key 和 query 为 $k_t,q_t\in\mathbb{R}^{d_k}$，衰减系数为标量 $\alpha_t$。省略输出 gate 和 skip connection 后，递推为：
 
@@ -33,7 +37,9 @@ $$
 
 *原论文 Fig. 1，p.2，Liou 等，CC BY 4.0。上方比较逐步写回与缓存输入；下方分别对应状态流量、投机回滚和低精度误差反馈。左下延迟分解来自 Nemotron-3-Super-120B-A12B-NVFP4，batch size 256、单 B300，不能视作所有模型的固定占比。[原图](https://arxiv.org/pdf/2610.13778v1#page=2)*
 
-## 核心思路：保留 checkpoint，缓存最近输入
+<a id="核心思路-保留-checkpoint-缓存最近输入"></a>
+
+## ReplaySSM Design
 
 设 $S_0$ 为最近一次写回的 checkpoint，buffer 保存此后的 $h$ 组输入 $(\alpha_j,v_j,k_j)$。定义衰减乘积 $\gamma_{i:j}=\prod_{r=i}^{j}\alpha_r$，空乘积为 1。展开递推可得：
 
@@ -59,9 +65,9 @@ $$
 
 缓存输入也改变了每一步必须产生的结果。下一步可以继续从 checkpoint 与 buffer 计算，因而当前步可以只输出 $o_t$，不一定要生成完整 $S_t$；在投机解码中，接受或拒绝输入则变成维护 buffer 的有效前缀。下面分别展开这两点。
 
-## 算法：从构造状态到直接计算输出
+<a id="算法-从构造状态到直接计算输出"></a>
 
-### 标准解码与 output-only
+<a id="标准解码与-output-only"></a>
 
 常规 Mamba-2 每步的路径是：从 HBM 加载 $S$，计算 $S\leftarrow\alpha S+vk^\top$，读出 $o=Sq$，再将 $S$ 写回 HBM。ReplaySSM 先将当前输入加入 buffer，然后可以选择两条等价路径：
 
@@ -91,7 +97,7 @@ output-only 的标准解码流程可以写成：
 
 这是便于解释的数据流；flush 步的输出计算与状态重建可以复用工作。论文 Algorithm 1 为展示基本方法，使用的是先重建片上状态再读出输出的路径；标准解码的 output-only 推导见 Appendix C.4，不能把 Algorithm 1 本身描述成完全不物化状态。[论文 §4、§5.2、Appendix C.4，pp.5–6、22](https://arxiv.org/pdf/2610.13778v1#page=22)
 
-### 重算的代价为什么可能值得
+<a id="重算的代价为什么可能值得"></a>
 
 重放确实增加计算，不能只看减少的写入。若当前输入之前已有 $h$ 条记录，保留主要项，state-and-output 路径约需 $2(h+3)d_vd_k$ FLOPs，而 output-only 约需：
 
@@ -111,7 +117,9 @@ $$
 
 窗口越长，checkpoint 写入越少，但 buffer 的累计读取和重放工作越多。论文的窗口扫描验证了这种取舍，见后面的 Evaluation；$L=16$ 是该实验配置的选择，不是普遍最优值。
 
-### 投机解码：直接验证输出，提交有效前缀
+<a id="投机解码-直接验证输出-提交有效前缀"></a>
+
+### Speculative Decoding
 
 常规快照路径从最后已接受的状态出发，依次处理 $T$ 个验证位置；每个位置都更新状态、产生输出、保存完整快照。ReplaySSM 将本轮验证输入写到同一个 buffer 的已提交前缀之后，但暂不推进 committed pointer。
 
@@ -134,7 +142,9 @@ $$
 
 作者博客使用总容量 $L$、提前一轮检查 $h+2T>L$ 的记号；论文 v1 使用容量 $L+T$ 和 $h+T>L$。两者的容量定义不同，不能将博客的容量与论文的触发条件直接拼在一起。[作者博客 §5.3](https://dao-lab.ai/blog/2026/replayssm/)
 
-### Gated DeltaNet 的额外依赖
+<a id="gated-deltanet-的额外依赖"></a>
+
+### Gated DeltaNet
 
 Qwen3.5 使用的 Gated DeltaNet（GDN）还包含擦除项，$\beta_t$ 控制写入强度，不能直接照搬 Mamba-2 的原始 $v$ 缓存：
 
@@ -148,7 +158,9 @@ $$
 
 改写后，buffer 缓存校正向量 $u_t$，可按同样的衰减外积形式重放。但 $u_t$ 依赖先前状态，投机窗口中的校正项不能全部独立生成；论文通过一个 $T\times T$ 三角系统求解它们，再计算输出。由此可见，“验证不再逐个物化状态”并不意味着所有 SSM 的计算依赖都消失了。[论文 §2.1、Appendix B.2–B.3](https://arxiv.org/pdf/2610.13778v1#page=17)
 
-## Kernel Design：共享内积与 ring buffer
+<a id="kernel-design-共享内积与-ring-buffer"></a>
+
+## ReplaySSM Kernel Design
 
 Mamba-2 的一组 value heads 共享 key 和 query。若每个处理状态分块的线程块都计算 $k_j^\top q$，不仅重复工作，还会增加主 kernel 的寄存器压力。作者博客描述了独立的 precompute kernel：每组计算一次内积，写入临时 scratch buffer，供主 SSM kernel 读取。这也引入一次 kernel 启动和临时数据读写，不能只根据 FLOPs 减少就断言总延迟一定更低；博客中的 GDN 路径没有使用同一个共享内积 kernel。[作者博客 §5.4](https://dao-lab.ai/blog/2026/replayssm/)
 
@@ -156,11 +168,13 @@ ring buffer 解决的是保留 draft 时的数据搬移。flush 移除旧的 com
 
 为适配 CUDA Graph，论文将 flush 决策保存在逐请求的设备端数据中，由 kernel 读取：可在 decode kernel 内分支，或让独立 flush kernel 中不需要刷新的行直接退出。接受数 $a$ 也由设备端 commit kernel 消费，更新指针并设置下一步的 flush 标志，避免每一步把接受数传回 CPU 后再决定调度。[论文 Appendix D.2，p.25](https://arxiv.org/pdf/2610.13778v1#page=25)
 
-## Evaluation：省下的流量何时转化为收益
+<a id="evaluation-省下的流量何时转化为收益"></a>
+
+## Evaluation
 
 以下数值统一采用论文 **arXiv:2610.13778v1**。博客与论文的模型范围、窗口和部分结果不同，例如博客包含双卡 550B 配置，论文主实验为四个单卡模型；不能将两者的最大加速比当成同一组实验。
 
-### 实验设置与基线
+<a id="实验设置与基线"></a>
 
 | 模型 | SSM 类型 | 权重精度 | 硬件 | SSM / Attention 层数 |
 | --- | --- | --- | --- | ---: |
@@ -171,7 +185,7 @@ ring buffer 解决的是保留 draft 时的数据搬移。flush 移除旧的 com
 
 全部性能实验使用 **FP32 SSM 状态**、BF16 激活，单 GPU、无 tensor parallel；B300 的功率上限为 1100W。双方在同一 vLLM build 中启用 CUDA Graph。基线采用扫描得到的最快 kernel launch 配置，而非较慢的默认 Mamba-2 配置。独立 kernel 延迟经过 warmup、使用 cold L2、报告重复测量的中位数；ReplaySSM 测量覆盖完整 replay 窗口，包含 flush。[论文 §7.1、Appendix E.1–E.2，pp.25–26](https://arxiv.org/pdf/2610.13778v1#page=25)
 
-### 标准解码：大 batch 有收益，小 batch 不保证加速
+<a id="标准解码-大-batch-有收益-小-batch-不保证加速"></a>
 
 ![标准解码的 kernel 与整模型单步加速比](images/figure-2-standard-decoding.png)
 
@@ -190,7 +204,7 @@ batch 扫描给出了适用边界：$B=1$ 时 kernel 加速比仅为 0.41–0.88
 
 论文在 $B=512$ 给出的两个 B300 模型单步加速比还带有功率上限标记：常规 kernel 在整模型中被功率限制降频，ReplaySSM 没有同样降频。因此这些更高的比值不能全部归因于算法减少访存。
 
-### 窗口消融：写回摊销与重放开销的平衡
+<a id="窗口消融-写回摊销与重放开销的平衡"></a>
 
 ![Replay 窗口大小对摊销 kernel 加速比的影响](images/figure-9-window-sweep.png)
 
@@ -198,7 +212,7 @@ batch 扫描给出了适用边界：$B=1$ 时 kernel 加速比仅为 0.41–0.88
 
 四个模型在这组扫描中都以 $L=16$ 最快。例如 Nano-4B 的加速比从 $L=8$ 的 1.74× 增至 1.80×，再在 $L=32$ 降至 1.60×。更长窗口虽然更少写 checkpoint，却要反复读取更多记录并执行更多重放工作；实验没有支持“窗口越大越好”。[论文 Appendix E.2.2]
 
-### 投机解码：分别看服务吞吐与验证成本
+<a id="投机解码-分别看服务吞吐与验证成本"></a>
 
 ![投机服务吞吐和验证 kernel 延迟](images/figures-3-4-speculative-decoding.png)
 
@@ -215,7 +229,7 @@ batch 扫描给出了适用边界：$B=1$ 时 kernel 加速比仅为 0.41–0.88
 
 独立 kernel 实验进一步显示：当 $T=8$ 时，常规 Mamba-2 验证延迟为单 token 标准解码的 4.66×，ReplaySSM 为 0.89–1.21×。区间下界对应所有 draft 拒绝、每步只提交必要的一个位置；上界对应全部接受。接受越多，buffer 填满越快，flush 越频繁。这说明接受率既改变每步产出，也改变刷新成本；不能把“八个 token 约一次单步延迟”直接换算为整个服务八倍吞吐，因为还有 drafter、模型其余层和采样等成本。[论文 §7.3、Fig. 4]
 
-### 精度扩展：将读取误差与递推误差分开
+<a id="精度扩展-将读取误差与递推误差分开"></a>
 
 论文比博客主线进一步讨论了低精度状态。若同一低精度状态既用于输出，也用于下一次递推，舍入误差会反复进入状态更新。ReplaySSM 可以维护两个对应同一历史的 checkpoint：非 flush 步读取低精度副本计算输出；flush 时从较高精度副本重放已提交输入，再分别生成两个新副本。这样低精度读取副本的舍入误差不再反馈进 checkpoint 递推，但当前输出仍有读取误差，较高精度路径也仍有舍入误差。[论文 §6、Algorithm 3]
 

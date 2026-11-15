@@ -16,7 +16,9 @@ arxiv: "2605.31463"
 
 [Ruihang Lai 等，PithTrain，arXiv:2605.31463](https://arxiv.org/abs/2605.31463)；[代码](https://github.com/mlc-ai/pith-train)；[固定版本的训练执行路径](#pithtrain-code)。
 
-## 训练吞吐以外，修改框架还有哪些成本
+<a id="训练吞吐以外-修改框架还有哪些成本"></a>
+
+## Background
 
 生产级 MoE 训练框架（Megatron-LM、DeepSpeed）为人类工程师的设计选择——插件系统、registry 间接、重型编译扩展——也会影响编码智能体的工作成本：
 
@@ -24,7 +26,9 @@ arxiv: "2605.31463"
 - **语言边界成本**：C++/CUDA 扩展（如 TransformerEngine 的 grouped-GEMM）抛出不可读的 segfault，迫使 agent 猜测性开关配置；改动还触发重编译循环。
 - **间接层成本**：Megatron 的隐藏参数 registry 使 agent 手动添加的 CLI flag 与自动派生的 flag 冲突；runtime spec 让 call site 的实际执行路径无法通过局部阅读确定。
 
-## 把开发成本对应到四项结构选择
+<a id="把开发成本对应到四项结构选择"></a>
+
+## System Design
 
 论文 §3.1 的四项原则分别针对上面的成本。它们是对框架结构的选择，并不要求改变 agent 本身。
 
@@ -37,9 +41,9 @@ arxiv: "2605.31463"
 
 例如增加一个 MoE 变体时，直接实例化模型模块使修改位置更容易定位；但如果同一修改需要传播到许多模型，公共抽象可能反而更省工作。ATE-Bench 的任务范围决定了这两种成本中哪一种更突出。
 
-## 紧凑框架如何保留高性能训练路径
+<a id="紧凑框架如何保留高性能训练路径"></a>
 
-### 从应用入口到引擎与算子
+<a id="从应用入口到引擎与算子"></a>
 
 | 层 | 组件 | LoC |
 |---|---|---|
@@ -54,18 +58,24 @@ arxiv: "2605.31463"
 
 减少间接层并不会自行提高 GPU 吞吐。下面沿实际调用链检查框架如何保留流水线、通信重叠和算子优化；吞吐是否维持同级由后面的训练实验验证。
 
-### Skills 消融（Table 8）
+<a id="skills-消融-table-8"></a>
+
+### Skills Ablation
 
 固定 wgrad delay commit、agent 和 harness，每项任务各做三次有/无技能实验，十二次均成功。Table 8 的开关对比为：validate-correctness 的 Agent Turns 114 → 34（-70%），capture-nsys-profile 75 → 36（-52%）；四个 agent 侧指标全部大幅下降，而 Active GPU Time 基本持平（GPU 工作由任务本身决定，agent 侧的开销才是技能优化的对象）。
 
 
-## 源码实现：从训练入口到五阶段流水线 {#pithtrain-code}
+<a id="pithtrain-code"></a>
+
+## Implementation
 
 > [KuangjuX/pith-train，`889a408`](https://github.com/KuangjuX/pith-train/tree/889a408)（fork 自 mlc-ai/pith-train，2026-07）。
 
 PithTrain 把一个训练 step 展开成可直接追踪的调用链：入口建立并行环境与模型，数据按 mesh 切分，模型交给 DualPipeV 执行，最后统一归一化梯度并更新参数。关键是把 MoE 层在通信边界分成五段，使调度器能安排不同 micro-batch 的计算与通信。
 
-### 从 launch 建立一次训练的运行环境
+<a id="从-launch-建立一次训练的运行环境"></a>
+
+### Initialization
 
 `tasks/pretrain_lm.py` 的 `launch` 依次调用 `setup_logging`、`setup_distributed`、`setup_training`，再加载 checkpoint、检查数据集并进入训练循环。初始化阶段建立的对象保存在 `contexts` 中，训练循环读取同一份状态。
 
@@ -85,7 +95,9 @@ launch
 
 [源码：`pithtrain/tasks/pretrain_lm.py`](https://github.com/KuangjuX/pith-train/blob/889a408/pithtrain/tasks/pretrain_lm.py)。
 
-### 用四维 mesh 确定参数与数据归属
+<a id="用四维-mesh-确定参数与数据归属"></a>
+
+### Parallel Mesh
 
 `setup_device_mesh` 建一个 `(PP, DP, CP, EP)` 四维 mesh，**DP 不需要配置，由 world_size 除出来**。轴序外→内为 PP→DP→CP→EP，注释写明动机：CP（ring K/V 交换）和 EP（MoE all-to-all）通信最频繁，放最内层让流量尽量留在 NVLink 域内。
 
@@ -102,7 +114,9 @@ world_size = pp_size × dp_size × cp_size × ep_size   (dp_size = world_size / 
 
 [源码：`pithtrain/modules/training.py`](https://github.com/KuangjuX/pith-train/blob/889a408/pithtrain/modules/training.py)。
 
-### 将 global batch 切成流水线的输入
+<a id="将-global-batch-切成流水线的输入"></a>
+
+### Pipeline Schedule
 
 `train_step` 先根据 global batch 与 micro-batch 配置计算累积次数：
 
@@ -118,7 +132,7 @@ accumulate_steps = global_batch_size // (micro_batch_size * dp_size * ep_size)
 
 [源码：`pithtrain/tasks/pretrain_lm.py`](https://github.com/KuangjuX/pith-train/blob/889a408/pithtrain/tasks/pretrain_lm.py)。
 
-### 把模型层拆到通信边界
+<a id="把模型层拆到通信边界"></a>
 
 模型层遵循一个明确的协议。每个 decoder 层实现：
 
@@ -134,7 +148,9 @@ class LayerProtocol(Protocol):
 
 [源码：`pithtrain/models/interface.py`](https://github.com/KuangjuX/pith-train/blob/889a408/pithtrain/models/interface.py)。
 
-### 以 Qwen3 MoE 跟踪一次层计算
+<a id="以-qwen3-moe-跟踪一次层计算"></a>
+
+### Qwen3 MoE Layer
 
 - **V 形双 chunk**：`Qwen3MoeModel(config, phase=0/1)`，rank r 持有 chunk `r` 和 chunk `2·pp_size-1-r`（`layer_partition` 切层，边缘 chunk 更轻因为要背 embedding/lm_head）。这就是 DualPipeV 的 "V"。
 - **Gate**（`Qwen3MoeGate`）：softmax→topk→归一化权重；负载均衡 loss 通过 `MoELoadBalanceLossInjector.apply(topk_weight, lb_loss * n_tokens)` 以自定义 autograd 函数**注入到 topk_weight 的梯度通路**，绕过 loss 直接把 lb 梯度混进反向——这样 train_step 统一除以 token 数后 lb 梯度仍然正确归一化。这一缩放与 step 末的 token 归一化相配合。
@@ -144,7 +160,9 @@ class LayerProtocol(Protocol):
 
 [源码：`pithtrain/models/qwen3_moe.py`](https://github.com/KuangjuX/pith-train/blob/889a408/pithtrain/models/qwen3_moe.py)。
 
-### 让不同 micro-batch 的计算与通信重叠
+<a id="让不同-micro-batch-的计算与通信重叠"></a>
+
+### Communication and Computation
 
 一个 micro-batch 的依赖仍是 stage1 → dispatch → stage3 → combine → stage5。重叠来自不同 micro-batch 之间可并行的工作，不能把同一 token 尚未完成的通信跳过去。
 
@@ -158,7 +176,9 @@ class LayerProtocol(Protocol):
 
 [源码：`pithtrain/dualpipe/overlap.py`](https://github.com/KuangjuX/pith-train/blob/889a408/pithtrain/dualpipe/overlap.py)。 [源码：`pithtrain/dualpipe/utils.py`](https://github.com/KuangjuX/pith-train/blob/889a408/pithtrain/dualpipe/utils.py)。
 
-### 归一化梯度，再执行参数更新
+<a id="归一化梯度-再执行参数更新"></a>
+
+### Optimizer Step
 
 `criterion` 返回 loss 的 **sum**，各 micro-batch 反向累积求和损失的梯度；随后以全局非忽略 token 数归一化，再裁剪梯度和更新参数。token 计数从 PP rank 0 广播到其他 stage。
 
@@ -168,7 +188,9 @@ class LayerProtocol(Protocol):
 
 [源码：`pithtrain/tasks/pretrain_lm.py`](https://github.com/KuangjuX/pith-train/blob/889a408/pithtrain/tasks/pretrain_lm.py)。
 
-### 算子实现如何支撑这条路径
+<a id="算子实现如何支撑这条路径"></a>
+
+### Kernels
 
 | 文件 | 干什么 | 亮点 |
 |---|---|---|
@@ -183,7 +205,9 @@ class LayerProtocol(Protocol):
 
 `modules/load_balance.py`（274 行）：三种 MoE 均衡 loss——micro-batch（Switch 式）、global-batch（DeepSeek 式，DP×EP 频率同步）、sequence 三选一。
 
-### Checkpoint、正确性与性能观测
+<a id="checkpoint、正确性与性能观测"></a>
+
+### Checkpoint and Validation
 
 DCP checkpoint 通过 `to_canonical_model` 把参数名转换为与 PP 划分无关的全局层号，并展开堆叠的专家参数，支持跨并行度重新分片。HF 导入的 checkpoint 如果只有模型参数，使用 `model_only` 跳过 optimizer 状态。
 
@@ -194,7 +218,9 @@ DCP checkpoint 通过 `to_canonical_model` 把参数名转换为与 PP 划分无
 - `.agents/skills/`：9 个技能——`add-new-model`（含模型骨架模板）、`validate-correctness`（对比分支 loss 曲线）、`capture-nsys-profile`/`analyze-nsys-profile`、`add-memory-prints`、`estimate-memory`、`setup-benchmark-inputs`、`launch-with-slurm`、`wandb-tracking`。
 - `tools/memory_estimator/`：不启 GPU 就能估算各并行度下的显存（含流水线模拟器）。
 
-### 运行入口与环境
+<a id="运行入口与环境"></a>
+
+### Configuration
 
 ```bash
 # 数据
@@ -230,15 +256,21 @@ tools/           # memory_estimator 显存估算器
 docs/            # user-guide.md / architecture.md（架构说明）
 ```
 
-## 用固定 agent 的任务实验衡量框架成本
+<a id="用固定-agent-的任务实验衡量框架成本"></a>
+
+## Agent Evaluation Protocol
 
 ATE-Bench 固定 agent 与任务，改变训练框架，观察完成同类工作需要多少资源。它衡量的对象是 agent 使用框架的成本；训练性能需单独比较。论文 §4 设置三类任务：理解代码的 Q&A、操作与剖析、功能扩展。
 
 固定 agent（Claude Code, Opus 4.7 @ xhigh），每任务跑 3 次取中位数，报告五个独立指标（无单一标量）：Session Duration、Active GPU Time、Agent Turns、Per-Turn Context、Output Tokens。正确性用双人独立评分 + 第三人仲裁（Q&A）、harness 程序化检查（Operate & Profile）、规则化三属性 + Opus 评审 + 人工复核（New Feature）三套机制保证——全部 180 次 attempt 均通过。
 
-## 实验：训练速度与开发效率分别验证
+<a id="实验-训练速度与开发效率分别验证"></a>
 
-### 训练效率（Table 4）
+## Evaluation
+
+<a id="训练效率-table-4"></a>
+
+### Training Efficiency
 
 | 模型 / 硬件 / 配置 | Megatron-LM | TorchTitan | PithTrain |
 |---|---|---|---|
@@ -250,17 +282,23 @@ ATE-Bench 固定 agent 与任务，改变训练框架，观察完成同类工作
 
 （单位 tokens/s；DeepSpeed 不支持 PP+EP 组合被排除）正确性上，Qwen3-30B-A3B 4096 步预训练的 loss 曲线与 Megatron 对齐，6 个下游基准（OpenBookQA/WinoGrande/ARC-C/ARC-E/HellaSwag/PIQA）在各 checkpoint 上统计噪声内一致。
 
-### 智能体任务效率（Table 5–7）
+<a id="智能体任务效率-table-5–7"></a>
+
+### Agent Tasks
 
 - **Q&A**：PithTrain 的 Agent Turns 比 Megatron-LM 最多少 67%（如 Q1: 15 vs 33；Q5: 21 vs 48），Per-Turn Context 普遍低 20–30%（~30K vs ~45K）。
 - **Operate & Profile**：Agent Turns 最多比 Megatron 低 70%、比 TorchTitan 低 57%；Output Tokens 最多低 78%/65%。Getting Started 任务会话时长 6.6 min vs Megatron 40.5 min。
 - **New Feature**：Active GPU Time 最多比 Megatron 低 44%、比 TorchTitan 低 64%——主要因为 PithTrain 上 agent 更少次重跑训练就收敛。MoBA 任务：38.7 min vs 61.6 / 105.1 min。
 
-### MoBA 案例研究（Fig. 6）
+<a id="moba-案例研究-fig-6"></a>
+
+### MoBA Case Study
 
 按动作类别分解输出 token：Editing 在三个框架都占大头（Pith 4.7K / Megatron 13.1K / Titan 22.2K）；Megatron 的 Exploring 开销 10.2K vs Pith 2.2K（大代码库定位成本）。失败模式对比：PithTrain 三次运行两次零失败，一次失败在同文件内修复（tensor-stride mismatch，traceback 可读）；Megatron 三次运行遭遇 CLI flag 注册冲突（修复跨多文件）与 BF16 overflow；TorchTitan 的重跑由 OOM 内存压力调试主导——说明**内存余量等运行时属性是独立于代码库结构的另一因素**。
 
-## 结论的适用范围与混杂因素
+<a id="结论的适用范围与混杂因素"></a>
+
+## Limitations
 
 论文自己承认（§4）：ATE-Bench 不覆盖"共享改动跨模型传播"类任务——那正是生产框架 implicit indirection 的设计初衷（一份 layer skeleton 派生多模型），在这类任务上间接层可能反而降低 agent 工作量。因此，实验支持的是这些原则在所测任务分布中的收益，不能证明它们在所有任务上最优。
 
@@ -270,7 +308,9 @@ ATE-Bench 共 20 个任务（12+4+4），固定 Claude Code Opus 4.7 @ xhigh；O
 
 吞吐实验加载公开 checkpoint 以固定 router 负载，运行 25 步并取后 10 步中位数；这支持所给配置下的可比吞吐，不表示各基线已达到所有可能调优的上限。
 
-## 个人理解与相关系统的联系
+<a id="个人理解与相关系统的联系"></a>
+
+## 个人理解与相关系统
 
 - **与 SkillRT（SkVM）的联系**：两者都在做"为 agent 优化软件层"——SkillRT 优化技能的执行（编译类比），PithTrain 优化框架本身的结构（让 agent 静态阅读即可导航）。合起来指向一个趋势：系统的第一类用户正在变成 agent，软件设计需要为此重新定价。
 - **ATE 五指标可直接借用**：Session Duration / Active GPU Time / Agent Turns / Per-Turn Context / Output Tokens——评估任何"agent 操作基础设施"项目（编译器、集群工具、CI 系统）时可以作为候选指标，尤其"固定 agent 变系统"的反转实验设计。

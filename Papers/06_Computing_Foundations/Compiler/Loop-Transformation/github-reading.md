@@ -1,4 +1,6 @@
-# A Loop Transformation Theory and an Algorithm to Maximize Parallelism：开篇摘记，未完成
+<a id="a-loop-transformation-theory-and-an-algorithm-to-maximize-parallelism-开篇摘记-未完成"></a>
+
+# A Loop Transformation Theory and an Algorithm to Maximize Parallelism
 
 [所属主题](../../index.md)
 

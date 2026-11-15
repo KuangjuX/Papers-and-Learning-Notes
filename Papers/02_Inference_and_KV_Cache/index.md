@@ -8,11 +8,11 @@
 
 ## 本地笔记
 
-- [ReplaySSM：缓存输入，减少状态写回](ReplaySSM/index.md)
-- [Dual Chunk Attention](Dual-Chunk-Attention/DCA.md)
-- [HiSparse：稀疏注意力的分层 KV Cache 管理](HiSparse/hisparse.md)
+- [ReplaySSM: Cache SSM Inputs, Not State](ReplaySSM/index.md)
+- [Training-Free Long-Context Scaling of Large Language Models](Dual-Chunk-Attention/DCA.md)
+- [HiSparse: Scaling Sparse-Attention Decoding with Hierarchical KV Cache Management](HiSparse/hisparse.md)
 - [A Survey of LLM Inference Systems](Surveys/llm_inference_survey.md)
-- [Microsecond-scale Preemption for Concurrent GPU-accelerated DNN Inferences：未完成摘记](GPU-Preemption/github-reading.md)
+- [Microsecond-scale Preemption for Concurrent GPU-accelerated DNN Inferences](GPU-Preemption/github-reading.md)
 
 ## LLM Inference / Decoding Algorithms
 

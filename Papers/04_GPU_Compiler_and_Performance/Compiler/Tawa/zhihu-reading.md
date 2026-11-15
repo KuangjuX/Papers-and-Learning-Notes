@@ -1,14 +1,18 @@
-# Tawa：用异步引用自动生成 warp specialization
+<a id="tawa-用异步引用自动生成-warp-specialization"></a>
+
+# Tawa: Automatic Warp Specialization for Modern GPUs with Asynchronous References
 
 Tawa 从高层 Triton 程序生成 warp-specialized kernel：编译器划分生产者和消费者，用异步引用 aref 表达数据生命周期，再生成流水线与同步。开发者无需在原程序中手写 warp 分区和对应的底层通信。[论文 §III](https://arxiv.org/html/2510.14719v1)
 
-## 从依赖图生成生产者与消费者
+<a id="从依赖图生成生产者与消费者"></a>
+
+## Tawa Design
 
 ![Tawa 的编译流程与 aref 插入](../../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/images/work-summary-08.jpg)
 
 Triton 程序进入 MLIR 后，编译器根据计算图的任务与依赖关系建立分区，进行循环分发，再在跨分区的数据流上插入 aref。这样，加载、矩阵乘与其他计算可以分配给不同 warp groups，同时保留必要的先后关系。
 
-## aref 管理缓冲区的生产、借用与复用
+<a id="aref-管理缓冲区的生产、借用与复用"></a>
 
 aref 将异步通信与存储生命周期放入 IR，核心操作为：
 
@@ -22,7 +26,9 @@ Lowering 将 aref 变成具体的缓冲区分配、等待、数据搬运与完�
 
 ![Tawa 流水线与实现示意](../../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/images/work-summary-09.jpg)
 
-## 重叠的收益取决于工作负载
+<a id="重叠的收益取决于工作负载"></a>
+
+## Evaluation
 
 ![Tawa 实验结果之一](../../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/images/work-summary-10.jpg)
 

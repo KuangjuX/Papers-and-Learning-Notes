@@ -11,19 +11,25 @@ aliases:
 date: 2026-09-15
 ---
 
-# IndexCache：跨层复用稀疏索引，以及它为什么能被训练
+<a id="indexcache-跨层复用稀疏索引-以及它为什么能被训练"></a>
+
+# IndexCache: Accelerating Sparse Attention via Cross-Layer Index Reuse
 
 > 论文：[IndexCache: Accelerating Sparse Attention via Cross-Layer Index Reuse，v1](https://arxiv.org/abs/2603.12201v1)。
 >
 > 关联笔记：[DSA 算法流程](../DeepSeek-DSA/deepseek-sparse-attention-dsa.md) · [MSA 与 DSA Indexer 对比](../MiniMax-MSA/msa.md#msa-vs-dsa) · [HiSparse](../../02_Inference_and_KV_Cache/HiSparse/hisparse.md)
 
-## 为什么要减少逐层索引扫描 {#_1-为什么要减少逐层索引扫描}
+<a id="_1-为什么要减少逐层索引扫描"></a>
+
+## Background
 
 DSA 将主 attention 的访问范围缩到 Top-k，但每层 Indexer 仍需扫描完整历史。相邻层选择经常重合，IndexCache 因而让少数层重新打分，其余层复用位置清单。减少扫描的代价是让后续层接受别层的检索结果；关键在于哪些层能共享，以及共享后会漏掉什么。
 
-## Indexer、IndexCache、IndexShare 分别是什么？ {#_2-indexer、indexcache、indexshare-分别是什么}
+<a id="_2-indexer、indexcache、indexshare-分别是什么"></a>
 
-### 先分开打分网络与 Top-k {#_2-1-先分开打分网络与-top-k}
+## IndexCache Design
+
+<a id="_2-1-先分开打分网络与-top-k"></a>
 
 | 对象 | 做什么 | 是否有可训练参数 |
 |---|---|---|
@@ -40,7 +46,7 @@ $$
 
 $t$ 为当前 query 位置，$s$ 为候选位置，$j$ 为 indexer head。$q^I$、$k^I$ 是检索向量，$w^I$ 是根据当前输入生成的动态 head 权重，最终每个 token pair 只有一个标量分数。[DeepSeek-V3.2 §2.1](https://arxiv.org/html/2512.02556v1#S2.SS1)
 
-### IndexCache 的 F / S 层 {#_2-2-indexcache-的-f-s-层}
+<a id="_2-2-indexcache-的-f-s-层"></a>
 
 | 层类型 | Indexer | 主 attention |
 |---|---|---|
@@ -65,13 +71,13 @@ Layer 5：Indexer₅ → T₅ → Attention₅(T₅)
 
 这里的“算一次”是同一 query 在一组层内算一次。其他 query、新生成的 token、下一个 F 层仍然会重新选择。[IndexCache §3](https://arxiv.org/abs/2603.12201v1)
 
-### IndexShare 与 IndexCache 的关系 {#_2-3-indexshare-与-indexcache-的关系}
+<a id="_2-3-indexshare-与-indexcache-的关系"></a>
 
 这版论文没有使用 IndexShare 这个名称。GLM-5.2 的官方模型卡将 **IndexShare** 直接链接到 IndexCache 论文，并描述为每四个 sparse attention 层复用一个 indexer。
 
 因此，IndexCache 是本文的方法，IndexShare 是后续模型采用该跨层复用思想时使用的名称。论文还包括非均匀模式搜索；实际模型的例外层和分组应以配置为准，不能把示意的 `FSSS` 当成所有层无例外的配置。[GLM-5.2 模型卡](https://huggingface.co/zai-org/GLM-5.2) · [模型配置](https://huggingface.co/zai-org/GLM-5.2/blob/main/config.json)
 
-## Q、K、V 不同，为什么还能共享位置？ {#_3-q、k、v-不同-为什么还能共享位置}
+<a id="_3-q、k、v-不同-为什么还能共享位置"></a>
 
 以简化的单头 attention 表示，共享位置集合 $T_t$ 后，第 $\ell$ 层仍计算：
 
@@ -87,7 +93,7 @@ $$
 
 该公式用于解释共享的对象，省略了 MLA 的压缩、矩阵吸收等实现细节。共享没有让几层 attention 成为同一个计算。
 
-### 论文的经验依据：跨层选择重合 {#_3-1-论文的经验依据-跨层选择重合}
+<a id="_3-1-论文的经验依据-跨层选择重合"></a>
 
 作者对 47 层、30B DSA 模型，在 768 个长度为 200K 的校准样本上统计：
 
@@ -103,7 +109,7 @@ $$
 
 这些是特定模型和数据上的观察，不是任意 Transformer 都满足的数学定理。[IndexCache Appendix A](https://arxiv.org/abs/2603.12201v1)
 
-### 重合很多，不代表没漏掉关键 token {#_3-2-重合很多-不代表没漏掉关键-token}
+<a id="_3-2-重合很多-不代表没漏掉关键-token"></a>
 
 用一个极端例子区分位置重合与概率覆盖：
 
@@ -127,7 +133,9 @@ $$
 
 Appendix C 还报告了负结果：按局部 attention 输出余弦相似度搜索共享模式，无法有效恢复下游质量。局部输出相似不等于端到端误差小。
 
-## 不训练时：用 LM loss 搜索哪些层可以共享 {#_4-不训练时-用-lm-loss-搜索哪些层可以共享}
+<a id="_4-不训练时-用-lm-loss-搜索哪些层可以共享"></a>
+
+## Training-free Search
 
 局部重合和输出相似度都不能可靠预测最终质量，因此 training-free 路线直接用全模型 LM loss 评价共享模式。它固定权重，从全 F 模式开始，在同一批校准数据上：
 
@@ -146,9 +154,7 @@ Appendix C 还报告了负结果：按局部 attention 输出余弦相似度搜�
 
 贪心算法不保证全局最优。它的价值在于用全局预测损失识别重要层，而不要求局部相似度一定能预测最终质量。[IndexCache §3.1](https://arxiv.org/abs/2603.12201v1)
 
-### 搜索是否比均匀删除可靠
-
-只删除 indexer、固定权重时，均匀共享是否足够？
+<a id="搜索是否比均匀删除可靠"></a>
 
 同一 30B DSA 模型、相同保留比例，比较均匀模式与 LM-loss 贪心搜索。Table 2 的 Long Avg 汇总五个长上下文基准。
 
@@ -166,9 +172,11 @@ Appendix C 还报告了负结果：按局部 attention 输出余弦相似度搜�
 1/4 比例下搜索大幅缩小质量差距，直接均匀删除并不可靠；1/8 即使搜索也明显退化，存在共享边界。贪心搜索的结果不代表任何数据、模型或共享比例都能恢复质量。
 
 
-## 允许训练时：让 indexer 学习多个层的共同需求 {#_5-允许训练时-让-indexer-学习多个层的共同需求}
+<a id="_5-允许训练时-让-indexer-学习多个层的共同需求"></a>
 
-### 多层 KL 监督 {#_5-1-多层-kl-监督}
+## Training-aware Index Sharing
+
+<a id="_5-1-多层-kl-监督"></a>
 
 固定一个 query，设保留的 indexer 服务 $r$ 个层：
 
@@ -185,7 +193,7 @@ $$
 
 直觉：某个服务层很重视一个位置，而 indexer 给它很低的概率，该项 KL 就产生提高其预测概率的压力。多个层共同提出需求。
 
-### 数学命题究竟证明什么？ {#_5-2-数学命题究竟证明什么}
+<a id="_5-2-数学命题究竟证明什么"></a>
 
 定义平均教师：
 
@@ -211,7 +219,7 @@ $$
 
 **命题解释 indexer 在拟合平均需求，没有证明共享 Top-k 与各层独立选择等价，也没有证明准确率必然不下降。**
 
-### 平均需求仍然可能牺牲某一层 {#_5-3-平均需求仍然可能牺牲某一层}
+<a id="_5-3-平均需求仍然可能牺牲某一层"></a>
 
 | 分布 | A | B | C |
 |---|---:|---:|---:|
@@ -223,7 +231,9 @@ $$
 
 Top-2 可同时选 A、C，说明候选预算也是共享是否有效的关键条件。真实实验用 $k=2048$，但这个数本身并不提供无损保证。
 
-### Indexer 的参数 θ 对应哪些模块
+<a id="indexer-的参数-θ-对应哪些模块"></a>
+
+### Indexer Parameters
 
 DeepSeek 官方实现中的主要可训练模块包括：
 
@@ -238,11 +248,13 @@ DeepSeek 官方实现中的主要可训练模块包括：
 
 主 attention 和 indexer 使用不同的检索/注意力投影。不能把“KL 更新 indexer 的 Wq/Wk”理解成“这条 KL 直接训练主 attention 的全部 Q/K 参数”。
 
-### KL 如何沿连续分数更新投影
+<a id="kl-如何沿连续分数更新投影"></a>
+
+### Indexer Gradients
 
 以下用简化的点积 scorer 推导梯度；完整 DSA backward 还需经过 ReLU、缩放和归一化。
 
-#### 先看单头、无 ReLU 的情况 {#_7-1-先看单头、无-relu-的情况}
+<a id="_7-1-先看单头、无-relu-的情况"></a>
 
 使用列向量，令 $x\in\mathbb R^{d_x}$ 为 query 侧输入，$h_s\in\mathbb R^{d_h}$ 为候选输入，$W_q\in\mathbb R^{d_I\times d_x}$、$W_k\in\mathbb R^{d_I\times d_h}$：
 
@@ -285,7 +297,7 @@ $$
 
 它们都是“输出梯度 × 输入转置”的外积。$W_k$ 在候选之间共享，所以要累加候选贡献；完整 batch 还需累加或平均多个 query / 样本的贡献。
 
-#### 一个局部梯度数值例子 {#_7-2-一个局部梯度数值例子}
+<a id="_7-2-一个局部梯度数值例子"></a>
 
 假设两个候选的 $\pi=(0.7,0.3)$、$p=(0.2,0.8)$，则 $\delta=(0.5,-0.5)$。取：
 
@@ -306,7 +318,7 @@ $$
 
 SGD 更新会让 $W_q$ 第一列的第一维减小、第二维增大，使该输入产生的 query 沿 $k_B-k_A$ 方向移动。这里展示的是一处局部梯度；实际更新也会同时影响其他输入、key 和网络参数。
 
-#### 接回多头 ReLU 打分 {#_7-3-接回多头-relu-打分}
+<a id="_7-3-接回多头-relu-打分"></a>
 
 若：
 
@@ -329,9 +341,9 @@ ReLU 提供梯度开关，$w_j$ 提供缩放；key 侧累加各 head 的贡献�
 多层 KL → 连续候选分数 → indexer query / key → 投影参数
 ```
 
-### 连续分数更新如何改变下一次选择
+<a id="连续分数更新如何改变下一次选择"></a>
 
-#### KL 提供另一条路径 {#_8-1-kl-提供另一条路径}
+<a id="_8-1-kl-提供另一条路径"></a>
 
 ```text
 Indexer 分数 z
@@ -342,7 +354,7 @@ Indexer 分数 z
 
 主 attention 不使用 indexer 分数作为自己的权重，因此 LM loss 没有从这条位置选择路径回传给 indexer 的常规可微通道。KL 直接监督选择前的连续分数，并没有让 Top-k 本身变得可微。KL 是本文选择的方法，不是离散选择训练的唯一可能方案。
 
-#### 更新参数，下一次前向重新选择 {#_8-2-更新参数-下一次前向重新选择}
+<a id="_8-2-更新参数-下一次前向重新选择"></a>
 
 以 SGD 示意：
 
@@ -364,7 +376,9 @@ $$
 
 推理时没有 KL 和参数更新，但输入、query、层号变化仍会导致新的选择。**参数固定不等于清单固定。**
 
-#### 两阶段训练与梯度边界 {#_8-3-两阶段训练与梯度边界}
+<a id="_8-3-两阶段训练与梯度边界"></a>
+
+### Training Stages
 
 | 阶段 | 主 attention | Indexer 监督 | 参数更新 |
 |---|---|---|---|
@@ -375,9 +389,9 @@ $$
 
 **稀疏阶段的监督范围有限**：不能把它描述成每一步都能直接纠正所有漏选 token。前面“提高 B 分数”的完整分布例子，要求 B 在 KL 的监督范围内。[IndexCache §3.2](https://arxiv.org/abs/2603.12201v1) · [DSA §2.1.1](https://arxiv.org/html/2512.02556v1#S2.SS1.SSS1)
 
-### 多层监督是否比重新训练本身多带来收益
+<a id="多层监督是否比重新训练本身多带来收益"></a>
 
-恢复质量只是重新训练的效果，还是多层 KL 也有作用？
+### Training Ablation
 
 此组实验使用上下文长度为 200K tokens 的 SFT 数据，运行 1,000 步 dense warm-up 和 4,000 步 sparse training。其 DSA 基线也按该缩短流程训练，因此不能与 Table 2 的基线直接混作同一对照。
 
@@ -394,10 +408,12 @@ $$
 
 相同 1/2 模式下去掉多层监督下降 1.8 个分数点，支持多层 KL 提供额外帮助；1/4 的均匀模式经训练后接近同组基线。该消融只在 1/2 上做，不能当成 1/4 的消融结论。
 
-Table 3 的 51.0 → 50.6 是下降 **0.4 个分数点**，相对降幅约 0.78%，不应写成相对下降 0.4%。表中未报告误差条，不能仅因 51.6 略高于 51.0 就认定共享普遍提升能力。[IndexCache §4.1、§4.3–4.4](https://arxiv.org/abs/2603.12201v1)
+Table 3 的 51.0 → 50.6 是下降 **0.4 个分数点**。表中未报告误差条，不能仅因 51.6 略高于 51.0 就认定共享普遍提升能力。[IndexCache §4.1、§4.3–4.4](https://arxiv.org/abs/2603.12201v1)
 
 
-## 更大模型上的适用范围 {#_9-更大模型上的适用范围}
+<a id="_9-更大模型上的适用范围"></a>
+
+## Evaluation
 
 ![Figure 1：GLM-5 上的质量与加速概览](images/fig01-glm5-benchmarks.png)
 
@@ -405,9 +421,11 @@ Table 3 的 51.0 → 50.6 是下降 **0.4 个分数点**，相对降幅约 0.78%
 
 Table 4 还给出 GLM-5 的免训练长上下文结果：基线 78.4，1/4 搜索模式 78.0。它支持方法在更大模型上的可行性，但论文明确将其称为 preliminary results。图 1 的 1/2、30B Table 1 的 1/4，以及正文 GLM-5 长上下文 1/4 的加速描述属于不同配置，不能拼接成同一个实验结果。
 
-## 为什么省掉 75% indexer，没有整体加速 4 倍？ {#_10-为什么省掉-75-indexer-没有整体加速-4-倍}
+<a id="_10-为什么省掉-75-indexer-没有整体加速-4-倍"></a>
 
-### Indexer 在长上下文中可能成为大头 {#_10-1-indexer-在长上下文中可能成为大头}
+### Inference Performance
+
+<a id="_10-1-indexer-在长上下文中可能成为大头"></a>
 
 Prefill 阶段，固定 Top-k 预算时：
 
@@ -425,17 +443,11 @@ $N_F$ 是保留的 F 层数。Indexer 单次打分便宜，但候选对数量增
 
 Decode 每次只新增少量 query；单 token 的候选扫描随历史长度近似线性增长，不应把 prefill 的 $L^2$ 直接当成单 token decode 的复杂度。
 
-### Amdahl 定律解释端到端收益 {#_10-2-amdahl-定律解释端到端收益}
+<a id="_10-2-amdahl-定律解释端到端收益"></a>
 
-设原耗时中 indexer 占比为 $f$，保留 1/4 次数，并理想化地假设其耗时按比例缩小、其他部分不变：
+减少 indexer 次数只影响这一部分计算；主 attention、其他层与调度仍有耗时。端到端收益应以完整推理测量为准。
 
-$$
-\operatorname{speedup}=\frac1{(1-f)+f/4}.
-$$
-
-例如假设原本 indexer 60 ms、其他 40 ms，优化后变成 15 + 40 = 55 ms，总加速约 1.82 倍。此例只解释原理，不是论文实测时间的分解。
-
-### 实测数字与配置 {#_10-3-实测数字与配置}
+<a id="_10-3-实测数字与配置"></a>
 
 ![Figure 3：不同上下文长度下的加速](images/fig03-inference-speedup.png)
 
@@ -455,9 +467,11 @@ $$
 
 IndexCache 降低了 indexer 二次项的系数，未消除保留层的全候选扫描，也不是把整个模型的 FLOPs 或延迟都减少 75%。[IndexCache §4.2](https://arxiv.org/abs/2603.12201v1)
 
-## IndexShare 会减少 KV Cache 吗？ {#_11-indexshare-会减少-kv-cache-吗}
+<a id="_11-indexshare-会减少-kv-cache-吗"></a>
 
-### 三类状态不能混在一起 {#_11-1-三类状态不能混在一起}
+## Cache Management
+
+<a id="_11-1-三类状态不能混在一起"></a>
 
 | 状态 | 内容 | 跨层共享后的变化 |
 |---|---|---|
@@ -469,7 +483,7 @@ IndexCache 降低了 indexer 二次项的系数，未消除保留层的全候选
 
 同一清单 `[3, 8, 19]` 在 Layer 1 和 Layer 2 中索引的是各层自己的不同内容。当前位置未被选中，也可能被下一个 query 选中，所以 Top-2048 不意味着只需保存 2048 个历史 token。
 
-### 哪部分容量能省？ {#_11-2-哪部分容量能省}
+<a id="_11-2-哪部分容量能省"></a>
 
 假设原来的缓存为：
 
@@ -487,7 +501,7 @@ $$
 
 这是由机制及实现得到的缓存分析，不是原论文报告的一个总显存实测降幅。核对的 Transformers 实现中，Shared 层将 `indexer` 设为 `None`；主 KV 仍每层更新，indexer keys 只在执行 indexer 的层更新。[GLM IndexShare 实现](https://github.com/huggingface/transformers/blob/main/src/transformers/models/glm_moe_dsa/modeling_glm_moe_dsa.py)（核对日期：2026-09-15）
 
-### 与 MLA、HiSparse 的关系 {#_11-3-与-mla、hisparse-的关系}
+<a id="_11-3-与-mla、hisparse-的关系"></a>
 
 | 方法 | 主要改变什么 |
 |---|---|
@@ -498,7 +512,9 @@ $$
 
 这些方法作用于不同维度，机制上可互补；具体组合效果需要系统实现与测试。[HiSparse 阅读笔记](../../02_Inference_and_KV_Cache/HiSparse/hisparse.md)
 
-## 参考资料 {#_13-参考资料}
+<a id="_13-参考资料"></a>
+
+## 参考资料
 
 - [IndexCache 原论文 v1](https://arxiv.org/abs/2603.12201v1)：机制、Proposition 1、实验与原图。
 - [DeepSeek-V3.2 原论文](https://arxiv.org/html/2512.02556v1)：Lightning Indexer 打分与两阶段训练。

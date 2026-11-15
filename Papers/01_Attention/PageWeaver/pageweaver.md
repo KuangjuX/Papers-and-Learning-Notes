@@ -8,13 +8,17 @@ aliases:
 date: 2026-10-22
 ---
 
-# PageWeaver：在线 Query 分组与共享 KV 的稀疏 Attention
+<a id="pageweaver-在线-query-分组与共享-kv-的稀疏-attention"></a>
+
+# PageWeaver: KV-Guided Query Unions for Sparse Attention
 
 > [PageWeaver: KV-Guided Query Unions for Sparse Attention，v1](https://arxiv.org/abs/2610.11201v1)。
 >
 > [Zotero](zotero://select/library/items/EHQB8NYQ) · [打开 PDF](zotero://open-pdf/library/items/SBISCM3P) · [Attention 论文索引](../index.md)
 
-## 背景与核心洞察：稀疏集合相同，执行成本可以不同 {#_1-背景与核心洞察-稀疏集合相同-执行成本可以不同}
+<a id="_1-背景与核心洞察-稀疏集合相同-执行成本可以不同"></a>
+
+## Background
 
 动态稀疏 attention 为每个 Query 选出少量 KV pages，但选中的 Query–page 关系是不规则的，而 Tensor Core 以规则矩阵 tile 执行。即使有效的 Query–KV 交互数量相同，不同的 Query 分组也会产生不同的 page union、无效计算槽位和 KV 搬运量。
 
@@ -38,7 +42,9 @@ Query ID 排列 π（不物理重排 Q）
 
 **选择组大小**与**选择组成员**是两个不同问题：Union4→Union8 研究共享粒度；online regroup 研究固定八 Query 执行组中应放哪些成员。来源：§1–3，PDF 第 1–3 页。
 
-## 固定支持集与 Query Union {#_2-固定支持集与-query-union}
+<a id="_2-固定支持集与-query-union"></a>
+
+## Query Union
 
 固定一个请求和一个 KV head，其关联的多个 Q heads 共享所选 page 集合。记：
 
@@ -54,7 +60,7 @@ Query ID 排列 π（不物理重排 Q）
 
 这里的“八个 Query”指八个 Query 位置，不能与八个 Q heads 混淆。
 
-### 每个 Query 仍计算自己的稀疏 attention {#_2-1-每个-query-仍计算自己的稀疏-attention}
+<a id="_2-1-每个-query-仍计算自己的稀疏-attention"></a>
 
 论文式 (1)–(2) 定义：
 
@@ -69,7 +75,7 @@ $$
 
 **教学例子：** 若 $P=4$、$S_i=\{0,2\}$、$L_i=11$、$c_i=9$，则 $A_i=\{0,1,2,3,8,9\}$。即使其他组员需要 page 1，也不能让这个 Query 关注 token 4–7。
 
-### Union 共享遍历，成员掩码保持语义 {#_2-2-union-共享遍历-成员掩码保持语义}
+<a id="_2-2-union-共享遍历-成员掩码保持语义"></a>
 
 组 $G$ 的共同遍历范围为：
 
@@ -89,9 +95,11 @@ $$
 
 来源：[§3.1，第 2 页](zotero://open-pdf/library/items/SBISCM3P?page=2)。
 
-## Online regroup：窗口内逐组贪心选择 {#_3-online-regroup-窗口内逐组贪心选择}
+<a id="_3-online-regroup-窗口内逐组贪心选择"></a>
 
-### Algorithm 1 的步骤 {#_3-1-algorithm-1-的步骤}
+## Online Regrouping
+
+<a id="_3-1-algorithm-1-的步骤"></a>
 
 Regroup 在同一个请求、同一个 KV head 对应的 Query 集合内进行，窗口不跨当前 prefill chunk。它在每次调用时根据当前 Top-K 集合重新生成 ID，不复用旧请求的分组。
 
@@ -129,7 +137,7 @@ for window in request_local_windows(current_prefill_chunk, W):
 
 每组完成后重新选择 seed，并重置 union；不足八个 Query 的尾组仍必须覆盖剩余 Query。最终排列在每个请求内是双射，每个 Query 恰好出现一次。
 
-### 逐步例子：更新 union 为什么重要 {#_3-2-逐步例子-更新-union-为什么重要}
+<a id="_3-2-逐步例子-更新-union-为什么重要"></a>
 
 **以下是阅读讨论中的教学构造，不是论文的实测输入。为便于手算，令 $g=3$；论文实际使用 $g=8$。**
 
@@ -169,11 +177,11 @@ $$
 
 有效选择关系始终是六个 Query 各选两个 pages，共十二条边。改变的是共同遍历的组织方式，没有改变任何 $S_i$。这个例子说明贪心目标如何工作，不代表它在任意输入上都能改善原顺序。
 
-### 局部最优为何可能增加下一组的成本
+<a id="局部最优为何可能增加下一组的成本"></a>
 
 论文未给出全局最优或不劣于原顺序的保证。教学反例取 $g=2$：$S_0=\{1,2,3,4\}$、$S_1=\{1,2,6,7\}$、$S_2=\{1,2,3,5\}$、$S_3=\{3,5,8,9\}$。原顺序两组的 union 总量为 $6+6=12$；贪心先配 $q_0,q_2$，剩余 $q_1,q_3$，总量反而为 $5+8=13$。这是简化规则的反例，不是论文八 Query 实测案例。
 
-### GPU 实现和边界 {#_3-3-gpu-实现和边界}
+<a id="_3-3-gpu-实现和边界"></a>
 
 一个 regroup CTA 负责一个窗口：W64 启动 64 个线程，W128 启动 128 个线程，每个线程对应一个 Query。其 Top16 pages 被编码为 **512-bit bitmap，即 16 个 32-bit words**；不是一个 word 对应一个 Top-K 元素。
 
@@ -191,9 +199,11 @@ Warp reduction 加 shared-memory winner reduction 选择最小的“代价、原
 
 来源：[§3.3、Algorithm 1、§4.1，第 3–4 页](zotero://open-pdf/library/items/SBISCM3P?page=4)。
 
-## Union preparation 与 Two-CTA Union8 kernel {#_4-union-preparation-与-two-cta-union8-kernel}
+<a id="_4-union-preparation-与-two-cta-union8-kernel"></a>
 
-### 从 ID 排列生成执行元数据 {#_4-1-从-id-排列生成执行元数据}
+## PageWeaver Kernel Design
+
+<a id="_4-1-从-id-排列生成执行元数据"></a>
 
 Regroup 的输出是 $\pi$。后续 union-preparation kernel 按这些 ID 读取原始 Top-K 行，去重形成每组的 page 列表，并生成成员掩码。
 
@@ -204,7 +214,7 @@ Regroup 的输出是 $\pi$。后续 union-preparation kernel 按这些 ID 读取
 
 因此执行槽位 $r$ 读取 $q_{\pi(r)}$，应用该 Query 原来的支持集和因果位置，并写入 $o_{\pi(r)}$。精确算术下，这保持原 attention 的语义；FP8 量化与计算顺序带来的数值差异需要单独检查。
 
-### 为什么是 M64 与 Union8 {#_4-2-为什么是-m64-与-union8}
+<a id="_4-2-为什么是-m64-与-union8"></a>
 
 H200 配置中，一个 KV head 对应 16 个本地 Q heads。每个 CTA 处理四个 Query 位置，形成 $4\times16=64$ 行，匹配 M64 Tensor Core tile；一个 cluster 含两个 128-thread CTA，共同遍历八个 Query 的 page union。
 
@@ -219,7 +229,7 @@ H200 配置中，一个 KV head 对应 16 个本地 Q heads。每个 CTA 处理�
 
 八 Query 是这份 H200 配置的执行选择。组大小的匹配算术对照见后文 Figure 4；论文没有评测 Union5，也没有证明八 Query 普遍最优。
 
-### Figure 3：multicast、双缓冲与状态归属 {#_4-3-figure-3-multicast、双缓冲与状态归属}
+<a id="_4-3-figure-3-multicast、双缓冲与状态归属"></a>
 
 ![Figure 3：两个 CTA 的 Union8 执行流水线与 KV 缓冲区生命周期](images/figure-3.png)
 
@@ -244,7 +254,7 @@ H200 配置中，一个 KV head 对应 16 个本地 Q heads。每个 CTA 处理�
 
 也就是说，不同颜色不代表分别由专门的 QK warp、softmax warp、PV warp 执行。图里两条 CTA 时间线对齐，也不构成它们总能同时完成的保证。
 
-### 共享搬运与子组计算是不同成本 {#_4-4-共享搬运与子组计算是不同成本}
+<a id="_4-4-共享搬运与子组计算是不同成本"></a>
 
 整个八 Query 组的逻辑搬运代理指标是 $|U_G|$，但两个 CTA 的计算轮次更接近论文式 (4)：
 
@@ -258,7 +268,7 @@ $$
 
 因此，减少整个 union 不必然同时减少两个子组的计算轮次或平衡负载。当前贪心目标只优化八 Query union；先构造四 Query 子组再配对虽更贴近执行边界，但论文未评测，不能据此推定更快。
 
-### 实际算术路径 {#_4-5-实际算术路径}
+<a id="_4-5-实际算术路径"></a>
 
 H200 路径接收 BF16 Q 和 FP8 E4M3 KV：Q 按 head-row 量化后执行 FP8 QK；softmax 统计保持 FP32；概率经过缩放再转为 E4M3，用于 FP8 PV，补偿尺度进入归一化，最终输出 BF16。
 
@@ -266,7 +276,9 @@ H200 路径接收 BF16 Q 和 FP8 E4M3 KV：Q 按 head-row 量化后执行 FP8 QK
 
 来源：[§3.2、§4.1–4.3，第 3–5 页](zotero://open-pdf/library/items/SBISCM3P?page=4)。
 
-## 与其他方法的关系 {#_5-与其他方法的关系}
+<a id="_5-与其他方法的关系"></a>
+
+## Related Work
 
 以下区别依据论文 §2–4；相关工作与实际计时基线分开理解。
 
@@ -279,7 +291,7 @@ H200 路径接收 BF16 Q 和 FP8 E4M3 KV：Q 按 head-row 量化后执行 FP8 QK
 | DTC-SpMM | 根据稀疏行的列集合相似性和缓存复用做重排 | 相似性分组已有先例；本文强调动态支持集下的在线成本与原始因果坐标 |
 | FlashInfer、native SM90 | 论文评测的兼容 attention 实现 | 用于完整调用性能比较，不是只改一个分组参数的对照 |
 
-### 为什么没有最终采用直接 KV-page 配对执行 {#_5-1-为什么没有最终采用直接-kv-page-配对执行}
+<a id="_5-1-为什么没有最终采用直接-kv-page-配对执行"></a>
 
 令 $R_p$ 为选择 page $p$ 的 Query 集合。对两个 pages $a,b$，$R_a\cap R_b$ 给出共同消费者。直接 page-pair 路径让共同 Query 在局部状态中累加两个 pages，再写一次 partial；独占 Query 仍要覆盖其有效交互。
 
@@ -287,14 +299,14 @@ H200 路径接收 BF16 Q 和 FP8 E4M3 KV：Q 按 head-row 量化后执行 FP8 QK
 
 PageWeaver 因此使用 page 关系寻找适合一起执行的 Query，同时保留 Query-owned accumulation。这个实验同时改变了 work lists、producer 映射和 workspace；附录 B 提醒，不能把结果当成只改变 output ownership 的单变量消融。
 
-### Figure 5：工作列表与 partial 成本是否抵消复用 {#_6-3-figure-5-直接-kv-page-执行的机会与代价}
+<a id="_6-3-figure-5-直接-kv-page-执行的机会与代价"></a>
 
 人工交错支持集上，direct KV-page union 相对 FlashInfer 的完整调用延迟在 32K 从 1.588 ms 降为 1.340 ms（降低 15.6%），在 64K 从 3.172 ms 降为 2.852 ms（降低 10.1%）。但模型 captures 上 Union8 更快；低重叠的 L43/r1 64K 输入上，page union 为 1.827 ms，Union8 为 1.368 ms。
 
 人工案例证明这种复用模式可能存在，不说明它在自然输入中的出现频率。发现非局部复用后，还必须支付工作列表和部分输出处理的成本。[§5.3、Figure 5，第 6–7 页](zotero://open-pdf/library/items/SBISCM3P?page=7)。
 
 
-### Native 与 FlashInfer 基线的身份和口径 {#_5-2-native-与-flashinfer-基线的身份和口径}
+<a id="_5-2-native-与-flashinfer-基线的身份和口径"></a>
 
 H200 native 是 SGLang 的 **SM90 Q8KV8 sparse prefill** 实现，论文固定到 [PR #37236](https://github.com/sgl-project/sglang/pull/37236) 的提交 `62bae6102875a4ecb16d764df4f7622fe7fd0347`，不是一个标为官方 MSA SM100 的对照项。其接口被适配到固定 runtime，但论文说明未改变设备算法。
 
@@ -302,9 +314,11 @@ FlashInfer 是所测的兼容完整算子路径；论文没有在正文中给出
 
 B300 的 native 不能未经确认就沿用 H200 的 SM90 版本身份；正文与附录没有同样清晰地给出它的具体源码定位。
 
-## Evaluation：基础 kernel、regroup 与服务收益分开看 {#_6-evaluation-基础-kernel、regroup-与服务收益分开看}
+<a id="_6-evaluation-基础-kernel、regroup-与服务收益分开看"></a>
 
-### 设置与计时边界 {#_6-1-设置与计时边界}
+## Evaluation
+
+<a id="_6-1-设置与计时边界"></a>
 
 主平台是 H200，模型为 MiniMax-M3，Top16、head dimension 128、每个本地 KV head 对应 16 个 Q heads、page size 128，KV 为 FP8 E4M3。使用固定 SGLang CUDA 12.9 镜像。
 
@@ -319,7 +333,7 @@ B300 的 native 不能未经确认就沿用 H200 的 SM90 版本身份；正文�
 
 来源：[Table 1、§5.1，第 5 页](zotero://open-pdf/library/items/SBISCM3P?page=5)。
 
-### Figure 4：基础 Union8 的收益 {#_6-2-figure-4-基础-union8-的收益}
+<a id="_6-2-figure-4-基础-union8-的收益"></a>
 
 | 对比 | 结果 | 解释边界 |
 | --- | --- | --- |
@@ -329,7 +343,7 @@ B300 的 native 不能未经确认就沿用 H200 的 SM90 版本身份；正文�
 
 这些首先说明基础 Union8 的性能，不是在线 regroup 的增量收益。[§5.2，第 6 页；Figure 4，第 7 页](zotero://open-pdf/library/items/SBISCM3P?page=7)。
 
-### Figure 6：在线收益必须扣掉分组成本 {#_6-4-figure-6-在线收益必须扣掉分组成本}
+<a id="_6-4-figure-6-在线收益必须扣掉分组成本"></a>
 
 论文分别测量原顺序完整调用 $T_0$、使用预先算好的 grouped IDs 的调用 $T_{\mathrm{fixed}}$、包含在线分组的调用 $T_{\mathrm{online}}$：
 
@@ -358,7 +372,7 @@ $$
 
 同一输入单独 grouping 为 34.65 μs，不能代替表中的 37.55 μs。Page visits 的减少也不能直接当作 HBM bytes 的减少。[§3.4、§5.4；Figure 6，第 8 页](zotero://open-pdf/library/items/SBISCM3P?page=8)。
 
-### Figure 7：完整模型中，regroup 的额外收益较小 {#_6-5-figure-7-完整模型中-regroup-的额外收益较小}
+<a id="_6-5-figure-7-完整模型中-regroup-的额外收益较小"></a>
 
 服务实验轮换 native、原顺序 Union8、online W128 + Union8 三条路径；固定 TP8/DP2、attention-TP4，有效 prefill chunk 为 16K，禁用 radix cache 和 CUDA Graphs，每个请求生成一个 token。W128 用于所有 57 个稀疏层，没有按层选择策略。
 
@@ -372,7 +386,7 @@ $$
 
 64K/C4 某轮原 Union8 出现较慢 block，使配对增幅出现约 +32.36% 的离群点；论文保留该结果，而没有把它描述为稳定收益。64K 桶五个独立 prompts 中有两个超过 bitmap 容量，相关 chunks 使用原始 ID 回退。[§5.5、Figure 7，第 6、8 页](zotero://open-pdf/library/items/SBISCM3P?page=8)。
 
-### Figure 8：B300 上没有超过更强的已有路径 {#_6-6-figure-8-b300-上没有超过更强的已有路径}
+<a id="_6-6-figure-8-b300-上没有超过更强的已有路径"></a>
 
 B300 使用 CUDA 13/SM103、直接 FP8 Q、page size 64，且完整调用包含拷贝到稳定 descriptor workspace 的成本。W128 在 L20/L32 上相对原 Union8 有 1.068–1.156× eager 加速，但 native 仍然更快。
 
@@ -380,7 +394,7 @@ B300 使用 CUDA 13/SM103、直接 FP8 Q、page size 64，且完整调用包含�
 
 八个测试输入中，两个在线窗口都没有超过 native 与原 Union8 中较快的路径。没有 B300 服务实验。两平台的输入、native 算法、Q 格式、page size 和 descriptor 成本都不同，不能把差异单独归因于硬件。[§5.7、Figure 8，第 8–9 页](zotero://open-pdf/library/items/SBISCM3P?page=9)。
 
-### 附录 A：离线分组只展示执行潜力 {#_6-7-附录-a-离线分组只展示执行潜力}
+<a id="_6-7-附录-a-离线分组只展示执行潜力"></a>
 
 在同一 L43/r1 诊断输入上，以下时间均排除了 CPU 分组搜索与 H2D：
 
@@ -396,7 +410,9 @@ B300 使用 CUDA 13/SM103、直接 FP8 Q、page size 64，且完整调用包含�
 
 结果支持直接 ID 访问可以避免物理搬运开销，同时表明随意重排会损害执行。W2048 对应 CPU 搜索约 1.50 秒，因此 1.185 ms 不是可部署的在线完整调用耗时，也不是全局最优分组的证明。[Figure 9、附录 A，第 11 页](zotero://open-pdf/library/items/SBISCM3P?page=11)。
 
-## 正确性与论文明确的局限 {#_7-正确性与论文明确的局限}
+<a id="_7-正确性与论文明确的局限"></a>
+
+## Correctness and Limitations
 
 实现检查包括请求内排列双射、成员关系保持、因果/尾页、无效与重复 IDs、空支持集、packed requests，以及新输入的 graph replay；GPU grouping IDs 与 CPU 贪心参考匹配。六份在线 H200 captures 与原 Union8 输出逐位一致，但这个结论限于测试输入。
 

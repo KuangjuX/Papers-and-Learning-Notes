@@ -11,7 +11,9 @@ aliases:
 date: 2026-08-19
 ---
 
-# Event Tensor：用“事件张量”编译动态 Megakernel
+<a id="event-tensor-用-事件张量-编译动态-megakernel"></a>
+
+# Event Tensor: A Unified Abstraction for Compiling Dynamic Megakernel
 
 > **论文**：Event Tensor: A Unified Abstraction for Compiling Dynamic Megakernel  
 > **会议**：MLSys 2026  
@@ -21,15 +23,17 @@ date: 2026-08-19
 
 一个 megakernel 内可以同时存在许多 tile task。关键问题是：某个 task 需要的数据已经由哪些生产者写好，又该通知哪些消费者？Event Tensor 用具有 shape 和索引映射的事件数组表达这些依赖，再由编译器选择静态或动态调度。
 
-## 先看 kernel 边界怎样限制任务并行
+<a id="先看-kernel-边界怎样限制任务并行"></a>
 
-### Kernel launch 已经成为低 batch 推理的显著成本
+## Background
+
+<a id="kernel-launch-已经成为低-batch-推理的显著成本"></a>
 
 传统 LLM 推理沿用 kernel-per-operator 执行模式：CPU 依次启动 Attention、RoPE、Norm、GEMM、MoE 等 GPU kernel。同一个 autoregressive decoding step 可能包含数百甚至上千个细粒度操作。论文给出的典型数字是：一次 kernel launch 约为 5-10 μs，而最快的小 kernel 可能只执行约 2 μs。低 batch 时计算量不足以摊薄 launch gap，CPU 调度和 kernel 切换便会进入关键路径。
 
 CUDA Graph 可以将固定 kernel 序列捕获后重放，显著缩小 launch gap，但它保留了 kernel boundary。相邻 kernel 在同一 stream 上仍然表现为粗粒度顺序执行。
 
-### Kernel boundary 隐藏了本来存在的跨算子并行
+<a id="kernel-boundary-隐藏了本来存在的跨算子并行"></a>
 
 设算子 A 和 B 都被切成多个 tile。B 的第 0 个 tile 可能只依赖 A 的第 0、1 个 tile，而不依赖 A 的其余输出。传统执行仍要求整个 A 完成后才启动 B；理想执行则应在局部依赖满足后立即启动对应的 B tile。
 
@@ -42,19 +46,19 @@ Megakernel 把多个 operator 放入同一个 persistent kernel，再把 operato
 
 此外，手写 megakernel 需要同时处理 task 分解、跨 SM 依赖、信号量、执行队列、负载均衡、shared memory 和寄存器资源，工程复杂度很高。
 
-## 用两阶段 reduction 建立 Event Tensor 模型
+<a id="用两阶段-reduction-建立-event-tensor-模型"></a>
+
+## Event Tensor
 
 ![Figure 2：Event Tensor 抽象总览](images/fig02-event-tensor-overview.png)
 
 Figure 2 将 task、事件与坐标映射放在同一视图中；下面用一个两阶段 reduction 具体解释这些对象。
 
-### 用 Device Function、Event Tensor 与 Graph Function 描述依赖
+<a id="用-device-function、event-tensor-与-graph-function-描述依赖"></a>
 
-#### Device Function
+<a id="device-function"></a>
 
 Device function 定义一组可以在 GPU 上并行启动的 tiled tasks。每个 task 由多维坐标标识，例如 GEMM 的 `(i, j)` tile。task 内部仍然可以使用 Tensor Core、warp specialization、TMA 或手写 PTX。换言之，Event Tensor 不负责取代 TileLang、Triton 或 CuTeDSL 的单 task 实现。
-
-#### Event Tensor
 
 Event Tensor 是由 event 组成的多维数组。一个 event 表示一组 producer tasks 是否已经全部完成。每个元素具有初始 `wait_count`，并支持：
 
@@ -70,7 +74,7 @@ E = ETensor((n,), wait_count=4)
 
 表示有 `n` 个独立事件，每个事件需要收到 4 次 producer 通知才被触发。
 
-#### Graph Function
+<a id="graph-function"></a>
 
 Graph function 组织多个 device function，并为每次调用声明输入、输出 Event Tensor 以及 task-to-event 坐标映射。论文用类似 NumPy einsum 的记号表达依赖：
 
@@ -81,7 +85,7 @@ E[i]                 --"i->i" --> consumer task i
 
 它可以被读成：所有具有相同 `i` 的 producer tiles 共同更新 `E[i]`，当其计数器归零后，第 `i` 个 consumer tile 可以执行。
 
-### Split-K reduction 示例
+<a id="split-k-reduction-示例"></a>
 
 论文用两阶段 reduction 展示细粒度依赖。输入 `A` 的 shape 为 `(n×32, 128)`，第一阶段沿 K 轴切成 4 份：
 
@@ -99,7 +103,7 @@ $$
 
 ![Figure 3：Event Tensor 程序示例](images/fig03-program-example.png)
 
-### Event Tensor 的本质：参数化的 Task DAG
+<a id="event-tensor-的本质-参数化的-task-dag"></a>
 
 语义上，Event Tensor 仍然表示一个 DAG：
 
@@ -117,11 +121,13 @@ consumer mapping = "i->i"
 
 Event Tensor 因而是 task DAG 的张量化、符号化与参数化表示。
 
-## 把符号 shape 和运行时路由放入同一表示
+<a id="把符号-shape-和运行时路由放入同一表示"></a>
+
+## Dynamic Task Graph
 
 ![Figure 4/5：Shape dynamism 与 data-dependent dynamism](images/fig04-05-dynamism.png)
 
-### Shape dynamism：符号 shape 描述一族 task graphs
+<a id="shape-dynamism-符号-shape-描述一族-task-graphs"></a>
 
 Event Tensor 的维度可以包含符号变量，例如：
 
@@ -133,7 +139,7 @@ E.shape = (B, H)
 
 这里的关键区别是：动态 shape 不仅改变地址计算或循环上界，还改变 task 和 event 的实例数量。Event Tensor 把 dependency graph 本身参数化了。
 
-### Data-dependent event update：运行时决定通知谁
+<a id="data-dependent-event-update-运行时决定通知谁"></a>
 
 在 MoE 中，token `i` 的 grouping task 应通知哪些 expert events 由运行时 `topk[i,:]` 决定：
 
@@ -143,7 +149,7 @@ grouping_task[i] -> E[topk[i, :]]
 
 每个 expert event 的初始 counter 也根据实际路由给该 expert 的 token 数动态设置。因此编译器不需要提前知道 expert 的 token 分布。
 
-### Data-dependent task triggering：运行时决定启动多少 tasks
+<a id="data-dependent-task-triggering-运行时决定启动多少-tasks"></a>
 
 每个 expert 所需的 GroupGEMM tile 数由 token 数决定。论文使用 CSR 风格的 `exp_indptr` 保存 expert 对应的 task 区间：
 
@@ -167,7 +173,9 @@ Attention output
 
 动态性只改变后半段的依赖边和 tile 数量，不引入循环依赖。
 
-## 从依赖表示到持久化 kernel
+<a id="从依赖表示到持久化-kernel"></a>
+
+## Compilation
 
 ETC 实现为 Apache TVM 上的一组 compiler passes。输入计算图中：
 
@@ -188,7 +196,9 @@ ETC 实现为 Apache TVM 上的一组 compiler passes。输入计算图中：
 
 Event Tensor 论文的重点是第 3 步：同一份 dependency IR 可以被降低成不同的执行策略。
 
-## 规则任务：预先确定每个 SM 的执行队列
+<a id="规则任务-预先确定每个-sm-的执行队列"></a>
+
+## Static Scheduling
 
 静态调度在 kernel 启动前为每个 SM 计算固定任务队列。编译器将多个 device functions 融合为一个 persistent main loop，并在 producer 末尾插入 `notify()`、在 consumer 开头插入 `wait()`。
 
@@ -212,7 +222,9 @@ Event Tensor 论文的重点是第 3 步：同一份 dependency IR 可以被降�
 - 动态 shape 使用代表 shape 采样，未采样 shape 复用下一个更大的队列；
 - 数据依赖动态性只能保守地退化为较粗同步，因此不规则 MoE 更适合动态调度。
 
-## 不规则任务：运行时分派已经就绪的工作
+<a id="不规则任务-运行时分派已经就绪的工作"></a>
+
+## Dynamic Scheduling
 
 动态调度在 GPU 上维护 ready-task queue。任意 SM 空闲后 `pop` 一个 task；producer 完成并使 event counter 归零时，关联的 consumers 被 `push` 进队列。
 
@@ -232,24 +244,28 @@ Event Tensor 论文的重点是第 3 步：同一份 dependency IR 可以被降�
 
 当前实现使用所有 SM 共享的 global-memory centralized queue，优点是简单，缺点是原子 push/pop 可能在规模扩大时产生争用，多 GPU 远程入队还会放大这项成本。附录还使用 **early push** 隐藏调度开销：producer tasks 全部被派发后便提前入队 consumer，真正执行 consumer 前再等待 event；这样 push 操作可与 producer 计算重叠。
 
-## B200 消融：什么情况下动态调度值得付出代价
+<a id="b200-消融-什么情况下动态调度值得付出代价"></a>
+
+## Scheduling Ablation
 
 ![Table 2/3：静态与动态调度的 workload-dependent trade-off](images/table2-3-scheduler-tradeoff.png)
 
 论文构造一个 unfused megakernel 基线：所有 operator code 与 ETC 相同，但 operator 之间只使用单个 event 形成全局 barrier。因而表中的增益主要来自细粒度 inter-operator parallelism，而不是不同的单算子实现。
 
-### MoE：动态调度随 token 数增加更有价值
+<a id="moe-动态调度随-token-数增加更有价值"></a>
 
 在 1 token 时，dynamic 为 0.95×，队列开销大于负载均衡收益；在 1024 tokens 时，dynamic 达到 1.08×，比 static 的 1.04× 更好。expert workload 不均衡时，静态 per-SM queue 容易产生 straggler。
 
-### 规则 dense workload：静态调度明显更好
+<a id="规则-dense-workload-静态调度明显更好"></a>
 
 Qwen3-32B、TP=4 中，static 相对 unfused 为 1.06×-1.09×，dynamic 只有 0.82×-0.89×。规则任务不需要动态均衡，而多 GPU push/pop 尤其昂贵。
 
 动态队列的成本必须由减少等待和负载不均带来的收益覆盖。
 
 
-## 运行时怎样执行编译后的控制流
+<a id="运行时怎样执行编译后的控制流"></a>
+
+## Runtime
 
 ![Figure 10：传统 task runtime 与 ETC compiled-in control flow](images/fig10-compiled-control-flow.png)
 
@@ -262,9 +278,11 @@ Qwen3-32B、TP=4 中，static 相对 unfused 为 1.06×-1.09×，dynamic 只有 
 
 因此 Event Tensor 是 IR 中的一等抽象，但不要求运行时存在重量级 `Event` 对象。它在 lowering 后复用普通 tensor 存储。
 
-## 实验：依赖表达是否转化为端到端收益
+<a id="实验-依赖表达是否转化为端到端收益"></a>
 
-### 实验环境
+## Evaluation
+
+<a id="实验环境"></a>
 
 - 8× NVIDIA B200，NVLink 互连；
 - Ubuntu 24.04；
@@ -274,7 +292,9 @@ Qwen3-32B、TP=4 中，static 相对 unfused 为 1.06×-1.09×，dynamic 只有 
 
 主要图表未明显报告误差条、运行次数或方差。所有主要结果都来自 B200。抽象本身位于 compiler IR 层，但性能结论是否可直接迁移到 A100/H100、PCIe 或其他互连拓扑，论文没有验证。
 
-### 计算通信融合
+<a id="计算通信融合"></a>
+
+### Computation-Communication Fusion
 
 论文评估两个 tensor-parallel 基础模式：
 
@@ -291,7 +311,9 @@ Qwen3-32B、TP=4 中，static 相对 unfused 为 1.06×-1.09×，dynamic 只有 
 
 需要注意：论文说明 Triton Distributed 当时对 B200 的支持仍偏实验性，其 Triton GEMM 尚未完全针对 Blackwell 调优，因此 ETC 与该基线的差距不能全部归因于 Event Tensor。
 
-### 完整 MoE layer
+<a id="完整-moe-layer"></a>
+
+### MoE Layer
 
 MoE 实验采用 Qwen3-30B-A3B：
 
@@ -307,7 +329,9 @@ ETC 将 grouping、两阶段 GroupGEMM 和动态依赖融合到一个 megakernel
 2. 动态调度缓解 token-to-expert 不均衡；
 3. 不同 operator tiles 混合填充 SM，减少 wave quantization。
 
-### 端到端低 batch serving
+<a id="端到端低-batch-serving"></a>
+
+### Serving
 
 测试覆盖：
 
@@ -335,7 +359,7 @@ ETC 覆盖完整 decoding pipeline，包括 Attention、RoPE、KV-cache、Norm�
 
 TP=4 下 ETC 没有明显领先，作者将其归因于两项工程因素：部分 compiler-generated GEMM tile 不如 cuBLAS 调优充分，以及 ETC serving engine 的 CPU scheduler 开销高于 SGLang。
 
-### Warmup
+<a id="warmup"></a>
 
 ![Table 1：Qwen3-32B serving warmup](images/table1-warmup.png)
 
@@ -349,9 +373,11 @@ Qwen3-32B 从 engine launch 到首个请求：
 
 ETC 的 symbolic Event Tensor 允许离线生成 shape-generic binary，将编译移出 serving 启动路径。Qwen3-32B 的离线编译仍需 107 s；35 s warmup 的价值取决于该 binary 能否跨请求和部署复用，不能解释为没有编译成本。
 
-## 与 task DSL、DAG 和 MPK 的分工
+<a id="与-task-dsl、dag-和-mpk-的分工"></a>
 
-### 与 TileLang、CuTeDSL 的区别
+## Related Work
+
+<a id="与-tilelang、cutedsl-的区别"></a>
 
 | 维度 | TileLang / CuTeDSL | Event Tensor |
 |---|---|---|
@@ -364,7 +390,7 @@ ETC 的 symbolic Event Tensor 允许离线生成 shape-generic binary，将编�
 
 TileLang 中的 tile 是一块数据及其计算；Event Tensor 的元素是一组 producer tasks 已经完成这一事实。二者不竞争同一个抽象层。即使 CuTeDSL 当前已有实验性 Task Scheduling，其 task 通常也是绑定到连续 warp range 的 TMA/MMA/store 角色，依赖围绕 SMEM/TMEM pipeline；Event Tensor 则组织跨 operator、跨 SM 的 tiled tasks。
 
-### 与 Mirage Persistent Kernel（MPK）的区别
+<a id="与-mirage-persistent-kernel-mpk-的区别"></a>
 
 两者目标最接近，也有大量作者重合。它们都将模型分解成 SM-level tasks，使用 event 同步，并生成完整模型 persistent megakernel。但设计重点不同：
 
@@ -389,7 +415,9 @@ MPK：自动构造显式 tGraph，再将它压缩并交给 in-kernel runtime
 
 版本上需注意：Event Tensor v2 发布于 2026-04-21；当前 MPK v2 更新于 2026-06-10，已经加入 continuous batching、MoE 和 multi-GPU dynamic workload 支持。因此 Event Tensor related-work 中“现有 megakernel 仅支持 single-batch dense model”的描述不应直接套用于当前 MPK v2。
 
-## 个人理解：数据流与就绪条件的分离
+<a id="个人理解-数据流与就绪条件的分离"></a>
+
+## 个人理解
 
 **个人理解。** Event Tensor 给 tensor compiler 提供了一种可以变换的依赖表示：
 

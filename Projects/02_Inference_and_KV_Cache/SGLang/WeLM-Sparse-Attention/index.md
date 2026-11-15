@@ -15,9 +15,11 @@ aliases:
 
 下文先用共享 selection 的 GQA 解释通用计算与张量关系，再沿 WeLM Sparse 的 HiCache 实现追踪缓存恢复。通用公式与伪代码不代表特定 WeLM 版本的全部模型实现，尤其不能据此推定实际 selection 的 head/group 轴。
 
-HiCache 源码固定于 [PR !497](https://git.woa.com/wxg-odyssey/sglang/-/merge_requests/497) 的 `f96e0205bb312894edef6ec308fd04290931dfff`，比较基点为 `daa5fb89b3441b39ed61fa1fbcede40ac9ac5551`。该版本的 WeLM sparse 集成限于单体 Host L2；未在本次整理中运行模型或 GPU 测试。
+HiCache 源码固定于 [PR !497](https://git.woa.com/wxg-odyssey/sglang/-/merge_requests/497) 的 `f96e0205bb312894edef6ec308fd04290931dfff`，比较基点为 `daa5fb89b3441b39ed61fa1fbcede40ac9ac5551`。该版本的 WeLM sparse 集成限于单体 Host L2；现有证据为该版本源码，未包含模型或 GPU 实测。
 
-## 从 Indexer 到主 Attention 的数据流 {#forward}
+<a id="forward"></a>
+
+## Sparse Attention Dataflow
 
 ```mermaid
 flowchart TD
@@ -46,11 +48,13 @@ Indexer 产生用于选位置的分数；主 Attention 在选中位置上重新�
 
 一个请求在 prefill 或 verify 中可以对应多个 query 行，所以 N 不等于请求 batch size。
 
-## 共享关系如何决定计算形状 {#head-shapes}
+<a id="head-shapes"></a>
+
+## Head Layout
 
 假设同一 GQA 组内的 query heads 共享一份 selection；GQA 本身只定义 KV 共享，不自动保证稀疏选择也共享。
 
-### 三种 head 概念
+<a id="三种-head-概念"></a>
 
 | 概念 | 职责 |
 | --- | --- |
@@ -66,7 +70,7 @@ $$
 
 公开定义与模型背景见 [GQA 论文](https://arxiv.org/abs/2305.13245)。分布式实现中，应区分全模型和设备本地的 head 数；KV 切分或复制会影响本地分组关系。
 
-### 共享 KV 向量与共享 Selection 是两个条件
+<a id="共享-kv-向量与共享-selection-是两个条件"></a>
 
 同一 GQA 组使用同一个 KV head 的向量，但 GQA 本身没有定义稀疏选块方式。Selection 可以按 query 共享，也可以带 head/group 轴。
 
@@ -86,7 +90,7 @@ $$
 
 不同 KV groups 即使选中相同 token IDs，其 K/V 向量也不要求相同，不能把它们无条件合并成针对同一份 K/V 的矩阵行。
 
-### 把一组 Q heads 组织成矩阵
+<a id="把一组-q-heads-组织成矩阵"></a>
 
 固定一个 query 和一个含 B 个 token 的 KV block：
 
@@ -113,7 +117,7 @@ $$
 
 各 block 分别 softmax 后直接相加，一般不等价于对完整选中集合归一化。在线分块计算需要维护跨块的归一化与输出状态。[FlashAttention 论文](https://arxiv.org/abs/2205.14135)解释了这种分块计算的基本机制。
 
-### 多个 query 不等于多行共享同一紧凑 KV 矩阵
+<a id="多个-query-不等于多行共享同一紧凑-kv-矩阵"></a>
 
 Dense attention 的多个 query 可以对同一个 K/V block 计算，再处理各自的 mask。逐 query 的 sparse Selection 则不要求相同，例如：
 
@@ -135,7 +139,9 @@ query B → blocks {b, c}
 
 例如 $H_q=32,H_{kv}=8$ 时，每组 $G=4$。取 $B=128,D_q=D_v=64$，则组内 Q 为 $4\times64$，QK 输出为 $4\times128$，PV 输出为 $4\times64$；四个 heads 访问同一份 K/V，仍各自保留一行输出。
 
-## Indexer score 的一种公开形式
+<a id="indexer-score-的一种公开形式"></a>
+
+## Indexer
 
 Lightning indexer 的 weighted-ReLU MQA score 可表示为：
 
@@ -149,7 +155,9 @@ FP8 路径需要同时处理量化数据和 scale。投影、位置编码、量�
 
 主 Attention 的 Hq/Hkv 与 indexer 的 Hᵢ 是不同参数。某个 scorer 的 head 对齐限制不能直接当作主 Attention kernel 的限制。
 
-## 从 token score 得到 block Selection
+<a id="从-token-score-得到-block-selection"></a>
+
+## Block Selection
 
 对按 block 选择、使用 max pooling 的形式，定义 query t 的可见集合为 $\mathcal V_t$，block b 的位置集合为 $\mathcal B_b$：
 
@@ -171,7 +179,9 @@ top-k 的 index 是逻辑块号，不是物理 cache 页号。若可见块少于
 
 这是 block-max 选块形式的定义。其他算法可以按 token 选择、采用其他 pooling，或使用不同的 head/group Selection 语义，不能从“DSA”这个名称推断它们相同。
 
-## 逻辑块与物理页
+<a id="逻辑块与物理页"></a>
+
+## Paged KV Cache
 
 分页 KV cache 通过请求页表把逻辑块映射到物理页。若 block 和 cache page 大小一致，映射关系可写成：
 
@@ -191,7 +201,7 @@ selected physical page[t, k]
 
 因此稀疏有效长度不等于原请求长度，也不总是“选择页数 × page size”。上表仅演示页表语义，不表示某个设备 kernel 支持 page size=4。
 
-## 主 Attention 如何使用页表？
+<a id="主-attention-如何使用页表"></a>
 
 FlashAttention 的 KV-cache 接口支持分页 KV 与 GQA/MQA；具体参数名和支持范围应以所用版本为准。公开接口见 [FA3 Python API](https://github.com/Dao-AILab/flash-attention/blob/main/hopper/flash_attn_interface.py)。
 
@@ -212,11 +222,11 @@ FlashAttention 的 KV-cache 接口支持分页 KV 与 GQA/MQA；具体参数名�
 
 如果启用了 attention sink、softcap、位置偏置等机制，还需保留相应的数值定义。页表只能描述访问哪些 KV，不能替代这些计算。
 
-## HiCache：保存并恢复主 KV 与 Indexer-K {#hicache}
+## HiCache
 
 单体 Host L2 缓存适配复用了既有调度器、控制器和前缀树机制。计算路径决定了恢复前缀时不仅需要主 KV，还需要历史 Indexer-K。
 
-### 为什么 Attention KV 之外还需要 Indexer-K
+<a id="为什么-attention-kv-之外还需要-indexer-k"></a>
 
 Indexer-K 保存的是历史 token 用于打分的向量，不是 Top-K 编号，不是主 Attention 的 K，也不是最终 attention 权重。当前 Query 的变化会改变打分和选择结果，因此保存可复用的历史 K，比把某次选择结果当作长期缓存更合理。这个 PR 的 L2 sidecar 保存 Indexer-K，不持久化 selection。
 
@@ -244,7 +254,7 @@ Indexer-K 保存的是历史 token 用于打分的向量，不是 Top-K 编号�
 
 Indexer 只承担打分，不需要像主 Attention 那样对自己的 V 做加权汇总，所以这里没有 Indexer-V。名称里的 K 是相似度匹配中的 Key，不意味着必须有一个配套 V buffer。
 
-### HiCache 为什么需要配套 Host 池
+<a id="hicache-为什么需要配套-host-池"></a>
 
 GPU L1 容量不足时，可把前缀备份到 Host L2，以主机内存和 Host↔GPU 搬运成本换取少做前缀重算。能否缩短请求时间取决于前缀命中与搬运、重算的相对成本。
 
@@ -252,7 +262,9 @@ GPU L1 容量不足时，可把前缀备份到 Host L2，以主机内存和 Host
 
 这要求恢复对象与计算依赖一致：主 KV、Indexer-K，以及启用 MTP 时的 draft 状态需要覆盖同一有效前缀。由此引出下面的容量关联与完成事件，而不是把几个 buffer 各自复制回来就结束。
 
-### 初始化入口与配置检查
+<a id="初始化入口与配置检查"></a>
+
+### Initialization
 
 调用链发生在服务初始化阶段；每个相关执行进程建立自己的缓存资源，并不是每次请求都调用 builder。
 
@@ -280,7 +292,9 @@ builder 的输入包括已存在的 `kvcache`、缓存与模型初始化参数�
 
 这些是当前集成边界，不是 sparse attention 算法必然只能这样实现。更外层还有其他组合限制；尤其不能由此推出 PD + HiCache 已支持。
 
-### 分开管理，为什么又要关联页面
+<a id="分开管理-为什么又要关联页面"></a>
+
+### Cache Pools
 
 Attention KV 和 Indexer-K 有独立 buffer，不共享同一块物理内存；关联的是同一批 token 的页面身份与生命周期。
 
@@ -294,7 +308,7 @@ Attention KV 和 Indexer-K 有独立 buffer，不共享同一块物理内存；�
 
 Host 页号与 GPU 页号也不要求相同。恢复时可以将 Host 页 2 搬到 GPU 页 5；关键是对应 KV 和 Indexer-K 的映射与生命周期保持一致。
 
-### Host 预算如何分配
+<a id="host-预算如何分配"></a>
 
 builder 对主 Full/SWA 池逐个统计实际 K/V buffer 的字节数，并把 Indexer-K 和 draft 的字节数加入总量。这里不直接使用 Full wrapper 可能包含 sidecar 的大小，避免把 Indexer-K 重复计费。
 
@@ -310,7 +324,7 @@ host_size_for_pool = hicache_size * sizes[name] / total_bytes
 
 未使用绝对预算时，主池沿用 Host/GPU 容量 ratio。页对齐、取整和现有备用页规则意味着总分配不是对预算的逐字节精确切分；理解预算时应区分目标预算、逻辑 token 容量与实际 buffer 大小。
 
-### MHATokenToKOnlyPoolHost 的职责
+<a id="mhatokentokonlypoolhost-的职责"></a>
 
 [MHATokenToKOnlyPoolHost](https://git.woa.com/wxg-odyssey/sglang/blob/f96e0205bb312894edef6ec308fd04290931dfff/python/sglang/srt/mem_cache/memory_pool_host.py#L928) 是本 PR 新增的 class。它既负责 Host Indexer-K 的内存组织，也提供既有缓存框架需要的备份、逐层恢复和页面访问接口。
 
@@ -329,7 +343,7 @@ host_size_for_pool = hicache_size * sizes[name] / total_bytes
 
 同理，复用名称带 `_mla` 的搬运函数也不意味着 WeLM 使用 MLA。搬运层可以复用单 buffer plane 的复制能力；MLA 的压缩 latent 表示与 WeLM 的 BF16 Index-K 在算法语义上仍不同。
 
-### PageTransfer 如何适配 K-only
+<a id="pagetransfer-如何适配-k-only"></a>
 
 [page_transfer.py](https://git.woa.com/wxg-odyssey/sglang/blob/f96e0205bb312894edef6ec308fd04290931dfff/python/sglang/srt/mem_cache/page_transfer.py) 将一次搬运拆成静态资源和动态映射：
 
@@ -349,7 +363,7 @@ start, count = (0, binding.plane_count) if layer is None else (layer * width, wi
 
 解释性例子：三层主 KV 的 planes 为 `[K0, V0, K1, V1, K2, V2]`，第 1 层从位置 2 复制两个 plane；三层 Indexer 为 `[K0, K1, K2]`，第 1 层从位置 1 复制一个 plane。若仍固定乘 2，Index-K 的逐层恢复就会错位。
 
-#### kernel 与 direct
+<a id="kernel-与-direct"></a>
 
 两种路径都实现 Host↔GPU 搬运，主要区别在执行方式。
 
@@ -360,7 +374,9 @@ start, count = (0, binding.plane_count) if layer is None else (layer * width, wi
 
 direct 不代表固定使用某个硬件引擎，也不能仅凭名字断言总比 kernel 快；碎片程度、连续段数量、调度开销和链路情况都会影响性能。
 
-### 从前缀命中到逐层恢复
+<a id="从前缀命中到逐层恢复"></a>
+
+### Prefix Restore
 
 运行时链路与初始化不同：
 
@@ -381,7 +397,9 @@ direct 不代表固定使用某个硬件引擎，也不能仅凭名字断言总�
 
 备份方向由 controller 的写入路径组织，通常将所需层从 GPU 搬到 Host；Host 数据完成并被确认后才可作为可用命中来源。备份已提交、Host ready、GPU 恢复已提交、模型可读取，是不同状态。
 
-## Decode、Verify 与性能证据的边界
+<a id="decode、verify-与性能证据的边界"></a>
+
+## Validation
 
 通常 decode 每请求处理一个新 query，verify 每请求可以处理多个候选 query。共用一个请求的历史 KV cache，不意味着各候选的 Selection 相同。
 
@@ -398,11 +416,11 @@ direct 不代表固定使用某个硬件引擎，也不能仅凭名字断言总�
 
 比较不同实现时，输入形状、Selection、dtype、数值语义和计时边界必须一致，性能差异才有可解释的含义。实际设备模板、MMA 形状、split 数与 launch 数还需由所用构建和运行记录确定。
 
-### 实现证据与取消场景
+<a id="实现证据与取消场景"></a>
 
 [PR 验收文档](https://git.woa.com/wxg-odyssey/sglang/blob/f96e0205bb312894edef6ec308fd04290931dfff/docs/msa_merging/todo/05-msa-hicache.md) 报告了历史实机验收；其中取消观测发生时 CUDA 事件已完成。这能支持该记录中的完成后取消场景，尚不能证明 DMA 仍在进行时的资源回收也已覆盖。恢复链路中的“已提交”和“可读取”必须由前述事件区分，真实在途取消仍需额外证据。
 
-### 与 PD 分离的边界
+<a id="与-pd-分离的边界"></a>
 
 同一 PR 的 Mooncake 修改处理 PD 分离中取消、状态发布和源页回收的竞争。它与 Host L2 都涉及异步传输的生命周期，但该固定版本拒绝 PD + HiCache，不能将两条修改拼成一条可运行的端到端链路。
 
