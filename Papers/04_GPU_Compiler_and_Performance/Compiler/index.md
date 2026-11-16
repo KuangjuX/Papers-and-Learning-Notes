@@ -20,6 +20,6 @@
 - [Chimera: An Analytical Optimizing Framework for Effective Compute-intensive Operators Fusion](Chimera/chimera.md)
 - [AMOS: Enabling Automatic Mapping for Tensor Computations On Spatial Accelerators with Hardware Abstraction](AMOS/amos.md)
 
-[循环变换理论：未完成摘记](../../06_Computing_Foundations/Compiler/Loop-Transformation/a-loop-transformation-theory-and-an-algorithm-to-maximize-parallelism.md)。
+- [A Loop Transformation Theory and an Algorithm to Maximize Parallelism](../../06_Computing_Foundations/Compiler/Loop-Transformation/a-loop-transformation-theory-and-an-algorithm-to-maximize-parallelism.md)：幺模变换、距离与方向依赖、完全可置换循环组、波前并行及算法的最优性条件。
 
 - [Tawa: Automatic Warp Specialization for Modern GPUs with Asynchronous References](Tawa/tawa.md)
