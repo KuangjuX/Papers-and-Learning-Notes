@@ -9,6 +9,7 @@ import { GitHub } from './github.mjs';
 import { loadAuthoringContext, reviewNotes } from './authoring.mjs';
 import { checkPaperStructure, PAPER_REDIRECTS } from './paper-structure.mjs';
 import { checkProjectStructure, PROJECT_REDIRECTS } from './project-structure.mjs';
+import { completionDirective, completionMarker, completionBlock, updateCompletionBody, completionProblems } from './completion.mjs';
 
 const execute = promisify(execFile);
 export const NOTE_CHECKS = [
@@ -97,7 +98,7 @@ export async function checkNotes(worktree, directory, signal) {
 
 export function pullBody(issue, job, note, files) {
   // Model text is not interpolated into PR metadata, preventing accidental auto-close directives.
-  return `${noteMarker(issue.number)}\n\n将 [用户要求](${job.url}) 指定的 Issue 讨论整理到主笔记，保留来源、个人判断和未解决疑问。\n\n改动文件：\n${files.map(f => `- \`${f.path}\``).join('\n')}\n\n验证：论文命名与唯一性检查通过；${NOTE_CHECKS.map(s => `\`${s}\``).join('、')} 均通过。\n\nRefs #${issue.number}\n\n本次是阶段性整理，PR 留待审阅，不代表论文阅读完成。\n\n<!-- reading-bot-job:${job.id}; base:${note.base} -->`;
+  return `${noteMarker(issue.number)}\n\n将 [用户要求](${job.url}) 指定的 Issue 讨论整理到主笔记，保留来源、个人判断和未解决疑问。\n\n改动文件：\n${files.map(f => `- \`${f.path}\``).join('\n')}\n\n验证：论文命名与唯一性检查通过；${NOTE_CHECKS.map(s => `\`${s}\``).join('、')} 均通过。\n\n${completionBlock(issue.number, job.closeOnMerge)}\n\n<!-- reading-bot-job:${job.id}; base:${note.base} -->`;
 }
 
 export class Notes {
@@ -115,6 +116,9 @@ export class Notes {
   async prepare(job, save, signal, previous) {
     if (!job.note) {
       const repo = await this.reader.repository();
+      if (job.closeOnMerge && previous && previous.base.ref !== repo.default_branch) {
+        throw new NoteError('合并后自动关闭要求 PR 指向仓库默认分支；当前 PR 的目标分支不匹配，未修改。');
+      }
       const localBranch = `codex/reading-issue-${job.issue}-${job.id}`;
       const branch = previous?.head.ref ?? localBranch;
       const sourceBranch = previous?.head.ref ?? repo.default_branch;
@@ -192,6 +196,10 @@ export class Notes {
     await this.assertHead(note, note.localCommit);
     if ((await git(note.worktree, ['status', '--porcelain'])).trim()) throw new NoteError('提交后工作区出现新改动；已保留改动，本次不继续发布。');
     const files = await readJson(join(note.directory, 'candidate.json'));
+    if (job.closeOnMerge) {
+      const problems = await completionProblems(note.worktree, issue, files);
+      if (problems.length) throw new NoteError(problems.join('\n'));
+    }
     if (!note.remoteCommit) {
       const baseCommit = await this.github.request(`${this.github.base()}/git/commits/${note.base}`);
       const entries = [];
@@ -215,19 +223,32 @@ export class Notes {
           method: 'PATCH', body: { sha: note.remoteCommit, force: false },
         });
       }
+      await this.syncCompletion(note, job);
       note.stage = 'published'; await save(); return;
     }
     if (ref && ref.object.sha !== note.remoteCommit) throw new NoteError('远端工作分支已被更新；未覆盖现有提交，请人工检查。');
     if (!ref) await this.github.gitObject('refs', { ref: `refs/heads/${note.branch}`, sha: note.remoteCommit });
-    const pr = await this.github.createPull({ title: `阶段性整理阅读笔记（Issue #${job.issue}）`,
+    const pr = await this.github.createPull({ title: `${job.closeOnMerge ? '完成' : '阶段性整理'}阅读笔记（Issue #${job.issue}）`,
       head: note.branch, base: note.defaultBranch, body: pullBody(issue, job, note, files) });
     note.pr = { number: pr.number, url: pr.html_url }; note.stage = 'published'; await save();
+  }
+  async syncCompletion(note, job) {
+    const pr = await this.github.pull(note.pr.number);
+    if (!pr || pr.state !== 'open' || pr.merged_at || pr.base.ref !== note.defaultBranch || pr.head.sha !== (note.remoteCommit ?? note.base)) {
+      throw new NoteError('PR 在阅读完成状态更新前发生变化，未修改其关闭指令。');
+    }
+    const body = updateCompletionBody(pr.body, job.issue, job.closeOnMerge);
+    if (body !== pr.body) await this.github.updatePull(pr.number, { body });
   }
   async run({ issue, comments, job, save, signal }) {
     if (!this.config.notesEnabled) return '笔记整理模式尚未启用。请完成 GitHub App 的 Contents / Pull requests 写权限配置，并运行 enable-notes 后重新发送 /note。';
     if (issue.state === 'closed') return '这个 Issue 已关闭。按仓库约定，新一轮笔记更新应先新建对应主题的 Issue，再在新 Issue 中发送 /note。';
     if (!await this.github.notePermissions()) throw new NoteError('GitHub App 尚未获得 Contents 和 Pull requests 写权限；请更新安装权限后重新发送 /note。');
     const previous = job.note ? undefined : await this.existing(job.issue);
+    if (!job.note || job.closeOnMerge === undefined) {
+      job.closeOnMerge = completionDirective(job.request.question, job.issue) ?? Boolean(previous?.body?.includes(completionMarker(job.issue)));
+      await save();
+    }
     const requestedPr = job.request.question.match(/\bPR\s*#(\d+)/i)?.[1];
     if (!job.note && requestedPr && Number(requestedPr) !== previous?.number) {
       throw new NoteError('指定 PR 不是本 Issue 的开放 bot PR；未修改其他分支。');
@@ -253,8 +274,13 @@ export class Notes {
         }
         await this.assertHead(note, note.base);
         const files = await collectChanges(note.worktree, note.base);
-        if (!files.length) { note.stage = 'no-change'; await save(); break; }
         try {
+          if (job.closeOnMerge) {
+            const problems = await completionProblems(note.worktree, issue, files);
+            if (problems.length) throw new NoteError(problems.join('\n'));
+          }
+          const metadataChange = note.update && completionDirective(job.request.question, job.issue) !== null;
+          if (!files.length && !metadataChange) { note.stage = 'no-change'; await save(); break; }
           // Trusted runtime code also checks old PR branches which do not yet
           // contain the new package script. Unrelated legacy notes stay scoped out.
           const structure = await checkPaperStructure(note.worktree, { changedPaths: files.map(f => f.path) });
@@ -264,6 +290,10 @@ export class Notes {
           await this.checker(note.worktree, note.directory, signal);
           // Build scripts may update indexes; review the exact post-build files.
           const candidate = await collectChanges(note.worktree, note.base);
+          if (job.closeOnMerge) {
+            const problems = await completionProblems(note.worktree, issue, candidate);
+            if (problems.length) throw new NoteError(problems.join('\n'));
+          }
           const review = await this.reviewer({ config: { ...this.config, workspace: note.worktree },
             note, job, authoring, contextPath, files: candidate, signal });
           await saveJson(join(note.directory, `review-${note.repairs ?? 0}.json`), review);
@@ -271,7 +301,7 @@ export class Notes {
           if (!sameFiles(candidate, await collectChanges(note.worktree, note.base))) throw new NoteError('复核期间文件发生变化，需要重新检查。');
           await git(note.worktree, ['diff', '--check', note.base]);
           await saveJson(join(note.directory, 'candidate.json'), candidate);
-          note.stage = 'validated'; await save();
+          note.stage = candidate.length ? 'validated' : 'metadata'; await save();
         } catch (error) {
           if (signal?.aborted || !error.publicMessage || error.repairable === false) throw error;
           if ((note.repairs ?? 0) >= 2) throw new NoteError('自动修订后检查仍未通过；未发布变更，差异和复核日志已保留在独立工作区。');
@@ -282,8 +312,13 @@ export class Notes {
     }
     if (note.stage === 'validated') await this.commit(note, job, save);
     if (note.stage === 'committed') await this.publish(note, job, issue, save);
+    if (note.stage === 'metadata') {
+      await this.syncCompletion(note, job);
+      note.localCommit = note.base; note.remoteCommit = note.base;
+      note.stage = 'published'; await save();
+    }
     if (note.stage === 'no-change') return `没有产生笔记差异，未发布新提交。${note.pr ? `现有 PR：[PR #${note.pr.number}](${note.pr.url})。` : ''}\n\n${note.summary}`;
-    return `已整理主笔记并${note.update ? '更新' : '创建'} [PR #${note.pr.number}](${note.pr.url})，论文文件检查、仓库文档检查与笔记规范复核已通过。PR 留待审阅，阅读 Issue 保持原状态。\n\n${note.summary}`;
+    return `已整理主笔记并${note.update ? '更新' : '创建'} [PR #${note.pr.number}](${note.pr.url})，论文文件检查、仓库文档检查与笔记规范复核已通过。${job.closeOnMerge ? '论文已按要求标记已读（项目笔记不新增论文状态），Issue 将在 PR 合并后自动关闭。' : 'PR 留待审阅，阅读 Issue 保持原状态。'}\n\n${note.summary}`;
   }
   async cleanup(job, save) {
     const note = job.note;

@@ -41,6 +41,7 @@ async function fixture(t, options = {}) {
   await mkdir(join(workspace, 'Papers/01_Attention/Paper'), { recursive: true });
   await mkdir(join(workspace, 'scripts'));
   await writeFile(join(workspace, notePath), '# Paper\n\nUser judgment remains.\n');
+  if (options.readingIndex) await writeFile(join(workspace, 'Papers/01_Attention/index.md'), '| ⬜ 📝 | **Paper** | [Note](Paper/paper.md) |\n');
   await writeFile(join(workspace, 'scripts/check.mjs'), '// trusted check\n');
   await writeFile(join(workspace, '.gitignore'), 'node_modules/\n.vitepress/dist/\n' + (options.ignoreJson ? '*.json\n' : ''));
   for (const path of AUTHORING_FILES) {
@@ -55,9 +56,14 @@ async function fixture(t, options = {}) {
   const job = { id: 1001, issue: 31, attempts: 1, url: 'https://github.com/owner/notes/issues/31#issuecomment-1001', request: { mode: 'note', question: '将讨论整合进主笔记' } };
   const issue = { number: 31, state: 'open', title: 'Paper', body: 'source', html_url: 'https://github.com/owner/notes/issues/31' };
   const comments = [{ id: 1000, user: { login: 'owner' }, body: 'Use the existing note and preserve the user judgment.' }, { id: 1002, body: 'future comment' }];
-  const calls = { run: 0, check: 0, create: 0, refs: 0, updates: 0, reviews: 0, remote: new Map(), pulls: [] };
+  const calls = { run: 0, check: 0, create: 0, refs: 0, updates: 0, metadataUpdates: 0, reviews: 0, remote: new Map(), pulls: [] };
   const save = () => saveJson(join(root, 'job.json'), job);
   const fakeGitHub = {
+    updatePull: async (number, patch) => {
+      const pr = Object.assign(calls.pulls.find(pr => pr.number === number), patch);
+      if (++calls.metadataUpdates === 1 && options.loseMetadataResponse) throw new TypeError('Metadata response lost');
+      return pr;
+    },
     base: () => '/repos/owner/notes',
     notePermissions: async () => options.permissions !== false,
     pulls: async query => calls.pulls.filter(pr => {
@@ -146,6 +152,76 @@ test('real Git worktree, immutable commit and PR preserve the current workspace'
   const context = await readJson(join(f.job.note.directory, 'discussion.json'));
   assert.equal(context.comments.length, 1);
   assert.equal((await git(f.workspace, ['rev-parse', `${f.job.note.remoteCommit}^{tree}`])).trim(), f.job.note.tree);
+});
+
+test('explicit close after merge marks the paper read and creates a closing PR', async t => {
+  const f = await fixture(t, { readingIndex: true, edit: async worktree => {
+    await writeFile(join(worktree, 'Papers/01_Attention/index.md'), '| ✅ 📝 | **Paper** | [Note](Paper/paper.md) |\n');
+  } });
+  f.job.request.question = '整理笔记，PR 合并后关闭 issue。';
+  const answer = await f.run();
+  assert.match(f.calls.pulls[0].body, /Closes #31/);
+  assert.doesNotMatch(f.calls.pulls[0].body, /不代表论文阅读完成/);
+  assert.match(answer, /合并后自动关闭/);
+});
+
+test('an unread completion request is repaired even when the editor made no changes', async t => {
+  let edits = 0;
+  const f = await fixture(t, { readingIndex: true, edit: async worktree => {
+    if (++edits > 1) await writeFile(join(worktree, 'Papers/01_Attention/index.md'), '| ✅ 📝 | **Paper** | [Note](Paper/paper.md) |\n');
+  } });
+  f.job.request.question = 'PR 合并后关闭 issue #31';
+  await f.run();
+  assert.equal(f.job.note.repairs, 1); assert.equal(f.calls.run, 2); assert.equal(f.calls.create, 1);
+  assert.match(f.job.note.feedback, /已读/);
+});
+
+test('an approved review cannot publish an unread paper with Closes', async t => {
+  const f = await fixture(t, { readingIndex: true });
+  f.job.request.question = 'PR 合并后关闭当前 issue';
+  await assert.rejects(f.run(), /自动修订后检查仍未通过/);
+  assert.equal(f.calls.create, 0); assert.equal(f.calls.refs, 0);
+});
+
+test('completion updates an existing PR description without replacing human edits or making an empty commit', async t => {
+  const f = await fixture(t, { readingIndex: true, edit: async worktree => {
+    await writeFile(join(worktree, 'Papers/01_Attention/index.md'), '| ✅ 📝 | **Paper** | [Note](Paper/paper.md) |\n');
+  } });
+  await f.run();
+  const pr = f.calls.pulls[0]; pr.title = 'Human title'; pr.body += '\nHuman reviewer context.\n';
+  const originalHead = pr.head.sha;
+  delete f.job.note; f.job.id++; f.job.request.question = 'PR 合并后关闭 issue';
+  await f.run();
+  assert.match(pr.body, /Closes #31/); assert.match(pr.body, /Human reviewer context/);
+  assert.equal(pr.title, 'Human title'); assert.equal(pr.head.sha, originalHead); assert.equal(f.calls.create, 1);
+  delete f.job.note; f.job.id++; f.job.request.question = '继续补充';
+  await f.run(); assert.match(pr.body, /Closes #31/);
+  delete f.job.note; f.job.id++; f.job.request.question = '暂时不要关闭 issue，保持打开';
+  await f.run(); assert.doesNotMatch(pr.body, /Closes #31/); assert.match(pr.body, /Refs #31/);
+});
+
+test('a lost completion metadata response resumes without another AI turn or commit', async t => {
+  const f = await fixture(t, { readingIndex: true, loseMetadataResponse: true, edit: async worktree => {
+    await writeFile(join(worktree, 'Papers/01_Attention/index.md'), '| ✅ 📝 | **Paper** | [Note](Paper/paper.md) |\n');
+  } });
+  await f.run();
+  delete f.job.note; f.job.id++; f.job.request.question = 'PR 合并后关闭 issue';
+  await assert.rejects(f.run(), /Metadata response lost/);
+  assert.equal(f.job.note.stage, 'metadata');
+  const runs = f.calls.run, reviews = f.calls.reviews;
+  await f.run();
+  assert.equal(f.calls.run, runs); assert.equal(f.calls.reviews, reviews); assert.equal(f.calls.create, 1);
+  assert.equal(f.calls.metadataUpdates, 1); assert.equal(f.job.note.stage, 'published');
+  f.calls.pulls[0].merged_at = new Date().toISOString();
+  await f.notes.cleanup(f.job, f.save); assert.equal(f.job.note.cleaned, true);
+});
+
+test('closing is refused when an existing PR no longer targets the default branch', async t => {
+  const f = await fixture(t); await f.run();
+  f.calls.pulls[0].base.ref = 'develop';
+  delete f.job.note; f.job.id++; f.job.request.question = 'PR 合并后关闭 issue';
+  await assert.rejects(f.run(), /默认分支/);
+  assert.equal(f.calls.run, 1); assert.equal(f.calls.metadataUpdates, 0);
 });
 
 test('lost PR response resumes publication without rerunning Codex or creating a second PR', async t => {
