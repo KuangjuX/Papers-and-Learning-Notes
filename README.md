@@ -663,7 +663,7 @@ Projects/
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ⬜ 📝 | <a id="pdf-vk2mx5h8"></a>**A loop transformation theory and an algorithm to maximize parallelism** | IEEE Transactions on Parallel and Distributed Systems · 1991 | 开篇摘记，未完成；标签：计算机系统与并行基础 / 并行计算与体系结构 | [Paper](http://ieeexplore.ieee.org/document/97902/) / [PDF](zotero://open-pdf/library/items/X5R3KCBT) / [PDF2](zotero://open-pdf/library/items/R3PQDJEZ) / [Zotero](zotero://select/library/items/VK2MX5H8) / [Note](Papers/06_Computing_Foundations/Compiler/Loop-Transformation/a-loop-transformation-theory-and-an-algorithm-to-maximize-parallelism.md) |
+| ⬜ 📝 | <a id="pdf-vk2mx5h8"></a>**A Loop Transformation Theory and an Algorithm to Maximize Parallelism** | IEEE Transactions on Parallel and Distributed Systems · 1991 | 用幺模变换统一距离与方向依赖分析，通过完全可置换循环组与波前变换提取并行维度，讨论算法的最优性条件与分块粒度 | [Paper](http://ieeexplore.ieee.org/document/97902/) / [PDF](zotero://open-pdf/library/items/X5R3KCBT) / [PDF2](zotero://open-pdf/library/items/R3PQDJEZ) / [Zotero](zotero://select/library/items/VK2MX5H8) / [Note](Papers/06_Computing_Foundations/Compiler/Loop-Transformation/a-loop-transformation-theory-and-an-algorithm-to-maximize-parallelism.md) |
 | ⬜ | <a id="pdf-g6dnrdam"></a>**Exploiting Memory Access Patterns to Improve Memory Performance in Data-Parallel Architectures** | IEEE Transactions on Parallel and Distributed Systems · 2011 | 标签：计算机系统与并行基础 / 并行计算与体系结构 | [Paper](http://ieeexplore.ieee.org/document/5473222/) / [PDF](zotero://open-pdf/library/items/G7G54FHS) / [Zotero](zotero://select/library/items/G6DNRDAM) |
 
 ### 计算机系统与并行基础 / 网络与 SmartNIC
