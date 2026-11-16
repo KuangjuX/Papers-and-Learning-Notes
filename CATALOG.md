@@ -6,6 +6,7 @@
 
 ### Attention
 
+- [HyScale: Scaling Long-Context Training for Learned Sparse Attention](Papers/01_Attention/HyScale/hyscale.md)
 - [SparDA: Sparse Decoupled Attention for Efficient Long-Context LLM Inference](Papers/01_Attention/SparDA/sparda.md)
 - [DeepSeek-V3.2-Exp: Boosting Long-Context Efficiency with DeepSeek Sparse Attention](Papers/01_Attention/DeepSeek-DSA/deepseek-v3-2-exp.md)
 - [IndexCache: Accelerating Sparse Attention via Cross-Layer Index Reuse](Papers/01_Attention/IndexCache/indexcache.md)
