@@ -69,4 +69,4 @@ Grouped GEMM 处理一组可能不同形状的矩阵乘法，而 strided batched
 
 例：两次请求的 token 分别为 `[A,B,C,D]` 与 `[A,B,C,E]`，前三个 token 的 KV 可以成为复用候选，最后一个分支各自计算。若只是后缀相同，前面的上下文不同，通常不能这样复用。
 
-Cache key 与有效性还涉及模型权重版本、adapter、位置/编码规则、可能的多模态输入及后端要求；内存回收需要引用与生命周期管理。命中减少的是重算量，仍有查找、加载与容量成本，也不能消除 Decode 对历史 KV 的读取。项目入口见 [SGLang 现有笔记](../../Projects/02_Inference_and_KV_Cache/SGLang/index.md)；这里不将通用说明当作某个 SGLang 版本的代码结论。
+Cache key 与有效性还涉及模型权重版本、adapter、位置/编码规则、可能的多模态输入及后端要求；内存回收需要引用与生命周期管理。命中减少的是重算量，仍有查找、加载与容量成本，也不能消除 Decode 对历史 KV 的读取。项目入口见 [SGLang 现有笔记](../../Projects/SGLang/index.md)；这里不将通用说明当作某个 SGLang 版本的代码结论。

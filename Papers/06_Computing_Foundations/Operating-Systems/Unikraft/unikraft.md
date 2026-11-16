@@ -31,4 +31,4 @@ POSIX 支持让既有应用能够接入；进一步改造应用、调用较低�
 
 ![Unikraft Hello World 的模块依赖](../../../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/images/unikraft-03.jpg)
 
-两张依赖图用于比较组件选择的范围，不能替代运行时性能实验。相关构建实践见 [ArceOS 项目笔记](../../../../Projects/06_Computing_Foundations/ArceOS/unikernel-build.md)。
+两张依赖图用于比较组件选择的范围，不能替代运行时性能实验。相关构建实践见 [ArceOS 项目笔记](../../../../Projects/ArceOS/unikernel-build.md)。

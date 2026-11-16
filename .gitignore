@@ -3,6 +3,7 @@
 tmp/*
 *.json
 !.vitepress/paper-redirects.json
+!.vitepress/project-redirects.json
 !package.json
 !scripts/imported-translations.json
 !scripts/archive-layout.json

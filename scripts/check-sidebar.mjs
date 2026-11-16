@@ -37,6 +37,17 @@ function walk(items, parent, depth = 0) {
 }
 walk(sidebar)
 
+const projects = sidebar.find(item => item.text === '项目')
+const projectNames = readdirSync(join(root, 'Projects'), { withFileTypes: true })
+  .filter(entry => entry.isDirectory()).map(entry => entry.name).sort()
+assert.deepEqual(projects.items.map(item => item.text).sort(), projectNames,
+  'Projects must expose project names directly, including single-topic projects')
+const flashmla = projects.items.find(item => item.text === 'FlashMLA')
+assert(flashmla.items.some(item => item.link === '/Projects/FlashMLA/dsa-sparse-attention'),
+  'The DSA article must remain beneath FlashMLA without requiring a placeholder index')
+const sglang = projects.items.find(item => item.text === 'SGLang')
+assert(sglang.items.some(item => item.text === 'PD 分离'), 'SGLang must group its PD theme')
+
 function contentFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name)

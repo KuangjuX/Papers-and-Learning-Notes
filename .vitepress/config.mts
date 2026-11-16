@@ -5,11 +5,12 @@ import { defineConfig } from 'vitepress'
 import { buildSidebars, sectionLabels } from './sidebar.mjs'
 import legacyRedirects from './redirects'
 import paperRedirects from './paper-redirects.json'
+import projectRedirects from './project-redirects.json'
 import { resolveRedirect, redirectPage } from './redirect-page.mjs'
 import { installImportedTranslations } from './imported-translations.mjs'
 import { installPaperImageSizes } from './paper-images.mjs'
 
-const redirects = { ...legacyRedirects, ...paperRedirects }
+const redirects = { ...legacyRedirects, ...paperRedirects, ...projectRedirects }
 
 const repositoryRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
 

@@ -1,6 +1,6 @@
 # ArceOS：从 feature 配置到 unikernel 启动
 
-来源：[Unikernel、Unikraft 与 ArceOS](../../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/zhihu-reading.md)。
+来源：[Unikernel、Unikraft 与 ArceOS](../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/zhihu-reading.md)。
 
 <a id="要点与边界"></a>
 
@@ -18,7 +18,7 @@
 - 兼容 rust api 和 rust 应用程序
 - 在 unikernel 支持 tokio，提高 IO 性能
 
-![](../../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/images/unikraft-04.jpg)
+![](../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/images/unikraft-04.jpg)
 
 <a id="arceos-模块"></a>
 
@@ -163,6 +163,6 @@ kernel/hypervisor 模块复用：
 - 中断子系统
 - 设备模拟
 
-![](../../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/images/unikraft-05.jpg)
+![](../../Foundations/06_Computing_Foundations/Systems/Virtualization/Unikernel/images/unikraft-05.jpg)
 
 可以在基于模块化 hypocaust-2 中运行 Arceos，用于提供安全的执行环境。

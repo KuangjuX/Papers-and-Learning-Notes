@@ -2,7 +2,7 @@
 
 MoE 的每个 token 只去少数专家，但专家分布在不同 GPU 上。通信既要根据路由结果整理数据，又要跨越带宽不同的 NVLink 与 RDMA 域。DeepEP 将这两件事放进 dispatch/combine 路径：dispatch 把 token 送到专家，combine 将专家输出按路由权重合回源 token。它消费已经计算好的 `topk_idx`，并不替模型计算 router 的 Top-K。
 
-接口与版本依据：[DeepEP `309785a9`](https://github.com/deepseek-ai/DeepEP/tree/309785a94dedeb9ca3cb01091048584a31bfc799)。原始阅读背景见[年度总结](../../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)；通信初始化的独立实践见 [NVSHMEM Buffer](zhihu-reading.md)。
+接口与版本依据：[DeepEP `309785a9`](https://github.com/deepseek-ai/DeepEP/tree/309785a94dedeb9ca3cb01091048584a31bfc799)。原始阅读背景见[年度总结](../../Foundations/05_Model_Architecture_and_Reasoning/Research-Reviews/llm-2025.md)；通信初始化的独立实践见 [NVSHMEM Buffer](zhihu-reading.md)。
 
 <a id="大批次-先减少跨慢链路的重复传输"></a>
 

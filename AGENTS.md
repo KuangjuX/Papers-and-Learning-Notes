@@ -5,11 +5,13 @@
 `skills/zotero-reading-workflow/SKILL.md`，使用 `zotero_reading` MCP。
 
 先按材料类型归档：`Papers/` 保存论文清单与正式阅读笔记，`Projects/` 保存源码实践，
-`Foundations/` 保存原理、课程、教材与参考。各类型下再按
+`Foundations/` 保存原理、课程、教材与参考。`Papers/` 与 `Foundations/` 下按
 `scripts/archive-layout.json` 中的编号主题归档，与 PapersPDF 的主题名称对应。
+`Projects/` 直接按项目名分组（如 SGLang、FlashMLA、DeepGEMM），项目下再按功能或
+子系统组织主题；不在项目名上方套 Attention、Inference 等编号学科目录。
 `Papers/index.md` 及其主题索引管理论文入口与阅读状态。
 正文目录使用首字母大写的单词或专名的正式大小写；连字符连接多个单词。
-新增笔记更新所属主题的 `index.md`。图片跟随笔记并使用相对路径。
+新增笔记更新所属主题或项目的索引。图片跟随笔记并使用相对路径。
 原文、AI 解读和个人推论应标明来源；保留用户手工编辑和不相关内容。
 
 笔记按问题、设计、代价与证据组织解释：先说明设计要解决的具体困难，再展开机制、
@@ -40,8 +42,13 @@ AI 在用户骨架基础上查错、补证据和去重。以用户的问题、�
 不保留旧 Markdown 副本。提交前运行 `pnpm docs:check-paper-notes`。
 
 项目笔记以完整的功能或实现问题为单位，同一主题跨 talk 更新同一篇文章；
-大型项目的独立子系统通过一个总览组织，不强行合成一篇。只有一篇正文时，
-直接作为项目入口，避免仅含单个链接的中转页。只有标题或待开发文字的空白页面
+项目第一层目录必须保留项目身份，独立子系统通过主题文件或目录组织；例如
+`Projects/SGLang/Disaggregation/`、`Projects/SGLang/MTP/`、
+`Projects/FlashMLA/dsa-sparse-attention.md`、`Projects/DeepGEMM/`。
+只有一篇正文时也保留项目分组，直接链接该专题，不创建单链接中转页。
+项目与主题有实际正文后再加入导航；跨项目的通用原理仍归 Foundations，论文仍归 Papers。
+项目迁移同步交叉链接和 `.vitepress/project-redirects.json`，运行 `pnpm docs:check-project-notes`。
+只有标题或待开发文字的空白页面
 不进入正式导航；来源报告与独立项目实践保留各自边界。
 
 Zotero 保存 PDF、高亮、逐句翻译与随手批注；仓库笔记按问题和机制组织，

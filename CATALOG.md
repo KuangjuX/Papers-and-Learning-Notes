@@ -1,6 +1,6 @@
 # 本地笔记目录
 
-按论文、项目和基础分类，再按知识主题查找。[论文清单](Papers/index.md)包含各主题的阅读状态。
+论文与基础按知识主题查找，项目按仓库名称及其实现主题查找。[论文清单](Papers/index.md)包含各主题的阅读状态。
 
 ## 论文
 
@@ -74,44 +74,71 @@
 
 ## 项目
 
-### 推理与 KV Cache
+### SGLang
 
-- [WeLM Sparse Attention：计算、分页与缓存恢复](Projects/02_Inference_and_KV_Cache/SGLang/WeLM-Sparse-Attention/index.md)
-- [SGLang Attention backend：FlashAttention 与 DualChunk](Projects/02_Inference_and_KV_Cache/SGLang/Layers/flashattention_backend.md)
+- [PD 分离与缓存传输](Projects/SGLang/Disaggregation/index.md)
+- [Mooncake：GPU-source 传输取消与资源回收](Projects/SGLang/Disaggregation/mooncake-gpu-source-lifetime.md)
+- [SGLang Attention backend：FlashAttention 与 DualChunk](Projects/SGLang/Layers/flashattention_backend.md)
+- [WeLM Sparse Attention：计算、分页与缓存恢复](Projects/SGLang/WeLM-Sparse-Attention/index.md)
 
-- [PD 分离与缓存传输](Projects/02_Inference_and_KV_Cache/SGLang/Disaggregation/index.md)
-- [Mooncake：GPU-source 传输取消与资源回收](Projects/02_Inference_and_KV_Cache/SGLang/Disaggregation/mooncake-gpu-source-lifetime.md)
-- [Light-DuoAttention：CuTeDSL 与 SGLang 实践](Projects/02_Inference_and_KV_Cache/Light-DuoAttention/zhihu-reading.md)
-- [TileRT：面向低延迟推理的 tile 运行时](Projects/02_Inference_and_KV_Cache/TileRT/zhihu-reading.md)
+### FlashMLA
 
-### 分布式训练与 MoE
+- [DSA Sparse Attention：Kernel 实现与公开性能](Projects/FlashMLA/dsa-sparse-attention.md)
 
-- [NVSHMEM 与 DeepEP-like Buffer：初始化与内存模型](Projects/03_Distributed_Training_and_MoE/DeepEP/zhihu-reading.md)
-- [DeepEP：年度总结中的计算通信重叠摘记](Projects/03_Distributed_Training_and_MoE/DeepEP/overview.md)
+### DeepEP
 
-### GPU 编译与性能
+- [DeepEP：MoE 通信如何兼顾吞吐与计算重叠](Projects/DeepEP/overview.md)
+- [NVSHMEM 与 DeepEP-like Buffer：初始化与内存模型](Projects/DeepEP/zhihu-reading.md)
 
-- [FractalTensor 笔记](Projects/04_GPU_Compiler_and_Performance/FractalTensor/index.md)
-- [Infinitensor 源码阅读](Projects/04_GPU_Compiler_and_Performance/InfiniTensor/index.md)
-- [nnfusion 源码阅读](Projects/04_GPU_Compiler_and_Performance/NNFusion/index.md)
-- [ThunderKittens：Register Tile](Projects/04_GPU_Compiler_and_Performance/ThunderKittens/index.md)
+### Light-DuoAttention
 
-### 计算基础
+- [Light-DuoAttention：CuTeDSL 与 SGLang 实践](Projects/Light-DuoAttention/zhihu-reading.md)
 
-- [Arceos irq 分析](Projects/06_Computing_Foundations/ArceOS/irq.md)
-- [smoltcp](Projects/06_Computing_Foundations/ArceOS/smoltcp.md)
-- [QEMU：RISC-V 构建配置](Projects/06_Computing_Foundations/QEMU/index.md)
-- [xv6-riscv 中的 KPTI 机制](Projects/06_Computing_Foundations/Xv6-RISC-V/KPTI.md)
-- [xv6-riscv 设备](Projects/06_Computing_Foundations/Xv6-RISC-V/device.md)
-- [动态内存分配](Projects/06_Computing_Foundations/Xv6-Rust/alloc.md)
-- [启动](Projects/06_Computing_Foundations/Xv6-Rust/boot.md)
-- [xv6-rust：环境配置与 GDB 调试](Projects/06_Computing_Foundations/Xv6-Rust/env.md)
-- [中断](Projects/06_Computing_Foundations/Xv6-Rust/interrupt.md)
-- [锁](Projects/06_Computing_Foundations/Xv6-Rust/lock.md)
-- [虚拟内存](Projects/06_Computing_Foundations/Xv6-Rust/vm.md)
-- [xv6 文件系统手册和代码阅读笔记](Projects/06_Computing_Foundations/Xv6-Rust/xv6%20%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F.md)
-- [xv6 rust design](Projects/06_Computing_Foundations/Xv6-Rust/xv6-rust-design.md)
-- [ArceOS：从 feature 配置到 unikernel 启动](Projects/06_Computing_Foundations/ArceOS/unikernel-build.md)
+### TileRT
+
+- [TileRT：面向低延迟推理的 tile 运行时](Projects/TileRT/zhihu-reading.md)
+
+### ThunderKittens
+
+- [ThunderKittens：Register Tile](Projects/ThunderKittens/index.md)
+
+### FractalTensor
+
+- [FractalTensor 笔记](Projects/FractalTensor/index.md)
+
+### InfiniTensor
+
+- [InfiniTensor：从 ONNX 建图到后端执行](Projects/InfiniTensor/index.md)
+
+### NNFusion
+
+- [nnfusion 源码阅读](Projects/NNFusion/index.md)
+
+### ArceOS
+
+- [Arceos irq 分析](Projects/ArceOS/irq.md)
+- [smoltcp](Projects/ArceOS/smoltcp.md)
+- [ArceOS：从 feature 配置到 unikernel 启动](Projects/ArceOS/unikernel-build.md)
+
+### QEMU
+
+- [QEMU：RISC-V 构建配置](Projects/QEMU/index.md)
+
+### Xv6-RISC-V
+
+- [xv6-riscv 中的 KPTI 机制](Projects/Xv6-RISC-V/KPTI.md)
+- [xv6-riscv 设备](Projects/Xv6-RISC-V/device.md)
+
+### Xv6-Rust
+
+- [动态内存分配](Projects/Xv6-Rust/alloc.md)
+- [启动](Projects/Xv6-Rust/boot.md)
+- [xv6-rust：环境配置与 GDB 调试](Projects/Xv6-Rust/env.md)
+- [中断](Projects/Xv6-Rust/interrupt.md)
+- [锁](Projects/Xv6-Rust/lock.md)
+- [虚拟内存](Projects/Xv6-Rust/vm.md)
+- [xv6 文件系统手册和代码阅读笔记](Projects/Xv6-Rust/xv6%20%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F.md)
+- [xv6-rust 设计报告](Projects/Xv6-Rust/xv6-rust-design.md)
 
 ## 基础
 

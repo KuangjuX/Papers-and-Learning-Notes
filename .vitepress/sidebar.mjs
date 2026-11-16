@@ -35,6 +35,8 @@ const directoryLabels = {
   'NNFusion': 'NNFusion',
   'sglang': 'SGLang',
   'SGLang': 'SGLang',
+  'Disaggregation': 'PD 分离',
+  'Layers': 'Attention Backend',
   'Xv6-Rust': 'Xv6-Rust',
   'Xv6-RISC-V': 'Xv6-RISC-V',
   'QEMU': 'QEMU',
@@ -203,9 +205,13 @@ export function buildSidebar(repositoryRoot, paperSidebars = {}) {
 
     if (!items.length && !hasIndex) return undefined
     if (!items.length && /本分类暂无归档内容。|共 0 个清单条目/.test(readFileSync(index, 'utf8'))) return undefined
-    if (!hasIndex && items.length === 1) return items[0]
+    // A project remains a named group even when it has only one topic. Its
+    // article is the entry, so there is no need for an empty project index.
+    const isProject = dirname(directory) === join(repositoryRoot, 'Projects')
+    if (!hasIndex && items.length === 1 && !isProject) return items[0]
 
-    const text = labels[basename(directory)] ?? (hasIndex ? titleFor(index) : escapeText(basename(directory).replaceAll('-', ' ')))
+    const text = labels[basename(directory)] ?? (isProject ? escapeText(basename(directory))
+      : hasIndex ? titleFor(index) : escapeText(basename(directory).replaceAll('-', ' ')))
     return {
       text,
       ...(hasIndex ? { link: linkFor(index) } : {}),
