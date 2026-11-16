@@ -52,7 +52,7 @@ Projects/
 <!-- paper-reading-list:start -->
 ## Paper 阅读清单
 
-共 **346 个分类条目**：已读 77，待读 269。
+共 **346 个分类条目**：已读 80，待读 266。
 
 ✅ 已读 · ⬜ 待读 · 📝 有笔记。
 
@@ -60,11 +60,11 @@ Projects/
 | --- | ---: | ---: | ---: |
 | [待分类](Papers/00_Inbox/index.md) | 0 | 0 | 0 |
 | [Attention](Papers/01_Attention/index.md) | 43 | 15 | 28 |
-| [推理与 KV Cache](Papers/02_Inference_and_KV_Cache/index.md) | 48 | 7 | 41 |
+| [推理与 KV Cache](Papers/02_Inference_and_KV_Cache/index.md) | 48 | 8 | 40 |
 | [分布式训练与 MoE](Papers/03_Distributed_Training_and_MoE/index.md) | 55 | 8 | 47 |
-| [GPU 编译与性能](Papers/04_GPU_Compiler_and_Performance/index.md) | 64 | 29 | 35 |
+| [GPU 编译与性能](Papers/04_GPU_Compiler_and_Performance/index.md) | 64 | 30 | 34 |
 | [模型架构与推理能力](Papers/05_Model_Architecture_and_Reasoning/index.md) | 108 | 4 | 104 |
-| [计算基础](Papers/06_Computing_Foundations/index.md) | 18 | 14 | 4 |
+| [计算基础](Papers/06_Computing_Foundations/index.md) | 18 | 15 | 3 |
 | [教材与技术参考](Papers/07_Books_and_Technical_References/index.md) | 0 | 0 | 0 |
 | [量化](Papers/08_Quantization/index.md) | 10 | 0 | 10 |
 
@@ -147,7 +147,7 @@ Projects/
 </details>
 
 <details>
-<summary>推理与 KV Cache（48 篇；已读 7，待读 41）</summary>
+<summary>推理与 KV Cache（48 篇；已读 8，待读 40）</summary>
 
 ### LLM Inference / Decoding Algorithms
 
@@ -215,7 +215,7 @@ Projects/
 | ⬜ | <a id="pdf-ff3ujclj"></a>**Jenga: Effective Memory Management for Serving LLM with Heterogeneity** | arXiv · 2025 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2503.18292) / [PDF](zotero://open-pdf/library/items/DGM8PGQI) / [Zotero](zotero://select/library/items/FF3UJCLJ) |
 | ⬜ | <a id="pdf-8jjabzda"></a>**SparseEngine: Sparse-First Inference Engine** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2609.39068) / [PDF](zotero://open-pdf/library/items/I8VMS8D4) / [Zotero](zotero://select/library/items/8JJABZDA) |
 | ⬜ | <a id="pdf-en4xe3zy"></a>**TensorCast: The Missing Tensor Management Layer in Large Language Model Infrastructure** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2608.06007) / [PDF](zotero://open-pdf/library/items/4AYH4XIP) / [Zotero](zotero://select/library/items/EN4XE3ZY) |
-| ⬜ 📝 | **Microsecond-scale Preemption for Concurrent GPU-accelerated DNN Inferences** | [OSDI'22](https://www.usenix.org/conference/osdi22/presentation/han) | REEF 的 reset-based 抢占与动态 kernel padding；MI50 延迟、吞吐及恢复开销实验，幂等性前提与 REEF-N 限制 | [Paper](https://www.usenix.org/system/files/osdi22-han.pdf) / [Note](Papers/02_Inference_and_KV_Cache/GPU-Preemption/microsecond-scale-preemption-for-concurrent-gpu-accelerated-dnn-inferences.md) |
+| ✅ 📝 | **Microsecond-scale Preemption for Concurrent GPU-accelerated DNN Inferences** | [OSDI'22](https://www.usenix.org/conference/osdi22/presentation/han) | REEF 的 reset-based 抢占与动态 kernel padding；MI50 延迟、吞吐及恢复开销实验，幂等性前提与 REEF-N 限制 | [Paper](https://www.usenix.org/system/files/osdi22-han.pdf) / [Note](Papers/02_Inference_and_KV_Cache/GPU-Preemption/microsecond-scale-preemption-for-concurrent-gpu-accelerated-dnn-inferences.md) |
 
 </details>
 
@@ -325,7 +325,7 @@ Projects/
 </details>
 
 <details>
-<summary>GPU 编译与性能（64 篇；已读 29，待读 35）</summary>
+<summary>GPU 编译与性能（64 篇；已读 30，待读 34）</summary>
 
 ### Deep Learning Compiler
 
@@ -356,7 +356,7 @@ Projects/
 | ⬜ | <a id="pdf-qbqw7v9r"></a>**AffineGraph: A Dataflow Graph Representation for Effective DNN Hardware-Aware Algorithms** | 来源待补全 | 标签：GPU 编译与性能优化 | [PDF](zotero://open-pdf/library/items/L9PBDJL3) / [Zotero](zotero://select/library/items/QBQW7V9R) |
 | ⬜ | <a id="pdf-rgznhh6b"></a>**Ansor: Generating High-Performance Tensor Programs for Deep Learning** | 来源待补全 | 标签：GPU 编译与性能优化 / 编译器架构与调度 | [PDF](zotero://open-pdf/library/items/A4GT2NTU) / [Zotero](zotero://select/library/items/RGZNHH6B) |
 | ⬜ | <a id="pdf-cuzav7by"></a>**Graphiler: A Compiler for Graph Neural Networks** | 来源待补全 | 标签：GPU 编译与性能优化 / 编译器架构与调度 | [PDF](zotero://open-pdf/library/items/IYTUH2XV) / [Zotero](zotero://select/library/items/CUZAV7BY) |
-| ⬜ | <a id="pdf-dustz3lm"></a>**The tensor algebra compiler** | Proceedings of the ACM on Programming Languages · 2017 | 标签：GPU 编译与性能优化 / 编译器架构与调度 | [Paper](https://dl.acm.org/doi/10.1145/3133901) / [PDF](zotero://open-pdf/library/items/ZVZ6LMVF) / [Zotero](zotero://select/library/items/DUSTZ3LM) / [Note](Papers/04_GPU_Compiler_and_Performance/Compiler/TACO/the-tensor-algebra-compiler.md) |
+| ✅ 📝 | <a id="pdf-dustz3lm"></a>**The tensor algebra compiler** | Proceedings of the ACM on Programming Languages · 2017 | 标签：GPU 编译与性能优化 / 编译器架构与调度 | [Paper](https://dl.acm.org/doi/10.1145/3133901) / [PDF](zotero://open-pdf/library/items/ZVZ6LMVF) / [Zotero](zotero://select/library/items/DUSTZ3LM) / [Note](Papers/04_GPU_Compiler_and_Performance/Compiler/TACO/the-tensor-algebra-compiler.md) |
 
 ### LLM Inference / MegaKernel
 
@@ -622,7 +622,7 @@ Projects/
 </details>
 
 <details>
-<summary>计算基础（18 篇；已读 14，待读 4）</summary>
+<summary>计算基础（18 篇；已读 15，待读 3）</summary>
 
 ### Compiler
 
@@ -663,7 +663,7 @@ Projects/
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
-| ⬜ 📝 | <a id="pdf-vk2mx5h8"></a>**A Loop Transformation Theory and an Algorithm to Maximize Parallelism** | IEEE Transactions on Parallel and Distributed Systems · 1991 | 用幺模变换统一距离与方向依赖分析，通过完全可置换循环组与波前变换提取并行维度，讨论算法的最优性条件与分块粒度 | [Paper](http://ieeexplore.ieee.org/document/97902/) / [PDF](zotero://open-pdf/library/items/X5R3KCBT) / [PDF2](zotero://open-pdf/library/items/R3PQDJEZ) / [Zotero](zotero://select/library/items/VK2MX5H8) / [Note](Papers/06_Computing_Foundations/Compiler/Loop-Transformation/a-loop-transformation-theory-and-an-algorithm-to-maximize-parallelism.md) |
+| ✅ 📝 | <a id="pdf-vk2mx5h8"></a>**A Loop Transformation Theory and an Algorithm to Maximize Parallelism** | IEEE Transactions on Parallel and Distributed Systems · 1991 | 用幺模变换统一距离与方向依赖分析，通过完全可置换循环组与波前变换提取并行维度，讨论算法的最优性条件与分块粒度 | [Paper](http://ieeexplore.ieee.org/document/97902/) / [PDF](zotero://open-pdf/library/items/X5R3KCBT) / [PDF2](zotero://open-pdf/library/items/R3PQDJEZ) / [Zotero](zotero://select/library/items/VK2MX5H8) / [Note](Papers/06_Computing_Foundations/Compiler/Loop-Transformation/a-loop-transformation-theory-and-an-algorithm-to-maximize-parallelism.md) |
 | ⬜ | <a id="pdf-g6dnrdam"></a>**Exploiting Memory Access Patterns to Improve Memory Performance in Data-Parallel Architectures** | IEEE Transactions on Parallel and Distributed Systems · 2011 | 标签：计算机系统与并行基础 / 并行计算与体系结构 | [Paper](http://ieeexplore.ieee.org/document/5473222/) / [PDF](zotero://open-pdf/library/items/G7G54FHS) / [Zotero](zotero://select/library/items/G6DNRDAM) |
 
 ### 计算机系统与并行基础 / 网络与 SmartNIC

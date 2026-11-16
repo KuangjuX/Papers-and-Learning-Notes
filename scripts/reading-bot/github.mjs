@@ -83,6 +83,7 @@ export class GitHub {
   pulls(query = 'state=open') { return this.pages(`${this.base()}/pulls?${query}`); }
   pull(number) { return this.request(`${this.base()}/pulls/${number}`); }
   createPull(body) { return this.request(`${this.base()}/pulls`, { method: 'POST', body }); }
+  updatePull(number, body) { return this.request(`${this.base()}/pulls/${number}`, { method: 'PATCH', body }); }
   gitObject(type, body) { return this.request(`${this.base()}/git/${type}`, { method: 'POST', body }); }
   async branchRef(branch) {
     try { return await this.request(`${this.base()}/git/ref/heads/${branch}`); }

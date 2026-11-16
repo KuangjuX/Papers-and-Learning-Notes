@@ -82,7 +82,7 @@
 | ⬜ | <a id="pdf-ff3ujclj"></a>**Jenga: Effective Memory Management for Serving LLM with Heterogeneity** | arXiv · 2025 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2503.18292) / [PDF](zotero://open-pdf/library/items/DGM8PGQI) / [Zotero](zotero://select/library/items/FF3UJCLJ) |
 | ⬜ | <a id="pdf-8jjabzda"></a>**SparseEngine: Sparse-First Inference Engine** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2609.39068) / [PDF](zotero://open-pdf/library/items/I8VMS8D4) / [Zotero](zotero://select/library/items/8JJABZDA) |
 | ⬜ | <a id="pdf-en4xe3zy"></a>**TensorCast: The Missing Tensor Management Layer in Large Language Model Infrastructure** | arXiv · 2026 | 标签：推理服务与 KV Cache | [Paper](http://arxiv.org/abs/2608.06007) / [PDF](zotero://open-pdf/library/items/4AYH4XIP) / [Zotero](zotero://select/library/items/EN4XE3ZY) |
-| ⬜ 📝 | **Microsecond-scale Preemption for Concurrent GPU-accelerated DNN Inferences** | [OSDI'22](https://www.usenix.org/conference/osdi22/presentation/han) | REEF 的 reset-based 抢占与动态 kernel padding；MI50 延迟、吞吐及恢复开销实验，幂等性前提与 REEF-N 限制 | [Paper](https://www.usenix.org/system/files/osdi22-han.pdf) / [Note](GPU-Preemption/microsecond-scale-preemption-for-concurrent-gpu-accelerated-dnn-inferences.md) |
+| ✅ 📝 | **Microsecond-scale Preemption for Concurrent GPU-accelerated DNN Inferences** | [OSDI'22](https://www.usenix.org/conference/osdi22/presentation/han) | REEF 的 reset-based 抢占与动态 kernel padding；MI50 延迟、吞吐及恢复开销实验，幂等性前提与 REEF-N 限制 | [Paper](https://www.usenix.org/system/files/osdi22-han.pdf) / [Note](GPU-Preemption/microsecond-scale-preemption-for-concurrent-gpu-accelerated-dnn-inferences.md) |
 
 <a id="llm-inference-quantization-compression"></a>
 
