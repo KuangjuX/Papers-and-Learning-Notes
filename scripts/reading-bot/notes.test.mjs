@@ -400,6 +400,41 @@ test('worker routes explicit note jobs separately and retains transient publicat
   assert.deepEqual(worker.state.threads, {});
 });
 
+test('repeated note execution failures stop across restarts without leaking errors', async t => {
+  const f = await fixture(t);
+  const trigger = { id: f.job.id, body: '@reader /note 整理', user: { id: 42, type: 'User' } };
+  let runs = 0;
+  const replies = [];
+  const deps = { github: { issue: async () => f.issue, comment: async () => trigger, issueComments: async () => [],
+    createReply: async () => ({ id: 2001 }), updateReply: async (id, body) => replies.push(body) },
+    notes: { run: async () => { runs++; throw new Error('private execution failure'); } } };
+  let worker = new Worker(f.config, deps); await worker.load();
+  const job = { ...f.job, body: trigger.body, status: 'queued' }; worker.state.jobs[job.id] = job;
+  await assert.rejects(worker.process(job));
+  await assert.rejects(worker.process(job));
+  assert.equal(replies.length, 0);
+  worker = new Worker(f.config, deps); await worker.load();
+  const restored = worker.state.jobs[job.id];
+  await worker.process(restored);
+  assert.equal(runs, 3); assert.equal(restored.status, 'done'); assert.equal(worker.pending().length, 0);
+  assert.equal(replies.length, 1); assert.ok(!replies[0].includes('private execution failure'));
+  assert.equal(restored.noteExecutionFailures, 3);
+});
+
+test('service shutdown does not consume note execution retries', async t => {
+  const f = await fixture(t);
+  const trigger = { id: f.job.id, body: '@reader /note 整理', user: { id: 42, type: 'User' } };
+  const controller = new AbortController();
+  const worker = new Worker(f.config, { github: {
+    issue: async () => f.issue, comment: async () => trigger, issueComments: async () => [],
+    createReply: async () => ({ id: 2001 }),
+  }, notes: { run: async () => { controller.abort(); throw new Error('interrupted'); } } });
+  await worker.load();
+  const job = { ...f.job, body: trigger.body, status: 'queued', noteExecutionFailures: 2 }; worker.state.jobs[job.id] = job;
+  await assert.rejects(worker.process(job, controller.signal));
+  assert.equal(job.status, 'queued'); assert.equal(job.noteExecutionFailures, 2);
+});
+
 test('a concurrent remote commit during the update request is rejected without force', async t => {
   const f = await fixture(t, { beforeUpdate: async ({ calls, branch, workspace }) => {
     const parent = calls.remote.get(branch);
