@@ -85,6 +85,10 @@
 
 - [DSA Sparse Attention：Kernel 实现与公开性能](Projects/FlashMLA/dsa-sparse-attention.md)
 
+### CuDNN
+
+- [cuDNN QSA Backward：两遍计算与 Tensor Core 映射](Projects/CuDNN/qsa-backward.md)
+
 ### DeepEP
 
 - [DeepEP：MoE 通信如何兼顾吞吐与计算重叠](Projects/DeepEP/overview.md)

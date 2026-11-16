@@ -4,6 +4,7 @@
 
 - [SGLang](SGLang/index.md) <a id="推理与-kv-cache"></a>
 - [FlashMLA](FlashMLA/dsa-sparse-attention.md) <a id="attention"></a>
+- [CuDNN：QSA Backward](CuDNN/qsa-backward.md)
 - [DeepEP](DeepEP/overview.md) <a id="分布式训练与-moe"></a>
 - [Light-DuoAttention](Light-DuoAttention/zhihu-reading.md)
 - [TileRT](TileRT/zhihu-reading.md)
