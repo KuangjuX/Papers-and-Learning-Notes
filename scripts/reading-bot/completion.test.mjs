@@ -7,7 +7,7 @@ import { completionDirective, completionProblems } from './completion.mjs';
 
 test('only a direct close-after-merge instruction authorizes completion of this Issue', () => {
   for (const text of ['PR 合并后关闭 issue', '请整理，PR合并后自动关闭当前Issue。', 'PR 合并完成后，请关闭 issue #31',
-    'PR #99 合并后关闭本 issue', '不需要报告，PR合并后关闭issue', 'after the PR is merged, close this issue #31']) {
+    'PR #99 合并后关闭本 issue', '不需要报告，PR合并后关闭issue', '补充为什么需要转置？PR合并后关闭issue。', 'after the PR is merged, close this issue #31']) {
     assert.equal(completionDirective(text, 31), true, text);
   }
   for (const text of ['整理阶段性笔记', 'Closes #31', 'PR 合并后关闭 issue #99', '> PR 合并后关闭 issue',
@@ -16,6 +16,7 @@ test('only a direct close-after-merge instruction authorizes completion of this 
     assert.equal(completionDirective(text, 31), null, text);
   }
   for (const text of ['PR 合并后不要关闭 issue', 'PR 合并后关闭 issue，但现在还没读完', '暂时不要关闭 issue，保持打开',
+    'PR合并后关闭issue，不需要标记已读', 'PR合并后关闭issue，别标记已读',
     "after the PR is merged, don't close this issue"]) assert.equal(completionDirective(text, 31), false, text);
 });
 

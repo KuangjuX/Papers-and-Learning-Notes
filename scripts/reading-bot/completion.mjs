@@ -15,9 +15,9 @@ export function completionDirective(text, issue) {
     return !fence && !/^\s*>/.test(line);
   }).join('\n').replace(/`[^`]*`|“[^”]*”|「[^」]*」|‘[^’]*’|"[^"]*"/g, '');
   if (/(?:不要|不需要|无需|别|不应|不想|暂不)[^。；;，,\n]{0,16}(?:关闭|close)|(?:issue|问题).{0,12}(?:保持打开|保留打开)|保持\s*(?:issue\s*)?打开|do not close|don't close|keep.{0,12}open/i.test(prose)) return false;
-  if (/(?:尚未|还没|没有|未)读完|不要.{0,12}(?:已读|读完)|not.{0,8}(?:finished|read)/i.test(prose)) return false;
-  if (/[?？]|[吗呢]\s*[。！!]?\s*$/.test(prose)) return null;
-  for (const sentence of prose.split(/[。！？!?\n；;]/)) {
+  if (/(?:尚未|还没|没有|未)读完|(?:不要|不需要|无需|别|不应|不想|暂不|不)[^。；;，,\n]{0,12}(?:已读|读完)|not.{0,8}(?:finished|read)/i.test(prose)) return false;
+  for (const sentence of prose.match(/[^。！？!?\n；;]+[。！？!?]?/g) ?? []) {
+    if (/[?？]|[吗呢]\s*[。！!]?\s*$/.test(sentence)) continue;
     if (/(?:是否|能否|是不是|如何|怎么|如果|假设|例如|比如)|\b(?:how|whether|example|if)\b/i.test(sentence)) continue;
     const match = sentence.match(/(?:PR|pull request)\s*(?:#\d+\s*)?(?:成功\s*)?合并(?:完成)?(?:之)?后[，,\s]*(?:请|再|自动|就|帮我|将|把|这个|当前|该|本|的|\s)*(?:关闭\s*(?:这个|当前|该|本)?\s*issue|(?:这个|当前|该|本)?\s*issue\s*关闭)\s*(?:#\s*)?(\d+)?/i)
       ?? sentence.match(/after\s+(?:the\s+)?(?:PR|pull request)\s+(?:is\s+)?merged[,\s]+(?:please\s+)?(?:automatically\s+)?close\s+(?:this\s+|the\s+)?issue\s*(?:#\s*)?(\d+)?/i);
