@@ -13,7 +13,7 @@ aliases:
 
 ## DSA Kernel Design
 
-DeepSeek-V3.2 的 DSA 为每个 query 选择 2048 个 KV tokens，所有 query heads 共用这份索引和 MLA latent KV。[算法笔记](../../../Papers/01_Attention/DeepSeek-DSA/deepseek-v3-2-exp.md)
+DeepSeek-V3.2 的 DSA 为每个 query 选择 2048 个 KV tokens，所有 query heads 共用这份索引和 MLA latent KV。[算法笔记](../../Papers/01_Attention/DeepSeek-DSA/deepseek-v3-2-exp.md)
 
 FlashMLA 的 Hopper（SM90）sparse prefill 在提交 [`ba89a34`][revision] 中采用以下实现：
 
@@ -26,7 +26,7 @@ FlashMLA 的 Hopper（SM90）sparse prefill 在提交 [`ba89a34`][revision] 中�
 
 ![DSA CTA 内的硬件映射与缓冲区复用](images/dsa-hardware-mapping.svg)
 
-图：Hopper sparse prefill 的逻辑 tile 与 CTA 分工（自绘，[draw.io 源文件](https://github.com/KuangjuX/Papers-and-Learning-Notes/blob/main/Projects/01_Attention/FlashMLA/images/dsa-kernel-overview.drawio)）。(a) 每张 Q 薄片对应一个 query 的 64 个 heads。(b) WG0/WG1 分别对偶数/奇数 KV tile 做 QK 与 softmax，通过 SMEM 交换概率 tile 与最大值，分别累加输出的前/后 256 维；WG2 按特征区域的 ready/free barrier 加载和复用 KV buffer。(b) 的时间轴按源码依赖展开相邻两轮，WGMMA 条表示发射到对应 wait 的异步区间；条宽不代表实测耗时。实现依据：[FlashMLA ba89a34][kernel]。
+图：Hopper sparse prefill 的逻辑 tile 与 CTA 分工（自绘，[draw.io 源文件](https://github.com/KuangjuX/Papers-and-Learning-Notes/blob/main/Projects/FlashMLA/images/dsa-kernel-overview.drawio)）。(a) 每张 Q 薄片对应一个 query 的 64 个 heads。(b) WG0/WG1 分别对偶数/奇数 KV tile 做 QK 与 softmax，通过 SMEM 交换概率 tile 与最大值，分别累加输出的前/后 256 维；WG2 按特征区域的 ready/free barrier 加载和复用 KV buffer。(b) 的时间轴按源码依赖展开相邻两轮，WGMMA 条表示发射到对应 wait 的异步区间；条宽不代表实测耗时。实现依据：[FlashMLA ba89a34][kernel]。
 
 ## 公开性能数据
 

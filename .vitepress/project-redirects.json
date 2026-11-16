@@ -1,0 +1,119 @@
+{
+  "Projects/00_Inbox/index.md": {
+    "target": "Projects/index.md"
+  },
+  "Projects/01_Attention/FlashMLA/dsa-sparse-attention.md": {
+    "target": "Projects/FlashMLA/dsa-sparse-attention.md"
+  },
+  "Projects/01_Attention/index.md": {
+    "target": "Projects/index.md"
+  },
+  "Projects/02_Inference_and_KV_Cache/Light-DuoAttention/zhihu-reading.md": {
+    "target": "Projects/Light-DuoAttention/zhihu-reading.md"
+  },
+  "Projects/02_Inference_and_KV_Cache/SGLang/Disaggregation/index.md": {
+    "target": "Projects/SGLang/Disaggregation/index.md"
+  },
+  "Projects/02_Inference_and_KV_Cache/SGLang/Disaggregation/mooncake-gpu-source-lifetime.md": {
+    "target": "Projects/SGLang/Disaggregation/mooncake-gpu-source-lifetime.md"
+  },
+  "Projects/02_Inference_and_KV_Cache/SGLang/Layers/flashattention_backend.md": {
+    "target": "Projects/SGLang/Layers/flashattention_backend.md"
+  },
+  "Projects/02_Inference_and_KV_Cache/SGLang/WeLM-Sparse-Attention/index.md": {
+    "target": "Projects/SGLang/WeLM-Sparse-Attention/index.md"
+  },
+  "Projects/02_Inference_and_KV_Cache/SGLang/index.md": {
+    "target": "Projects/SGLang/index.md"
+  },
+  "Projects/02_Inference_and_KV_Cache/TileRT/zhihu-reading.md": {
+    "target": "Projects/TileRT/zhihu-reading.md"
+  },
+  "Projects/02_Inference_and_KV_Cache/index.md": {
+    "target": "Projects/index.md"
+  },
+  "Projects/03_Distributed_Training_and_MoE/DeepEP/overview.md": {
+    "target": "Projects/DeepEP/overview.md"
+  },
+  "Projects/03_Distributed_Training_and_MoE/DeepEP/zhihu-reading.md": {
+    "target": "Projects/DeepEP/zhihu-reading.md"
+  },
+  "Projects/03_Distributed_Training_and_MoE/index.md": {
+    "target": "Projects/index.md"
+  },
+  "Projects/04_GPU_Compiler_and_Performance/FractalTensor/index.md": {
+    "target": "Projects/FractalTensor/index.md"
+  },
+  "Projects/04_GPU_Compiler_and_Performance/InfiniTensor/index.md": {
+    "target": "Projects/InfiniTensor/index.md"
+  },
+  "Projects/04_GPU_Compiler_and_Performance/NNFusion/index.md": {
+    "target": "Projects/NNFusion/index.md"
+  },
+  "Projects/04_GPU_Compiler_and_Performance/ThunderKittens/index.md": {
+    "target": "Projects/ThunderKittens/index.md"
+  },
+  "Projects/04_GPU_Compiler_and_Performance/index.md": {
+    "target": "Projects/index.md"
+  },
+  "Projects/05_Model_Architecture_and_Reasoning/index.md": {
+    "target": "Projects/index.md"
+  },
+  "Projects/06_Computing_Foundations/ArceOS/index.md": {
+    "target": "Projects/ArceOS/index.md"
+  },
+  "Projects/06_Computing_Foundations/ArceOS/irq.md": {
+    "target": "Projects/ArceOS/irq.md"
+  },
+  "Projects/06_Computing_Foundations/ArceOS/smoltcp.md": {
+    "target": "Projects/ArceOS/smoltcp.md"
+  },
+  "Projects/06_Computing_Foundations/ArceOS/unikernel-build.md": {
+    "target": "Projects/ArceOS/unikernel-build.md"
+  },
+  "Projects/06_Computing_Foundations/QEMU/index.md": {
+    "target": "Projects/QEMU/index.md"
+  },
+  "Projects/06_Computing_Foundations/Xv6-RISC-V/KPTI.md": {
+    "target": "Projects/Xv6-RISC-V/KPTI.md"
+  },
+  "Projects/06_Computing_Foundations/Xv6-RISC-V/device.md": {
+    "target": "Projects/Xv6-RISC-V/device.md"
+  },
+  "Projects/06_Computing_Foundations/Xv6-RISC-V/index.md": {
+    "target": "Projects/Xv6-RISC-V/index.md"
+  },
+  "Projects/06_Computing_Foundations/Xv6-Rust/alloc.md": {
+    "target": "Projects/Xv6-Rust/alloc.md"
+  },
+  "Projects/06_Computing_Foundations/Xv6-Rust/boot.md": {
+    "target": "Projects/Xv6-Rust/boot.md"
+  },
+  "Projects/06_Computing_Foundations/Xv6-Rust/env.md": {
+    "target": "Projects/Xv6-Rust/env.md"
+  },
+  "Projects/06_Computing_Foundations/Xv6-Rust/index.md": {
+    "target": "Projects/Xv6-Rust/index.md"
+  },
+  "Projects/06_Computing_Foundations/Xv6-Rust/interrupt.md": {
+    "target": "Projects/Xv6-Rust/interrupt.md"
+  },
+  "Projects/06_Computing_Foundations/Xv6-Rust/lock.md": {
+    "target": "Projects/Xv6-Rust/lock.md"
+  },
+  "Projects/06_Computing_Foundations/Xv6-Rust/vm.md": {
+    "target": "Projects/Xv6-Rust/vm.md"
+  },
+  "Projects/06_Computing_Foundations/Xv6-Rust/xv6 文件系统.md": {
+    "target": "Projects/Xv6-Rust/xv6 文件系统.md"
+  },
+  "Projects/06_Computing_Foundations/Xv6-Rust/xv6-rust-design.md": {
+    "target": "Projects/Xv6-Rust/xv6-rust-design.md"
+  },
+  "Projects/06_Computing_Foundations/index.md": {
+    "target": "Projects/index.md"
+  },
+  "Projects/07_Books_and_Technical_References/index.md": {
+    "target": "Projects/index.md"
+  }
+}

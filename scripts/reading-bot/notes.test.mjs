@@ -425,3 +425,48 @@ test('updating an old PR publishes approved redirect data despite its old JSON i
   await assert.rejects(git(f.workspace, ['show', `${remote}:private.json`]));
   assert.equal(f.calls.create, 1); assert.equal(f.calls.updates, 1);
 });
+
+test('project archive gate repairs a legacy layout before review or publication', async t => {
+  let attempts = 0;
+  const old = 'Projects/02_Inference_and_KV_Cache/SGLang/MTP/verification.md';
+  const target = 'Projects/SGLang/MTP/verification.md';
+  const f = await fixture(t, { edit: async (directory, args) => {
+    attempts++;
+    const path = attempts === 1 ? old : target;
+    await mkdir(join(directory, path, '..'), { recursive: true });
+    if (attempts > 1) {
+      assert.ok(args.prompt.includes('项目归档检查未通过'));
+      await rm(join(directory, old));
+    }
+    await writeFile(join(directory, path), '# MTP verification\n\nImplementation with sources.\n');
+  } });
+  await f.run();
+  assert.equal(attempts, 2); assert.equal(f.calls.check, 1); assert.equal(f.calls.reviews, 1);
+  assert.equal(f.calls.create, 1);
+  assert.ok((await git(f.workspace, ['show', `${f.job.note.remoteCommit}:${target}`])).includes('MTP verification'));
+  await assert.rejects(git(f.workspace, ['show', `${f.job.note.remoteCommit}:${old}`]));
+});
+
+test('old PR JSON ignore rules cannot omit project redirects or publish invalid targets', async t => {
+  const f = await fixture(t, { ignoreJson: true }); await f.run();
+  delete f.job.note; f.job.id++;
+  const dataPath = '.vitepress/project-redirects.json';
+  const target = 'Projects/SGLang/MTP/verification.md';
+  const old = 'Projects/02_Inference_and_KV_Cache/SGLang/MTP/verification.md';
+  let attempts = 0;
+  f.notes.runner = async args => {
+    attempts++;
+    await mkdir(join(args.config.workspace, '.vitepress'), { recursive: true });
+    await mkdir(join(args.config.workspace, target, '..'), { recursive: true });
+    await writeFile(join(args.config.workspace, target), '# MTP verification\n');
+    const redirects = { [old]: { target: attempts === 1 ? 'https://example.com/' : target } };
+    await writeFile(join(args.config.workspace, dataPath), JSON.stringify(redirects));
+    await writeFile(join(args.config.workspace, 'private.json'), '{}');
+    return { text: 'Updated project topic.' };
+  };
+  await f.run();
+  assert.equal(attempts, 2); assert.equal(f.calls.create, 1); assert.equal(f.calls.updates, 1);
+  const remote = f.job.note.remoteCommit;
+  assert.deepEqual(JSON.parse(await git(f.workspace, ['show', `${remote}:${dataPath}`])), { [old]: { target } });
+  await assert.rejects(git(f.workspace, ['show', `${remote}:private.json`]));
+});

@@ -9,7 +9,7 @@ KPTI (Kernel Page Table Isolation) 机制最初的主要目的是为了缓解 KA
 - 内核态中的页表包括用户空间内存的页表和内核空间内存的页表。
 - 用户态的页表只包括用户空间内存的页表以及必要的内核空间内存的页表，如用于处理系统调用、中断等信息的内存。
 
-![](../../../Foundations/06_Computing_Foundations/Systems/OS/static/KPTI.png)
+![](../../Foundations/06_Computing_Foundations/Systems/OS/static/KPTI.png)
 
 简而言之，KPTI 机制通过在系统调用等由用户态陷入内核态的过程中切换页表，使得内核态不能直接访问用户态的虚拟内存和执行用户态的代码段来避免熔断安全漏洞。
 

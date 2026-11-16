@@ -6,7 +6,7 @@
 
 ## 归档入口
 
-先区分材料类型，再在每一类下面按主题归档。
+论文与基础按知识主题归档；项目按仓库名称分组，项目下再按功能或子系统组织。
 
 | 目录 | 保存内容 |
 | --- | --- |
@@ -16,10 +16,10 @@
 
 正文目录使用首字母大写的单词，并保留 SGLang、WeLM、CUDA、CUTLASS 等专名的大小写；文件名保留原写法。
 
-按以下主题组织：
+论文与基础按以下主题组织：
 
 ```text
-Papers/ | Projects/ | Foundations/
+Papers/ | Foundations/
 ├── 00_Inbox
 ├── 01_Attention
 ├── 02_Inference_and_KV_Cache
@@ -31,7 +31,23 @@ Papers/ | Projects/ | Foundations/
 └── 08_Quantization
 ```
 
-例如，FlashAttention-4 的论文标注放在 `Papers/01_Attention/`，SGLang 的源码分析放在 `Projects/02_Inference_and_KV_Cache/`，Attention 教程放在 `Foundations/01_Attention/`。课程在 `Foundations/07_Books_and_Technical_References/Courses/` 中保留章节与实验顺序。
+例如，FlashAttention-4 的论文标注放在 `Papers/01_Attention/`，SGLang 的源码分析放在 `Projects/SGLang/`，Attention 教程放在 `Foundations/01_Attention/`。课程在 `Foundations/07_Books_and_Technical_References/Courses/` 中保留章节与实验顺序。
+
+项目直接以仓库名称作为第一层，例如：
+
+```text
+Projects/
+├── SGLang/
+│   ├── Disaggregation/
+│   ├── Layers/
+│   └── WeLM-Sparse-Attention/
+├── FlashMLA/
+│   └── dsa-sparse-attention.md
+├── DeepEP/
+└── …
+```
+
+新主题在所属项目下扩展，例如 SGLang 的 MTP 放在 `Projects/SGLang/MTP/`，DeepGEMM 的实现分析放在 `Projects/DeepGEMM/`。有实际正文后再加入导航，不创建空白专题页；论文笔记仍归入 `Papers/`。
 
 <!-- paper-reading-list:start -->
 ## Paper 阅读清单
@@ -60,7 +76,7 @@ Papers/ | Projects/ | Foundations/
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
 | ✅ | <a id="pdf-gr8gnqvf"></a>**Quest: Query-Aware Sparsity for Efficient Long-Context LLM Inference** | [ICML'24](https://arxiv.org/pdf/2406.10774) | 根据当前 query 和 KV 页元数据选择重要页面，减少长上下文解码中的 KV 读取 | [Paper](https://arxiv.org/pdf/2406.10774) |
-| ✅ 📝 | **DuoAttention: Efficient Long-Context LLM Inference with Retrieval and Streaming Heads** | [ICLR'25](https://arxiv.org/pdf/2410.10819v1) | 区分 retrieval heads 与 streaming heads，为不同 head 分配不同 KV 保留策略 | [Paper](https://arxiv.org/pdf/2410.10819v1) / [Note](Projects/02_Inference_and_KV_Cache/Light-DuoAttention/zhihu-reading.md) |
+| ✅ 📝 | **DuoAttention: Efficient Long-Context LLM Inference with Retrieval and Streaming Heads** | [ICLR'25](https://arxiv.org/pdf/2410.10819v1) | 区分 retrieval heads 与 streaming heads，为不同 head 分配不同 KV 保留策略 | [Paper](https://arxiv.org/pdf/2410.10819v1) / [Note](Projects/Light-DuoAttention/zhihu-reading.md) |
 | ✅ | <a id="pdf-hzcjag36"></a>**MiniMax Sparse Attention** | [arXiv'26](https://arxiv.org/abs/2606.13392) | 按 GQA group 选择 KV 块并协同设计稀疏 kernel，将块级稀疏转化为长上下文加速 | [Paper](https://arxiv.org/abs/2606.13392) / [Note](Papers/01_Attention/MiniMax-MSA/minimax-sparse-attention.md) |
 | ✅ 📝 | <a id="pdf-xxevr2qa"></a>**IndexCache: Accelerating Sparse Attention via Cross-Layer Index Reuse** | [arXiv'26](https://arxiv.org/abs/2603.12201v1) | 跨层复用 Top-k 位置，用 LM-loss 搜索或多层 KL 蒸馏减少 indexer 计算，并区分索引缓存与主 KV 缓存 | [Paper](https://arxiv.org/abs/2603.12201v1) / [Note](Papers/01_Attention/IndexCache/indexcache.md) |
 | ⬜ 📝 | <a id="pdf-c7nbkgn7"></a>**SparDA: Sparse Decoupled Attention for Efficient Long-Context LLM Inference** | [arXiv'26](https://arxiv.org/abs/2606.04511v1) | 每个 GQA group 一个 Forecast head，提前一层选择 KV blocks，降低选择开销并重叠 CPU→GPU 预取 | [Paper](https://arxiv.org/abs/2606.04511v1) / [PDF](zotero://open-pdf/library/items/4LYAAACV) / [Zotero](zotero://select/library/items/C7NBKGN7) / [Note](Papers/01_Attention/SparDA/sparda.md) |
@@ -349,7 +365,7 @@ Papers/ | Projects/ | Foundations/
 | ✅ 📝 | **Look Ma, No Bubbles! Designing a Low-Latency Megakernel for Llama-1B** | [Blog'25](https://hazyresearch.stanford.edu/blog/2025-05-27-no-bubbles) | 以 Llama-1B 实例解释 megakernel 如何消除 kernel 边界气泡，并管理细粒度同步和共享内存 | [Paper](https://hazyresearch.stanford.edu/blog/2025-05-27-no-bubbles) / [Note](Papers/04_GPU_Compiler_and_Performance/Megakernels/look-ma-no-bubbles-designing-a-low-latency-megakernel-for-llama1b.md) |
 | ✅ 📝 | <a id="pdf-ys4nklly"></a>**MPK: A Compiler and Runtime for Mega-Kernelizing Tensor Programs** | [OSDI'26](https://www.usenix.org/conference/osdi26/presentation/cheng) | 将多 GPU 推理编译成 SM 级任务图，在持久化 kernel 内调度计算与通信以降低端到端延迟 | [Paper](https://www.usenix.org/conference/osdi26/presentation/cheng) / [Note](Papers/04_GPU_Compiler_and_Performance/MPK/mirage-persistent-kernel.md) |
 | ✅ 📝 | <a id="pdf-32ktjcln"></a>**Event Tensor: A Unified Abstraction for Compiling Dynamic Megakernel** | [MLSys'26](https://arxiv.org/abs/2604.13327) | 以 Event Tensor 统一 tile 任务依赖、动态形状和数据相关控制流，支持动态 megakernel 编译 | [Paper](https://arxiv.org/abs/2604.13327) / [Note](Papers/04_GPU_Compiler_and_Performance/Event-Tensor/event-tensor.md) |
-| ✅ 📝 | **TileRT: Tile-Based Runtime for Ultra-Low-Latency LLM Inference** | [GitHub project'25](https://github.com/tile-ai/TileRT) | 用 tile 级运行时重排并重叠计算、I/O 与跨设备通信，探索大模型低延迟推理的工程路径 | [Paper](https://github.com/tile-ai/TileRT) / [Note](Projects/02_Inference_and_KV_Cache/TileRT/zhihu-reading.md) |
+| ✅ 📝 | **TileRT: Tile-Based Runtime for Ultra-Low-Latency LLM Inference** | [GitHub project'25](https://github.com/tile-ai/TileRT) | 用 tile 级运行时重排并重叠计算、I/O 与跨设备通信，探索大模型低延迟推理的工程路径 | [Paper](https://github.com/tile-ai/TileRT) / [Note](Projects/TileRT/zhihu-reading.md) |
 | ✅ | **Compiling LLMs into a MegaKernel: A Path to Low-Latency Inference** | [Blog](https://zhihaojia.medium.com/compiling-llms-into-a-megakernel-a-path-to-low-latency-inference-cf7840913c17) | 从编译器和运行时角度解释全模型 megakernel，连接任务依赖、跨算子调度与低延迟推理 | [Paper](https://zhihaojia.medium.com/compiling-llms-into-a-megakernel-a-path-to-low-latency-inference-cf7840913c17) |
 | ⬜ | **Ada-MK: Adaptive MegaKernel Optimization via Automated DAG-based Search for LLM Inference** | [arXiv'26](https://arxiv.org/abs/2605.11581) | 用离线 DAG 搜索固定 megakernel 执行路径，减少资源受限 GPU 上动态调度和共享内存开销 | [Paper](https://arxiv.org/abs/2605.11581) |
 | ⬜ | <a id="pdf-a8tkxuy6"></a>**ClusterFusion: Expanding Operator Fusion Scope for LLM Inference via Cluster-Level Collective Primitive** | arXiv · 2025 | 标签：GPU 编译与性能优化 | [Paper](http://arxiv.org/abs/2508.18850) / [PDF](zotero://open-pdf/library/items/B4555BYV) / [Zotero](zotero://select/library/items/A8TKXUY6) |

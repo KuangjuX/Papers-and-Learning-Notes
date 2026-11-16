@@ -16,7 +16,8 @@
     "docs:check-sidebar": "node scripts/check-sidebar.mjs",
     "docs:check-translations": "python3 scripts/check-imported-translations.py",
     "docs:check-translation-rendering": "node scripts/check-translation-rendering.mjs",
-    "docs:check-paper-notes": "node scripts/check-paper-notes.mjs"
+    "docs:check-paper-notes": "node scripts/check-paper-notes.mjs",
+    "docs:check-project-notes": "node scripts/check-project-notes.mjs"
   },
   "devDependencies": {
     "dompurify": "^3.4.14",

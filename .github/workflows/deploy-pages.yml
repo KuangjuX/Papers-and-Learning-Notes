@@ -56,6 +56,9 @@ jobs:
       - name: Verify unique paper filenames
         run: pnpm docs:check-paper-notes
 
+      - name: Verify project archive
+        run: pnpm docs:check-project-notes
+
       - name: Verify local links
         run: pnpm docs:check-links
 
