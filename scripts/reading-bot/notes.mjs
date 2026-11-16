@@ -273,7 +273,7 @@ export class Notes {
           await saveJson(join(note.directory, 'candidate.json'), candidate);
           note.stage = 'validated'; await save();
         } catch (error) {
-          if (signal?.aborted || !error.publicMessage) throw error;
+          if (signal?.aborted || !error.publicMessage || error.repairable === false) throw error;
           if ((note.repairs ?? 0) >= 2) throw new NoteError('自动修订后检查仍未通过；未发布变更，差异和复核日志已保留在独立工作区。');
           note.feedback = `${error.publicMessage}\n检查日志位于 ${note.directory}/check-*.log。读取失败日志，修复正文或公式，不得修改检查脚本、降低检查要求或绕过规范。`;
           note.repairs = (note.repairs ?? 0) + 1; note.stage = 'prepared'; await save();

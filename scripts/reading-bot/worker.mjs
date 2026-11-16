@@ -111,9 +111,17 @@ export class Worker {
       job.status = 'running'; job.attempts++; await this.save();
       try {
         job.answer = await this.notes.run({ issue, comments: await this.github.issueComments(job.issue), job, save: () => this.save(), signal });
+        delete job.noteExecutionFailures;
       } catch (error) {
-        if (signal?.aborted || !error.publicMessage) { job.status = 'queued'; await this.save(); throw error; }
-        job.answer = error.publicMessage;
+        if (signal?.aborted) { job.status = 'queued'; await this.save(); throw error; }
+        if (error.publicMessage) job.answer = error.publicMessage;
+        else {
+          // Timeouts and unexpected execution errors must not rerun expensive
+          // editing/checking forever. Persist the budget across service restarts.
+          job.noteExecutionFailures = (job.noteExecutionFailures ?? 0) + 1;
+          if (job.noteExecutionFailures < 3) { job.status = 'queued'; await this.save(); throw error; }
+          job.answer = '笔记任务自动执行连续 3 次失败，已停止重复执行；已有草稿、检查日志及发布状态均已保留。';
+        }
       }
     } else if (job.request.reset) {
       delete this.state.threads[job.issue];

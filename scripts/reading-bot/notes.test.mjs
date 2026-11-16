@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { Notes, NoteError, allowedNotePath, collectChanges, git, noteMarker, pullBody } from './notes.mjs';
 import { parseMention, readJson, saveJson, buildPrompt } from './core.mjs';
 import { codexArgs } from './codex.mjs';
-import { AUTHORING_FILES, loadAuthoringContext, parseReview } from './authoring.mjs';
+import { AUTHORING_FILES, loadAuthoringContext, parseReview, reviewNotes } from './authoring.mjs';
 import { Worker } from './worker.mjs';
 
 const notePath = 'Papers/01_Attention/Paper/paper.md';
@@ -290,6 +290,51 @@ test('persistent skill violations never publish', async t => {
   assert.equal(f.calls.run, 3); assert.equal(f.calls.create, 0); assert.equal(f.calls.refs, 0);
 });
 
+test('structured review findings reach the editor before publication', async t => {
+  const finding = { file: 'Projects/CuDNN/qsa-backward.md:121-125,162',
+    problem: 'TileLang 的实现比较引用浮动 main 分支', required_change: '将引用改为核查过的固定 SHA 链接。' };
+  const f = await fixture(t, { review: async (args, n) => parseReview(JSON.stringify(n === 1
+    ? { approved: false, findings: [finding] } : { approved: true, findings: [] })) });
+  await f.run();
+  assert.equal(f.calls.run, 2); assert.equal(f.calls.reviews, 2); assert.equal(f.calls.create, 1);
+  assert.equal(f.job.note.repairs, 1);
+  for (const value of Object.values(finding)) assert.ok(f.job.note.feedback.includes(value));
+});
+
+test('malformed review output is retried finitely without editing or publishing', async t => {
+  const directories = [];
+  const f = await fixture(t, { review: args => reviewNotes(args, { runner: async ({ directory, prompt }) => {
+    directories.push(directory);
+    assert.ok(prompt.includes('字符串数组'));
+    return { text: '{"approved":true,"findings":[{"problem":"do not approve"}]}' };
+  } }) });
+  const trigger = { id: f.job.id, body: '@reader /note 整理', user: { id: 42, type: 'User' } };
+  const replies = [];
+  const worker = new Worker(f.config, { notes: f.notes, github: {
+    issue: async () => f.issue, comment: async () => trigger, issueComments: async () => [],
+    createReply: async () => ({ id: 2001 }), updateReply: async (id, body) => replies.push(body),
+  } });
+  await worker.load();
+  const job = { ...f.job, body: trigger.body, status: 'queued' }; worker.state.jobs[job.id] = job;
+  await worker.process(job);
+  assert.equal(directories.length, 3); assert.equal(new Set(directories).size, 3);
+  assert.equal(f.calls.run, 1); assert.equal(f.calls.check, 1); assert.equal(f.calls.create, 0);
+  assert.equal(job.status, 'done'); assert.ok(job.answer.includes('格式'));
+  assert.equal(job.note.repairs, undefined); assert.equal(worker.pending().length, 0);
+  assert.ok(replies.at(-1).includes('未发布'));
+});
+
+test('review format retry can recover, while runner failures remain transient', async () => {
+  const args = { config: {}, note: { directory: '/private/note', base: 'base' }, job: { attempts: 1, request: { question: '整理' } },
+    authoring: { text: 'rules' }, contextPath: '/private/discussion', files: [] };
+  let calls = 0;
+  assert.deepEqual(await reviewNotes(args, { runner: async () => ({ text: ++calls === 1 ? 'not JSON' : '{"approved":true,"findings":[]}' }) }),
+    { approved: true, findings: [] });
+  assert.equal(calls, 2);
+  const networkError = new TypeError('fetch failed');
+  await assert.rejects(reviewNotes(args, { runner: async () => { throw networkError; } }), error => error === networkError);
+});
+
 test('repairable check failure is fixed and rechecked automatically', async t => {
   let checks = 0;
   const f = await fixture(t, { check: async () => { if (++checks === 1) throw new NoteError('math failed'); } });
@@ -309,7 +354,16 @@ test('every request reloads complete authoring rules; missing rules fail closed'
 
 test('review parser rejects malformed or contradictory approval', () => {
   assert.deepEqual(parseReview('```json\n{"approved":true,"findings":[]}\n```'), { approved: true, findings: [] });
-  for (const text of ['OK', '{}', '{"approved":true,"findings":["bad"]}', '{"approved":false,"findings":[]}']) assert.throws(() => parseReview(text));
+  for (const text of ['OK', 'null', '[]', '{}', '{"approved":true,"findings":["bad"]}', '{"approved":false,"findings":[]}',
+    '{"approved":false,"findings":[{}]}', '{"approved":false,"findings":[{"file":"a","problem":"b"}]}']) assert.throws(() => parseReview(text));
+  for (const key of ['required_change', 'required_fix', 'correction']) {
+    assert.deepEqual(parseReview(JSON.stringify({ approved: false, findings: [{ file: 'a.md', lines: '1–2', problem: 'bad', [key]: 'fix' }, 'keep'] })),
+      { approved: false, findings: ['a.md:1–2：bad\n修正要求：fix', 'keep'] });
+  }
+  assert.deepEqual(parseReview(JSON.stringify({ approved: false, findings: [
+    { file: 'a.md', issue: 'stale index', 修正要求: 'update description' },
+    { files: ['a.md', 'b.md'], problem: 'stale entries', required_change: 'update both' },
+  ] })), { approved: false, findings: ['a.md：stale index\n修正要求：update description', 'a.md；b.md：stale entries\n修正要求：update both'] });
 });
 
 test('no-op note work and closed Issues do not create PRs', async t => {
@@ -344,6 +398,41 @@ test('worker routes explicit note jobs separately and retains transient publicat
   await assert.rejects(worker.process(job)); assert.equal(job.status, 'queued');
   await worker.process(job); assert.equal(job.status, 'done'); assert.equal(job.answer, 'PR created');
   assert.deepEqual(worker.state.threads, {});
+});
+
+test('repeated note execution failures stop across restarts without leaking errors', async t => {
+  const f = await fixture(t);
+  const trigger = { id: f.job.id, body: '@reader /note 整理', user: { id: 42, type: 'User' } };
+  let runs = 0;
+  const replies = [];
+  const deps = { github: { issue: async () => f.issue, comment: async () => trigger, issueComments: async () => [],
+    createReply: async () => ({ id: 2001 }), updateReply: async (id, body) => replies.push(body) },
+    notes: { run: async () => { runs++; throw new Error('private execution failure'); } } };
+  let worker = new Worker(f.config, deps); await worker.load();
+  const job = { ...f.job, body: trigger.body, status: 'queued' }; worker.state.jobs[job.id] = job;
+  await assert.rejects(worker.process(job));
+  await assert.rejects(worker.process(job));
+  assert.equal(replies.length, 0);
+  worker = new Worker(f.config, deps); await worker.load();
+  const restored = worker.state.jobs[job.id];
+  await worker.process(restored);
+  assert.equal(runs, 3); assert.equal(restored.status, 'done'); assert.equal(worker.pending().length, 0);
+  assert.equal(replies.length, 1); assert.ok(!replies[0].includes('private execution failure'));
+  assert.equal(restored.noteExecutionFailures, 3);
+});
+
+test('service shutdown does not consume note execution retries', async t => {
+  const f = await fixture(t);
+  const trigger = { id: f.job.id, body: '@reader /note 整理', user: { id: 42, type: 'User' } };
+  const controller = new AbortController();
+  const worker = new Worker(f.config, { github: {
+    issue: async () => f.issue, comment: async () => trigger, issueComments: async () => [],
+    createReply: async () => ({ id: 2001 }),
+  }, notes: { run: async () => { controller.abort(); throw new Error('interrupted'); } } });
+  await worker.load();
+  const job = { ...f.job, body: trigger.body, status: 'queued', noteExecutionFailures: 2 }; worker.state.jobs[job.id] = job;
+  await assert.rejects(worker.process(job, controller.signal));
+  assert.equal(job.status, 'queued'); assert.equal(job.noteExecutionFailures, 2);
 });
 
 test('a concurrent remote commit during the update request is rejected without force', async t => {
