@@ -6,6 +6,7 @@
 - [HIDA: A Hierarchical Dataflow Compiler for High-Level Synthesis](HIDA/hida.md)
 - [MLIR: Scaling Compiler Infrastructure for Domain Specifific Computation](Papers/mlir.md)
 - [The Deep Learning Compiler: A Comprehensive Survey](Papers/the-deep-learning-compiler.md)
+- [The Tensor Algebra Compiler](TACO/the-tensor-algebra-compiler.md)
 - [Tiramisu: A Polyhedral Compiler for Expressing Fast and Portable Code](TIRAMISU-CGO/tiramisu.md)
 
 ## 编译优化与调度
