@@ -4,10 +4,11 @@
 
 训练系统、并行策略、专家路由、通信计算重叠与训练数值。
 
-共 55 个清单条目；已读 8，待读 47。
+共 56 个清单条目；已读 9，待读 47。
 
 ## 本地笔记
 
+- [Zero-SM NCCL: A Systematic Guide to Designing and Deploying SM-Free GPU Communication](Zero-SM-NCCL/zero-sm-nccl.md)
 - [FlashNext-RL: A System Optimization Study for Long-Horizon Agentic RL of Qwen3.8-Flash-Next](FlashNext-RL/flashnext-rl.md)
 - [Efficient LLM Training Survey：训练数据、checkpoint 与存储系统分工](Efficient-LLM-Training-Survey/efficient-training-of-large-language-models-on-distributed-infrastructures.md)
 - [MegaMoE](MegaMoE/megamoe.md)
@@ -85,6 +86,7 @@
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
+| ✅ 📝 | **Zero-SM NCCL: A Systematic Guide to Designing and Deploying SM-Free GPU Communication** | [arXiv'26](https://arxiv.org/abs/2611.18075v1) | 将搬运与同步移出 SM，分析 FSDP 与流水线并行的端到端收益及部署边界 | [Paper](https://arxiv.org/abs/2611.18075v1) / [Note](Zero-SM-NCCL/zero-sm-nccl.md) |
 | ✅ | **Flux: Fast Software-based Communication Overlap on GPUs through Kernel Fusion** | [arXiv'24](https://arxiv.org/abs/2406.06858) | 将通信融入 GEMM 内核并按 tile 细粒度重叠，降低张量并行的暴露通信耗时 | [Paper](https://arxiv.org/pdf/2406.06858v1) |
 | ✅ | **DeepEP: An Efficient Expert-Parallel Communication Library** | [GitHub'25（开源库）](https://github.com/deepseek-ai/DeepEP) | 提供面向 MoE token dispatch/combine 的高吞吐与低延迟专家并行通信实现 | [Paper](https://github.com/deepseek-ai/DeepEP) |
 | ⬜ | **Centauri: Enabling Efficient Scheduling for Communication-Computation Overlap in Large Model Training via Communication Partitioning** | [ASPLOS'24](https://www.asplos-conference.org/asplos2024/main-program/abstracts/) | 通过通信分区和分层调度扩大重叠空间，协调大模型训练中的通信与计算资源 | [Paper](https://dl.acm.org/doi/pdf/10.1145/3620666.3651379) |

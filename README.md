@@ -52,7 +52,7 @@ Projects/
 <!-- paper-reading-list:start -->
 ## Paper 阅读清单
 
-共 **347 个分类条目**：已读 81，待读 266。
+共 **348 个分类条目**：已读 82，待读 266。
 
 ✅ 已读 · ⬜ 待读 · 📝 有笔记。
 
@@ -61,7 +61,7 @@ Projects/
 | [待分类](Papers/00_Inbox/index.md) | 0 | 0 | 0 |
 | [Attention](Papers/01_Attention/index.md) | 44 | 16 | 28 |
 | [推理与 KV Cache](Papers/02_Inference_and_KV_Cache/index.md) | 48 | 8 | 40 |
-| [分布式训练与 MoE](Papers/03_Distributed_Training_and_MoE/index.md) | 55 | 8 | 47 |
+| [分布式训练与 MoE](Papers/03_Distributed_Training_and_MoE/index.md) | 56 | 9 | 47 |
 | [GPU 编译与性能](Papers/04_GPU_Compiler_and_Performance/index.md) | 64 | 30 | 34 |
 | [模型架构与推理能力](Papers/05_Model_Architecture_and_Reasoning/index.md) | 108 | 4 | 104 |
 | [计算基础](Papers/06_Computing_Foundations/index.md) | 18 | 15 | 3 |
@@ -221,7 +221,7 @@ Projects/
 </details>
 
 <details>
-<summary>分布式训练与 MoE（55 篇；已读 8，待读 47）</summary>
+<summary>分布式训练与 MoE（56 篇；已读 9，待读 47）</summary>
 
 ### LLM Inference / MegaKernel
 
@@ -291,6 +291,7 @@ Projects/
 
 | Status | Paper | Venue | Why It Matters | Links |
 |:------:|-------|-------|----------------|-------|
+| ✅ 📝 | **Zero-SM NCCL: A Systematic Guide to Designing and Deploying SM-Free GPU Communication** | [arXiv'26](https://arxiv.org/abs/2611.18075v1) | 将搬运与同步移出 SM，分析 FSDP 与流水线并行的端到端收益及部署边界 | [Paper](https://arxiv.org/abs/2611.18075v1) / [Note](Papers/03_Distributed_Training_and_MoE/Zero-SM-NCCL/zero-sm-nccl.md) |
 | ✅ | **Flux: Fast Software-based Communication Overlap on GPUs through Kernel Fusion** | [arXiv'24](https://arxiv.org/abs/2406.06858) | 将通信融入 GEMM 内核并按 tile 细粒度重叠，降低张量并行的暴露通信耗时 | [Paper](https://arxiv.org/pdf/2406.06858v1) |
 | ✅ | **DeepEP: An Efficient Expert-Parallel Communication Library** | [GitHub'25（开源库）](https://github.com/deepseek-ai/DeepEP) | 提供面向 MoE token dispatch/combine 的高吞吐与低延迟专家并行通信实现 | [Paper](https://github.com/deepseek-ai/DeepEP) |
 | ⬜ | **Centauri: Enabling Efficient Scheduling for Communication-Computation Overlap in Large Model Training via Communication Partitioning** | [ASPLOS'24](https://www.asplos-conference.org/asplos2024/main-program/abstracts/) | 通过通信分区和分层调度扩大重叠空间，协调大模型训练中的通信与计算资源 | [Paper](https://dl.acm.org/doi/pdf/10.1145/3620666.3651379) |

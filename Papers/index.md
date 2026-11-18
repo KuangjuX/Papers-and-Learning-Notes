@@ -1,6 +1,6 @@
 # 论文归档
 
-共 **347 个分类条目**：已读 81，待读 266。
+共 **348 个分类条目**：已读 82，待读 266。
 
 按研究主题保存论文阅读笔记和论文清单；源码实践见[项目归档](../Projects/index.md)，原理和课程见[基础归档](../Foundations/index.md)。
 
@@ -11,7 +11,7 @@
 | [待分类](00_Inbox/index.md) | 0 | 0 | 0 |
 | [Attention](01_Attention/index.md) | 44 | 16 | 28 |
 | [推理与 KV Cache](02_Inference_and_KV_Cache/index.md) | 48 | 8 | 40 |
-| [分布式训练与 MoE](03_Distributed_Training_and_MoE/index.md) | 55 | 8 | 47 |
+| [分布式训练与 MoE](03_Distributed_Training_and_MoE/index.md) | 56 | 9 | 47 |
 | [GPU 编译与性能](04_GPU_Compiler_and_Performance/index.md) | 64 | 30 | 34 |
 | [模型架构与推理能力](05_Model_Architecture_and_Reasoning/index.md) | 108 | 4 | 104 |
 | [计算基础](06_Computing_Foundations/index.md) | 18 | 15 | 3 |
