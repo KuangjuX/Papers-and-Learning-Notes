@@ -26,6 +26,7 @@
 
 ### 分布式训练与 MoE
 
+- [Zero-SM NCCL: A Systematic Guide to Designing and Deploying SM-Free GPU Communication](Papers/03_Distributed_Training_and_MoE/Zero-SM-NCCL/zero-sm-nccl.md)
 - [FlashNext-RL: A System Optimization Study for Long-Horizon Agentic RL of Qwen3.8-Flash-Next](Papers/03_Distributed_Training_and_MoE/FlashNext-RL/flashnext-rl.md)
 - [MegaMoE](Papers/03_Distributed_Training_and_MoE/MegaMoE/megamoe.md)
 - [PithTrain: A Compact and Agent-Native MoE Training System](Papers/03_Distributed_Training_and_MoE/PithTrain/pithtrain.md)
